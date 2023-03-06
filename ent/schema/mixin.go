@@ -5,11 +5,12 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/mixin"
 	"github.com/oklog/ulid/v2"
 )
 
 type TimeMixin struct {
-	ent.Mixin
+	mixin.Schema
 }
 
 func (TimeMixin) Fields() []ent.Field {
@@ -20,7 +21,7 @@ func (TimeMixin) Fields() []ent.Field {
 }
 
 type UUIDMixin struct {
-	ent.Mixin
+	mixin.Schema
 }
 
 func (UUIDMixin) Fields() []ent.Field {

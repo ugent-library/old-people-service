@@ -2,6 +2,8 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 )
@@ -9,6 +11,12 @@ import (
 // Person holds the schema definition for the Person entity.
 type Person struct {
 	ent.Schema
+}
+
+func (Person) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "person"},
+	}
 }
 
 // Fields of the Person.

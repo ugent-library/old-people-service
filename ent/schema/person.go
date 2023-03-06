@@ -3,6 +3,7 @@ package schema
 import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 // Person holds the schema definition for the Person entity.
@@ -93,4 +94,17 @@ func (Person) Mixin() []ent.Mixin {
 // Edges of the Person.
 func (Person) Edges() []ent.Edge {
 	return nil
+}
+
+func (Person) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("active"),
+		index.Fields("orcid_id"),
+		index.Fields("ugent_id"),
+		index.Fields("ugent_username"),
+		index.Fields("email"),
+		index.Fields("first_name"),
+		index.Fields("last_name"),
+		index.Fields("publication_count"),
+	}
 }

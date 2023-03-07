@@ -1,0 +1,3 @@
+host = "localhost"
+port = "5432"
+db = "postgres://biblio:biblio@localhost:5432/authority?sslmode=disable"

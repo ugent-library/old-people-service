@@ -15,3 +15,12 @@
 # vendor/
 
 .DS_Store
+
+node_modules
+!.gitkeep
+
+# Live reloading
+.reflex.conf
+
+# Config
+people.toml

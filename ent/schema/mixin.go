@@ -13,10 +13,14 @@ type TimeMixin struct {
 	mixin.Schema
 }
 
+var timeUTC = func() time.Time {
+	return time.Now().UTC()
+}
+
 func (TimeMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.Time("date_created").Default(time.Now).Immutable(),
-		field.Time("date_updated").Default(time.Now).UpdateDefault(time.Now),
+		field.Time("date_created").Default(timeUTC).Immutable(),
+		field.Time("date_updated").Default(timeUTC).UpdateDefault(timeUTC),
 	}
 }
 

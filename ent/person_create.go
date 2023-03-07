@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people/ent/person"
+	"github.com/ugent-library/people/ent/schema"
 )
 
 // PersonCreate is the builder for creating a Person entity.
@@ -49,16 +50,8 @@ func (pc *PersonCreate) SetNillableDateUpdated(t *time.Time) *PersonCreate {
 }
 
 // SetObjectClass sets the "object_class" field.
-func (pc *PersonCreate) SetObjectClass(s string) *PersonCreate {
+func (pc *PersonCreate) SetObjectClass(s []string) *PersonCreate {
 	pc.mutation.SetObjectClass(s)
-	return pc
-}
-
-// SetNillableObjectClass sets the "object_class" field if the given value is not nil.
-func (pc *PersonCreate) SetNillableObjectClass(s *string) *PersonCreate {
-	if s != nil {
-		pc.SetObjectClass(*s)
-	}
 	return pc
 }
 
@@ -148,20 +141,6 @@ func (pc *PersonCreate) SetEmail(s string) *PersonCreate {
 func (pc *PersonCreate) SetNillableEmail(s *string) *PersonCreate {
 	if s != nil {
 		pc.SetEmail(*s)
-	}
-	return pc
-}
-
-// SetGender sets the "gender" field.
-func (pc *PersonCreate) SetGender(pe person.Gender) *PersonCreate {
-	pc.mutation.SetGender(pe)
-	return pc
-}
-
-// SetNillableGender sets the "gender" field if the given value is not nil.
-func (pc *PersonCreate) SetNillableGender(pe *person.Gender) *PersonCreate {
-	if pe != nil {
-		pc.SetGender(*pe)
 	}
 	return pc
 }
@@ -525,8 +504,16 @@ func (pc *PersonCreate) SetNillableOrcidID(s *string) *PersonCreate {
 }
 
 // SetOrcidSettings sets the "orcid_settings" field.
-func (pc *PersonCreate) SetOrcidSettings(m map[string]interface{}) *PersonCreate {
-	pc.mutation.SetOrcidSettings(m)
+func (pc *PersonCreate) SetOrcidSettings(ss schema.OrcidSettings) *PersonCreate {
+	pc.mutation.SetOrcidSettings(ss)
+	return pc
+}
+
+// SetNillableOrcidSettings sets the "orcid_settings" field if the given value is not nil.
+func (pc *PersonCreate) SetNillableOrcidSettings(ss *schema.OrcidSettings) *PersonCreate {
+	if ss != nil {
+		pc.SetOrcidSettings(*ss)
+	}
 	return pc
 }
 
@@ -545,15 +532,15 @@ func (pc *PersonCreate) SetNillableOrcidToken(s *string) *PersonCreate {
 }
 
 // SetOrcidVerify sets the "orcid_verify" field.
-func (pc *PersonCreate) SetOrcidVerify(s string) *PersonCreate {
-	pc.mutation.SetOrcidVerify(s)
+func (pc *PersonCreate) SetOrcidVerify(sv schema.OrcidVerify) *PersonCreate {
+	pc.mutation.SetOrcidVerify(sv)
 	return pc
 }
 
 // SetNillableOrcidVerify sets the "orcid_verify" field if the given value is not nil.
-func (pc *PersonCreate) SetNillableOrcidVerify(s *string) *PersonCreate {
-	if s != nil {
-		pc.SetOrcidVerify(*s)
+func (pc *PersonCreate) SetNillableOrcidVerify(sv *schema.OrcidVerify) *PersonCreate {
+	if sv != nil {
+		pc.SetOrcidVerify(*sv)
 	}
 	return pc
 }
@@ -587,8 +574,16 @@ func (pc *PersonCreate) SetNillableDeleted(b *bool) *PersonCreate {
 }
 
 // SetSettings sets the "settings" field.
-func (pc *PersonCreate) SetSettings(m map[string]interface{}) *PersonCreate {
-	pc.mutation.SetSettings(m)
+func (pc *PersonCreate) SetSettings(s schema.Settings) *PersonCreate {
+	pc.mutation.SetSettings(s)
+	return pc
+}
+
+// SetNillableSettings sets the "settings" field if the given value is not nil.
+func (pc *PersonCreate) SetNillableSettings(s *schema.Settings) *PersonCreate {
+	if s != nil {
+		pc.SetSettings(*s)
+	}
 	return pc
 }
 
@@ -763,11 +758,6 @@ func (pc *PersonCreate) check() error {
 	if _, ok := pc.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Person.date_updated"`)}
 	}
-	if v, ok := pc.mutation.Gender(); ok {
-		if err := person.GenderValidator(v); err != nil {
-			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Person.gender": %w`, err)}
-		}
-	}
 	if _, ok := pc.mutation.Active(); !ok {
 		return &ValidationError{Name: "active", err: errors.New(`ent: missing required field "Person.active"`)}
 	}
@@ -818,7 +808,7 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 		_node.DateUpdated = value
 	}
 	if value, ok := pc.mutation.ObjectClass(); ok {
-		_spec.SetField(person.FieldObjectClass, field.TypeString, value)
+		_spec.SetField(person.FieldObjectClass, field.TypeJSON, value)
 		_node.ObjectClass = value
 	}
 	if value, ok := pc.mutation.UgentUsername(); ok {
@@ -848,10 +838,6 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.Email(); ok {
 		_spec.SetField(person.FieldEmail, field.TypeString, value)
 		_node.Email = value
-	}
-	if value, ok := pc.mutation.Gender(); ok {
-		_spec.SetField(person.FieldGender, field.TypeEnum, value)
-		_node.Gender = value
 	}
 	if value, ok := pc.mutation.Nationality(); ok {
 		_spec.SetField(person.FieldNationality, field.TypeString, value)
@@ -994,7 +980,7 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 		_node.OrcidToken = value
 	}
 	if value, ok := pc.mutation.OrcidVerify(); ok {
-		_spec.SetField(person.FieldOrcidVerify, field.TypeString, value)
+		_spec.SetField(person.FieldOrcidVerify, field.TypeJSON, value)
 		_node.OrcidVerify = value
 	}
 	if value, ok := pc.mutation.Active(); ok {

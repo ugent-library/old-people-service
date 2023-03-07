@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/predicate"
+	"github.com/ugent-library/people/ent/schema"
 )
 
 // PersonUpdate is the builder for updating Person entities.
@@ -36,16 +37,14 @@ func (pu *PersonUpdate) SetDateUpdated(t time.Time) *PersonUpdate {
 }
 
 // SetObjectClass sets the "object_class" field.
-func (pu *PersonUpdate) SetObjectClass(s string) *PersonUpdate {
+func (pu *PersonUpdate) SetObjectClass(s []string) *PersonUpdate {
 	pu.mutation.SetObjectClass(s)
 	return pu
 }
 
-// SetNillableObjectClass sets the "object_class" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableObjectClass(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetObjectClass(*s)
-	}
+// AppendObjectClass appends s to the "object_class" field.
+func (pu *PersonUpdate) AppendObjectClass(s []string) *PersonUpdate {
+	pu.mutation.AppendObjectClass(s)
 	return pu
 }
 
@@ -190,26 +189,6 @@ func (pu *PersonUpdate) SetNillableEmail(s *string) *PersonUpdate {
 // ClearEmail clears the value of the "email" field.
 func (pu *PersonUpdate) ClearEmail() *PersonUpdate {
 	pu.mutation.ClearEmail()
-	return pu
-}
-
-// SetGender sets the "gender" field.
-func (pu *PersonUpdate) SetGender(pe person.Gender) *PersonUpdate {
-	pu.mutation.SetGender(pe)
-	return pu
-}
-
-// SetNillableGender sets the "gender" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableGender(pe *person.Gender) *PersonUpdate {
-	if pe != nil {
-		pu.SetGender(*pe)
-	}
-	return pu
-}
-
-// ClearGender clears the value of the "gender" field.
-func (pu *PersonUpdate) ClearGender() *PersonUpdate {
-	pu.mutation.ClearGender()
 	return pu
 }
 
@@ -848,8 +827,16 @@ func (pu *PersonUpdate) ClearOrcidID() *PersonUpdate {
 }
 
 // SetOrcidSettings sets the "orcid_settings" field.
-func (pu *PersonUpdate) SetOrcidSettings(m map[string]interface{}) *PersonUpdate {
-	pu.mutation.SetOrcidSettings(m)
+func (pu *PersonUpdate) SetOrcidSettings(ss schema.OrcidSettings) *PersonUpdate {
+	pu.mutation.SetOrcidSettings(ss)
+	return pu
+}
+
+// SetNillableOrcidSettings sets the "orcid_settings" field if the given value is not nil.
+func (pu *PersonUpdate) SetNillableOrcidSettings(ss *schema.OrcidSettings) *PersonUpdate {
+	if ss != nil {
+		pu.SetOrcidSettings(*ss)
+	}
 	return pu
 }
 
@@ -880,15 +867,15 @@ func (pu *PersonUpdate) ClearOrcidToken() *PersonUpdate {
 }
 
 // SetOrcidVerify sets the "orcid_verify" field.
-func (pu *PersonUpdate) SetOrcidVerify(s string) *PersonUpdate {
-	pu.mutation.SetOrcidVerify(s)
+func (pu *PersonUpdate) SetOrcidVerify(sv schema.OrcidVerify) *PersonUpdate {
+	pu.mutation.SetOrcidVerify(sv)
 	return pu
 }
 
 // SetNillableOrcidVerify sets the "orcid_verify" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableOrcidVerify(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetOrcidVerify(*s)
+func (pu *PersonUpdate) SetNillableOrcidVerify(sv *schema.OrcidVerify) *PersonUpdate {
+	if sv != nil {
+		pu.SetOrcidVerify(*sv)
 	}
 	return pu
 }
@@ -928,8 +915,16 @@ func (pu *PersonUpdate) SetNillableDeleted(b *bool) *PersonUpdate {
 }
 
 // SetSettings sets the "settings" field.
-func (pu *PersonUpdate) SetSettings(m map[string]interface{}) *PersonUpdate {
-	pu.mutation.SetSettings(m)
+func (pu *PersonUpdate) SetSettings(s schema.Settings) *PersonUpdate {
+	pu.mutation.SetSettings(s)
+	return pu
+}
+
+// SetNillableSettings sets the "settings" field if the given value is not nil.
+func (pu *PersonUpdate) SetNillableSettings(s *schema.Settings) *PersonUpdate {
+	if s != nil {
+		pu.SetSettings(*s)
+	}
 	return pu
 }
 
@@ -1141,20 +1136,7 @@ func (pu *PersonUpdate) defaults() {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (pu *PersonUpdate) check() error {
-	if v, ok := pu.mutation.Gender(); ok {
-		if err := person.GenderValidator(v); err != nil {
-			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Person.gender": %w`, err)}
-		}
-	}
-	return nil
-}
-
 func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := pu.check(); err != nil {
-		return n, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(person.Table, person.Columns, sqlgraph.NewFieldSpec(person.FieldID, field.TypeString))
 	if ps := pu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -1167,10 +1149,15 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(person.FieldDateUpdated, field.TypeTime, value)
 	}
 	if value, ok := pu.mutation.ObjectClass(); ok {
-		_spec.SetField(person.FieldObjectClass, field.TypeString, value)
+		_spec.SetField(person.FieldObjectClass, field.TypeJSON, value)
+	}
+	if value, ok := pu.mutation.AppendedObjectClass(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldObjectClass, value)
+		})
 	}
 	if pu.mutation.ObjectClassCleared() {
-		_spec.ClearField(person.FieldObjectClass, field.TypeString)
+		_spec.ClearField(person.FieldObjectClass, field.TypeJSON)
 	}
 	if value, ok := pu.mutation.UgentUsername(); ok {
 		_spec.SetField(person.FieldUgentUsername, field.TypeString, value)
@@ -1218,12 +1205,6 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.EmailCleared() {
 		_spec.ClearField(person.FieldEmail, field.TypeString)
-	}
-	if value, ok := pu.mutation.Gender(); ok {
-		_spec.SetField(person.FieldGender, field.TypeEnum, value)
-	}
-	if pu.mutation.GenderCleared() {
-		_spec.ClearField(person.FieldGender, field.TypeEnum)
 	}
 	if value, ok := pu.mutation.Nationality(); ok {
 		_spec.SetField(person.FieldNationality, field.TypeString, value)
@@ -1501,10 +1482,10 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.ClearField(person.FieldOrcidToken, field.TypeString)
 	}
 	if value, ok := pu.mutation.OrcidVerify(); ok {
-		_spec.SetField(person.FieldOrcidVerify, field.TypeString, value)
+		_spec.SetField(person.FieldOrcidVerify, field.TypeJSON, value)
 	}
 	if pu.mutation.OrcidVerifyCleared() {
-		_spec.ClearField(person.FieldOrcidVerify, field.TypeString)
+		_spec.ClearField(person.FieldOrcidVerify, field.TypeJSON)
 	}
 	if value, ok := pu.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)
@@ -1611,16 +1592,14 @@ func (puo *PersonUpdateOne) SetDateUpdated(t time.Time) *PersonUpdateOne {
 }
 
 // SetObjectClass sets the "object_class" field.
-func (puo *PersonUpdateOne) SetObjectClass(s string) *PersonUpdateOne {
+func (puo *PersonUpdateOne) SetObjectClass(s []string) *PersonUpdateOne {
 	puo.mutation.SetObjectClass(s)
 	return puo
 }
 
-// SetNillableObjectClass sets the "object_class" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableObjectClass(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetObjectClass(*s)
-	}
+// AppendObjectClass appends s to the "object_class" field.
+func (puo *PersonUpdateOne) AppendObjectClass(s []string) *PersonUpdateOne {
+	puo.mutation.AppendObjectClass(s)
 	return puo
 }
 
@@ -1765,26 +1744,6 @@ func (puo *PersonUpdateOne) SetNillableEmail(s *string) *PersonUpdateOne {
 // ClearEmail clears the value of the "email" field.
 func (puo *PersonUpdateOne) ClearEmail() *PersonUpdateOne {
 	puo.mutation.ClearEmail()
-	return puo
-}
-
-// SetGender sets the "gender" field.
-func (puo *PersonUpdateOne) SetGender(pe person.Gender) *PersonUpdateOne {
-	puo.mutation.SetGender(pe)
-	return puo
-}
-
-// SetNillableGender sets the "gender" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableGender(pe *person.Gender) *PersonUpdateOne {
-	if pe != nil {
-		puo.SetGender(*pe)
-	}
-	return puo
-}
-
-// ClearGender clears the value of the "gender" field.
-func (puo *PersonUpdateOne) ClearGender() *PersonUpdateOne {
-	puo.mutation.ClearGender()
 	return puo
 }
 
@@ -2423,8 +2382,16 @@ func (puo *PersonUpdateOne) ClearOrcidID() *PersonUpdateOne {
 }
 
 // SetOrcidSettings sets the "orcid_settings" field.
-func (puo *PersonUpdateOne) SetOrcidSettings(m map[string]interface{}) *PersonUpdateOne {
-	puo.mutation.SetOrcidSettings(m)
+func (puo *PersonUpdateOne) SetOrcidSettings(ss schema.OrcidSettings) *PersonUpdateOne {
+	puo.mutation.SetOrcidSettings(ss)
+	return puo
+}
+
+// SetNillableOrcidSettings sets the "orcid_settings" field if the given value is not nil.
+func (puo *PersonUpdateOne) SetNillableOrcidSettings(ss *schema.OrcidSettings) *PersonUpdateOne {
+	if ss != nil {
+		puo.SetOrcidSettings(*ss)
+	}
 	return puo
 }
 
@@ -2455,15 +2422,15 @@ func (puo *PersonUpdateOne) ClearOrcidToken() *PersonUpdateOne {
 }
 
 // SetOrcidVerify sets the "orcid_verify" field.
-func (puo *PersonUpdateOne) SetOrcidVerify(s string) *PersonUpdateOne {
-	puo.mutation.SetOrcidVerify(s)
+func (puo *PersonUpdateOne) SetOrcidVerify(sv schema.OrcidVerify) *PersonUpdateOne {
+	puo.mutation.SetOrcidVerify(sv)
 	return puo
 }
 
 // SetNillableOrcidVerify sets the "orcid_verify" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableOrcidVerify(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetOrcidVerify(*s)
+func (puo *PersonUpdateOne) SetNillableOrcidVerify(sv *schema.OrcidVerify) *PersonUpdateOne {
+	if sv != nil {
+		puo.SetOrcidVerify(*sv)
 	}
 	return puo
 }
@@ -2503,8 +2470,16 @@ func (puo *PersonUpdateOne) SetNillableDeleted(b *bool) *PersonUpdateOne {
 }
 
 // SetSettings sets the "settings" field.
-func (puo *PersonUpdateOne) SetSettings(m map[string]interface{}) *PersonUpdateOne {
-	puo.mutation.SetSettings(m)
+func (puo *PersonUpdateOne) SetSettings(s schema.Settings) *PersonUpdateOne {
+	puo.mutation.SetSettings(s)
+	return puo
+}
+
+// SetNillableSettings sets the "settings" field if the given value is not nil.
+func (puo *PersonUpdateOne) SetNillableSettings(s *schema.Settings) *PersonUpdateOne {
+	if s != nil {
+		puo.SetSettings(*s)
+	}
 	return puo
 }
 
@@ -2729,20 +2704,7 @@ func (puo *PersonUpdateOne) defaults() {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (puo *PersonUpdateOne) check() error {
-	if v, ok := puo.mutation.Gender(); ok {
-		if err := person.GenderValidator(v); err != nil {
-			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Person.gender": %w`, err)}
-		}
-	}
-	return nil
-}
-
 func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err error) {
-	if err := puo.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(person.Table, person.Columns, sqlgraph.NewFieldSpec(person.FieldID, field.TypeString))
 	id, ok := puo.mutation.ID()
 	if !ok {
@@ -2772,10 +2734,15 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 		_spec.SetField(person.FieldDateUpdated, field.TypeTime, value)
 	}
 	if value, ok := puo.mutation.ObjectClass(); ok {
-		_spec.SetField(person.FieldObjectClass, field.TypeString, value)
+		_spec.SetField(person.FieldObjectClass, field.TypeJSON, value)
+	}
+	if value, ok := puo.mutation.AppendedObjectClass(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldObjectClass, value)
+		})
 	}
 	if puo.mutation.ObjectClassCleared() {
-		_spec.ClearField(person.FieldObjectClass, field.TypeString)
+		_spec.ClearField(person.FieldObjectClass, field.TypeJSON)
 	}
 	if value, ok := puo.mutation.UgentUsername(); ok {
 		_spec.SetField(person.FieldUgentUsername, field.TypeString, value)
@@ -2823,12 +2790,6 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	}
 	if puo.mutation.EmailCleared() {
 		_spec.ClearField(person.FieldEmail, field.TypeString)
-	}
-	if value, ok := puo.mutation.Gender(); ok {
-		_spec.SetField(person.FieldGender, field.TypeEnum, value)
-	}
-	if puo.mutation.GenderCleared() {
-		_spec.ClearField(person.FieldGender, field.TypeEnum)
 	}
 	if value, ok := puo.mutation.Nationality(); ok {
 		_spec.SetField(person.FieldNationality, field.TypeString, value)
@@ -3106,10 +3067,10 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 		_spec.ClearField(person.FieldOrcidToken, field.TypeString)
 	}
 	if value, ok := puo.mutation.OrcidVerify(); ok {
-		_spec.SetField(person.FieldOrcidVerify, field.TypeString, value)
+		_spec.SetField(person.FieldOrcidVerify, field.TypeJSON, value)
 	}
 	if puo.mutation.OrcidVerifyCleared() {
-		_spec.ClearField(person.FieldOrcidVerify, field.TypeString)
+		_spec.ClearField(person.FieldOrcidVerify, field.TypeJSON)
 	}
 	if value, ok := puo.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)

@@ -64,11 +64,6 @@ func DateUpdated(v time.Time) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldDateUpdated, v))
 }
 
-// ObjectClass applies equality check predicate on the "object_class" field. It's identical to ObjectClassEQ.
-func ObjectClass(v string) predicate.Person {
-	return predicate.Person(sql.FieldEQ(FieldObjectClass, v))
-}
-
 // UgentUsername applies equality check predicate on the "ugent_username" field. It's identical to UgentUsernameEQ.
 func UgentUsername(v string) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldUgentUsername, v))
@@ -204,11 +199,6 @@ func OrcidToken(v string) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldOrcidToken, v))
 }
 
-// OrcidVerify applies equality check predicate on the "orcid_verify" field. It's identical to OrcidVerifyEQ.
-func OrcidVerify(v string) predicate.Person {
-	return predicate.Person(sql.FieldEQ(FieldOrcidVerify, v))
-}
-
 // Active applies equality check predicate on the "active" field. It's identical to ActiveEQ.
 func Active(v bool) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldActive, v))
@@ -324,61 +314,6 @@ func DateUpdatedLTE(v time.Time) predicate.Person {
 	return predicate.Person(sql.FieldLTE(FieldDateUpdated, v))
 }
 
-// ObjectClassEQ applies the EQ predicate on the "object_class" field.
-func ObjectClassEQ(v string) predicate.Person {
-	return predicate.Person(sql.FieldEQ(FieldObjectClass, v))
-}
-
-// ObjectClassNEQ applies the NEQ predicate on the "object_class" field.
-func ObjectClassNEQ(v string) predicate.Person {
-	return predicate.Person(sql.FieldNEQ(FieldObjectClass, v))
-}
-
-// ObjectClassIn applies the In predicate on the "object_class" field.
-func ObjectClassIn(vs ...string) predicate.Person {
-	return predicate.Person(sql.FieldIn(FieldObjectClass, vs...))
-}
-
-// ObjectClassNotIn applies the NotIn predicate on the "object_class" field.
-func ObjectClassNotIn(vs ...string) predicate.Person {
-	return predicate.Person(sql.FieldNotIn(FieldObjectClass, vs...))
-}
-
-// ObjectClassGT applies the GT predicate on the "object_class" field.
-func ObjectClassGT(v string) predicate.Person {
-	return predicate.Person(sql.FieldGT(FieldObjectClass, v))
-}
-
-// ObjectClassGTE applies the GTE predicate on the "object_class" field.
-func ObjectClassGTE(v string) predicate.Person {
-	return predicate.Person(sql.FieldGTE(FieldObjectClass, v))
-}
-
-// ObjectClassLT applies the LT predicate on the "object_class" field.
-func ObjectClassLT(v string) predicate.Person {
-	return predicate.Person(sql.FieldLT(FieldObjectClass, v))
-}
-
-// ObjectClassLTE applies the LTE predicate on the "object_class" field.
-func ObjectClassLTE(v string) predicate.Person {
-	return predicate.Person(sql.FieldLTE(FieldObjectClass, v))
-}
-
-// ObjectClassContains applies the Contains predicate on the "object_class" field.
-func ObjectClassContains(v string) predicate.Person {
-	return predicate.Person(sql.FieldContains(FieldObjectClass, v))
-}
-
-// ObjectClassHasPrefix applies the HasPrefix predicate on the "object_class" field.
-func ObjectClassHasPrefix(v string) predicate.Person {
-	return predicate.Person(sql.FieldHasPrefix(FieldObjectClass, v))
-}
-
-// ObjectClassHasSuffix applies the HasSuffix predicate on the "object_class" field.
-func ObjectClassHasSuffix(v string) predicate.Person {
-	return predicate.Person(sql.FieldHasSuffix(FieldObjectClass, v))
-}
-
 // ObjectClassIsNil applies the IsNil predicate on the "object_class" field.
 func ObjectClassIsNil() predicate.Person {
 	return predicate.Person(sql.FieldIsNull(FieldObjectClass))
@@ -387,16 +322,6 @@ func ObjectClassIsNil() predicate.Person {
 // ObjectClassNotNil applies the NotNil predicate on the "object_class" field.
 func ObjectClassNotNil() predicate.Person {
 	return predicate.Person(sql.FieldNotNull(FieldObjectClass))
-}
-
-// ObjectClassEqualFold applies the EqualFold predicate on the "object_class" field.
-func ObjectClassEqualFold(v string) predicate.Person {
-	return predicate.Person(sql.FieldEqualFold(FieldObjectClass, v))
-}
-
-// ObjectClassContainsFold applies the ContainsFold predicate on the "object_class" field.
-func ObjectClassContainsFold(v string) predicate.Person {
-	return predicate.Person(sql.FieldContainsFold(FieldObjectClass, v))
 }
 
 // UgentUsernameEQ applies the EQ predicate on the "ugent_username" field.
@@ -857,36 +782,6 @@ func EmailEqualFold(v string) predicate.Person {
 // EmailContainsFold applies the ContainsFold predicate on the "email" field.
 func EmailContainsFold(v string) predicate.Person {
 	return predicate.Person(sql.FieldContainsFold(FieldEmail, v))
-}
-
-// GenderEQ applies the EQ predicate on the "gender" field.
-func GenderEQ(v Gender) predicate.Person {
-	return predicate.Person(sql.FieldEQ(FieldGender, v))
-}
-
-// GenderNEQ applies the NEQ predicate on the "gender" field.
-func GenderNEQ(v Gender) predicate.Person {
-	return predicate.Person(sql.FieldNEQ(FieldGender, v))
-}
-
-// GenderIn applies the In predicate on the "gender" field.
-func GenderIn(vs ...Gender) predicate.Person {
-	return predicate.Person(sql.FieldIn(FieldGender, vs...))
-}
-
-// GenderNotIn applies the NotIn predicate on the "gender" field.
-func GenderNotIn(vs ...Gender) predicate.Person {
-	return predicate.Person(sql.FieldNotIn(FieldGender, vs...))
-}
-
-// GenderIsNil applies the IsNil predicate on the "gender" field.
-func GenderIsNil() predicate.Person {
-	return predicate.Person(sql.FieldIsNull(FieldGender))
-}
-
-// GenderNotNil applies the NotNil predicate on the "gender" field.
-func GenderNotNil() predicate.Person {
-	return predicate.Person(sql.FieldNotNull(FieldGender))
 }
 
 // NationalityEQ applies the EQ predicate on the "nationality" field.
@@ -2604,61 +2499,6 @@ func OrcidTokenContainsFold(v string) predicate.Person {
 	return predicate.Person(sql.FieldContainsFold(FieldOrcidToken, v))
 }
 
-// OrcidVerifyEQ applies the EQ predicate on the "orcid_verify" field.
-func OrcidVerifyEQ(v string) predicate.Person {
-	return predicate.Person(sql.FieldEQ(FieldOrcidVerify, v))
-}
-
-// OrcidVerifyNEQ applies the NEQ predicate on the "orcid_verify" field.
-func OrcidVerifyNEQ(v string) predicate.Person {
-	return predicate.Person(sql.FieldNEQ(FieldOrcidVerify, v))
-}
-
-// OrcidVerifyIn applies the In predicate on the "orcid_verify" field.
-func OrcidVerifyIn(vs ...string) predicate.Person {
-	return predicate.Person(sql.FieldIn(FieldOrcidVerify, vs...))
-}
-
-// OrcidVerifyNotIn applies the NotIn predicate on the "orcid_verify" field.
-func OrcidVerifyNotIn(vs ...string) predicate.Person {
-	return predicate.Person(sql.FieldNotIn(FieldOrcidVerify, vs...))
-}
-
-// OrcidVerifyGT applies the GT predicate on the "orcid_verify" field.
-func OrcidVerifyGT(v string) predicate.Person {
-	return predicate.Person(sql.FieldGT(FieldOrcidVerify, v))
-}
-
-// OrcidVerifyGTE applies the GTE predicate on the "orcid_verify" field.
-func OrcidVerifyGTE(v string) predicate.Person {
-	return predicate.Person(sql.FieldGTE(FieldOrcidVerify, v))
-}
-
-// OrcidVerifyLT applies the LT predicate on the "orcid_verify" field.
-func OrcidVerifyLT(v string) predicate.Person {
-	return predicate.Person(sql.FieldLT(FieldOrcidVerify, v))
-}
-
-// OrcidVerifyLTE applies the LTE predicate on the "orcid_verify" field.
-func OrcidVerifyLTE(v string) predicate.Person {
-	return predicate.Person(sql.FieldLTE(FieldOrcidVerify, v))
-}
-
-// OrcidVerifyContains applies the Contains predicate on the "orcid_verify" field.
-func OrcidVerifyContains(v string) predicate.Person {
-	return predicate.Person(sql.FieldContains(FieldOrcidVerify, v))
-}
-
-// OrcidVerifyHasPrefix applies the HasPrefix predicate on the "orcid_verify" field.
-func OrcidVerifyHasPrefix(v string) predicate.Person {
-	return predicate.Person(sql.FieldHasPrefix(FieldOrcidVerify, v))
-}
-
-// OrcidVerifyHasSuffix applies the HasSuffix predicate on the "orcid_verify" field.
-func OrcidVerifyHasSuffix(v string) predicate.Person {
-	return predicate.Person(sql.FieldHasSuffix(FieldOrcidVerify, v))
-}
-
 // OrcidVerifyIsNil applies the IsNil predicate on the "orcid_verify" field.
 func OrcidVerifyIsNil() predicate.Person {
 	return predicate.Person(sql.FieldIsNull(FieldOrcidVerify))
@@ -2667,16 +2507,6 @@ func OrcidVerifyIsNil() predicate.Person {
 // OrcidVerifyNotNil applies the NotNil predicate on the "orcid_verify" field.
 func OrcidVerifyNotNil() predicate.Person {
 	return predicate.Person(sql.FieldNotNull(FieldOrcidVerify))
-}
-
-// OrcidVerifyEqualFold applies the EqualFold predicate on the "orcid_verify" field.
-func OrcidVerifyEqualFold(v string) predicate.Person {
-	return predicate.Person(sql.FieldEqualFold(FieldOrcidVerify, v))
-}
-
-// OrcidVerifyContainsFold applies the ContainsFold predicate on the "orcid_verify" field.
-func OrcidVerifyContainsFold(v string) predicate.Person {
-	return predicate.Person(sql.FieldContainsFold(FieldOrcidVerify, v))
 }
 
 // ActiveEQ applies the EQ predicate on the "active" field.

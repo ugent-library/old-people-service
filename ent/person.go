@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/ugent-library/people/ent/person"
+	"github.com/ugent-library/people/ent/schema"
 )
 
 // Person is the model entity for the Person schema.
@@ -22,7 +23,7 @@ type Person struct {
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// ObjectClass holds the value of the "object_class" field.
-	ObjectClass string `json:"object_class,omitempty"`
+	ObjectClass []string `json:"object_class,omitempty"`
 	// UgentUsername holds the value of the "ugent_username" field.
 	UgentUsername string `json:"ugent_username,omitempty"`
 	// FirstName holds the value of the "first_name" field.
@@ -37,8 +38,6 @@ type Person struct {
 	BirthDate string `json:"birth_date,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
-	// Gender holds the value of the "gender" field.
-	Gender person.Gender `json:"gender,omitempty"`
 	// Nationality holds the value of the "nationality" field.
 	Nationality string `json:"nationality,omitempty"`
 	// UgentBarcode holds the value of the "ugent_barcode" field.
@@ -106,17 +105,17 @@ type Person struct {
 	// OrcidID holds the value of the "orcid_id" field.
 	OrcidID string `json:"orcid_id,omitempty"`
 	// OrcidSettings holds the value of the "orcid_settings" field.
-	OrcidSettings map[string]interface{} `json:"orcid_settings,omitempty"`
+	OrcidSettings schema.OrcidSettings `json:"orcid_settings,omitempty"`
 	// OrcidToken holds the value of the "orcid_token" field.
 	OrcidToken string `json:"orcid_token,omitempty"`
 	// OrcidVerify holds the value of the "orcid_verify" field.
-	OrcidVerify string `json:"orcid_verify,omitempty"`
+	OrcidVerify schema.OrcidVerify `json:"orcid_verify,omitempty"`
 	// Active holds the value of the "active" field.
 	Active bool `json:"active,omitempty"`
 	// Deleted holds the value of the "deleted" field.
 	Deleted bool `json:"deleted,omitempty"`
 	// Settings holds the value of the "settings" field.
-	Settings map[string]interface{} `json:"settings,omitempty"`
+	Settings schema.Settings `json:"settings,omitempty"`
 	// Roles holds the value of the "roles" field.
 	Roles []string `json:"roles,omitempty"`
 	// PublicationCount holds the value of the "publication_count" field.
@@ -140,13 +139,13 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case person.FieldUgentID, person.FieldUgentBarcode, person.FieldUgentJobCategory, person.FieldUgentCampus, person.FieldUgentDepartmentID, person.FieldUgentFacultyID, person.FieldUgentJobTitle, person.FieldResearchDiscipline, person.FieldResearchDisciplineCode, person.FieldUzgentJobTitle, person.FieldUzgentDepartmentName, person.FieldUzgentID, person.FieldUgentExtCategory, person.FieldUgentDepartmentName, person.FieldOrcidSettings, person.FieldSettings, person.FieldRoles, person.FieldReplaces, person.FieldReplacedBy:
+		case person.FieldObjectClass, person.FieldUgentID, person.FieldUgentBarcode, person.FieldUgentJobCategory, person.FieldUgentCampus, person.FieldUgentDepartmentID, person.FieldUgentFacultyID, person.FieldUgentJobTitle, person.FieldResearchDiscipline, person.FieldResearchDisciplineCode, person.FieldUzgentJobTitle, person.FieldUzgentDepartmentName, person.FieldUzgentID, person.FieldUgentExtCategory, person.FieldUgentDepartmentName, person.FieldOrcidSettings, person.FieldOrcidVerify, person.FieldSettings, person.FieldRoles, person.FieldReplaces, person.FieldReplacedBy:
 			values[i] = new([]byte)
 		case person.FieldActive, person.FieldDeleted:
 			values[i] = new(sql.NullBool)
 		case person.FieldPublicationCount:
 			values[i] = new(sql.NullInt64)
-		case person.FieldID, person.FieldObjectClass, person.FieldUgentUsername, person.FieldFirstName, person.FieldMiddleName, person.FieldLastName, person.FieldBirthDate, person.FieldEmail, person.FieldGender, person.FieldNationality, person.FieldTitle, person.FieldUgentTel, person.FieldUgentStreetAddress, person.FieldUgentPostalCode, person.FieldUgentLocality, person.FieldUgentLastEnrolled, person.FieldHomeStreetAddress, person.FieldHomePostalCode, person.FieldHomeLocality, person.FieldHomeCountry, person.FieldHomeTel, person.FieldDormStreetAddress, person.FieldDormPostalCode, person.FieldDormLocality, person.FieldDormCountry, person.FieldUgentExpirationDate, person.FieldUgentAppointmentDate, person.FieldOrcidBio, person.FieldOrcidID, person.FieldOrcidToken, person.FieldOrcidVerify, person.FieldUgentMemorialisID, person.FieldPreferredFirstName, person.FieldPreferredLastName:
+		case person.FieldID, person.FieldUgentUsername, person.FieldFirstName, person.FieldMiddleName, person.FieldLastName, person.FieldBirthDate, person.FieldEmail, person.FieldNationality, person.FieldTitle, person.FieldUgentTel, person.FieldUgentStreetAddress, person.FieldUgentPostalCode, person.FieldUgentLocality, person.FieldUgentLastEnrolled, person.FieldHomeStreetAddress, person.FieldHomePostalCode, person.FieldHomeLocality, person.FieldHomeCountry, person.FieldHomeTel, person.FieldDormStreetAddress, person.FieldDormPostalCode, person.FieldDormLocality, person.FieldDormCountry, person.FieldUgentExpirationDate, person.FieldUgentAppointmentDate, person.FieldOrcidBio, person.FieldOrcidID, person.FieldOrcidToken, person.FieldUgentMemorialisID, person.FieldPreferredFirstName, person.FieldPreferredLastName:
 			values[i] = new(sql.NullString)
 		case person.FieldDateCreated, person.FieldDateUpdated, person.FieldDateLastLogin:
 			values[i] = new(sql.NullTime)
@@ -184,10 +183,12 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 				pe.DateUpdated = value.Time
 			}
 		case person.FieldObjectClass:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field object_class", values[i])
-			} else if value.Valid {
-				pe.ObjectClass = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pe.ObjectClass); err != nil {
+					return fmt.Errorf("unmarshal field object_class: %w", err)
+				}
 			}
 		case person.FieldUgentUsername:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -232,12 +233,6 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
 				pe.Email = value.String
-			}
-		case person.FieldGender:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field gender", values[i])
-			} else if value.Valid {
-				pe.Gender = person.Gender(value.String)
 			}
 		case person.FieldNationality:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -478,10 +473,12 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 				pe.OrcidToken = value.String
 			}
 		case person.FieldOrcidVerify:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field orcid_verify", values[i])
-			} else if value.Valid {
-				pe.OrcidVerify = value.String
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pe.OrcidVerify); err != nil {
+					return fmt.Errorf("unmarshal field orcid_verify: %w", err)
+				}
 			}
 		case person.FieldActive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -592,7 +589,7 @@ func (pe *Person) String() string {
 	builder.WriteString(pe.DateUpdated.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("object_class=")
-	builder.WriteString(pe.ObjectClass)
+	builder.WriteString(fmt.Sprintf("%v", pe.ObjectClass))
 	builder.WriteString(", ")
 	builder.WriteString("ugent_username=")
 	builder.WriteString(pe.UgentUsername)
@@ -614,9 +611,6 @@ func (pe *Person) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(pe.Email)
-	builder.WriteString(", ")
-	builder.WriteString("gender=")
-	builder.WriteString(fmt.Sprintf("%v", pe.Gender))
 	builder.WriteString(", ")
 	builder.WriteString("nationality=")
 	builder.WriteString(pe.Nationality)
@@ -724,7 +718,7 @@ func (pe *Person) String() string {
 	builder.WriteString(pe.OrcidToken)
 	builder.WriteString(", ")
 	builder.WriteString("orcid_verify=")
-	builder.WriteString(pe.OrcidVerify)
+	builder.WriteString(fmt.Sprintf("%v", pe.OrcidVerify))
 	builder.WriteString(", ")
 	builder.WriteString("active=")
 	builder.WriteString(fmt.Sprintf("%v", pe.Active))

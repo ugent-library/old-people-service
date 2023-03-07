@@ -13,6 +13,23 @@ type Person struct {
 	ent.Schema
 }
 
+type OrcidSettings struct {
+	SendEmails bool `json:"send-emails"`
+}
+
+type Settings struct {
+	ShowBio         bool `json:"show_bio"`
+	ShowEmail       bool `json:"show_email"`
+	ShowGravatar    bool `json:"show_gravatar"`
+	ShowWorkAddress bool `json:"show_work_address"`
+}
+
+type OrcidVerify struct {
+	OrcidID       string         `json:"orcid_id,omitempty"`
+	OrcidToken    string         `json:"orcid_token,omitempty"`
+	OrcidSettings *OrcidSettings `json:"orcid_settings,omitempty"`
+}
+
 func (Person) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "person"},
@@ -23,7 +40,7 @@ func (Person) Annotations() []schema.Annotation {
 func (Person) Fields() []ent.Field {
 	return []ent.Field{
 		// attributes mapped and imported from LDAP
-		field.String("object_class").Optional(),
+		field.Strings("object_class").Optional(),
 		field.String("ugent_username").Optional(),
 		field.String("first_name").Optional(),
 		field.String("middle_name").Optional(),
@@ -31,7 +48,7 @@ func (Person) Fields() []ent.Field {
 		field.Strings("ugent_id").Optional(),
 		field.String("birth_date").Optional(),
 		field.String("email").Optional(),
-		field.Enum("gender").Values("M", "F").Optional(),
+		//field.Enum("gender").Values("M", "F").Optional(),
 		field.String("nationality").Optional(),
 		field.Strings("ugent_barcode").Optional(),
 		field.Strings("ugent_job_category").Optional(),
@@ -70,14 +87,14 @@ func (Person) Fields() []ent.Field {
 		// orcid
 		field.String("orcid_bio").Optional(),
 		field.String("orcid_id").Optional(),
-		field.JSON("orcid_settings", map[string]any{}).Optional(),
+		field.JSON("orcid_settings", OrcidSettings{}).Optional(),
 		field.String("orcid_token").Optional(),
-		field.String("orcid_verify").Optional(),
+		field.JSON("orcid_verify", OrcidVerify{}).Optional(),
 
 		// internal attributes
 		field.Bool("active").Default(false),
 		field.Bool("deleted").Default(false),
-		field.JSON("settings", map[string]any{}).Optional(),
+		field.JSON("settings", Settings{}).Optional(),
 		field.Strings("roles").Optional(),
 		field.Int("publication_count").Default(0).Optional(),
 		field.String("ugent_memorialis_id").Optional(),

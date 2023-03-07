@@ -3,17 +3,18 @@
 package migrate
 
 import (
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/dialect/sql/schema"
 	"entgo.io/ent/schema/field"
 )
 
 var (
-	// PersonsColumns holds the columns for the "persons" table.
-	PersonsColumns = []*schema.Column{
+	// PersonColumns holds the columns for the "person" table.
+	PersonColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
-		{Name: "object_class", Type: field.TypeString, Nullable: true},
+		{Name: "object_class", Type: field.TypeJSON, Nullable: true},
 		{Name: "ugent_username", Type: field.TypeString, Nullable: true},
 		{Name: "first_name", Type: field.TypeString, Nullable: true},
 		{Name: "middle_name", Type: field.TypeString, Nullable: true},
@@ -21,7 +22,6 @@ var (
 		{Name: "ugent_id", Type: field.TypeJSON, Nullable: true},
 		{Name: "birth_date", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString, Nullable: true},
-		{Name: "gender", Type: field.TypeEnum, Nullable: true, Enums: []string{"M", "F"}},
 		{Name: "nationality", Type: field.TypeString, Nullable: true},
 		{Name: "ugent_barcode", Type: field.TypeJSON, Nullable: true},
 		{Name: "ugent_job_category", Type: field.TypeJSON, Nullable: true},
@@ -57,7 +57,7 @@ var (
 		{Name: "orcid_id", Type: field.TypeString, Nullable: true},
 		{Name: "orcid_settings", Type: field.TypeJSON, Nullable: true},
 		{Name: "orcid_token", Type: field.TypeString, Nullable: true},
-		{Name: "orcid_verify", Type: field.TypeString, Nullable: true},
+		{Name: "orcid_verify", Type: field.TypeJSON, Nullable: true},
 		{Name: "active", Type: field.TypeBool, Default: false},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
 		{Name: "settings", Type: field.TypeJSON, Nullable: true},
@@ -70,17 +70,62 @@ var (
 		{Name: "replaced_by", Type: field.TypeJSON, Nullable: true},
 		{Name: "date_last_login", Type: field.TypeTime, Nullable: true},
 	}
-	// PersonsTable holds the schema information for the "persons" table.
-	PersonsTable = &schema.Table{
-		Name:       "persons",
-		Columns:    PersonsColumns,
-		PrimaryKey: []*schema.Column{PersonsColumns[0]},
+	// PersonTable holds the schema information for the "person" table.
+	PersonTable = &schema.Table{
+		Name:       "person",
+		Columns:    PersonColumns,
+		PrimaryKey: []*schema.Column{PersonColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "person_active",
+				Unique:  false,
+				Columns: []*schema.Column{PersonColumns[47]},
+			},
+			{
+				Name:    "person_orcid_id",
+				Unique:  false,
+				Columns: []*schema.Column{PersonColumns[43]},
+			},
+			{
+				Name:    "person_ugent_id",
+				Unique:  false,
+				Columns: []*schema.Column{PersonColumns[8]},
+			},
+			{
+				Name:    "person_ugent_username",
+				Unique:  false,
+				Columns: []*schema.Column{PersonColumns[4]},
+			},
+			{
+				Name:    "person_email",
+				Unique:  false,
+				Columns: []*schema.Column{PersonColumns[10]},
+			},
+			{
+				Name:    "person_first_name",
+				Unique:  false,
+				Columns: []*schema.Column{PersonColumns[5]},
+			},
+			{
+				Name:    "person_last_name",
+				Unique:  false,
+				Columns: []*schema.Column{PersonColumns[7]},
+			},
+			{
+				Name:    "person_publication_count",
+				Unique:  false,
+				Columns: []*schema.Column{PersonColumns[51]},
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		PersonsTable,
+		PersonTable,
 	}
 )
 
 func init() {
+	PersonTable.Annotation = &entsql.Annotation{
+		Table: "person",
+	}
 }

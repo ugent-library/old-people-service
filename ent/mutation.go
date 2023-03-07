@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/predicate"
+	"github.com/ugent-library/people/ent/schema"
 )
 
 const (
@@ -35,7 +36,8 @@ type PersonMutation struct {
 	id                             *string
 	date_created                   *time.Time
 	date_updated                   *time.Time
-	object_class                   *string
+	object_class                   *[]string
+	appendobject_class             []string
 	ugent_username                 *string
 	first_name                     *string
 	middle_name                    *string
@@ -44,7 +46,6 @@ type PersonMutation struct {
 	appendugent_id                 []string
 	birth_date                     *string
 	email                          *string
-	gender                         *person.Gender
 	nationality                    *string
 	ugent_barcode                  *[]string
 	appendugent_barcode            []string
@@ -91,12 +92,12 @@ type PersonMutation struct {
 	appendugent_department_name    []string
 	orcid_bio                      *string
 	orcid_id                       *string
-	orcid_settings                 *map[string]interface{}
+	orcid_settings                 *schema.OrcidSettings
 	orcid_token                    *string
-	orcid_verify                   *string
+	orcid_verify                   *schema.OrcidVerify
 	active                         *bool
 	deleted                        *bool
-	settings                       *map[string]interface{}
+	settings                       *schema.Settings
 	roles                          *[]string
 	appendroles                    []string
 	publication_count              *int
@@ -292,12 +293,13 @@ func (m *PersonMutation) ResetDateUpdated() {
 }
 
 // SetObjectClass sets the "object_class" field.
-func (m *PersonMutation) SetObjectClass(s string) {
+func (m *PersonMutation) SetObjectClass(s []string) {
 	m.object_class = &s
+	m.appendobject_class = nil
 }
 
 // ObjectClass returns the value of the "object_class" field in the mutation.
-func (m *PersonMutation) ObjectClass() (r string, exists bool) {
+func (m *PersonMutation) ObjectClass() (r []string, exists bool) {
 	v := m.object_class
 	if v == nil {
 		return
@@ -308,7 +310,7 @@ func (m *PersonMutation) ObjectClass() (r string, exists bool) {
 // OldObjectClass returns the old "object_class" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldObjectClass(ctx context.Context) (v string, err error) {
+func (m *PersonMutation) OldObjectClass(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldObjectClass is only allowed on UpdateOne operations")
 	}
@@ -322,9 +324,23 @@ func (m *PersonMutation) OldObjectClass(ctx context.Context) (v string, err erro
 	return oldValue.ObjectClass, nil
 }
 
+// AppendObjectClass adds s to the "object_class" field.
+func (m *PersonMutation) AppendObjectClass(s []string) {
+	m.appendobject_class = append(m.appendobject_class, s...)
+}
+
+// AppendedObjectClass returns the list of values that were appended to the "object_class" field in this mutation.
+func (m *PersonMutation) AppendedObjectClass() ([]string, bool) {
+	if len(m.appendobject_class) == 0 {
+		return nil, false
+	}
+	return m.appendobject_class, true
+}
+
 // ClearObjectClass clears the value of the "object_class" field.
 func (m *PersonMutation) ClearObjectClass() {
 	m.object_class = nil
+	m.appendobject_class = nil
 	m.clearedFields[person.FieldObjectClass] = struct{}{}
 }
 
@@ -337,6 +353,7 @@ func (m *PersonMutation) ObjectClassCleared() bool {
 // ResetObjectClass resets all changes to the "object_class" field.
 func (m *PersonMutation) ResetObjectClass() {
 	m.object_class = nil
+	m.appendobject_class = nil
 	delete(m.clearedFields, person.FieldObjectClass)
 }
 
@@ -697,55 +714,6 @@ func (m *PersonMutation) EmailCleared() bool {
 func (m *PersonMutation) ResetEmail() {
 	m.email = nil
 	delete(m.clearedFields, person.FieldEmail)
-}
-
-// SetGender sets the "gender" field.
-func (m *PersonMutation) SetGender(pe person.Gender) {
-	m.gender = &pe
-}
-
-// Gender returns the value of the "gender" field in the mutation.
-func (m *PersonMutation) Gender() (r person.Gender, exists bool) {
-	v := m.gender
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldGender returns the old "gender" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldGender(ctx context.Context) (v person.Gender, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldGender is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldGender requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldGender: %w", err)
-	}
-	return oldValue.Gender, nil
-}
-
-// ClearGender clears the value of the "gender" field.
-func (m *PersonMutation) ClearGender() {
-	m.gender = nil
-	m.clearedFields[person.FieldGender] = struct{}{}
-}
-
-// GenderCleared returns if the "gender" field was cleared in this mutation.
-func (m *PersonMutation) GenderCleared() bool {
-	_, ok := m.clearedFields[person.FieldGender]
-	return ok
-}
-
-// ResetGender resets all changes to the "gender" field.
-func (m *PersonMutation) ResetGender() {
-	m.gender = nil
-	delete(m.clearedFields, person.FieldGender)
 }
 
 // SetNationality sets the "nationality" field.
@@ -2574,12 +2542,12 @@ func (m *PersonMutation) ResetOrcidID() {
 }
 
 // SetOrcidSettings sets the "orcid_settings" field.
-func (m *PersonMutation) SetOrcidSettings(value map[string]interface{}) {
-	m.orcid_settings = &value
+func (m *PersonMutation) SetOrcidSettings(ss schema.OrcidSettings) {
+	m.orcid_settings = &ss
 }
 
 // OrcidSettings returns the value of the "orcid_settings" field in the mutation.
-func (m *PersonMutation) OrcidSettings() (r map[string]interface{}, exists bool) {
+func (m *PersonMutation) OrcidSettings() (r schema.OrcidSettings, exists bool) {
 	v := m.orcid_settings
 	if v == nil {
 		return
@@ -2590,7 +2558,7 @@ func (m *PersonMutation) OrcidSettings() (r map[string]interface{}, exists bool)
 // OldOrcidSettings returns the old "orcid_settings" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldOrcidSettings(ctx context.Context) (v map[string]interface{}, err error) {
+func (m *PersonMutation) OldOrcidSettings(ctx context.Context) (v schema.OrcidSettings, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldOrcidSettings is only allowed on UpdateOne operations")
 	}
@@ -2672,12 +2640,12 @@ func (m *PersonMutation) ResetOrcidToken() {
 }
 
 // SetOrcidVerify sets the "orcid_verify" field.
-func (m *PersonMutation) SetOrcidVerify(s string) {
-	m.orcid_verify = &s
+func (m *PersonMutation) SetOrcidVerify(sv schema.OrcidVerify) {
+	m.orcid_verify = &sv
 }
 
 // OrcidVerify returns the value of the "orcid_verify" field in the mutation.
-func (m *PersonMutation) OrcidVerify() (r string, exists bool) {
+func (m *PersonMutation) OrcidVerify() (r schema.OrcidVerify, exists bool) {
 	v := m.orcid_verify
 	if v == nil {
 		return
@@ -2688,7 +2656,7 @@ func (m *PersonMutation) OrcidVerify() (r string, exists bool) {
 // OldOrcidVerify returns the old "orcid_verify" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldOrcidVerify(ctx context.Context) (v string, err error) {
+func (m *PersonMutation) OldOrcidVerify(ctx context.Context) (v schema.OrcidVerify, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldOrcidVerify is only allowed on UpdateOne operations")
 	}
@@ -2793,12 +2761,12 @@ func (m *PersonMutation) ResetDeleted() {
 }
 
 // SetSettings sets the "settings" field.
-func (m *PersonMutation) SetSettings(value map[string]interface{}) {
-	m.settings = &value
+func (m *PersonMutation) SetSettings(s schema.Settings) {
+	m.settings = &s
 }
 
 // Settings returns the value of the "settings" field in the mutation.
-func (m *PersonMutation) Settings() (r map[string]interface{}, exists bool) {
+func (m *PersonMutation) Settings() (r schema.Settings, exists bool) {
 	v := m.settings
 	if v == nil {
 		return
@@ -2809,7 +2777,7 @@ func (m *PersonMutation) Settings() (r map[string]interface{}, exists bool) {
 // OldSettings returns the old "settings" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldSettings(ctx context.Context) (v map[string]interface{}, err error) {
+func (m *PersonMutation) OldSettings(ctx context.Context) (v schema.Settings, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldSettings is only allowed on UpdateOne operations")
 	}
@@ -3336,7 +3304,7 @@ func (m *PersonMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PersonMutation) Fields() []string {
-	fields := make([]string, 0, 58)
+	fields := make([]string, 0, 57)
 	if m.date_created != nil {
 		fields = append(fields, person.FieldDateCreated)
 	}
@@ -3366,9 +3334,6 @@ func (m *PersonMutation) Fields() []string {
 	}
 	if m.email != nil {
 		fields = append(fields, person.FieldEmail)
-	}
-	if m.gender != nil {
-		fields = append(fields, person.FieldGender)
 	}
 	if m.nationality != nil {
 		fields = append(fields, person.FieldNationality)
@@ -3539,8 +3504,6 @@ func (m *PersonMutation) Field(name string) (ent.Value, bool) {
 		return m.BirthDate()
 	case person.FieldEmail:
 		return m.Email()
-	case person.FieldGender:
-		return m.Gender()
 	case person.FieldNationality:
 		return m.Nationality()
 	case person.FieldUgentBarcode:
@@ -3664,8 +3627,6 @@ func (m *PersonMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldBirthDate(ctx)
 	case person.FieldEmail:
 		return m.OldEmail(ctx)
-	case person.FieldGender:
-		return m.OldGender(ctx)
 	case person.FieldNationality:
 		return m.OldNationality(ctx)
 	case person.FieldUgentBarcode:
@@ -3784,7 +3745,7 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		m.SetDateUpdated(v)
 		return nil
 	case person.FieldObjectClass:
-		v, ok := value.(string)
+		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3838,13 +3799,6 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEmail(v)
-		return nil
-	case person.FieldGender:
-		v, ok := value.(person.Gender)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetGender(v)
 		return nil
 	case person.FieldNationality:
 		v, ok := value.(string)
@@ -4078,7 +4032,7 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		m.SetOrcidID(v)
 		return nil
 	case person.FieldOrcidSettings:
-		v, ok := value.(map[string]interface{})
+		v, ok := value.(schema.OrcidSettings)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -4092,7 +4046,7 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		m.SetOrcidToken(v)
 		return nil
 	case person.FieldOrcidVerify:
-		v, ok := value.(string)
+		v, ok := value.(schema.OrcidVerify)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -4113,7 +4067,7 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		m.SetDeleted(v)
 		return nil
 	case person.FieldSettings:
-		v, ok := value.(map[string]interface{})
+		v, ok := value.(schema.Settings)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -4243,9 +4197,6 @@ func (m *PersonMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(person.FieldEmail) {
 		fields = append(fields, person.FieldEmail)
-	}
-	if m.FieldCleared(person.FieldGender) {
-		fields = append(fields, person.FieldGender)
 	}
 	if m.FieldCleared(person.FieldNationality) {
 		fields = append(fields, person.FieldNationality)
@@ -4420,9 +4371,6 @@ func (m *PersonMutation) ClearField(name string) error {
 	case person.FieldEmail:
 		m.ClearEmail()
 		return nil
-	case person.FieldGender:
-		m.ClearGender()
-		return nil
 	case person.FieldNationality:
 		m.ClearNationality()
 		return nil
@@ -4595,9 +4543,6 @@ func (m *PersonMutation) ResetField(name string) error {
 		return nil
 	case person.FieldEmail:
 		m.ResetEmail()
-		return nil
-	case person.FieldGender:
-		m.ResetGender()
 		return nil
 	case person.FieldNationality:
 		m.ResetNationality()

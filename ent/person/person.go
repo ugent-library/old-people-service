@@ -3,7 +3,6 @@
 package person
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -32,8 +31,6 @@ const (
 	FieldBirthDate = "birth_date"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
-	// FieldGender holds the string denoting the gender field in the database.
-	FieldGender = "gender"
 	// FieldNationality holds the string denoting the nationality field in the database.
 	FieldNationality = "nationality"
 	// FieldUgentBarcode holds the string denoting the ugent_barcode field in the database.
@@ -129,7 +126,7 @@ const (
 	// FieldDateLastLogin holds the string denoting the date_last_login field in the database.
 	FieldDateLastLogin = "date_last_login"
 	// Table holds the table name of the person in the database.
-	Table = "persons"
+	Table = "person"
 )
 
 // Columns holds all SQL columns for person fields.
@@ -145,7 +142,6 @@ var Columns = []string{
 	FieldUgentID,
 	FieldBirthDate,
 	FieldEmail,
-	FieldGender,
 	FieldNationality,
 	FieldUgentBarcode,
 	FieldUgentJobCategory,
@@ -221,26 +217,3 @@ var (
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
-
-// Gender defines the type for the "gender" enum field.
-type Gender string
-
-// Gender values.
-const (
-	GenderM Gender = "M"
-	GenderF Gender = "F"
-)
-
-func (ge Gender) String() string {
-	return string(ge)
-}
-
-// GenderValidator is a validator for the "gender" field enum values. It is called by the builders before save.
-func GenderValidator(ge Gender) error {
-	switch ge {
-	case GenderM, GenderF:
-		return nil
-	default:
-		return fmt.Errorf("person: invalid enum value for gender field: %q", ge)
-	}
-}

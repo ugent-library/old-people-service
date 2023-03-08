@@ -48,7 +48,6 @@ func (Person) Fields() []ent.Field {
 		field.Strings("ugent_id").Optional(),
 		field.String("birth_date").Optional(),
 		field.String("email").Optional(),
-		//field.Enum("gender").Values("M", "F").Optional(),
 		field.String("nationality").Optional(),
 		field.Strings("ugent_barcode").Optional(),
 		field.Strings("ugent_job_category").Optional(),

@@ -11,19 +11,18 @@ type PersonRef struct {
 }
 
 type Person struct {
-	Active            bool       `json:"active"`
-	BirthDate         string     `json:"birth_date,omitempty"`
-	DateCreated       *time.Time `json:"date_created"`
-	DateLastLogin     *time.Time `json:"date_last_login,omitempty"`
-	DateUpdated       *time.Time `json:"date_updated"`
-	Deleted           bool       `json:"deleted"`
-	DormCountry       string     `json:"dorm_country,omitempty"`
-	DormLocality      string     `json:"dorm_locality,omitempty"`
-	DormPostalCode    string     `json:"dorm_postal_code,omitempty"`
-	DormStreetAddress string     `json:"dorm_street_address,omitempty"`
-	Email             string     `json:"email,omitempty"`
-	FirstName         string     `json:"first_name,omitempty"`
-	//Gender                 string         `json:"gender"`
+	Active                 bool                  `json:"active"`
+	BirthDate              string                `json:"birth_date,omitempty"`
+	DateCreated            *time.Time            `json:"date_created"`
+	DateLastLogin          *time.Time            `json:"date_last_login,omitempty"`
+	DateUpdated            *time.Time            `json:"date_updated"`
+	Deleted                bool                  `json:"deleted"`
+	DormCountry            string                `json:"dorm_country,omitempty"`
+	DormLocality           string                `json:"dorm_locality,omitempty"`
+	DormPostalCode         string                `json:"dorm_postal_code,omitempty"`
+	DormStreetAddress      string                `json:"dorm_street_address,omitempty"`
+	Email                  string                `json:"email,omitempty"`
+	FirstName              string                `json:"first_name,omitempty"`
 	HomeCountry            string                `json:"home_country,omitempty"`
 	HomeLocality           string                `json:"home_locality,omitempty"`
 	HomePostalCode         string                `json:"home_postal_code,omitempty"`

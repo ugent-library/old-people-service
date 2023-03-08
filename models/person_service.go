@@ -68,7 +68,6 @@ func (ps *personService) Create(ctx context.Context, p *Person) (*Person, error)
 	t.SetDormStreetAddress(p.DormStreetAddress)
 	t.SetEmail(p.Email)
 	t.SetFirstName(p.FirstName)
-	//t.SetGender(person.Gender(p.Gender))
 	t.SetHomeCountry(p.HomeCountry)
 	t.SetHomeLocality(p.HomeLocality)
 	t.SetHomePostalCode(p.HomePostalCode)
@@ -151,7 +150,6 @@ func (ps *personService) Update(ctx context.Context, p *Person) (*Person, error)
 	t.SetDormStreetAddress(p.DormStreetAddress)
 	t.SetEmail(p.Email)
 	t.SetFirstName(p.FirstName)
-	//t.SetGender(person.Gender(p.Gender))
 	t.SetHomeCountry(p.HomeCountry)
 	t.SetHomeLocality(p.HomeLocality)
 	t.SetHomePostalCode(p.HomePostalCode)
@@ -234,19 +232,18 @@ func (ps *personService) Delete(ctx context.Context, id string) error {
 
 func personUnwrap(e *ent.Person) *Person {
 	p := &Person{
-		Active:            e.Active,
-		BirthDate:         e.BirthDate,
-		DateCreated:       &e.DateCreated,
-		DateLastLogin:     &e.DateLastLogin,
-		DateUpdated:       &e.DateUpdated,
-		Deleted:           e.Deleted,
-		DormCountry:       e.DormCountry,
-		DormLocality:      e.DormLocality,
-		DormPostalCode:    e.DormPostalCode,
-		DormStreetAddress: e.DormStreetAddress,
-		Email:             e.Email,
-		FirstName:         e.FirstName,
-		//Gender:                 e.Gender.String(),
+		Active:                 e.Active,
+		BirthDate:              e.BirthDate,
+		DateCreated:            &e.DateCreated,
+		DateLastLogin:          &e.DateLastLogin,
+		DateUpdated:            &e.DateUpdated,
+		Deleted:                e.Deleted,
+		DormCountry:            e.DormCountry,
+		DormLocality:           e.DormLocality,
+		DormPostalCode:         e.DormPostalCode,
+		DormStreetAddress:      e.DormStreetAddress,
+		Email:                  e.Email,
+		FirstName:              e.FirstName,
 		HomeCountry:            e.HomeCountry,
 		HomeLocality:           e.HomeLocality,
 		HomePostalCode:         e.HomePostalCode,

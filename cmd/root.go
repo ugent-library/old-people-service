@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -21,14 +22,16 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	viper.SetEnvPrefix("people")
 	viper.SetDefault("host", "localhost")
 	viper.SetDefault("port", 3000)
+	viper.SetDefault("nats.url", nats.DefaultURL)
+	viper.SetDefault("db.url", "postgres://biblio:biblio@localhost:5432/authority?sslmode=disable")
 
 	cobra.OnInitialize(initConfig, initLogger)
 	cobra.OnFinalize(func() {
 		logger.Sync()
 	})
+
 	rootCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "", "config file")
 }
 
@@ -37,9 +40,6 @@ func initConfig() {
 		viper.SetConfigFile(configFile)
 		cobra.CheckErr(viper.ReadInConfig())
 	}
-
-	viper.AutomaticEnv()
-
 	cobra.CheckErr(viper.Unmarshal(&config))
 }
 

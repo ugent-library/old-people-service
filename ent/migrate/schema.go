@@ -9,66 +9,35 @@ import (
 )
 
 var (
+	// IdentifiersColumns holds the columns for the "identifiers" table.
+	IdentifiersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+	}
+	// IdentifiersTable holds the schema information for the "identifiers" table.
+	IdentifiersTable = &schema.Table{
+		Name:       "identifiers",
+		Columns:    IdentifiersColumns,
+		PrimaryKey: []*schema.Column{IdentifiersColumns[0]},
+	}
 	// PersonColumns holds the columns for the "person" table.
 	PersonColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
-		{Name: "object_class", Type: field.TypeJSON, Nullable: true},
-		{Name: "ugent_username", Type: field.TypeString, Nullable: true},
-		{Name: "first_name", Type: field.TypeString, Nullable: true},
-		{Name: "middle_name", Type: field.TypeString, Nullable: true},
-		{Name: "last_name", Type: field.TypeString, Nullable: true},
-		{Name: "ugent_id", Type: field.TypeJSON, Nullable: true},
+		{Name: "active", Type: field.TypeBool, Default: false},
 		{Name: "birth_date", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString, Nullable: true},
-		{Name: "nationality", Type: field.TypeString, Nullable: true},
-		{Name: "ugent_barcode", Type: field.TypeJSON, Nullable: true},
-		{Name: "ugent_job_category", Type: field.TypeJSON, Nullable: true},
-		{Name: "title", Type: field.TypeString, Nullable: true},
-		{Name: "ugent_tel", Type: field.TypeString, Nullable: true},
-		{Name: "ugent_campus", Type: field.TypeJSON, Nullable: true},
-		{Name: "ugent_department_id", Type: field.TypeJSON, Nullable: true},
-		{Name: "ugent_faculty_id", Type: field.TypeJSON, Nullable: true},
-		{Name: "ugent_job_title", Type: field.TypeJSON, Nullable: true},
-		{Name: "ugent_street_address", Type: field.TypeString, Nullable: true},
-		{Name: "ugent_postal_code", Type: field.TypeString, Nullable: true},
-		{Name: "ugent_locality", Type: field.TypeString, Nullable: true},
-		{Name: "ugent_last_enrolled", Type: field.TypeString, Nullable: true},
-		{Name: "home_street_address", Type: field.TypeString, Nullable: true},
-		{Name: "home_postal_code", Type: field.TypeString, Nullable: true},
-		{Name: "home_locality", Type: field.TypeString, Nullable: true},
-		{Name: "home_country", Type: field.TypeString, Nullable: true},
-		{Name: "home_tel", Type: field.TypeString, Nullable: true},
-		{Name: "dorm_street_address", Type: field.TypeString, Nullable: true},
-		{Name: "dorm_postal_code", Type: field.TypeString, Nullable: true},
-		{Name: "dorm_locality", Type: field.TypeString, Nullable: true},
-		{Name: "dorm_country", Type: field.TypeString, Nullable: true},
-		{Name: "research_discipline", Type: field.TypeJSON, Nullable: true},
-		{Name: "research_discipline_code", Type: field.TypeJSON, Nullable: true},
-		{Name: "ugent_expiration_date", Type: field.TypeString, Nullable: true},
-		{Name: "uzgent_job_title", Type: field.TypeJSON, Nullable: true},
-		{Name: "uzgent_department_name", Type: field.TypeJSON, Nullable: true},
-		{Name: "uzgent_id", Type: field.TypeJSON, Nullable: true},
-		{Name: "ugent_ext_category", Type: field.TypeJSON, Nullable: true},
-		{Name: "ugent_appointment_date", Type: field.TypeString, Nullable: true},
-		{Name: "ugent_department_name", Type: field.TypeJSON, Nullable: true},
-		{Name: "orcid_bio", Type: field.TypeString, Nullable: true},
-		{Name: "orcid_id", Type: field.TypeString, Nullable: true},
-		{Name: "orcid_settings", Type: field.TypeJSON, Nullable: true},
+		{Name: "other_id", Type: field.TypeJSON, Nullable: true},
+		{Name: "organization_id", Type: field.TypeJSON, Nullable: true},
+		{Name: "first_name", Type: field.TypeString, Nullable: true},
+		{Name: "full_name", Type: field.TypeString, Nullable: true},
+		{Name: "last_name", Type: field.TypeString, Nullable: true},
+		{Name: "category", Type: field.TypeJSON, Nullable: true},
+		{Name: "orcid", Type: field.TypeString, Nullable: true},
 		{Name: "orcid_token", Type: field.TypeString, Nullable: true},
-		{Name: "orcid_verify", Type: field.TypeJSON, Nullable: true},
-		{Name: "active", Type: field.TypeBool, Default: false},
-		{Name: "deleted", Type: field.TypeBool, Default: false},
-		{Name: "settings", Type: field.TypeJSON, Nullable: true},
-		{Name: "roles", Type: field.TypeJSON, Nullable: true},
-		{Name: "publication_count", Type: field.TypeInt, Nullable: true, Default: 0},
-		{Name: "ugent_memorialis_id", Type: field.TypeString, Nullable: true},
 		{Name: "preferred_first_name", Type: field.TypeString, Nullable: true},
 		{Name: "preferred_last_name", Type: field.TypeString, Nullable: true},
-		{Name: "replaces", Type: field.TypeJSON, Nullable: true},
-		{Name: "replaced_by", Type: field.TypeJSON, Nullable: true},
-		{Name: "date_last_login", Type: field.TypeTime, Nullable: true},
+		{Name: "job_title", Type: field.TypeString, Nullable: true},
 	}
 	// PersonTable holds the schema information for the "person" table.
 	PersonTable = &schema.Table{
@@ -79,47 +48,38 @@ var (
 			{
 				Name:    "person_active",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[47]},
+				Columns: []*schema.Column{PersonColumns[3]},
 			},
 			{
-				Name:    "person_orcid_id",
+				Name:    "person_orcid",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[43]},
-			},
-			{
-				Name:    "person_ugent_id",
-				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[8]},
-			},
-			{
-				Name:    "person_ugent_username",
-				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[4]},
+				Columns: []*schema.Column{PersonColumns[12]},
 			},
 			{
 				Name:    "person_email",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[10]},
+				Columns: []*schema.Column{PersonColumns[5]},
 			},
 			{
 				Name:    "person_first_name",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[5]},
+				Columns: []*schema.Column{PersonColumns[8]},
 			},
 			{
 				Name:    "person_last_name",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[7]},
+				Columns: []*schema.Column{PersonColumns[10]},
 			},
 			{
-				Name:    "person_publication_count",
+				Name:    "person_full_name",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[51]},
+				Columns: []*schema.Column{PersonColumns[9]},
 			},
 		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		IdentifiersTable,
 		PersonTable,
 	}
 )

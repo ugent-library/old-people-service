@@ -1,3 +1,9 @@
 host = "localhost"
 port = "5432"
-db = "postgres://biblio:biblio@localhost:5432/authority?sslmode=disable"
+production = false
+
+[db]
+url = "postgres://biblio:biblio@localhost:5432/authority?sslmode=disable"
+
+[nats]
+url = "nats://127.0.0.1:4222"

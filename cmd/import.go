@@ -17,7 +17,7 @@ var importCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		ps, err := models.NewPersonService(&models.PersonConfig{
-			DB: config.DB,
+			DB: config.Db.Url,
 		})
 
 		if err != nil {

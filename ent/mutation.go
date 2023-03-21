@@ -25,95 +25,303 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypePerson = "Person"
+	TypeIdentifier = "Identifier"
+	TypePerson     = "Person"
 )
+
+// IdentifierMutation represents an operation that mutates the Identifier nodes in the graph.
+type IdentifierMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*Identifier, error)
+	predicates    []predicate.Identifier
+}
+
+var _ ent.Mutation = (*IdentifierMutation)(nil)
+
+// identifierOption allows management of the mutation configuration using functional options.
+type identifierOption func(*IdentifierMutation)
+
+// newIdentifierMutation creates new mutation for the Identifier entity.
+func newIdentifierMutation(c config, op Op, opts ...identifierOption) *IdentifierMutation {
+	m := &IdentifierMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeIdentifier,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withIdentifierID sets the ID field of the mutation.
+func withIdentifierID(id int) identifierOption {
+	return func(m *IdentifierMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Identifier
+		)
+		m.oldValue = func(ctx context.Context) (*Identifier, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Identifier.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withIdentifier sets the old Identifier of the mutation.
+func withIdentifier(node *Identifier) identifierOption {
+	return func(m *IdentifierMutation) {
+		m.oldValue = func(context.Context) (*Identifier, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m IdentifierMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m IdentifierMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *IdentifierMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *IdentifierMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Identifier.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// Where appends a list predicates to the IdentifierMutation builder.
+func (m *IdentifierMutation) Where(ps ...predicate.Identifier) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the IdentifierMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *IdentifierMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Identifier, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *IdentifierMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *IdentifierMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Identifier).
+func (m *IdentifierMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *IdentifierMutation) Fields() []string {
+	fields := make([]string, 0, 0)
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *IdentifierMutation) Field(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *IdentifierMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	return nil, fmt.Errorf("unknown Identifier field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *IdentifierMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Identifier field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *IdentifierMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *IdentifierMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *IdentifierMutation) AddField(name string, value ent.Value) error {
+	return fmt.Errorf("unknown Identifier numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *IdentifierMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *IdentifierMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *IdentifierMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Identifier nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *IdentifierMutation) ResetField(name string) error {
+	return fmt.Errorf("unknown Identifier field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *IdentifierMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *IdentifierMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *IdentifierMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *IdentifierMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *IdentifierMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *IdentifierMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *IdentifierMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown Identifier unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *IdentifierMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown Identifier edge %s", name)
+}
 
 // PersonMutation represents an operation that mutates the Person nodes in the graph.
 type PersonMutation struct {
 	config
-	op                             Op
-	typ                            string
-	id                             *string
-	date_created                   *time.Time
-	date_updated                   *time.Time
-	object_class                   *[]string
-	appendobject_class             []string
-	ugent_username                 *string
-	first_name                     *string
-	middle_name                    *string
-	last_name                      *string
-	ugent_id                       *[]string
-	appendugent_id                 []string
-	birth_date                     *string
-	email                          *string
-	nationality                    *string
-	ugent_barcode                  *[]string
-	appendugent_barcode            []string
-	ugent_job_category             *[]string
-	appendugent_job_category       []string
-	title                          *string
-	ugent_tel                      *string
-	ugent_campus                   *[]string
-	appendugent_campus             []string
-	ugent_department_id            *[]string
-	appendugent_department_id      []string
-	ugent_faculty_id               *[]string
-	appendugent_faculty_id         []string
-	ugent_job_title                *[]string
-	appendugent_job_title          []string
-	ugent_street_address           *string
-	ugent_postal_code              *string
-	ugent_locality                 *string
-	ugent_last_enrolled            *string
-	home_street_address            *string
-	home_postal_code               *string
-	home_locality                  *string
-	home_country                   *string
-	home_tel                       *string
-	dorm_street_address            *string
-	dorm_postal_code               *string
-	dorm_locality                  *string
-	dorm_country                   *string
-	research_discipline            *[]string
-	appendresearch_discipline      []string
-	research_discipline_code       *[]string
-	appendresearch_discipline_code []string
-	ugent_expiration_date          *string
-	uzgent_job_title               *[]string
-	appenduzgent_job_title         []string
-	uzgent_department_name         *[]string
-	appenduzgent_department_name   []string
-	uzgent_id                      *[]string
-	appenduzgent_id                []string
-	ugent_ext_category             *[]string
-	appendugent_ext_category       []string
-	ugent_appointment_date         *string
-	ugent_department_name          *[]string
-	appendugent_department_name    []string
-	orcid_bio                      *string
-	orcid_id                       *string
-	orcid_settings                 *schema.OrcidSettings
-	orcid_token                    *string
-	orcid_verify                   *schema.OrcidVerify
-	active                         *bool
-	deleted                        *bool
-	settings                       *schema.Settings
-	roles                          *[]string
-	appendroles                    []string
-	publication_count              *int
-	addpublication_count           *int
-	ugent_memorialis_id            *string
-	preferred_first_name           *string
-	preferred_last_name            *string
-	replaces                       *[]map[string]string
-	appendreplaces                 []map[string]string
-	replaced_by                    *[]map[string]string
-	appendreplaced_by              []map[string]string
-	date_last_login                *time.Time
-	clearedFields                  map[string]struct{}
-	done                           bool
-	oldValue                       func(context.Context) (*Person, error)
-	predicates                     []predicate.Person
+	op                    Op
+	typ                   string
+	id                    *string
+	date_created          *time.Time
+	date_updated          *time.Time
+	active                *bool
+	birth_date            *string
+	email                 *string
+	other_id              *[]schema.IdRef
+	appendother_id        []schema.IdRef
+	organization_id       *[]string
+	appendorganization_id []string
+	first_name            *string
+	full_name             *string
+	last_name             *string
+	category              *[]string
+	appendcategory        []string
+	orcid                 *string
+	orcid_token           *string
+	preferred_first_name  *string
+	preferred_last_name   *string
+	job_title             *string
+	clearedFields         map[string]struct{}
+	done                  bool
+	oldValue              func(context.Context) (*Person, error)
+	predicates            []predicate.Person
 }
 
 var _ ent.Mutation = (*PersonMutation)(nil)
@@ -292,330 +500,40 @@ func (m *PersonMutation) ResetDateUpdated() {
 	m.date_updated = nil
 }
 
-// SetObjectClass sets the "object_class" field.
-func (m *PersonMutation) SetObjectClass(s []string) {
-	m.object_class = &s
-	m.appendobject_class = nil
+// SetActive sets the "active" field.
+func (m *PersonMutation) SetActive(b bool) {
+	m.active = &b
 }
 
-// ObjectClass returns the value of the "object_class" field in the mutation.
-func (m *PersonMutation) ObjectClass() (r []string, exists bool) {
-	v := m.object_class
+// Active returns the value of the "active" field in the mutation.
+func (m *PersonMutation) Active() (r bool, exists bool) {
+	v := m.active
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldObjectClass returns the old "object_class" field's value of the Person entity.
+// OldActive returns the old "active" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldObjectClass(ctx context.Context) (v []string, err error) {
+func (m *PersonMutation) OldActive(ctx context.Context) (v bool, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldObjectClass is only allowed on UpdateOne operations")
+		return v, errors.New("OldActive is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldObjectClass requires an ID field in the mutation")
+		return v, errors.New("OldActive requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldObjectClass: %w", err)
+		return v, fmt.Errorf("querying old value for OldActive: %w", err)
 	}
-	return oldValue.ObjectClass, nil
+	return oldValue.Active, nil
 }
 
-// AppendObjectClass adds s to the "object_class" field.
-func (m *PersonMutation) AppendObjectClass(s []string) {
-	m.appendobject_class = append(m.appendobject_class, s...)
-}
-
-// AppendedObjectClass returns the list of values that were appended to the "object_class" field in this mutation.
-func (m *PersonMutation) AppendedObjectClass() ([]string, bool) {
-	if len(m.appendobject_class) == 0 {
-		return nil, false
-	}
-	return m.appendobject_class, true
-}
-
-// ClearObjectClass clears the value of the "object_class" field.
-func (m *PersonMutation) ClearObjectClass() {
-	m.object_class = nil
-	m.appendobject_class = nil
-	m.clearedFields[person.FieldObjectClass] = struct{}{}
-}
-
-// ObjectClassCleared returns if the "object_class" field was cleared in this mutation.
-func (m *PersonMutation) ObjectClassCleared() bool {
-	_, ok := m.clearedFields[person.FieldObjectClass]
-	return ok
-}
-
-// ResetObjectClass resets all changes to the "object_class" field.
-func (m *PersonMutation) ResetObjectClass() {
-	m.object_class = nil
-	m.appendobject_class = nil
-	delete(m.clearedFields, person.FieldObjectClass)
-}
-
-// SetUgentUsername sets the "ugent_username" field.
-func (m *PersonMutation) SetUgentUsername(s string) {
-	m.ugent_username = &s
-}
-
-// UgentUsername returns the value of the "ugent_username" field in the mutation.
-func (m *PersonMutation) UgentUsername() (r string, exists bool) {
-	v := m.ugent_username
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentUsername returns the old "ugent_username" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentUsername(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentUsername is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentUsername requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentUsername: %w", err)
-	}
-	return oldValue.UgentUsername, nil
-}
-
-// ClearUgentUsername clears the value of the "ugent_username" field.
-func (m *PersonMutation) ClearUgentUsername() {
-	m.ugent_username = nil
-	m.clearedFields[person.FieldUgentUsername] = struct{}{}
-}
-
-// UgentUsernameCleared returns if the "ugent_username" field was cleared in this mutation.
-func (m *PersonMutation) UgentUsernameCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentUsername]
-	return ok
-}
-
-// ResetUgentUsername resets all changes to the "ugent_username" field.
-func (m *PersonMutation) ResetUgentUsername() {
-	m.ugent_username = nil
-	delete(m.clearedFields, person.FieldUgentUsername)
-}
-
-// SetFirstName sets the "first_name" field.
-func (m *PersonMutation) SetFirstName(s string) {
-	m.first_name = &s
-}
-
-// FirstName returns the value of the "first_name" field in the mutation.
-func (m *PersonMutation) FirstName() (r string, exists bool) {
-	v := m.first_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldFirstName returns the old "first_name" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldFirstName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldFirstName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldFirstName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldFirstName: %w", err)
-	}
-	return oldValue.FirstName, nil
-}
-
-// ClearFirstName clears the value of the "first_name" field.
-func (m *PersonMutation) ClearFirstName() {
-	m.first_name = nil
-	m.clearedFields[person.FieldFirstName] = struct{}{}
-}
-
-// FirstNameCleared returns if the "first_name" field was cleared in this mutation.
-func (m *PersonMutation) FirstNameCleared() bool {
-	_, ok := m.clearedFields[person.FieldFirstName]
-	return ok
-}
-
-// ResetFirstName resets all changes to the "first_name" field.
-func (m *PersonMutation) ResetFirstName() {
-	m.first_name = nil
-	delete(m.clearedFields, person.FieldFirstName)
-}
-
-// SetMiddleName sets the "middle_name" field.
-func (m *PersonMutation) SetMiddleName(s string) {
-	m.middle_name = &s
-}
-
-// MiddleName returns the value of the "middle_name" field in the mutation.
-func (m *PersonMutation) MiddleName() (r string, exists bool) {
-	v := m.middle_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldMiddleName returns the old "middle_name" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldMiddleName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldMiddleName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldMiddleName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldMiddleName: %w", err)
-	}
-	return oldValue.MiddleName, nil
-}
-
-// ClearMiddleName clears the value of the "middle_name" field.
-func (m *PersonMutation) ClearMiddleName() {
-	m.middle_name = nil
-	m.clearedFields[person.FieldMiddleName] = struct{}{}
-}
-
-// MiddleNameCleared returns if the "middle_name" field was cleared in this mutation.
-func (m *PersonMutation) MiddleNameCleared() bool {
-	_, ok := m.clearedFields[person.FieldMiddleName]
-	return ok
-}
-
-// ResetMiddleName resets all changes to the "middle_name" field.
-func (m *PersonMutation) ResetMiddleName() {
-	m.middle_name = nil
-	delete(m.clearedFields, person.FieldMiddleName)
-}
-
-// SetLastName sets the "last_name" field.
-func (m *PersonMutation) SetLastName(s string) {
-	m.last_name = &s
-}
-
-// LastName returns the value of the "last_name" field in the mutation.
-func (m *PersonMutation) LastName() (r string, exists bool) {
-	v := m.last_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldLastName returns the old "last_name" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldLastName(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldLastName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldLastName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldLastName: %w", err)
-	}
-	return oldValue.LastName, nil
-}
-
-// ClearLastName clears the value of the "last_name" field.
-func (m *PersonMutation) ClearLastName() {
-	m.last_name = nil
-	m.clearedFields[person.FieldLastName] = struct{}{}
-}
-
-// LastNameCleared returns if the "last_name" field was cleared in this mutation.
-func (m *PersonMutation) LastNameCleared() bool {
-	_, ok := m.clearedFields[person.FieldLastName]
-	return ok
-}
-
-// ResetLastName resets all changes to the "last_name" field.
-func (m *PersonMutation) ResetLastName() {
-	m.last_name = nil
-	delete(m.clearedFields, person.FieldLastName)
-}
-
-// SetUgentID sets the "ugent_id" field.
-func (m *PersonMutation) SetUgentID(s []string) {
-	m.ugent_id = &s
-	m.appendugent_id = nil
-}
-
-// UgentID returns the value of the "ugent_id" field in the mutation.
-func (m *PersonMutation) UgentID() (r []string, exists bool) {
-	v := m.ugent_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentID returns the old "ugent_id" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentID(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentID: %w", err)
-	}
-	return oldValue.UgentID, nil
-}
-
-// AppendUgentID adds s to the "ugent_id" field.
-func (m *PersonMutation) AppendUgentID(s []string) {
-	m.appendugent_id = append(m.appendugent_id, s...)
-}
-
-// AppendedUgentID returns the list of values that were appended to the "ugent_id" field in this mutation.
-func (m *PersonMutation) AppendedUgentID() ([]string, bool) {
-	if len(m.appendugent_id) == 0 {
-		return nil, false
-	}
-	return m.appendugent_id, true
-}
-
-// ClearUgentID clears the value of the "ugent_id" field.
-func (m *PersonMutation) ClearUgentID() {
-	m.ugent_id = nil
-	m.appendugent_id = nil
-	m.clearedFields[person.FieldUgentID] = struct{}{}
-}
-
-// UgentIDCleared returns if the "ugent_id" field was cleared in this mutation.
-func (m *PersonMutation) UgentIDCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentID]
-	return ok
-}
-
-// ResetUgentID resets all changes to the "ugent_id" field.
-func (m *PersonMutation) ResetUgentID() {
-	m.ugent_id = nil
-	m.appendugent_id = nil
-	delete(m.clearedFields, person.FieldUgentID)
+// ResetActive resets all changes to the "active" field.
+func (m *PersonMutation) ResetActive() {
+	m.active = nil
 }
 
 // SetBirthDate sets the "birth_date" field.
@@ -716,1878 +634,395 @@ func (m *PersonMutation) ResetEmail() {
 	delete(m.clearedFields, person.FieldEmail)
 }
 
-// SetNationality sets the "nationality" field.
-func (m *PersonMutation) SetNationality(s string) {
-	m.nationality = &s
+// SetOtherID sets the "other_id" field.
+func (m *PersonMutation) SetOtherID(sr []schema.IdRef) {
+	m.other_id = &sr
+	m.appendother_id = nil
 }
 
-// Nationality returns the value of the "nationality" field in the mutation.
-func (m *PersonMutation) Nationality() (r string, exists bool) {
-	v := m.nationality
+// OtherID returns the value of the "other_id" field in the mutation.
+func (m *PersonMutation) OtherID() (r []schema.IdRef, exists bool) {
+	v := m.other_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldNationality returns the old "nationality" field's value of the Person entity.
+// OldOtherID returns the old "other_id" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldNationality(ctx context.Context) (v string, err error) {
+func (m *PersonMutation) OldOtherID(ctx context.Context) (v []schema.IdRef, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldNationality is only allowed on UpdateOne operations")
+		return v, errors.New("OldOtherID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldNationality requires an ID field in the mutation")
+		return v, errors.New("OldOtherID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldNationality: %w", err)
+		return v, fmt.Errorf("querying old value for OldOtherID: %w", err)
 	}
-	return oldValue.Nationality, nil
+	return oldValue.OtherID, nil
 }
 
-// ClearNationality clears the value of the "nationality" field.
-func (m *PersonMutation) ClearNationality() {
-	m.nationality = nil
-	m.clearedFields[person.FieldNationality] = struct{}{}
+// AppendOtherID adds sr to the "other_id" field.
+func (m *PersonMutation) AppendOtherID(sr []schema.IdRef) {
+	m.appendother_id = append(m.appendother_id, sr...)
 }
 
-// NationalityCleared returns if the "nationality" field was cleared in this mutation.
-func (m *PersonMutation) NationalityCleared() bool {
-	_, ok := m.clearedFields[person.FieldNationality]
-	return ok
-}
-
-// ResetNationality resets all changes to the "nationality" field.
-func (m *PersonMutation) ResetNationality() {
-	m.nationality = nil
-	delete(m.clearedFields, person.FieldNationality)
-}
-
-// SetUgentBarcode sets the "ugent_barcode" field.
-func (m *PersonMutation) SetUgentBarcode(s []string) {
-	m.ugent_barcode = &s
-	m.appendugent_barcode = nil
-}
-
-// UgentBarcode returns the value of the "ugent_barcode" field in the mutation.
-func (m *PersonMutation) UgentBarcode() (r []string, exists bool) {
-	v := m.ugent_barcode
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentBarcode returns the old "ugent_barcode" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentBarcode(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentBarcode is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentBarcode requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentBarcode: %w", err)
-	}
-	return oldValue.UgentBarcode, nil
-}
-
-// AppendUgentBarcode adds s to the "ugent_barcode" field.
-func (m *PersonMutation) AppendUgentBarcode(s []string) {
-	m.appendugent_barcode = append(m.appendugent_barcode, s...)
-}
-
-// AppendedUgentBarcode returns the list of values that were appended to the "ugent_barcode" field in this mutation.
-func (m *PersonMutation) AppendedUgentBarcode() ([]string, bool) {
-	if len(m.appendugent_barcode) == 0 {
+// AppendedOtherID returns the list of values that were appended to the "other_id" field in this mutation.
+func (m *PersonMutation) AppendedOtherID() ([]schema.IdRef, bool) {
+	if len(m.appendother_id) == 0 {
 		return nil, false
 	}
-	return m.appendugent_barcode, true
+	return m.appendother_id, true
 }
 
-// ClearUgentBarcode clears the value of the "ugent_barcode" field.
-func (m *PersonMutation) ClearUgentBarcode() {
-	m.ugent_barcode = nil
-	m.appendugent_barcode = nil
-	m.clearedFields[person.FieldUgentBarcode] = struct{}{}
+// ClearOtherID clears the value of the "other_id" field.
+func (m *PersonMutation) ClearOtherID() {
+	m.other_id = nil
+	m.appendother_id = nil
+	m.clearedFields[person.FieldOtherID] = struct{}{}
 }
 
-// UgentBarcodeCleared returns if the "ugent_barcode" field was cleared in this mutation.
-func (m *PersonMutation) UgentBarcodeCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentBarcode]
+// OtherIDCleared returns if the "other_id" field was cleared in this mutation.
+func (m *PersonMutation) OtherIDCleared() bool {
+	_, ok := m.clearedFields[person.FieldOtherID]
 	return ok
 }
 
-// ResetUgentBarcode resets all changes to the "ugent_barcode" field.
-func (m *PersonMutation) ResetUgentBarcode() {
-	m.ugent_barcode = nil
-	m.appendugent_barcode = nil
-	delete(m.clearedFields, person.FieldUgentBarcode)
+// ResetOtherID resets all changes to the "other_id" field.
+func (m *PersonMutation) ResetOtherID() {
+	m.other_id = nil
+	m.appendother_id = nil
+	delete(m.clearedFields, person.FieldOtherID)
 }
 
-// SetUgentJobCategory sets the "ugent_job_category" field.
-func (m *PersonMutation) SetUgentJobCategory(s []string) {
-	m.ugent_job_category = &s
-	m.appendugent_job_category = nil
+// SetOrganizationID sets the "organization_id" field.
+func (m *PersonMutation) SetOrganizationID(s []string) {
+	m.organization_id = &s
+	m.appendorganization_id = nil
 }
 
-// UgentJobCategory returns the value of the "ugent_job_category" field in the mutation.
-func (m *PersonMutation) UgentJobCategory() (r []string, exists bool) {
-	v := m.ugent_job_category
+// OrganizationID returns the value of the "organization_id" field in the mutation.
+func (m *PersonMutation) OrganizationID() (r []string, exists bool) {
+	v := m.organization_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUgentJobCategory returns the old "ugent_job_category" field's value of the Person entity.
+// OldOrganizationID returns the old "organization_id" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentJobCategory(ctx context.Context) (v []string, err error) {
+func (m *PersonMutation) OldOrganizationID(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentJobCategory is only allowed on UpdateOne operations")
+		return v, errors.New("OldOrganizationID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentJobCategory requires an ID field in the mutation")
+		return v, errors.New("OldOrganizationID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentJobCategory: %w", err)
+		return v, fmt.Errorf("querying old value for OldOrganizationID: %w", err)
 	}
-	return oldValue.UgentJobCategory, nil
+	return oldValue.OrganizationID, nil
 }
 
-// AppendUgentJobCategory adds s to the "ugent_job_category" field.
-func (m *PersonMutation) AppendUgentJobCategory(s []string) {
-	m.appendugent_job_category = append(m.appendugent_job_category, s...)
+// AppendOrganizationID adds s to the "organization_id" field.
+func (m *PersonMutation) AppendOrganizationID(s []string) {
+	m.appendorganization_id = append(m.appendorganization_id, s...)
 }
 
-// AppendedUgentJobCategory returns the list of values that were appended to the "ugent_job_category" field in this mutation.
-func (m *PersonMutation) AppendedUgentJobCategory() ([]string, bool) {
-	if len(m.appendugent_job_category) == 0 {
+// AppendedOrganizationID returns the list of values that were appended to the "organization_id" field in this mutation.
+func (m *PersonMutation) AppendedOrganizationID() ([]string, bool) {
+	if len(m.appendorganization_id) == 0 {
 		return nil, false
 	}
-	return m.appendugent_job_category, true
+	return m.appendorganization_id, true
 }
 
-// ClearUgentJobCategory clears the value of the "ugent_job_category" field.
-func (m *PersonMutation) ClearUgentJobCategory() {
-	m.ugent_job_category = nil
-	m.appendugent_job_category = nil
-	m.clearedFields[person.FieldUgentJobCategory] = struct{}{}
+// ClearOrganizationID clears the value of the "organization_id" field.
+func (m *PersonMutation) ClearOrganizationID() {
+	m.organization_id = nil
+	m.appendorganization_id = nil
+	m.clearedFields[person.FieldOrganizationID] = struct{}{}
 }
 
-// UgentJobCategoryCleared returns if the "ugent_job_category" field was cleared in this mutation.
-func (m *PersonMutation) UgentJobCategoryCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentJobCategory]
+// OrganizationIDCleared returns if the "organization_id" field was cleared in this mutation.
+func (m *PersonMutation) OrganizationIDCleared() bool {
+	_, ok := m.clearedFields[person.FieldOrganizationID]
 	return ok
 }
 
-// ResetUgentJobCategory resets all changes to the "ugent_job_category" field.
-func (m *PersonMutation) ResetUgentJobCategory() {
-	m.ugent_job_category = nil
-	m.appendugent_job_category = nil
-	delete(m.clearedFields, person.FieldUgentJobCategory)
+// ResetOrganizationID resets all changes to the "organization_id" field.
+func (m *PersonMutation) ResetOrganizationID() {
+	m.organization_id = nil
+	m.appendorganization_id = nil
+	delete(m.clearedFields, person.FieldOrganizationID)
 }
 
-// SetTitle sets the "title" field.
-func (m *PersonMutation) SetTitle(s string) {
-	m.title = &s
+// SetFirstName sets the "first_name" field.
+func (m *PersonMutation) SetFirstName(s string) {
+	m.first_name = &s
 }
 
-// Title returns the value of the "title" field in the mutation.
-func (m *PersonMutation) Title() (r string, exists bool) {
-	v := m.title
+// FirstName returns the value of the "first_name" field in the mutation.
+func (m *PersonMutation) FirstName() (r string, exists bool) {
+	v := m.first_name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldTitle returns the old "title" field's value of the Person entity.
+// OldFirstName returns the old "first_name" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldTitle(ctx context.Context) (v string, err error) {
+func (m *PersonMutation) OldFirstName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+		return v, errors.New("OldFirstName is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldTitle requires an ID field in the mutation")
+		return v, errors.New("OldFirstName requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+		return v, fmt.Errorf("querying old value for OldFirstName: %w", err)
 	}
-	return oldValue.Title, nil
+	return oldValue.FirstName, nil
 }
 
-// ClearTitle clears the value of the "title" field.
-func (m *PersonMutation) ClearTitle() {
-	m.title = nil
-	m.clearedFields[person.FieldTitle] = struct{}{}
+// ClearFirstName clears the value of the "first_name" field.
+func (m *PersonMutation) ClearFirstName() {
+	m.first_name = nil
+	m.clearedFields[person.FieldFirstName] = struct{}{}
 }
 
-// TitleCleared returns if the "title" field was cleared in this mutation.
-func (m *PersonMutation) TitleCleared() bool {
-	_, ok := m.clearedFields[person.FieldTitle]
+// FirstNameCleared returns if the "first_name" field was cleared in this mutation.
+func (m *PersonMutation) FirstNameCleared() bool {
+	_, ok := m.clearedFields[person.FieldFirstName]
 	return ok
 }
 
-// ResetTitle resets all changes to the "title" field.
-func (m *PersonMutation) ResetTitle() {
-	m.title = nil
-	delete(m.clearedFields, person.FieldTitle)
+// ResetFirstName resets all changes to the "first_name" field.
+func (m *PersonMutation) ResetFirstName() {
+	m.first_name = nil
+	delete(m.clearedFields, person.FieldFirstName)
 }
 
-// SetUgentTel sets the "ugent_tel" field.
-func (m *PersonMutation) SetUgentTel(s string) {
-	m.ugent_tel = &s
+// SetFullName sets the "full_name" field.
+func (m *PersonMutation) SetFullName(s string) {
+	m.full_name = &s
 }
 
-// UgentTel returns the value of the "ugent_tel" field in the mutation.
-func (m *PersonMutation) UgentTel() (r string, exists bool) {
-	v := m.ugent_tel
+// FullName returns the value of the "full_name" field in the mutation.
+func (m *PersonMutation) FullName() (r string, exists bool) {
+	v := m.full_name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUgentTel returns the old "ugent_tel" field's value of the Person entity.
+// OldFullName returns the old "full_name" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentTel(ctx context.Context) (v string, err error) {
+func (m *PersonMutation) OldFullName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentTel is only allowed on UpdateOne operations")
+		return v, errors.New("OldFullName is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentTel requires an ID field in the mutation")
+		return v, errors.New("OldFullName requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentTel: %w", err)
+		return v, fmt.Errorf("querying old value for OldFullName: %w", err)
 	}
-	return oldValue.UgentTel, nil
+	return oldValue.FullName, nil
 }
 
-// ClearUgentTel clears the value of the "ugent_tel" field.
-func (m *PersonMutation) ClearUgentTel() {
-	m.ugent_tel = nil
-	m.clearedFields[person.FieldUgentTel] = struct{}{}
+// ClearFullName clears the value of the "full_name" field.
+func (m *PersonMutation) ClearFullName() {
+	m.full_name = nil
+	m.clearedFields[person.FieldFullName] = struct{}{}
 }
 
-// UgentTelCleared returns if the "ugent_tel" field was cleared in this mutation.
-func (m *PersonMutation) UgentTelCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentTel]
+// FullNameCleared returns if the "full_name" field was cleared in this mutation.
+func (m *PersonMutation) FullNameCleared() bool {
+	_, ok := m.clearedFields[person.FieldFullName]
 	return ok
 }
 
-// ResetUgentTel resets all changes to the "ugent_tel" field.
-func (m *PersonMutation) ResetUgentTel() {
-	m.ugent_tel = nil
-	delete(m.clearedFields, person.FieldUgentTel)
+// ResetFullName resets all changes to the "full_name" field.
+func (m *PersonMutation) ResetFullName() {
+	m.full_name = nil
+	delete(m.clearedFields, person.FieldFullName)
 }
 
-// SetUgentCampus sets the "ugent_campus" field.
-func (m *PersonMutation) SetUgentCampus(s []string) {
-	m.ugent_campus = &s
-	m.appendugent_campus = nil
+// SetLastName sets the "last_name" field.
+func (m *PersonMutation) SetLastName(s string) {
+	m.last_name = &s
 }
 
-// UgentCampus returns the value of the "ugent_campus" field in the mutation.
-func (m *PersonMutation) UgentCampus() (r []string, exists bool) {
-	v := m.ugent_campus
+// LastName returns the value of the "last_name" field in the mutation.
+func (m *PersonMutation) LastName() (r string, exists bool) {
+	v := m.last_name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUgentCampus returns the old "ugent_campus" field's value of the Person entity.
+// OldLastName returns the old "last_name" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentCampus(ctx context.Context) (v []string, err error) {
+func (m *PersonMutation) OldLastName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentCampus is only allowed on UpdateOne operations")
+		return v, errors.New("OldLastName is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentCampus requires an ID field in the mutation")
+		return v, errors.New("OldLastName requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentCampus: %w", err)
+		return v, fmt.Errorf("querying old value for OldLastName: %w", err)
 	}
-	return oldValue.UgentCampus, nil
+	return oldValue.LastName, nil
 }
 
-// AppendUgentCampus adds s to the "ugent_campus" field.
-func (m *PersonMutation) AppendUgentCampus(s []string) {
-	m.appendugent_campus = append(m.appendugent_campus, s...)
+// ClearLastName clears the value of the "last_name" field.
+func (m *PersonMutation) ClearLastName() {
+	m.last_name = nil
+	m.clearedFields[person.FieldLastName] = struct{}{}
 }
 
-// AppendedUgentCampus returns the list of values that were appended to the "ugent_campus" field in this mutation.
-func (m *PersonMutation) AppendedUgentCampus() ([]string, bool) {
-	if len(m.appendugent_campus) == 0 {
+// LastNameCleared returns if the "last_name" field was cleared in this mutation.
+func (m *PersonMutation) LastNameCleared() bool {
+	_, ok := m.clearedFields[person.FieldLastName]
+	return ok
+}
+
+// ResetLastName resets all changes to the "last_name" field.
+func (m *PersonMutation) ResetLastName() {
+	m.last_name = nil
+	delete(m.clearedFields, person.FieldLastName)
+}
+
+// SetCategory sets the "category" field.
+func (m *PersonMutation) SetCategory(s []string) {
+	m.category = &s
+	m.appendcategory = nil
+}
+
+// Category returns the value of the "category" field in the mutation.
+func (m *PersonMutation) Category() (r []string, exists bool) {
+	v := m.category
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategory returns the old "category" field's value of the Person entity.
+// If the Person object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PersonMutation) OldCategory(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategory requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+	}
+	return oldValue.Category, nil
+}
+
+// AppendCategory adds s to the "category" field.
+func (m *PersonMutation) AppendCategory(s []string) {
+	m.appendcategory = append(m.appendcategory, s...)
+}
+
+// AppendedCategory returns the list of values that were appended to the "category" field in this mutation.
+func (m *PersonMutation) AppendedCategory() ([]string, bool) {
+	if len(m.appendcategory) == 0 {
 		return nil, false
 	}
-	return m.appendugent_campus, true
+	return m.appendcategory, true
 }
 
-// ClearUgentCampus clears the value of the "ugent_campus" field.
-func (m *PersonMutation) ClearUgentCampus() {
-	m.ugent_campus = nil
-	m.appendugent_campus = nil
-	m.clearedFields[person.FieldUgentCampus] = struct{}{}
+// ClearCategory clears the value of the "category" field.
+func (m *PersonMutation) ClearCategory() {
+	m.category = nil
+	m.appendcategory = nil
+	m.clearedFields[person.FieldCategory] = struct{}{}
 }
 
-// UgentCampusCleared returns if the "ugent_campus" field was cleared in this mutation.
-func (m *PersonMutation) UgentCampusCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentCampus]
+// CategoryCleared returns if the "category" field was cleared in this mutation.
+func (m *PersonMutation) CategoryCleared() bool {
+	_, ok := m.clearedFields[person.FieldCategory]
 	return ok
 }
 
-// ResetUgentCampus resets all changes to the "ugent_campus" field.
-func (m *PersonMutation) ResetUgentCampus() {
-	m.ugent_campus = nil
-	m.appendugent_campus = nil
-	delete(m.clearedFields, person.FieldUgentCampus)
+// ResetCategory resets all changes to the "category" field.
+func (m *PersonMutation) ResetCategory() {
+	m.category = nil
+	m.appendcategory = nil
+	delete(m.clearedFields, person.FieldCategory)
 }
 
-// SetUgentDepartmentID sets the "ugent_department_id" field.
-func (m *PersonMutation) SetUgentDepartmentID(s []string) {
-	m.ugent_department_id = &s
-	m.appendugent_department_id = nil
+// SetOrcid sets the "orcid" field.
+func (m *PersonMutation) SetOrcid(s string) {
+	m.orcid = &s
 }
 
-// UgentDepartmentID returns the value of the "ugent_department_id" field in the mutation.
-func (m *PersonMutation) UgentDepartmentID() (r []string, exists bool) {
-	v := m.ugent_department_id
+// Orcid returns the value of the "orcid" field in the mutation.
+func (m *PersonMutation) Orcid() (r string, exists bool) {
+	v := m.orcid
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUgentDepartmentID returns the old "ugent_department_id" field's value of the Person entity.
+// OldOrcid returns the old "orcid" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentDepartmentID(ctx context.Context) (v []string, err error) {
+func (m *PersonMutation) OldOrcid(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentDepartmentID is only allowed on UpdateOne operations")
+		return v, errors.New("OldOrcid is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentDepartmentID requires an ID field in the mutation")
+		return v, errors.New("OldOrcid requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentDepartmentID: %w", err)
+		return v, fmt.Errorf("querying old value for OldOrcid: %w", err)
 	}
-	return oldValue.UgentDepartmentID, nil
+	return oldValue.Orcid, nil
 }
 
-// AppendUgentDepartmentID adds s to the "ugent_department_id" field.
-func (m *PersonMutation) AppendUgentDepartmentID(s []string) {
-	m.appendugent_department_id = append(m.appendugent_department_id, s...)
+// ClearOrcid clears the value of the "orcid" field.
+func (m *PersonMutation) ClearOrcid() {
+	m.orcid = nil
+	m.clearedFields[person.FieldOrcid] = struct{}{}
 }
 
-// AppendedUgentDepartmentID returns the list of values that were appended to the "ugent_department_id" field in this mutation.
-func (m *PersonMutation) AppendedUgentDepartmentID() ([]string, bool) {
-	if len(m.appendugent_department_id) == 0 {
-		return nil, false
-	}
-	return m.appendugent_department_id, true
-}
-
-// ClearUgentDepartmentID clears the value of the "ugent_department_id" field.
-func (m *PersonMutation) ClearUgentDepartmentID() {
-	m.ugent_department_id = nil
-	m.appendugent_department_id = nil
-	m.clearedFields[person.FieldUgentDepartmentID] = struct{}{}
-}
-
-// UgentDepartmentIDCleared returns if the "ugent_department_id" field was cleared in this mutation.
-func (m *PersonMutation) UgentDepartmentIDCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentDepartmentID]
+// OrcidCleared returns if the "orcid" field was cleared in this mutation.
+func (m *PersonMutation) OrcidCleared() bool {
+	_, ok := m.clearedFields[person.FieldOrcid]
 	return ok
 }
 
-// ResetUgentDepartmentID resets all changes to the "ugent_department_id" field.
-func (m *PersonMutation) ResetUgentDepartmentID() {
-	m.ugent_department_id = nil
-	m.appendugent_department_id = nil
-	delete(m.clearedFields, person.FieldUgentDepartmentID)
-}
-
-// SetUgentFacultyID sets the "ugent_faculty_id" field.
-func (m *PersonMutation) SetUgentFacultyID(s []string) {
-	m.ugent_faculty_id = &s
-	m.appendugent_faculty_id = nil
-}
-
-// UgentFacultyID returns the value of the "ugent_faculty_id" field in the mutation.
-func (m *PersonMutation) UgentFacultyID() (r []string, exists bool) {
-	v := m.ugent_faculty_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentFacultyID returns the old "ugent_faculty_id" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentFacultyID(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentFacultyID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentFacultyID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentFacultyID: %w", err)
-	}
-	return oldValue.UgentFacultyID, nil
-}
-
-// AppendUgentFacultyID adds s to the "ugent_faculty_id" field.
-func (m *PersonMutation) AppendUgentFacultyID(s []string) {
-	m.appendugent_faculty_id = append(m.appendugent_faculty_id, s...)
-}
-
-// AppendedUgentFacultyID returns the list of values that were appended to the "ugent_faculty_id" field in this mutation.
-func (m *PersonMutation) AppendedUgentFacultyID() ([]string, bool) {
-	if len(m.appendugent_faculty_id) == 0 {
-		return nil, false
-	}
-	return m.appendugent_faculty_id, true
-}
-
-// ClearUgentFacultyID clears the value of the "ugent_faculty_id" field.
-func (m *PersonMutation) ClearUgentFacultyID() {
-	m.ugent_faculty_id = nil
-	m.appendugent_faculty_id = nil
-	m.clearedFields[person.FieldUgentFacultyID] = struct{}{}
-}
-
-// UgentFacultyIDCleared returns if the "ugent_faculty_id" field was cleared in this mutation.
-func (m *PersonMutation) UgentFacultyIDCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentFacultyID]
-	return ok
-}
-
-// ResetUgentFacultyID resets all changes to the "ugent_faculty_id" field.
-func (m *PersonMutation) ResetUgentFacultyID() {
-	m.ugent_faculty_id = nil
-	m.appendugent_faculty_id = nil
-	delete(m.clearedFields, person.FieldUgentFacultyID)
-}
-
-// SetUgentJobTitle sets the "ugent_job_title" field.
-func (m *PersonMutation) SetUgentJobTitle(s []string) {
-	m.ugent_job_title = &s
-	m.appendugent_job_title = nil
-}
-
-// UgentJobTitle returns the value of the "ugent_job_title" field in the mutation.
-func (m *PersonMutation) UgentJobTitle() (r []string, exists bool) {
-	v := m.ugent_job_title
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentJobTitle returns the old "ugent_job_title" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentJobTitle(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentJobTitle is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentJobTitle requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentJobTitle: %w", err)
-	}
-	return oldValue.UgentJobTitle, nil
-}
-
-// AppendUgentJobTitle adds s to the "ugent_job_title" field.
-func (m *PersonMutation) AppendUgentJobTitle(s []string) {
-	m.appendugent_job_title = append(m.appendugent_job_title, s...)
-}
-
-// AppendedUgentJobTitle returns the list of values that were appended to the "ugent_job_title" field in this mutation.
-func (m *PersonMutation) AppendedUgentJobTitle() ([]string, bool) {
-	if len(m.appendugent_job_title) == 0 {
-		return nil, false
-	}
-	return m.appendugent_job_title, true
-}
-
-// ClearUgentJobTitle clears the value of the "ugent_job_title" field.
-func (m *PersonMutation) ClearUgentJobTitle() {
-	m.ugent_job_title = nil
-	m.appendugent_job_title = nil
-	m.clearedFields[person.FieldUgentJobTitle] = struct{}{}
-}
-
-// UgentJobTitleCleared returns if the "ugent_job_title" field was cleared in this mutation.
-func (m *PersonMutation) UgentJobTitleCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentJobTitle]
-	return ok
-}
-
-// ResetUgentJobTitle resets all changes to the "ugent_job_title" field.
-func (m *PersonMutation) ResetUgentJobTitle() {
-	m.ugent_job_title = nil
-	m.appendugent_job_title = nil
-	delete(m.clearedFields, person.FieldUgentJobTitle)
-}
-
-// SetUgentStreetAddress sets the "ugent_street_address" field.
-func (m *PersonMutation) SetUgentStreetAddress(s string) {
-	m.ugent_street_address = &s
-}
-
-// UgentStreetAddress returns the value of the "ugent_street_address" field in the mutation.
-func (m *PersonMutation) UgentStreetAddress() (r string, exists bool) {
-	v := m.ugent_street_address
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentStreetAddress returns the old "ugent_street_address" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentStreetAddress(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentStreetAddress is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentStreetAddress requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentStreetAddress: %w", err)
-	}
-	return oldValue.UgentStreetAddress, nil
-}
-
-// ClearUgentStreetAddress clears the value of the "ugent_street_address" field.
-func (m *PersonMutation) ClearUgentStreetAddress() {
-	m.ugent_street_address = nil
-	m.clearedFields[person.FieldUgentStreetAddress] = struct{}{}
-}
-
-// UgentStreetAddressCleared returns if the "ugent_street_address" field was cleared in this mutation.
-func (m *PersonMutation) UgentStreetAddressCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentStreetAddress]
-	return ok
-}
-
-// ResetUgentStreetAddress resets all changes to the "ugent_street_address" field.
-func (m *PersonMutation) ResetUgentStreetAddress() {
-	m.ugent_street_address = nil
-	delete(m.clearedFields, person.FieldUgentStreetAddress)
-}
-
-// SetUgentPostalCode sets the "ugent_postal_code" field.
-func (m *PersonMutation) SetUgentPostalCode(s string) {
-	m.ugent_postal_code = &s
-}
-
-// UgentPostalCode returns the value of the "ugent_postal_code" field in the mutation.
-func (m *PersonMutation) UgentPostalCode() (r string, exists bool) {
-	v := m.ugent_postal_code
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentPostalCode returns the old "ugent_postal_code" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentPostalCode(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentPostalCode is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentPostalCode requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentPostalCode: %w", err)
-	}
-	return oldValue.UgentPostalCode, nil
-}
-
-// ClearUgentPostalCode clears the value of the "ugent_postal_code" field.
-func (m *PersonMutation) ClearUgentPostalCode() {
-	m.ugent_postal_code = nil
-	m.clearedFields[person.FieldUgentPostalCode] = struct{}{}
-}
-
-// UgentPostalCodeCleared returns if the "ugent_postal_code" field was cleared in this mutation.
-func (m *PersonMutation) UgentPostalCodeCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentPostalCode]
-	return ok
-}
-
-// ResetUgentPostalCode resets all changes to the "ugent_postal_code" field.
-func (m *PersonMutation) ResetUgentPostalCode() {
-	m.ugent_postal_code = nil
-	delete(m.clearedFields, person.FieldUgentPostalCode)
-}
-
-// SetUgentLocality sets the "ugent_locality" field.
-func (m *PersonMutation) SetUgentLocality(s string) {
-	m.ugent_locality = &s
-}
-
-// UgentLocality returns the value of the "ugent_locality" field in the mutation.
-func (m *PersonMutation) UgentLocality() (r string, exists bool) {
-	v := m.ugent_locality
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentLocality returns the old "ugent_locality" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentLocality(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentLocality is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentLocality requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentLocality: %w", err)
-	}
-	return oldValue.UgentLocality, nil
-}
-
-// ClearUgentLocality clears the value of the "ugent_locality" field.
-func (m *PersonMutation) ClearUgentLocality() {
-	m.ugent_locality = nil
-	m.clearedFields[person.FieldUgentLocality] = struct{}{}
-}
-
-// UgentLocalityCleared returns if the "ugent_locality" field was cleared in this mutation.
-func (m *PersonMutation) UgentLocalityCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentLocality]
-	return ok
-}
-
-// ResetUgentLocality resets all changes to the "ugent_locality" field.
-func (m *PersonMutation) ResetUgentLocality() {
-	m.ugent_locality = nil
-	delete(m.clearedFields, person.FieldUgentLocality)
-}
-
-// SetUgentLastEnrolled sets the "ugent_last_enrolled" field.
-func (m *PersonMutation) SetUgentLastEnrolled(s string) {
-	m.ugent_last_enrolled = &s
-}
-
-// UgentLastEnrolled returns the value of the "ugent_last_enrolled" field in the mutation.
-func (m *PersonMutation) UgentLastEnrolled() (r string, exists bool) {
-	v := m.ugent_last_enrolled
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentLastEnrolled returns the old "ugent_last_enrolled" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentLastEnrolled(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentLastEnrolled is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentLastEnrolled requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentLastEnrolled: %w", err)
-	}
-	return oldValue.UgentLastEnrolled, nil
-}
-
-// ClearUgentLastEnrolled clears the value of the "ugent_last_enrolled" field.
-func (m *PersonMutation) ClearUgentLastEnrolled() {
-	m.ugent_last_enrolled = nil
-	m.clearedFields[person.FieldUgentLastEnrolled] = struct{}{}
-}
-
-// UgentLastEnrolledCleared returns if the "ugent_last_enrolled" field was cleared in this mutation.
-func (m *PersonMutation) UgentLastEnrolledCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentLastEnrolled]
-	return ok
-}
-
-// ResetUgentLastEnrolled resets all changes to the "ugent_last_enrolled" field.
-func (m *PersonMutation) ResetUgentLastEnrolled() {
-	m.ugent_last_enrolled = nil
-	delete(m.clearedFields, person.FieldUgentLastEnrolled)
-}
-
-// SetHomeStreetAddress sets the "home_street_address" field.
-func (m *PersonMutation) SetHomeStreetAddress(s string) {
-	m.home_street_address = &s
-}
-
-// HomeStreetAddress returns the value of the "home_street_address" field in the mutation.
-func (m *PersonMutation) HomeStreetAddress() (r string, exists bool) {
-	v := m.home_street_address
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldHomeStreetAddress returns the old "home_street_address" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldHomeStreetAddress(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldHomeStreetAddress is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldHomeStreetAddress requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHomeStreetAddress: %w", err)
-	}
-	return oldValue.HomeStreetAddress, nil
-}
-
-// ClearHomeStreetAddress clears the value of the "home_street_address" field.
-func (m *PersonMutation) ClearHomeStreetAddress() {
-	m.home_street_address = nil
-	m.clearedFields[person.FieldHomeStreetAddress] = struct{}{}
-}
-
-// HomeStreetAddressCleared returns if the "home_street_address" field was cleared in this mutation.
-func (m *PersonMutation) HomeStreetAddressCleared() bool {
-	_, ok := m.clearedFields[person.FieldHomeStreetAddress]
-	return ok
-}
-
-// ResetHomeStreetAddress resets all changes to the "home_street_address" field.
-func (m *PersonMutation) ResetHomeStreetAddress() {
-	m.home_street_address = nil
-	delete(m.clearedFields, person.FieldHomeStreetAddress)
-}
-
-// SetHomePostalCode sets the "home_postal_code" field.
-func (m *PersonMutation) SetHomePostalCode(s string) {
-	m.home_postal_code = &s
-}
-
-// HomePostalCode returns the value of the "home_postal_code" field in the mutation.
-func (m *PersonMutation) HomePostalCode() (r string, exists bool) {
-	v := m.home_postal_code
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldHomePostalCode returns the old "home_postal_code" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldHomePostalCode(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldHomePostalCode is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldHomePostalCode requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHomePostalCode: %w", err)
-	}
-	return oldValue.HomePostalCode, nil
-}
-
-// ClearHomePostalCode clears the value of the "home_postal_code" field.
-func (m *PersonMutation) ClearHomePostalCode() {
-	m.home_postal_code = nil
-	m.clearedFields[person.FieldHomePostalCode] = struct{}{}
-}
-
-// HomePostalCodeCleared returns if the "home_postal_code" field was cleared in this mutation.
-func (m *PersonMutation) HomePostalCodeCleared() bool {
-	_, ok := m.clearedFields[person.FieldHomePostalCode]
-	return ok
-}
-
-// ResetHomePostalCode resets all changes to the "home_postal_code" field.
-func (m *PersonMutation) ResetHomePostalCode() {
-	m.home_postal_code = nil
-	delete(m.clearedFields, person.FieldHomePostalCode)
-}
-
-// SetHomeLocality sets the "home_locality" field.
-func (m *PersonMutation) SetHomeLocality(s string) {
-	m.home_locality = &s
-}
-
-// HomeLocality returns the value of the "home_locality" field in the mutation.
-func (m *PersonMutation) HomeLocality() (r string, exists bool) {
-	v := m.home_locality
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldHomeLocality returns the old "home_locality" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldHomeLocality(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldHomeLocality is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldHomeLocality requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHomeLocality: %w", err)
-	}
-	return oldValue.HomeLocality, nil
-}
-
-// ClearHomeLocality clears the value of the "home_locality" field.
-func (m *PersonMutation) ClearHomeLocality() {
-	m.home_locality = nil
-	m.clearedFields[person.FieldHomeLocality] = struct{}{}
-}
-
-// HomeLocalityCleared returns if the "home_locality" field was cleared in this mutation.
-func (m *PersonMutation) HomeLocalityCleared() bool {
-	_, ok := m.clearedFields[person.FieldHomeLocality]
-	return ok
-}
-
-// ResetHomeLocality resets all changes to the "home_locality" field.
-func (m *PersonMutation) ResetHomeLocality() {
-	m.home_locality = nil
-	delete(m.clearedFields, person.FieldHomeLocality)
-}
-
-// SetHomeCountry sets the "home_country" field.
-func (m *PersonMutation) SetHomeCountry(s string) {
-	m.home_country = &s
-}
-
-// HomeCountry returns the value of the "home_country" field in the mutation.
-func (m *PersonMutation) HomeCountry() (r string, exists bool) {
-	v := m.home_country
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldHomeCountry returns the old "home_country" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldHomeCountry(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldHomeCountry is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldHomeCountry requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHomeCountry: %w", err)
-	}
-	return oldValue.HomeCountry, nil
-}
-
-// ClearHomeCountry clears the value of the "home_country" field.
-func (m *PersonMutation) ClearHomeCountry() {
-	m.home_country = nil
-	m.clearedFields[person.FieldHomeCountry] = struct{}{}
-}
-
-// HomeCountryCleared returns if the "home_country" field was cleared in this mutation.
-func (m *PersonMutation) HomeCountryCleared() bool {
-	_, ok := m.clearedFields[person.FieldHomeCountry]
-	return ok
-}
-
-// ResetHomeCountry resets all changes to the "home_country" field.
-func (m *PersonMutation) ResetHomeCountry() {
-	m.home_country = nil
-	delete(m.clearedFields, person.FieldHomeCountry)
-}
-
-// SetHomeTel sets the "home_tel" field.
-func (m *PersonMutation) SetHomeTel(s string) {
-	m.home_tel = &s
-}
-
-// HomeTel returns the value of the "home_tel" field in the mutation.
-func (m *PersonMutation) HomeTel() (r string, exists bool) {
-	v := m.home_tel
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldHomeTel returns the old "home_tel" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldHomeTel(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldHomeTel is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldHomeTel requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHomeTel: %w", err)
-	}
-	return oldValue.HomeTel, nil
-}
-
-// ClearHomeTel clears the value of the "home_tel" field.
-func (m *PersonMutation) ClearHomeTel() {
-	m.home_tel = nil
-	m.clearedFields[person.FieldHomeTel] = struct{}{}
-}
-
-// HomeTelCleared returns if the "home_tel" field was cleared in this mutation.
-func (m *PersonMutation) HomeTelCleared() bool {
-	_, ok := m.clearedFields[person.FieldHomeTel]
-	return ok
-}
-
-// ResetHomeTel resets all changes to the "home_tel" field.
-func (m *PersonMutation) ResetHomeTel() {
-	m.home_tel = nil
-	delete(m.clearedFields, person.FieldHomeTel)
-}
-
-// SetDormStreetAddress sets the "dorm_street_address" field.
-func (m *PersonMutation) SetDormStreetAddress(s string) {
-	m.dorm_street_address = &s
-}
-
-// DormStreetAddress returns the value of the "dorm_street_address" field in the mutation.
-func (m *PersonMutation) DormStreetAddress() (r string, exists bool) {
-	v := m.dorm_street_address
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDormStreetAddress returns the old "dorm_street_address" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldDormStreetAddress(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDormStreetAddress is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDormStreetAddress requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDormStreetAddress: %w", err)
-	}
-	return oldValue.DormStreetAddress, nil
-}
-
-// ClearDormStreetAddress clears the value of the "dorm_street_address" field.
-func (m *PersonMutation) ClearDormStreetAddress() {
-	m.dorm_street_address = nil
-	m.clearedFields[person.FieldDormStreetAddress] = struct{}{}
-}
-
-// DormStreetAddressCleared returns if the "dorm_street_address" field was cleared in this mutation.
-func (m *PersonMutation) DormStreetAddressCleared() bool {
-	_, ok := m.clearedFields[person.FieldDormStreetAddress]
-	return ok
-}
-
-// ResetDormStreetAddress resets all changes to the "dorm_street_address" field.
-func (m *PersonMutation) ResetDormStreetAddress() {
-	m.dorm_street_address = nil
-	delete(m.clearedFields, person.FieldDormStreetAddress)
-}
-
-// SetDormPostalCode sets the "dorm_postal_code" field.
-func (m *PersonMutation) SetDormPostalCode(s string) {
-	m.dorm_postal_code = &s
-}
-
-// DormPostalCode returns the value of the "dorm_postal_code" field in the mutation.
-func (m *PersonMutation) DormPostalCode() (r string, exists bool) {
-	v := m.dorm_postal_code
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDormPostalCode returns the old "dorm_postal_code" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldDormPostalCode(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDormPostalCode is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDormPostalCode requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDormPostalCode: %w", err)
-	}
-	return oldValue.DormPostalCode, nil
-}
-
-// ClearDormPostalCode clears the value of the "dorm_postal_code" field.
-func (m *PersonMutation) ClearDormPostalCode() {
-	m.dorm_postal_code = nil
-	m.clearedFields[person.FieldDormPostalCode] = struct{}{}
-}
-
-// DormPostalCodeCleared returns if the "dorm_postal_code" field was cleared in this mutation.
-func (m *PersonMutation) DormPostalCodeCleared() bool {
-	_, ok := m.clearedFields[person.FieldDormPostalCode]
-	return ok
-}
-
-// ResetDormPostalCode resets all changes to the "dorm_postal_code" field.
-func (m *PersonMutation) ResetDormPostalCode() {
-	m.dorm_postal_code = nil
-	delete(m.clearedFields, person.FieldDormPostalCode)
-}
-
-// SetDormLocality sets the "dorm_locality" field.
-func (m *PersonMutation) SetDormLocality(s string) {
-	m.dorm_locality = &s
-}
-
-// DormLocality returns the value of the "dorm_locality" field in the mutation.
-func (m *PersonMutation) DormLocality() (r string, exists bool) {
-	v := m.dorm_locality
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDormLocality returns the old "dorm_locality" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldDormLocality(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDormLocality is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDormLocality requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDormLocality: %w", err)
-	}
-	return oldValue.DormLocality, nil
-}
-
-// ClearDormLocality clears the value of the "dorm_locality" field.
-func (m *PersonMutation) ClearDormLocality() {
-	m.dorm_locality = nil
-	m.clearedFields[person.FieldDormLocality] = struct{}{}
-}
-
-// DormLocalityCleared returns if the "dorm_locality" field was cleared in this mutation.
-func (m *PersonMutation) DormLocalityCleared() bool {
-	_, ok := m.clearedFields[person.FieldDormLocality]
-	return ok
-}
-
-// ResetDormLocality resets all changes to the "dorm_locality" field.
-func (m *PersonMutation) ResetDormLocality() {
-	m.dorm_locality = nil
-	delete(m.clearedFields, person.FieldDormLocality)
-}
-
-// SetDormCountry sets the "dorm_country" field.
-func (m *PersonMutation) SetDormCountry(s string) {
-	m.dorm_country = &s
-}
-
-// DormCountry returns the value of the "dorm_country" field in the mutation.
-func (m *PersonMutation) DormCountry() (r string, exists bool) {
-	v := m.dorm_country
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDormCountry returns the old "dorm_country" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldDormCountry(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDormCountry is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDormCountry requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDormCountry: %w", err)
-	}
-	return oldValue.DormCountry, nil
-}
-
-// ClearDormCountry clears the value of the "dorm_country" field.
-func (m *PersonMutation) ClearDormCountry() {
-	m.dorm_country = nil
-	m.clearedFields[person.FieldDormCountry] = struct{}{}
-}
-
-// DormCountryCleared returns if the "dorm_country" field was cleared in this mutation.
-func (m *PersonMutation) DormCountryCleared() bool {
-	_, ok := m.clearedFields[person.FieldDormCountry]
-	return ok
-}
-
-// ResetDormCountry resets all changes to the "dorm_country" field.
-func (m *PersonMutation) ResetDormCountry() {
-	m.dorm_country = nil
-	delete(m.clearedFields, person.FieldDormCountry)
-}
-
-// SetResearchDiscipline sets the "research_discipline" field.
-func (m *PersonMutation) SetResearchDiscipline(s []string) {
-	m.research_discipline = &s
-	m.appendresearch_discipline = nil
-}
-
-// ResearchDiscipline returns the value of the "research_discipline" field in the mutation.
-func (m *PersonMutation) ResearchDiscipline() (r []string, exists bool) {
-	v := m.research_discipline
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldResearchDiscipline returns the old "research_discipline" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldResearchDiscipline(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldResearchDiscipline is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldResearchDiscipline requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldResearchDiscipline: %w", err)
-	}
-	return oldValue.ResearchDiscipline, nil
-}
-
-// AppendResearchDiscipline adds s to the "research_discipline" field.
-func (m *PersonMutation) AppendResearchDiscipline(s []string) {
-	m.appendresearch_discipline = append(m.appendresearch_discipline, s...)
-}
-
-// AppendedResearchDiscipline returns the list of values that were appended to the "research_discipline" field in this mutation.
-func (m *PersonMutation) AppendedResearchDiscipline() ([]string, bool) {
-	if len(m.appendresearch_discipline) == 0 {
-		return nil, false
-	}
-	return m.appendresearch_discipline, true
-}
-
-// ClearResearchDiscipline clears the value of the "research_discipline" field.
-func (m *PersonMutation) ClearResearchDiscipline() {
-	m.research_discipline = nil
-	m.appendresearch_discipline = nil
-	m.clearedFields[person.FieldResearchDiscipline] = struct{}{}
-}
-
-// ResearchDisciplineCleared returns if the "research_discipline" field was cleared in this mutation.
-func (m *PersonMutation) ResearchDisciplineCleared() bool {
-	_, ok := m.clearedFields[person.FieldResearchDiscipline]
-	return ok
-}
-
-// ResetResearchDiscipline resets all changes to the "research_discipline" field.
-func (m *PersonMutation) ResetResearchDiscipline() {
-	m.research_discipline = nil
-	m.appendresearch_discipline = nil
-	delete(m.clearedFields, person.FieldResearchDiscipline)
-}
-
-// SetResearchDisciplineCode sets the "research_discipline_code" field.
-func (m *PersonMutation) SetResearchDisciplineCode(s []string) {
-	m.research_discipline_code = &s
-	m.appendresearch_discipline_code = nil
-}
-
-// ResearchDisciplineCode returns the value of the "research_discipline_code" field in the mutation.
-func (m *PersonMutation) ResearchDisciplineCode() (r []string, exists bool) {
-	v := m.research_discipline_code
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldResearchDisciplineCode returns the old "research_discipline_code" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldResearchDisciplineCode(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldResearchDisciplineCode is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldResearchDisciplineCode requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldResearchDisciplineCode: %w", err)
-	}
-	return oldValue.ResearchDisciplineCode, nil
-}
-
-// AppendResearchDisciplineCode adds s to the "research_discipline_code" field.
-func (m *PersonMutation) AppendResearchDisciplineCode(s []string) {
-	m.appendresearch_discipline_code = append(m.appendresearch_discipline_code, s...)
-}
-
-// AppendedResearchDisciplineCode returns the list of values that were appended to the "research_discipline_code" field in this mutation.
-func (m *PersonMutation) AppendedResearchDisciplineCode() ([]string, bool) {
-	if len(m.appendresearch_discipline_code) == 0 {
-		return nil, false
-	}
-	return m.appendresearch_discipline_code, true
-}
-
-// ClearResearchDisciplineCode clears the value of the "research_discipline_code" field.
-func (m *PersonMutation) ClearResearchDisciplineCode() {
-	m.research_discipline_code = nil
-	m.appendresearch_discipline_code = nil
-	m.clearedFields[person.FieldResearchDisciplineCode] = struct{}{}
-}
-
-// ResearchDisciplineCodeCleared returns if the "research_discipline_code" field was cleared in this mutation.
-func (m *PersonMutation) ResearchDisciplineCodeCleared() bool {
-	_, ok := m.clearedFields[person.FieldResearchDisciplineCode]
-	return ok
-}
-
-// ResetResearchDisciplineCode resets all changes to the "research_discipline_code" field.
-func (m *PersonMutation) ResetResearchDisciplineCode() {
-	m.research_discipline_code = nil
-	m.appendresearch_discipline_code = nil
-	delete(m.clearedFields, person.FieldResearchDisciplineCode)
-}
-
-// SetUgentExpirationDate sets the "ugent_expiration_date" field.
-func (m *PersonMutation) SetUgentExpirationDate(s string) {
-	m.ugent_expiration_date = &s
-}
-
-// UgentExpirationDate returns the value of the "ugent_expiration_date" field in the mutation.
-func (m *PersonMutation) UgentExpirationDate() (r string, exists bool) {
-	v := m.ugent_expiration_date
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentExpirationDate returns the old "ugent_expiration_date" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentExpirationDate(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentExpirationDate is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentExpirationDate requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentExpirationDate: %w", err)
-	}
-	return oldValue.UgentExpirationDate, nil
-}
-
-// ClearUgentExpirationDate clears the value of the "ugent_expiration_date" field.
-func (m *PersonMutation) ClearUgentExpirationDate() {
-	m.ugent_expiration_date = nil
-	m.clearedFields[person.FieldUgentExpirationDate] = struct{}{}
-}
-
-// UgentExpirationDateCleared returns if the "ugent_expiration_date" field was cleared in this mutation.
-func (m *PersonMutation) UgentExpirationDateCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentExpirationDate]
-	return ok
-}
-
-// ResetUgentExpirationDate resets all changes to the "ugent_expiration_date" field.
-func (m *PersonMutation) ResetUgentExpirationDate() {
-	m.ugent_expiration_date = nil
-	delete(m.clearedFields, person.FieldUgentExpirationDate)
-}
-
-// SetUzgentJobTitle sets the "uzgent_job_title" field.
-func (m *PersonMutation) SetUzgentJobTitle(s []string) {
-	m.uzgent_job_title = &s
-	m.appenduzgent_job_title = nil
-}
-
-// UzgentJobTitle returns the value of the "uzgent_job_title" field in the mutation.
-func (m *PersonMutation) UzgentJobTitle() (r []string, exists bool) {
-	v := m.uzgent_job_title
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUzgentJobTitle returns the old "uzgent_job_title" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUzgentJobTitle(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUzgentJobTitle is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUzgentJobTitle requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUzgentJobTitle: %w", err)
-	}
-	return oldValue.UzgentJobTitle, nil
-}
-
-// AppendUzgentJobTitle adds s to the "uzgent_job_title" field.
-func (m *PersonMutation) AppendUzgentJobTitle(s []string) {
-	m.appenduzgent_job_title = append(m.appenduzgent_job_title, s...)
-}
-
-// AppendedUzgentJobTitle returns the list of values that were appended to the "uzgent_job_title" field in this mutation.
-func (m *PersonMutation) AppendedUzgentJobTitle() ([]string, bool) {
-	if len(m.appenduzgent_job_title) == 0 {
-		return nil, false
-	}
-	return m.appenduzgent_job_title, true
-}
-
-// ClearUzgentJobTitle clears the value of the "uzgent_job_title" field.
-func (m *PersonMutation) ClearUzgentJobTitle() {
-	m.uzgent_job_title = nil
-	m.appenduzgent_job_title = nil
-	m.clearedFields[person.FieldUzgentJobTitle] = struct{}{}
-}
-
-// UzgentJobTitleCleared returns if the "uzgent_job_title" field was cleared in this mutation.
-func (m *PersonMutation) UzgentJobTitleCleared() bool {
-	_, ok := m.clearedFields[person.FieldUzgentJobTitle]
-	return ok
-}
-
-// ResetUzgentJobTitle resets all changes to the "uzgent_job_title" field.
-func (m *PersonMutation) ResetUzgentJobTitle() {
-	m.uzgent_job_title = nil
-	m.appenduzgent_job_title = nil
-	delete(m.clearedFields, person.FieldUzgentJobTitle)
-}
-
-// SetUzgentDepartmentName sets the "uzgent_department_name" field.
-func (m *PersonMutation) SetUzgentDepartmentName(s []string) {
-	m.uzgent_department_name = &s
-	m.appenduzgent_department_name = nil
-}
-
-// UzgentDepartmentName returns the value of the "uzgent_department_name" field in the mutation.
-func (m *PersonMutation) UzgentDepartmentName() (r []string, exists bool) {
-	v := m.uzgent_department_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUzgentDepartmentName returns the old "uzgent_department_name" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUzgentDepartmentName(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUzgentDepartmentName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUzgentDepartmentName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUzgentDepartmentName: %w", err)
-	}
-	return oldValue.UzgentDepartmentName, nil
-}
-
-// AppendUzgentDepartmentName adds s to the "uzgent_department_name" field.
-func (m *PersonMutation) AppendUzgentDepartmentName(s []string) {
-	m.appenduzgent_department_name = append(m.appenduzgent_department_name, s...)
-}
-
-// AppendedUzgentDepartmentName returns the list of values that were appended to the "uzgent_department_name" field in this mutation.
-func (m *PersonMutation) AppendedUzgentDepartmentName() ([]string, bool) {
-	if len(m.appenduzgent_department_name) == 0 {
-		return nil, false
-	}
-	return m.appenduzgent_department_name, true
-}
-
-// ClearUzgentDepartmentName clears the value of the "uzgent_department_name" field.
-func (m *PersonMutation) ClearUzgentDepartmentName() {
-	m.uzgent_department_name = nil
-	m.appenduzgent_department_name = nil
-	m.clearedFields[person.FieldUzgentDepartmentName] = struct{}{}
-}
-
-// UzgentDepartmentNameCleared returns if the "uzgent_department_name" field was cleared in this mutation.
-func (m *PersonMutation) UzgentDepartmentNameCleared() bool {
-	_, ok := m.clearedFields[person.FieldUzgentDepartmentName]
-	return ok
-}
-
-// ResetUzgentDepartmentName resets all changes to the "uzgent_department_name" field.
-func (m *PersonMutation) ResetUzgentDepartmentName() {
-	m.uzgent_department_name = nil
-	m.appenduzgent_department_name = nil
-	delete(m.clearedFields, person.FieldUzgentDepartmentName)
-}
-
-// SetUzgentID sets the "uzgent_id" field.
-func (m *PersonMutation) SetUzgentID(s []string) {
-	m.uzgent_id = &s
-	m.appenduzgent_id = nil
-}
-
-// UzgentID returns the value of the "uzgent_id" field in the mutation.
-func (m *PersonMutation) UzgentID() (r []string, exists bool) {
-	v := m.uzgent_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUzgentID returns the old "uzgent_id" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUzgentID(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUzgentID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUzgentID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUzgentID: %w", err)
-	}
-	return oldValue.UzgentID, nil
-}
-
-// AppendUzgentID adds s to the "uzgent_id" field.
-func (m *PersonMutation) AppendUzgentID(s []string) {
-	m.appenduzgent_id = append(m.appenduzgent_id, s...)
-}
-
-// AppendedUzgentID returns the list of values that were appended to the "uzgent_id" field in this mutation.
-func (m *PersonMutation) AppendedUzgentID() ([]string, bool) {
-	if len(m.appenduzgent_id) == 0 {
-		return nil, false
-	}
-	return m.appenduzgent_id, true
-}
-
-// ClearUzgentID clears the value of the "uzgent_id" field.
-func (m *PersonMutation) ClearUzgentID() {
-	m.uzgent_id = nil
-	m.appenduzgent_id = nil
-	m.clearedFields[person.FieldUzgentID] = struct{}{}
-}
-
-// UzgentIDCleared returns if the "uzgent_id" field was cleared in this mutation.
-func (m *PersonMutation) UzgentIDCleared() bool {
-	_, ok := m.clearedFields[person.FieldUzgentID]
-	return ok
-}
-
-// ResetUzgentID resets all changes to the "uzgent_id" field.
-func (m *PersonMutation) ResetUzgentID() {
-	m.uzgent_id = nil
-	m.appenduzgent_id = nil
-	delete(m.clearedFields, person.FieldUzgentID)
-}
-
-// SetUgentExtCategory sets the "ugent_ext_category" field.
-func (m *PersonMutation) SetUgentExtCategory(s []string) {
-	m.ugent_ext_category = &s
-	m.appendugent_ext_category = nil
-}
-
-// UgentExtCategory returns the value of the "ugent_ext_category" field in the mutation.
-func (m *PersonMutation) UgentExtCategory() (r []string, exists bool) {
-	v := m.ugent_ext_category
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentExtCategory returns the old "ugent_ext_category" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentExtCategory(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentExtCategory is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentExtCategory requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentExtCategory: %w", err)
-	}
-	return oldValue.UgentExtCategory, nil
-}
-
-// AppendUgentExtCategory adds s to the "ugent_ext_category" field.
-func (m *PersonMutation) AppendUgentExtCategory(s []string) {
-	m.appendugent_ext_category = append(m.appendugent_ext_category, s...)
-}
-
-// AppendedUgentExtCategory returns the list of values that were appended to the "ugent_ext_category" field in this mutation.
-func (m *PersonMutation) AppendedUgentExtCategory() ([]string, bool) {
-	if len(m.appendugent_ext_category) == 0 {
-		return nil, false
-	}
-	return m.appendugent_ext_category, true
-}
-
-// ClearUgentExtCategory clears the value of the "ugent_ext_category" field.
-func (m *PersonMutation) ClearUgentExtCategory() {
-	m.ugent_ext_category = nil
-	m.appendugent_ext_category = nil
-	m.clearedFields[person.FieldUgentExtCategory] = struct{}{}
-}
-
-// UgentExtCategoryCleared returns if the "ugent_ext_category" field was cleared in this mutation.
-func (m *PersonMutation) UgentExtCategoryCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentExtCategory]
-	return ok
-}
-
-// ResetUgentExtCategory resets all changes to the "ugent_ext_category" field.
-func (m *PersonMutation) ResetUgentExtCategory() {
-	m.ugent_ext_category = nil
-	m.appendugent_ext_category = nil
-	delete(m.clearedFields, person.FieldUgentExtCategory)
-}
-
-// SetUgentAppointmentDate sets the "ugent_appointment_date" field.
-func (m *PersonMutation) SetUgentAppointmentDate(s string) {
-	m.ugent_appointment_date = &s
-}
-
-// UgentAppointmentDate returns the value of the "ugent_appointment_date" field in the mutation.
-func (m *PersonMutation) UgentAppointmentDate() (r string, exists bool) {
-	v := m.ugent_appointment_date
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentAppointmentDate returns the old "ugent_appointment_date" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentAppointmentDate(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentAppointmentDate is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentAppointmentDate requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentAppointmentDate: %w", err)
-	}
-	return oldValue.UgentAppointmentDate, nil
-}
-
-// ClearUgentAppointmentDate clears the value of the "ugent_appointment_date" field.
-func (m *PersonMutation) ClearUgentAppointmentDate() {
-	m.ugent_appointment_date = nil
-	m.clearedFields[person.FieldUgentAppointmentDate] = struct{}{}
-}
-
-// UgentAppointmentDateCleared returns if the "ugent_appointment_date" field was cleared in this mutation.
-func (m *PersonMutation) UgentAppointmentDateCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentAppointmentDate]
-	return ok
-}
-
-// ResetUgentAppointmentDate resets all changes to the "ugent_appointment_date" field.
-func (m *PersonMutation) ResetUgentAppointmentDate() {
-	m.ugent_appointment_date = nil
-	delete(m.clearedFields, person.FieldUgentAppointmentDate)
-}
-
-// SetUgentDepartmentName sets the "ugent_department_name" field.
-func (m *PersonMutation) SetUgentDepartmentName(s []string) {
-	m.ugent_department_name = &s
-	m.appendugent_department_name = nil
-}
-
-// UgentDepartmentName returns the value of the "ugent_department_name" field in the mutation.
-func (m *PersonMutation) UgentDepartmentName() (r []string, exists bool) {
-	v := m.ugent_department_name
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentDepartmentName returns the old "ugent_department_name" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentDepartmentName(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentDepartmentName is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentDepartmentName requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentDepartmentName: %w", err)
-	}
-	return oldValue.UgentDepartmentName, nil
-}
-
-// AppendUgentDepartmentName adds s to the "ugent_department_name" field.
-func (m *PersonMutation) AppendUgentDepartmentName(s []string) {
-	m.appendugent_department_name = append(m.appendugent_department_name, s...)
-}
-
-// AppendedUgentDepartmentName returns the list of values that were appended to the "ugent_department_name" field in this mutation.
-func (m *PersonMutation) AppendedUgentDepartmentName() ([]string, bool) {
-	if len(m.appendugent_department_name) == 0 {
-		return nil, false
-	}
-	return m.appendugent_department_name, true
-}
-
-// ClearUgentDepartmentName clears the value of the "ugent_department_name" field.
-func (m *PersonMutation) ClearUgentDepartmentName() {
-	m.ugent_department_name = nil
-	m.appendugent_department_name = nil
-	m.clearedFields[person.FieldUgentDepartmentName] = struct{}{}
-}
-
-// UgentDepartmentNameCleared returns if the "ugent_department_name" field was cleared in this mutation.
-func (m *PersonMutation) UgentDepartmentNameCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentDepartmentName]
-	return ok
-}
-
-// ResetUgentDepartmentName resets all changes to the "ugent_department_name" field.
-func (m *PersonMutation) ResetUgentDepartmentName() {
-	m.ugent_department_name = nil
-	m.appendugent_department_name = nil
-	delete(m.clearedFields, person.FieldUgentDepartmentName)
-}
-
-// SetOrcidBio sets the "orcid_bio" field.
-func (m *PersonMutation) SetOrcidBio(s string) {
-	m.orcid_bio = &s
-}
-
-// OrcidBio returns the value of the "orcid_bio" field in the mutation.
-func (m *PersonMutation) OrcidBio() (r string, exists bool) {
-	v := m.orcid_bio
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOrcidBio returns the old "orcid_bio" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldOrcidBio(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOrcidBio is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOrcidBio requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOrcidBio: %w", err)
-	}
-	return oldValue.OrcidBio, nil
-}
-
-// ClearOrcidBio clears the value of the "orcid_bio" field.
-func (m *PersonMutation) ClearOrcidBio() {
-	m.orcid_bio = nil
-	m.clearedFields[person.FieldOrcidBio] = struct{}{}
-}
-
-// OrcidBioCleared returns if the "orcid_bio" field was cleared in this mutation.
-func (m *PersonMutation) OrcidBioCleared() bool {
-	_, ok := m.clearedFields[person.FieldOrcidBio]
-	return ok
-}
-
-// ResetOrcidBio resets all changes to the "orcid_bio" field.
-func (m *PersonMutation) ResetOrcidBio() {
-	m.orcid_bio = nil
-	delete(m.clearedFields, person.FieldOrcidBio)
-}
-
-// SetOrcidID sets the "orcid_id" field.
-func (m *PersonMutation) SetOrcidID(s string) {
-	m.orcid_id = &s
-}
-
-// OrcidID returns the value of the "orcid_id" field in the mutation.
-func (m *PersonMutation) OrcidID() (r string, exists bool) {
-	v := m.orcid_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOrcidID returns the old "orcid_id" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldOrcidID(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOrcidID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOrcidID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOrcidID: %w", err)
-	}
-	return oldValue.OrcidID, nil
-}
-
-// ClearOrcidID clears the value of the "orcid_id" field.
-func (m *PersonMutation) ClearOrcidID() {
-	m.orcid_id = nil
-	m.clearedFields[person.FieldOrcidID] = struct{}{}
-}
-
-// OrcidIDCleared returns if the "orcid_id" field was cleared in this mutation.
-func (m *PersonMutation) OrcidIDCleared() bool {
-	_, ok := m.clearedFields[person.FieldOrcidID]
-	return ok
-}
-
-// ResetOrcidID resets all changes to the "orcid_id" field.
-func (m *PersonMutation) ResetOrcidID() {
-	m.orcid_id = nil
-	delete(m.clearedFields, person.FieldOrcidID)
-}
-
-// SetOrcidSettings sets the "orcid_settings" field.
-func (m *PersonMutation) SetOrcidSettings(ss schema.OrcidSettings) {
-	m.orcid_settings = &ss
-}
-
-// OrcidSettings returns the value of the "orcid_settings" field in the mutation.
-func (m *PersonMutation) OrcidSettings() (r schema.OrcidSettings, exists bool) {
-	v := m.orcid_settings
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOrcidSettings returns the old "orcid_settings" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldOrcidSettings(ctx context.Context) (v schema.OrcidSettings, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOrcidSettings is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOrcidSettings requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOrcidSettings: %w", err)
-	}
-	return oldValue.OrcidSettings, nil
-}
-
-// ClearOrcidSettings clears the value of the "orcid_settings" field.
-func (m *PersonMutation) ClearOrcidSettings() {
-	m.orcid_settings = nil
-	m.clearedFields[person.FieldOrcidSettings] = struct{}{}
-}
-
-// OrcidSettingsCleared returns if the "orcid_settings" field was cleared in this mutation.
-func (m *PersonMutation) OrcidSettingsCleared() bool {
-	_, ok := m.clearedFields[person.FieldOrcidSettings]
-	return ok
-}
-
-// ResetOrcidSettings resets all changes to the "orcid_settings" field.
-func (m *PersonMutation) ResetOrcidSettings() {
-	m.orcid_settings = nil
-	delete(m.clearedFields, person.FieldOrcidSettings)
+// ResetOrcid resets all changes to the "orcid" field.
+func (m *PersonMutation) ResetOrcid() {
+	m.orcid = nil
+	delete(m.clearedFields, person.FieldOrcid)
 }
 
 // SetOrcidToken sets the "orcid_token" field.
@@ -2637,360 +1072,6 @@ func (m *PersonMutation) OrcidTokenCleared() bool {
 func (m *PersonMutation) ResetOrcidToken() {
 	m.orcid_token = nil
 	delete(m.clearedFields, person.FieldOrcidToken)
-}
-
-// SetOrcidVerify sets the "orcid_verify" field.
-func (m *PersonMutation) SetOrcidVerify(sv schema.OrcidVerify) {
-	m.orcid_verify = &sv
-}
-
-// OrcidVerify returns the value of the "orcid_verify" field in the mutation.
-func (m *PersonMutation) OrcidVerify() (r schema.OrcidVerify, exists bool) {
-	v := m.orcid_verify
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOrcidVerify returns the old "orcid_verify" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldOrcidVerify(ctx context.Context) (v schema.OrcidVerify, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOrcidVerify is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOrcidVerify requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOrcidVerify: %w", err)
-	}
-	return oldValue.OrcidVerify, nil
-}
-
-// ClearOrcidVerify clears the value of the "orcid_verify" field.
-func (m *PersonMutation) ClearOrcidVerify() {
-	m.orcid_verify = nil
-	m.clearedFields[person.FieldOrcidVerify] = struct{}{}
-}
-
-// OrcidVerifyCleared returns if the "orcid_verify" field was cleared in this mutation.
-func (m *PersonMutation) OrcidVerifyCleared() bool {
-	_, ok := m.clearedFields[person.FieldOrcidVerify]
-	return ok
-}
-
-// ResetOrcidVerify resets all changes to the "orcid_verify" field.
-func (m *PersonMutation) ResetOrcidVerify() {
-	m.orcid_verify = nil
-	delete(m.clearedFields, person.FieldOrcidVerify)
-}
-
-// SetActive sets the "active" field.
-func (m *PersonMutation) SetActive(b bool) {
-	m.active = &b
-}
-
-// Active returns the value of the "active" field in the mutation.
-func (m *PersonMutation) Active() (r bool, exists bool) {
-	v := m.active
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldActive returns the old "active" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldActive(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldActive is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldActive requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldActive: %w", err)
-	}
-	return oldValue.Active, nil
-}
-
-// ResetActive resets all changes to the "active" field.
-func (m *PersonMutation) ResetActive() {
-	m.active = nil
-}
-
-// SetDeleted sets the "deleted" field.
-func (m *PersonMutation) SetDeleted(b bool) {
-	m.deleted = &b
-}
-
-// Deleted returns the value of the "deleted" field in the mutation.
-func (m *PersonMutation) Deleted() (r bool, exists bool) {
-	v := m.deleted
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDeleted returns the old "deleted" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldDeleted(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeleted is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeleted requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeleted: %w", err)
-	}
-	return oldValue.Deleted, nil
-}
-
-// ResetDeleted resets all changes to the "deleted" field.
-func (m *PersonMutation) ResetDeleted() {
-	m.deleted = nil
-}
-
-// SetSettings sets the "settings" field.
-func (m *PersonMutation) SetSettings(s schema.Settings) {
-	m.settings = &s
-}
-
-// Settings returns the value of the "settings" field in the mutation.
-func (m *PersonMutation) Settings() (r schema.Settings, exists bool) {
-	v := m.settings
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSettings returns the old "settings" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldSettings(ctx context.Context) (v schema.Settings, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSettings is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSettings requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSettings: %w", err)
-	}
-	return oldValue.Settings, nil
-}
-
-// ClearSettings clears the value of the "settings" field.
-func (m *PersonMutation) ClearSettings() {
-	m.settings = nil
-	m.clearedFields[person.FieldSettings] = struct{}{}
-}
-
-// SettingsCleared returns if the "settings" field was cleared in this mutation.
-func (m *PersonMutation) SettingsCleared() bool {
-	_, ok := m.clearedFields[person.FieldSettings]
-	return ok
-}
-
-// ResetSettings resets all changes to the "settings" field.
-func (m *PersonMutation) ResetSettings() {
-	m.settings = nil
-	delete(m.clearedFields, person.FieldSettings)
-}
-
-// SetRoles sets the "roles" field.
-func (m *PersonMutation) SetRoles(s []string) {
-	m.roles = &s
-	m.appendroles = nil
-}
-
-// Roles returns the value of the "roles" field in the mutation.
-func (m *PersonMutation) Roles() (r []string, exists bool) {
-	v := m.roles
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldRoles returns the old "roles" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldRoles(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRoles is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRoles requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRoles: %w", err)
-	}
-	return oldValue.Roles, nil
-}
-
-// AppendRoles adds s to the "roles" field.
-func (m *PersonMutation) AppendRoles(s []string) {
-	m.appendroles = append(m.appendroles, s...)
-}
-
-// AppendedRoles returns the list of values that were appended to the "roles" field in this mutation.
-func (m *PersonMutation) AppendedRoles() ([]string, bool) {
-	if len(m.appendroles) == 0 {
-		return nil, false
-	}
-	return m.appendroles, true
-}
-
-// ClearRoles clears the value of the "roles" field.
-func (m *PersonMutation) ClearRoles() {
-	m.roles = nil
-	m.appendroles = nil
-	m.clearedFields[person.FieldRoles] = struct{}{}
-}
-
-// RolesCleared returns if the "roles" field was cleared in this mutation.
-func (m *PersonMutation) RolesCleared() bool {
-	_, ok := m.clearedFields[person.FieldRoles]
-	return ok
-}
-
-// ResetRoles resets all changes to the "roles" field.
-func (m *PersonMutation) ResetRoles() {
-	m.roles = nil
-	m.appendroles = nil
-	delete(m.clearedFields, person.FieldRoles)
-}
-
-// SetPublicationCount sets the "publication_count" field.
-func (m *PersonMutation) SetPublicationCount(i int) {
-	m.publication_count = &i
-	m.addpublication_count = nil
-}
-
-// PublicationCount returns the value of the "publication_count" field in the mutation.
-func (m *PersonMutation) PublicationCount() (r int, exists bool) {
-	v := m.publication_count
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldPublicationCount returns the old "publication_count" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldPublicationCount(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPublicationCount is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPublicationCount requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPublicationCount: %w", err)
-	}
-	return oldValue.PublicationCount, nil
-}
-
-// AddPublicationCount adds i to the "publication_count" field.
-func (m *PersonMutation) AddPublicationCount(i int) {
-	if m.addpublication_count != nil {
-		*m.addpublication_count += i
-	} else {
-		m.addpublication_count = &i
-	}
-}
-
-// AddedPublicationCount returns the value that was added to the "publication_count" field in this mutation.
-func (m *PersonMutation) AddedPublicationCount() (r int, exists bool) {
-	v := m.addpublication_count
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearPublicationCount clears the value of the "publication_count" field.
-func (m *PersonMutation) ClearPublicationCount() {
-	m.publication_count = nil
-	m.addpublication_count = nil
-	m.clearedFields[person.FieldPublicationCount] = struct{}{}
-}
-
-// PublicationCountCleared returns if the "publication_count" field was cleared in this mutation.
-func (m *PersonMutation) PublicationCountCleared() bool {
-	_, ok := m.clearedFields[person.FieldPublicationCount]
-	return ok
-}
-
-// ResetPublicationCount resets all changes to the "publication_count" field.
-func (m *PersonMutation) ResetPublicationCount() {
-	m.publication_count = nil
-	m.addpublication_count = nil
-	delete(m.clearedFields, person.FieldPublicationCount)
-}
-
-// SetUgentMemorialisID sets the "ugent_memorialis_id" field.
-func (m *PersonMutation) SetUgentMemorialisID(s string) {
-	m.ugent_memorialis_id = &s
-}
-
-// UgentMemorialisID returns the value of the "ugent_memorialis_id" field in the mutation.
-func (m *PersonMutation) UgentMemorialisID() (r string, exists bool) {
-	v := m.ugent_memorialis_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUgentMemorialisID returns the old "ugent_memorialis_id" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldUgentMemorialisID(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUgentMemorialisID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUgentMemorialisID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUgentMemorialisID: %w", err)
-	}
-	return oldValue.UgentMemorialisID, nil
-}
-
-// ClearUgentMemorialisID clears the value of the "ugent_memorialis_id" field.
-func (m *PersonMutation) ClearUgentMemorialisID() {
-	m.ugent_memorialis_id = nil
-	m.clearedFields[person.FieldUgentMemorialisID] = struct{}{}
-}
-
-// UgentMemorialisIDCleared returns if the "ugent_memorialis_id" field was cleared in this mutation.
-func (m *PersonMutation) UgentMemorialisIDCleared() bool {
-	_, ok := m.clearedFields[person.FieldUgentMemorialisID]
-	return ok
-}
-
-// ResetUgentMemorialisID resets all changes to the "ugent_memorialis_id" field.
-func (m *PersonMutation) ResetUgentMemorialisID() {
-	m.ugent_memorialis_id = nil
-	delete(m.clearedFields, person.FieldUgentMemorialisID)
 }
 
 // SetPreferredFirstName sets the "preferred_first_name" field.
@@ -3091,183 +1172,53 @@ func (m *PersonMutation) ResetPreferredLastName() {
 	delete(m.clearedFields, person.FieldPreferredLastName)
 }
 
-// SetReplaces sets the "replaces" field.
-func (m *PersonMutation) SetReplaces(value []map[string]string) {
-	m.replaces = &value
-	m.appendreplaces = nil
+// SetJobTitle sets the "job_title" field.
+func (m *PersonMutation) SetJobTitle(s string) {
+	m.job_title = &s
 }
 
-// Replaces returns the value of the "replaces" field in the mutation.
-func (m *PersonMutation) Replaces() (r []map[string]string, exists bool) {
-	v := m.replaces
+// JobTitle returns the value of the "job_title" field in the mutation.
+func (m *PersonMutation) JobTitle() (r string, exists bool) {
+	v := m.job_title
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldReplaces returns the old "replaces" field's value of the Person entity.
+// OldJobTitle returns the old "job_title" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldReplaces(ctx context.Context) (v []map[string]string, err error) {
+func (m *PersonMutation) OldJobTitle(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldReplaces is only allowed on UpdateOne operations")
+		return v, errors.New("OldJobTitle is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldReplaces requires an ID field in the mutation")
+		return v, errors.New("OldJobTitle requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldReplaces: %w", err)
+		return v, fmt.Errorf("querying old value for OldJobTitle: %w", err)
 	}
-	return oldValue.Replaces, nil
+	return oldValue.JobTitle, nil
 }
 
-// AppendReplaces adds value to the "replaces" field.
-func (m *PersonMutation) AppendReplaces(value []map[string]string) {
-	m.appendreplaces = append(m.appendreplaces, value...)
+// ClearJobTitle clears the value of the "job_title" field.
+func (m *PersonMutation) ClearJobTitle() {
+	m.job_title = nil
+	m.clearedFields[person.FieldJobTitle] = struct{}{}
 }
 
-// AppendedReplaces returns the list of values that were appended to the "replaces" field in this mutation.
-func (m *PersonMutation) AppendedReplaces() ([]map[string]string, bool) {
-	if len(m.appendreplaces) == 0 {
-		return nil, false
-	}
-	return m.appendreplaces, true
-}
-
-// ClearReplaces clears the value of the "replaces" field.
-func (m *PersonMutation) ClearReplaces() {
-	m.replaces = nil
-	m.appendreplaces = nil
-	m.clearedFields[person.FieldReplaces] = struct{}{}
-}
-
-// ReplacesCleared returns if the "replaces" field was cleared in this mutation.
-func (m *PersonMutation) ReplacesCleared() bool {
-	_, ok := m.clearedFields[person.FieldReplaces]
+// JobTitleCleared returns if the "job_title" field was cleared in this mutation.
+func (m *PersonMutation) JobTitleCleared() bool {
+	_, ok := m.clearedFields[person.FieldJobTitle]
 	return ok
 }
 
-// ResetReplaces resets all changes to the "replaces" field.
-func (m *PersonMutation) ResetReplaces() {
-	m.replaces = nil
-	m.appendreplaces = nil
-	delete(m.clearedFields, person.FieldReplaces)
-}
-
-// SetReplacedBy sets the "replaced_by" field.
-func (m *PersonMutation) SetReplacedBy(value []map[string]string) {
-	m.replaced_by = &value
-	m.appendreplaced_by = nil
-}
-
-// ReplacedBy returns the value of the "replaced_by" field in the mutation.
-func (m *PersonMutation) ReplacedBy() (r []map[string]string, exists bool) {
-	v := m.replaced_by
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldReplacedBy returns the old "replaced_by" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldReplacedBy(ctx context.Context) (v []map[string]string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldReplacedBy is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldReplacedBy requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldReplacedBy: %w", err)
-	}
-	return oldValue.ReplacedBy, nil
-}
-
-// AppendReplacedBy adds value to the "replaced_by" field.
-func (m *PersonMutation) AppendReplacedBy(value []map[string]string) {
-	m.appendreplaced_by = append(m.appendreplaced_by, value...)
-}
-
-// AppendedReplacedBy returns the list of values that were appended to the "replaced_by" field in this mutation.
-func (m *PersonMutation) AppendedReplacedBy() ([]map[string]string, bool) {
-	if len(m.appendreplaced_by) == 0 {
-		return nil, false
-	}
-	return m.appendreplaced_by, true
-}
-
-// ClearReplacedBy clears the value of the "replaced_by" field.
-func (m *PersonMutation) ClearReplacedBy() {
-	m.replaced_by = nil
-	m.appendreplaced_by = nil
-	m.clearedFields[person.FieldReplacedBy] = struct{}{}
-}
-
-// ReplacedByCleared returns if the "replaced_by" field was cleared in this mutation.
-func (m *PersonMutation) ReplacedByCleared() bool {
-	_, ok := m.clearedFields[person.FieldReplacedBy]
-	return ok
-}
-
-// ResetReplacedBy resets all changes to the "replaced_by" field.
-func (m *PersonMutation) ResetReplacedBy() {
-	m.replaced_by = nil
-	m.appendreplaced_by = nil
-	delete(m.clearedFields, person.FieldReplacedBy)
-}
-
-// SetDateLastLogin sets the "date_last_login" field.
-func (m *PersonMutation) SetDateLastLogin(t time.Time) {
-	m.date_last_login = &t
-}
-
-// DateLastLogin returns the value of the "date_last_login" field in the mutation.
-func (m *PersonMutation) DateLastLogin() (r time.Time, exists bool) {
-	v := m.date_last_login
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDateLastLogin returns the old "date_last_login" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldDateLastLogin(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDateLastLogin is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDateLastLogin requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDateLastLogin: %w", err)
-	}
-	return oldValue.DateLastLogin, nil
-}
-
-// ClearDateLastLogin clears the value of the "date_last_login" field.
-func (m *PersonMutation) ClearDateLastLogin() {
-	m.date_last_login = nil
-	m.clearedFields[person.FieldDateLastLogin] = struct{}{}
-}
-
-// DateLastLoginCleared returns if the "date_last_login" field was cleared in this mutation.
-func (m *PersonMutation) DateLastLoginCleared() bool {
-	_, ok := m.clearedFields[person.FieldDateLastLogin]
-	return ok
-}
-
-// ResetDateLastLogin resets all changes to the "date_last_login" field.
-func (m *PersonMutation) ResetDateLastLogin() {
-	m.date_last_login = nil
-	delete(m.clearedFields, person.FieldDateLastLogin)
+// ResetJobTitle resets all changes to the "job_title" field.
+func (m *PersonMutation) ResetJobTitle() {
+	m.job_title = nil
+	delete(m.clearedFields, person.FieldJobTitle)
 }
 
 // Where appends a list predicates to the PersonMutation builder.
@@ -3304,30 +1255,15 @@ func (m *PersonMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PersonMutation) Fields() []string {
-	fields := make([]string, 0, 57)
+	fields := make([]string, 0, 16)
 	if m.date_created != nil {
 		fields = append(fields, person.FieldDateCreated)
 	}
 	if m.date_updated != nil {
 		fields = append(fields, person.FieldDateUpdated)
 	}
-	if m.object_class != nil {
-		fields = append(fields, person.FieldObjectClass)
-	}
-	if m.ugent_username != nil {
-		fields = append(fields, person.FieldUgentUsername)
-	}
-	if m.first_name != nil {
-		fields = append(fields, person.FieldFirstName)
-	}
-	if m.middle_name != nil {
-		fields = append(fields, person.FieldMiddleName)
-	}
-	if m.last_name != nil {
-		fields = append(fields, person.FieldLastName)
-	}
-	if m.ugent_id != nil {
-		fields = append(fields, person.FieldUgentID)
+	if m.active != nil {
+		fields = append(fields, person.FieldActive)
 	}
 	if m.birth_date != nil {
 		fields = append(fields, person.FieldBirthDate)
@@ -3335,131 +1271,29 @@ func (m *PersonMutation) Fields() []string {
 	if m.email != nil {
 		fields = append(fields, person.FieldEmail)
 	}
-	if m.nationality != nil {
-		fields = append(fields, person.FieldNationality)
+	if m.other_id != nil {
+		fields = append(fields, person.FieldOtherID)
 	}
-	if m.ugent_barcode != nil {
-		fields = append(fields, person.FieldUgentBarcode)
+	if m.organization_id != nil {
+		fields = append(fields, person.FieldOrganizationID)
 	}
-	if m.ugent_job_category != nil {
-		fields = append(fields, person.FieldUgentJobCategory)
+	if m.first_name != nil {
+		fields = append(fields, person.FieldFirstName)
 	}
-	if m.title != nil {
-		fields = append(fields, person.FieldTitle)
+	if m.full_name != nil {
+		fields = append(fields, person.FieldFullName)
 	}
-	if m.ugent_tel != nil {
-		fields = append(fields, person.FieldUgentTel)
+	if m.last_name != nil {
+		fields = append(fields, person.FieldLastName)
 	}
-	if m.ugent_campus != nil {
-		fields = append(fields, person.FieldUgentCampus)
+	if m.category != nil {
+		fields = append(fields, person.FieldCategory)
 	}
-	if m.ugent_department_id != nil {
-		fields = append(fields, person.FieldUgentDepartmentID)
-	}
-	if m.ugent_faculty_id != nil {
-		fields = append(fields, person.FieldUgentFacultyID)
-	}
-	if m.ugent_job_title != nil {
-		fields = append(fields, person.FieldUgentJobTitle)
-	}
-	if m.ugent_street_address != nil {
-		fields = append(fields, person.FieldUgentStreetAddress)
-	}
-	if m.ugent_postal_code != nil {
-		fields = append(fields, person.FieldUgentPostalCode)
-	}
-	if m.ugent_locality != nil {
-		fields = append(fields, person.FieldUgentLocality)
-	}
-	if m.ugent_last_enrolled != nil {
-		fields = append(fields, person.FieldUgentLastEnrolled)
-	}
-	if m.home_street_address != nil {
-		fields = append(fields, person.FieldHomeStreetAddress)
-	}
-	if m.home_postal_code != nil {
-		fields = append(fields, person.FieldHomePostalCode)
-	}
-	if m.home_locality != nil {
-		fields = append(fields, person.FieldHomeLocality)
-	}
-	if m.home_country != nil {
-		fields = append(fields, person.FieldHomeCountry)
-	}
-	if m.home_tel != nil {
-		fields = append(fields, person.FieldHomeTel)
-	}
-	if m.dorm_street_address != nil {
-		fields = append(fields, person.FieldDormStreetAddress)
-	}
-	if m.dorm_postal_code != nil {
-		fields = append(fields, person.FieldDormPostalCode)
-	}
-	if m.dorm_locality != nil {
-		fields = append(fields, person.FieldDormLocality)
-	}
-	if m.dorm_country != nil {
-		fields = append(fields, person.FieldDormCountry)
-	}
-	if m.research_discipline != nil {
-		fields = append(fields, person.FieldResearchDiscipline)
-	}
-	if m.research_discipline_code != nil {
-		fields = append(fields, person.FieldResearchDisciplineCode)
-	}
-	if m.ugent_expiration_date != nil {
-		fields = append(fields, person.FieldUgentExpirationDate)
-	}
-	if m.uzgent_job_title != nil {
-		fields = append(fields, person.FieldUzgentJobTitle)
-	}
-	if m.uzgent_department_name != nil {
-		fields = append(fields, person.FieldUzgentDepartmentName)
-	}
-	if m.uzgent_id != nil {
-		fields = append(fields, person.FieldUzgentID)
-	}
-	if m.ugent_ext_category != nil {
-		fields = append(fields, person.FieldUgentExtCategory)
-	}
-	if m.ugent_appointment_date != nil {
-		fields = append(fields, person.FieldUgentAppointmentDate)
-	}
-	if m.ugent_department_name != nil {
-		fields = append(fields, person.FieldUgentDepartmentName)
-	}
-	if m.orcid_bio != nil {
-		fields = append(fields, person.FieldOrcidBio)
-	}
-	if m.orcid_id != nil {
-		fields = append(fields, person.FieldOrcidID)
-	}
-	if m.orcid_settings != nil {
-		fields = append(fields, person.FieldOrcidSettings)
+	if m.orcid != nil {
+		fields = append(fields, person.FieldOrcid)
 	}
 	if m.orcid_token != nil {
 		fields = append(fields, person.FieldOrcidToken)
-	}
-	if m.orcid_verify != nil {
-		fields = append(fields, person.FieldOrcidVerify)
-	}
-	if m.active != nil {
-		fields = append(fields, person.FieldActive)
-	}
-	if m.deleted != nil {
-		fields = append(fields, person.FieldDeleted)
-	}
-	if m.settings != nil {
-		fields = append(fields, person.FieldSettings)
-	}
-	if m.roles != nil {
-		fields = append(fields, person.FieldRoles)
-	}
-	if m.publication_count != nil {
-		fields = append(fields, person.FieldPublicationCount)
-	}
-	if m.ugent_memorialis_id != nil {
-		fields = append(fields, person.FieldUgentMemorialisID)
 	}
 	if m.preferred_first_name != nil {
 		fields = append(fields, person.FieldPreferredFirstName)
@@ -3467,14 +1301,8 @@ func (m *PersonMutation) Fields() []string {
 	if m.preferred_last_name != nil {
 		fields = append(fields, person.FieldPreferredLastName)
 	}
-	if m.replaces != nil {
-		fields = append(fields, person.FieldReplaces)
-	}
-	if m.replaced_by != nil {
-		fields = append(fields, person.FieldReplacedBy)
-	}
-	if m.date_last_login != nil {
-		fields = append(fields, person.FieldDateLastLogin)
+	if m.job_title != nil {
+		fields = append(fields, person.FieldJobTitle)
 	}
 	return fields
 }
@@ -3488,116 +1316,34 @@ func (m *PersonMutation) Field(name string) (ent.Value, bool) {
 		return m.DateCreated()
 	case person.FieldDateUpdated:
 		return m.DateUpdated()
-	case person.FieldObjectClass:
-		return m.ObjectClass()
-	case person.FieldUgentUsername:
-		return m.UgentUsername()
-	case person.FieldFirstName:
-		return m.FirstName()
-	case person.FieldMiddleName:
-		return m.MiddleName()
-	case person.FieldLastName:
-		return m.LastName()
-	case person.FieldUgentID:
-		return m.UgentID()
+	case person.FieldActive:
+		return m.Active()
 	case person.FieldBirthDate:
 		return m.BirthDate()
 	case person.FieldEmail:
 		return m.Email()
-	case person.FieldNationality:
-		return m.Nationality()
-	case person.FieldUgentBarcode:
-		return m.UgentBarcode()
-	case person.FieldUgentJobCategory:
-		return m.UgentJobCategory()
-	case person.FieldTitle:
-		return m.Title()
-	case person.FieldUgentTel:
-		return m.UgentTel()
-	case person.FieldUgentCampus:
-		return m.UgentCampus()
-	case person.FieldUgentDepartmentID:
-		return m.UgentDepartmentID()
-	case person.FieldUgentFacultyID:
-		return m.UgentFacultyID()
-	case person.FieldUgentJobTitle:
-		return m.UgentJobTitle()
-	case person.FieldUgentStreetAddress:
-		return m.UgentStreetAddress()
-	case person.FieldUgentPostalCode:
-		return m.UgentPostalCode()
-	case person.FieldUgentLocality:
-		return m.UgentLocality()
-	case person.FieldUgentLastEnrolled:
-		return m.UgentLastEnrolled()
-	case person.FieldHomeStreetAddress:
-		return m.HomeStreetAddress()
-	case person.FieldHomePostalCode:
-		return m.HomePostalCode()
-	case person.FieldHomeLocality:
-		return m.HomeLocality()
-	case person.FieldHomeCountry:
-		return m.HomeCountry()
-	case person.FieldHomeTel:
-		return m.HomeTel()
-	case person.FieldDormStreetAddress:
-		return m.DormStreetAddress()
-	case person.FieldDormPostalCode:
-		return m.DormPostalCode()
-	case person.FieldDormLocality:
-		return m.DormLocality()
-	case person.FieldDormCountry:
-		return m.DormCountry()
-	case person.FieldResearchDiscipline:
-		return m.ResearchDiscipline()
-	case person.FieldResearchDisciplineCode:
-		return m.ResearchDisciplineCode()
-	case person.FieldUgentExpirationDate:
-		return m.UgentExpirationDate()
-	case person.FieldUzgentJobTitle:
-		return m.UzgentJobTitle()
-	case person.FieldUzgentDepartmentName:
-		return m.UzgentDepartmentName()
-	case person.FieldUzgentID:
-		return m.UzgentID()
-	case person.FieldUgentExtCategory:
-		return m.UgentExtCategory()
-	case person.FieldUgentAppointmentDate:
-		return m.UgentAppointmentDate()
-	case person.FieldUgentDepartmentName:
-		return m.UgentDepartmentName()
-	case person.FieldOrcidBio:
-		return m.OrcidBio()
-	case person.FieldOrcidID:
-		return m.OrcidID()
-	case person.FieldOrcidSettings:
-		return m.OrcidSettings()
+	case person.FieldOtherID:
+		return m.OtherID()
+	case person.FieldOrganizationID:
+		return m.OrganizationID()
+	case person.FieldFirstName:
+		return m.FirstName()
+	case person.FieldFullName:
+		return m.FullName()
+	case person.FieldLastName:
+		return m.LastName()
+	case person.FieldCategory:
+		return m.Category()
+	case person.FieldOrcid:
+		return m.Orcid()
 	case person.FieldOrcidToken:
 		return m.OrcidToken()
-	case person.FieldOrcidVerify:
-		return m.OrcidVerify()
-	case person.FieldActive:
-		return m.Active()
-	case person.FieldDeleted:
-		return m.Deleted()
-	case person.FieldSettings:
-		return m.Settings()
-	case person.FieldRoles:
-		return m.Roles()
-	case person.FieldPublicationCount:
-		return m.PublicationCount()
-	case person.FieldUgentMemorialisID:
-		return m.UgentMemorialisID()
 	case person.FieldPreferredFirstName:
 		return m.PreferredFirstName()
 	case person.FieldPreferredLastName:
 		return m.PreferredLastName()
-	case person.FieldReplaces:
-		return m.Replaces()
-	case person.FieldReplacedBy:
-		return m.ReplacedBy()
-	case person.FieldDateLastLogin:
-		return m.DateLastLogin()
+	case person.FieldJobTitle:
+		return m.JobTitle()
 	}
 	return nil, false
 }
@@ -3611,116 +1357,34 @@ func (m *PersonMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldDateCreated(ctx)
 	case person.FieldDateUpdated:
 		return m.OldDateUpdated(ctx)
-	case person.FieldObjectClass:
-		return m.OldObjectClass(ctx)
-	case person.FieldUgentUsername:
-		return m.OldUgentUsername(ctx)
-	case person.FieldFirstName:
-		return m.OldFirstName(ctx)
-	case person.FieldMiddleName:
-		return m.OldMiddleName(ctx)
-	case person.FieldLastName:
-		return m.OldLastName(ctx)
-	case person.FieldUgentID:
-		return m.OldUgentID(ctx)
+	case person.FieldActive:
+		return m.OldActive(ctx)
 	case person.FieldBirthDate:
 		return m.OldBirthDate(ctx)
 	case person.FieldEmail:
 		return m.OldEmail(ctx)
-	case person.FieldNationality:
-		return m.OldNationality(ctx)
-	case person.FieldUgentBarcode:
-		return m.OldUgentBarcode(ctx)
-	case person.FieldUgentJobCategory:
-		return m.OldUgentJobCategory(ctx)
-	case person.FieldTitle:
-		return m.OldTitle(ctx)
-	case person.FieldUgentTel:
-		return m.OldUgentTel(ctx)
-	case person.FieldUgentCampus:
-		return m.OldUgentCampus(ctx)
-	case person.FieldUgentDepartmentID:
-		return m.OldUgentDepartmentID(ctx)
-	case person.FieldUgentFacultyID:
-		return m.OldUgentFacultyID(ctx)
-	case person.FieldUgentJobTitle:
-		return m.OldUgentJobTitle(ctx)
-	case person.FieldUgentStreetAddress:
-		return m.OldUgentStreetAddress(ctx)
-	case person.FieldUgentPostalCode:
-		return m.OldUgentPostalCode(ctx)
-	case person.FieldUgentLocality:
-		return m.OldUgentLocality(ctx)
-	case person.FieldUgentLastEnrolled:
-		return m.OldUgentLastEnrolled(ctx)
-	case person.FieldHomeStreetAddress:
-		return m.OldHomeStreetAddress(ctx)
-	case person.FieldHomePostalCode:
-		return m.OldHomePostalCode(ctx)
-	case person.FieldHomeLocality:
-		return m.OldHomeLocality(ctx)
-	case person.FieldHomeCountry:
-		return m.OldHomeCountry(ctx)
-	case person.FieldHomeTel:
-		return m.OldHomeTel(ctx)
-	case person.FieldDormStreetAddress:
-		return m.OldDormStreetAddress(ctx)
-	case person.FieldDormPostalCode:
-		return m.OldDormPostalCode(ctx)
-	case person.FieldDormLocality:
-		return m.OldDormLocality(ctx)
-	case person.FieldDormCountry:
-		return m.OldDormCountry(ctx)
-	case person.FieldResearchDiscipline:
-		return m.OldResearchDiscipline(ctx)
-	case person.FieldResearchDisciplineCode:
-		return m.OldResearchDisciplineCode(ctx)
-	case person.FieldUgentExpirationDate:
-		return m.OldUgentExpirationDate(ctx)
-	case person.FieldUzgentJobTitle:
-		return m.OldUzgentJobTitle(ctx)
-	case person.FieldUzgentDepartmentName:
-		return m.OldUzgentDepartmentName(ctx)
-	case person.FieldUzgentID:
-		return m.OldUzgentID(ctx)
-	case person.FieldUgentExtCategory:
-		return m.OldUgentExtCategory(ctx)
-	case person.FieldUgentAppointmentDate:
-		return m.OldUgentAppointmentDate(ctx)
-	case person.FieldUgentDepartmentName:
-		return m.OldUgentDepartmentName(ctx)
-	case person.FieldOrcidBio:
-		return m.OldOrcidBio(ctx)
-	case person.FieldOrcidID:
-		return m.OldOrcidID(ctx)
-	case person.FieldOrcidSettings:
-		return m.OldOrcidSettings(ctx)
+	case person.FieldOtherID:
+		return m.OldOtherID(ctx)
+	case person.FieldOrganizationID:
+		return m.OldOrganizationID(ctx)
+	case person.FieldFirstName:
+		return m.OldFirstName(ctx)
+	case person.FieldFullName:
+		return m.OldFullName(ctx)
+	case person.FieldLastName:
+		return m.OldLastName(ctx)
+	case person.FieldCategory:
+		return m.OldCategory(ctx)
+	case person.FieldOrcid:
+		return m.OldOrcid(ctx)
 	case person.FieldOrcidToken:
 		return m.OldOrcidToken(ctx)
-	case person.FieldOrcidVerify:
-		return m.OldOrcidVerify(ctx)
-	case person.FieldActive:
-		return m.OldActive(ctx)
-	case person.FieldDeleted:
-		return m.OldDeleted(ctx)
-	case person.FieldSettings:
-		return m.OldSettings(ctx)
-	case person.FieldRoles:
-		return m.OldRoles(ctx)
-	case person.FieldPublicationCount:
-		return m.OldPublicationCount(ctx)
-	case person.FieldUgentMemorialisID:
-		return m.OldUgentMemorialisID(ctx)
 	case person.FieldPreferredFirstName:
 		return m.OldPreferredFirstName(ctx)
 	case person.FieldPreferredLastName:
 		return m.OldPreferredLastName(ctx)
-	case person.FieldReplaces:
-		return m.OldReplaces(ctx)
-	case person.FieldReplacedBy:
-		return m.OldReplacedBy(ctx)
-	case person.FieldDateLastLogin:
-		return m.OldDateLastLogin(ctx)
+	case person.FieldJobTitle:
+		return m.OldJobTitle(ctx)
 	}
 	return nil, fmt.Errorf("unknown Person field %s", name)
 }
@@ -3744,47 +1408,12 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDateUpdated(v)
 		return nil
-	case person.FieldObjectClass:
-		v, ok := value.([]string)
+	case person.FieldActive:
+		v, ok := value.(bool)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetObjectClass(v)
-		return nil
-	case person.FieldUgentUsername:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentUsername(v)
-		return nil
-	case person.FieldFirstName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetFirstName(v)
-		return nil
-	case person.FieldMiddleName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetMiddleName(v)
-		return nil
-	case person.FieldLastName:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetLastName(v)
-		return nil
-	case person.FieldUgentID:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentID(v)
+		m.SetActive(v)
 		return nil
 	case person.FieldBirthDate:
 		v, ok := value.(string)
@@ -3800,243 +1429,54 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetEmail(v)
 		return nil
-	case person.FieldNationality:
-		v, ok := value.(string)
+	case person.FieldOtherID:
+		v, ok := value.([]schema.IdRef)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetNationality(v)
+		m.SetOtherID(v)
 		return nil
-	case person.FieldUgentBarcode:
+	case person.FieldOrganizationID:
 		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUgentBarcode(v)
+		m.SetOrganizationID(v)
 		return nil
-	case person.FieldUgentJobCategory:
+	case person.FieldFirstName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFirstName(v)
+		return nil
+	case person.FieldFullName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFullName(v)
+		return nil
+	case person.FieldLastName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastName(v)
+		return nil
+	case person.FieldCategory:
 		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUgentJobCategory(v)
+		m.SetCategory(v)
 		return nil
-	case person.FieldTitle:
+	case person.FieldOrcid:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetTitle(v)
-		return nil
-	case person.FieldUgentTel:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentTel(v)
-		return nil
-	case person.FieldUgentCampus:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentCampus(v)
-		return nil
-	case person.FieldUgentDepartmentID:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentDepartmentID(v)
-		return nil
-	case person.FieldUgentFacultyID:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentFacultyID(v)
-		return nil
-	case person.FieldUgentJobTitle:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentJobTitle(v)
-		return nil
-	case person.FieldUgentStreetAddress:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentStreetAddress(v)
-		return nil
-	case person.FieldUgentPostalCode:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentPostalCode(v)
-		return nil
-	case person.FieldUgentLocality:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentLocality(v)
-		return nil
-	case person.FieldUgentLastEnrolled:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentLastEnrolled(v)
-		return nil
-	case person.FieldHomeStreetAddress:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetHomeStreetAddress(v)
-		return nil
-	case person.FieldHomePostalCode:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetHomePostalCode(v)
-		return nil
-	case person.FieldHomeLocality:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetHomeLocality(v)
-		return nil
-	case person.FieldHomeCountry:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetHomeCountry(v)
-		return nil
-	case person.FieldHomeTel:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetHomeTel(v)
-		return nil
-	case person.FieldDormStreetAddress:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDormStreetAddress(v)
-		return nil
-	case person.FieldDormPostalCode:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDormPostalCode(v)
-		return nil
-	case person.FieldDormLocality:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDormLocality(v)
-		return nil
-	case person.FieldDormCountry:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDormCountry(v)
-		return nil
-	case person.FieldResearchDiscipline:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetResearchDiscipline(v)
-		return nil
-	case person.FieldResearchDisciplineCode:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetResearchDisciplineCode(v)
-		return nil
-	case person.FieldUgentExpirationDate:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentExpirationDate(v)
-		return nil
-	case person.FieldUzgentJobTitle:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUzgentJobTitle(v)
-		return nil
-	case person.FieldUzgentDepartmentName:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUzgentDepartmentName(v)
-		return nil
-	case person.FieldUzgentID:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUzgentID(v)
-		return nil
-	case person.FieldUgentExtCategory:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentExtCategory(v)
-		return nil
-	case person.FieldUgentAppointmentDate:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentAppointmentDate(v)
-		return nil
-	case person.FieldUgentDepartmentName:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentDepartmentName(v)
-		return nil
-	case person.FieldOrcidBio:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOrcidBio(v)
-		return nil
-	case person.FieldOrcidID:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOrcidID(v)
-		return nil
-	case person.FieldOrcidSettings:
-		v, ok := value.(schema.OrcidSettings)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOrcidSettings(v)
+		m.SetOrcid(v)
 		return nil
 	case person.FieldOrcidToken:
 		v, ok := value.(string)
@@ -4044,55 +1484,6 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetOrcidToken(v)
-		return nil
-	case person.FieldOrcidVerify:
-		v, ok := value.(schema.OrcidVerify)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOrcidVerify(v)
-		return nil
-	case person.FieldActive:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetActive(v)
-		return nil
-	case person.FieldDeleted:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDeleted(v)
-		return nil
-	case person.FieldSettings:
-		v, ok := value.(schema.Settings)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSettings(v)
-		return nil
-	case person.FieldRoles:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRoles(v)
-		return nil
-	case person.FieldPublicationCount:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetPublicationCount(v)
-		return nil
-	case person.FieldUgentMemorialisID:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUgentMemorialisID(v)
 		return nil
 	case person.FieldPreferredFirstName:
 		v, ok := value.(string)
@@ -4108,26 +1499,12 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPreferredLastName(v)
 		return nil
-	case person.FieldReplaces:
-		v, ok := value.([]map[string]string)
+	case person.FieldJobTitle:
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetReplaces(v)
-		return nil
-	case person.FieldReplacedBy:
-		v, ok := value.([]map[string]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetReplacedBy(v)
-		return nil
-	case person.FieldDateLastLogin:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDateLastLogin(v)
+		m.SetJobTitle(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Person field %s", name)
@@ -4136,21 +1513,13 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *PersonMutation) AddedFields() []string {
-	var fields []string
-	if m.addpublication_count != nil {
-		fields = append(fields, person.FieldPublicationCount)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *PersonMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case person.FieldPublicationCount:
-		return m.AddedPublicationCount()
-	}
 	return nil, false
 }
 
@@ -4159,13 +1528,6 @@ func (m *PersonMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *PersonMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case person.FieldPublicationCount:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddPublicationCount(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Person numeric field %s", name)
 }
@@ -4174,149 +1536,35 @@ func (m *PersonMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *PersonMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(person.FieldObjectClass) {
-		fields = append(fields, person.FieldObjectClass)
-	}
-	if m.FieldCleared(person.FieldUgentUsername) {
-		fields = append(fields, person.FieldUgentUsername)
-	}
-	if m.FieldCleared(person.FieldFirstName) {
-		fields = append(fields, person.FieldFirstName)
-	}
-	if m.FieldCleared(person.FieldMiddleName) {
-		fields = append(fields, person.FieldMiddleName)
-	}
-	if m.FieldCleared(person.FieldLastName) {
-		fields = append(fields, person.FieldLastName)
-	}
-	if m.FieldCleared(person.FieldUgentID) {
-		fields = append(fields, person.FieldUgentID)
-	}
 	if m.FieldCleared(person.FieldBirthDate) {
 		fields = append(fields, person.FieldBirthDate)
 	}
 	if m.FieldCleared(person.FieldEmail) {
 		fields = append(fields, person.FieldEmail)
 	}
-	if m.FieldCleared(person.FieldNationality) {
-		fields = append(fields, person.FieldNationality)
+	if m.FieldCleared(person.FieldOtherID) {
+		fields = append(fields, person.FieldOtherID)
 	}
-	if m.FieldCleared(person.FieldUgentBarcode) {
-		fields = append(fields, person.FieldUgentBarcode)
+	if m.FieldCleared(person.FieldOrganizationID) {
+		fields = append(fields, person.FieldOrganizationID)
 	}
-	if m.FieldCleared(person.FieldUgentJobCategory) {
-		fields = append(fields, person.FieldUgentJobCategory)
+	if m.FieldCleared(person.FieldFirstName) {
+		fields = append(fields, person.FieldFirstName)
 	}
-	if m.FieldCleared(person.FieldTitle) {
-		fields = append(fields, person.FieldTitle)
+	if m.FieldCleared(person.FieldFullName) {
+		fields = append(fields, person.FieldFullName)
 	}
-	if m.FieldCleared(person.FieldUgentTel) {
-		fields = append(fields, person.FieldUgentTel)
+	if m.FieldCleared(person.FieldLastName) {
+		fields = append(fields, person.FieldLastName)
 	}
-	if m.FieldCleared(person.FieldUgentCampus) {
-		fields = append(fields, person.FieldUgentCampus)
+	if m.FieldCleared(person.FieldCategory) {
+		fields = append(fields, person.FieldCategory)
 	}
-	if m.FieldCleared(person.FieldUgentDepartmentID) {
-		fields = append(fields, person.FieldUgentDepartmentID)
-	}
-	if m.FieldCleared(person.FieldUgentFacultyID) {
-		fields = append(fields, person.FieldUgentFacultyID)
-	}
-	if m.FieldCleared(person.FieldUgentJobTitle) {
-		fields = append(fields, person.FieldUgentJobTitle)
-	}
-	if m.FieldCleared(person.FieldUgentStreetAddress) {
-		fields = append(fields, person.FieldUgentStreetAddress)
-	}
-	if m.FieldCleared(person.FieldUgentPostalCode) {
-		fields = append(fields, person.FieldUgentPostalCode)
-	}
-	if m.FieldCleared(person.FieldUgentLocality) {
-		fields = append(fields, person.FieldUgentLocality)
-	}
-	if m.FieldCleared(person.FieldUgentLastEnrolled) {
-		fields = append(fields, person.FieldUgentLastEnrolled)
-	}
-	if m.FieldCleared(person.FieldHomeStreetAddress) {
-		fields = append(fields, person.FieldHomeStreetAddress)
-	}
-	if m.FieldCleared(person.FieldHomePostalCode) {
-		fields = append(fields, person.FieldHomePostalCode)
-	}
-	if m.FieldCleared(person.FieldHomeLocality) {
-		fields = append(fields, person.FieldHomeLocality)
-	}
-	if m.FieldCleared(person.FieldHomeCountry) {
-		fields = append(fields, person.FieldHomeCountry)
-	}
-	if m.FieldCleared(person.FieldHomeTel) {
-		fields = append(fields, person.FieldHomeTel)
-	}
-	if m.FieldCleared(person.FieldDormStreetAddress) {
-		fields = append(fields, person.FieldDormStreetAddress)
-	}
-	if m.FieldCleared(person.FieldDormPostalCode) {
-		fields = append(fields, person.FieldDormPostalCode)
-	}
-	if m.FieldCleared(person.FieldDormLocality) {
-		fields = append(fields, person.FieldDormLocality)
-	}
-	if m.FieldCleared(person.FieldDormCountry) {
-		fields = append(fields, person.FieldDormCountry)
-	}
-	if m.FieldCleared(person.FieldResearchDiscipline) {
-		fields = append(fields, person.FieldResearchDiscipline)
-	}
-	if m.FieldCleared(person.FieldResearchDisciplineCode) {
-		fields = append(fields, person.FieldResearchDisciplineCode)
-	}
-	if m.FieldCleared(person.FieldUgentExpirationDate) {
-		fields = append(fields, person.FieldUgentExpirationDate)
-	}
-	if m.FieldCleared(person.FieldUzgentJobTitle) {
-		fields = append(fields, person.FieldUzgentJobTitle)
-	}
-	if m.FieldCleared(person.FieldUzgentDepartmentName) {
-		fields = append(fields, person.FieldUzgentDepartmentName)
-	}
-	if m.FieldCleared(person.FieldUzgentID) {
-		fields = append(fields, person.FieldUzgentID)
-	}
-	if m.FieldCleared(person.FieldUgentExtCategory) {
-		fields = append(fields, person.FieldUgentExtCategory)
-	}
-	if m.FieldCleared(person.FieldUgentAppointmentDate) {
-		fields = append(fields, person.FieldUgentAppointmentDate)
-	}
-	if m.FieldCleared(person.FieldUgentDepartmentName) {
-		fields = append(fields, person.FieldUgentDepartmentName)
-	}
-	if m.FieldCleared(person.FieldOrcidBio) {
-		fields = append(fields, person.FieldOrcidBio)
-	}
-	if m.FieldCleared(person.FieldOrcidID) {
-		fields = append(fields, person.FieldOrcidID)
-	}
-	if m.FieldCleared(person.FieldOrcidSettings) {
-		fields = append(fields, person.FieldOrcidSettings)
+	if m.FieldCleared(person.FieldOrcid) {
+		fields = append(fields, person.FieldOrcid)
 	}
 	if m.FieldCleared(person.FieldOrcidToken) {
 		fields = append(fields, person.FieldOrcidToken)
-	}
-	if m.FieldCleared(person.FieldOrcidVerify) {
-		fields = append(fields, person.FieldOrcidVerify)
-	}
-	if m.FieldCleared(person.FieldSettings) {
-		fields = append(fields, person.FieldSettings)
-	}
-	if m.FieldCleared(person.FieldRoles) {
-		fields = append(fields, person.FieldRoles)
-	}
-	if m.FieldCleared(person.FieldPublicationCount) {
-		fields = append(fields, person.FieldPublicationCount)
-	}
-	if m.FieldCleared(person.FieldUgentMemorialisID) {
-		fields = append(fields, person.FieldUgentMemorialisID)
 	}
 	if m.FieldCleared(person.FieldPreferredFirstName) {
 		fields = append(fields, person.FieldPreferredFirstName)
@@ -4324,14 +1572,8 @@ func (m *PersonMutation) ClearedFields() []string {
 	if m.FieldCleared(person.FieldPreferredLastName) {
 		fields = append(fields, person.FieldPreferredLastName)
 	}
-	if m.FieldCleared(person.FieldReplaces) {
-		fields = append(fields, person.FieldReplaces)
-	}
-	if m.FieldCleared(person.FieldReplacedBy) {
-		fields = append(fields, person.FieldReplacedBy)
-	}
-	if m.FieldCleared(person.FieldDateLastLogin) {
-		fields = append(fields, person.FieldDateLastLogin)
+	if m.FieldCleared(person.FieldJobTitle) {
+		fields = append(fields, person.FieldJobTitle)
 	}
 	return fields
 }
@@ -4347,149 +1589,35 @@ func (m *PersonMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *PersonMutation) ClearField(name string) error {
 	switch name {
-	case person.FieldObjectClass:
-		m.ClearObjectClass()
-		return nil
-	case person.FieldUgentUsername:
-		m.ClearUgentUsername()
-		return nil
-	case person.FieldFirstName:
-		m.ClearFirstName()
-		return nil
-	case person.FieldMiddleName:
-		m.ClearMiddleName()
-		return nil
-	case person.FieldLastName:
-		m.ClearLastName()
-		return nil
-	case person.FieldUgentID:
-		m.ClearUgentID()
-		return nil
 	case person.FieldBirthDate:
 		m.ClearBirthDate()
 		return nil
 	case person.FieldEmail:
 		m.ClearEmail()
 		return nil
-	case person.FieldNationality:
-		m.ClearNationality()
+	case person.FieldOtherID:
+		m.ClearOtherID()
 		return nil
-	case person.FieldUgentBarcode:
-		m.ClearUgentBarcode()
+	case person.FieldOrganizationID:
+		m.ClearOrganizationID()
 		return nil
-	case person.FieldUgentJobCategory:
-		m.ClearUgentJobCategory()
+	case person.FieldFirstName:
+		m.ClearFirstName()
 		return nil
-	case person.FieldTitle:
-		m.ClearTitle()
+	case person.FieldFullName:
+		m.ClearFullName()
 		return nil
-	case person.FieldUgentTel:
-		m.ClearUgentTel()
+	case person.FieldLastName:
+		m.ClearLastName()
 		return nil
-	case person.FieldUgentCampus:
-		m.ClearUgentCampus()
+	case person.FieldCategory:
+		m.ClearCategory()
 		return nil
-	case person.FieldUgentDepartmentID:
-		m.ClearUgentDepartmentID()
-		return nil
-	case person.FieldUgentFacultyID:
-		m.ClearUgentFacultyID()
-		return nil
-	case person.FieldUgentJobTitle:
-		m.ClearUgentJobTitle()
-		return nil
-	case person.FieldUgentStreetAddress:
-		m.ClearUgentStreetAddress()
-		return nil
-	case person.FieldUgentPostalCode:
-		m.ClearUgentPostalCode()
-		return nil
-	case person.FieldUgentLocality:
-		m.ClearUgentLocality()
-		return nil
-	case person.FieldUgentLastEnrolled:
-		m.ClearUgentLastEnrolled()
-		return nil
-	case person.FieldHomeStreetAddress:
-		m.ClearHomeStreetAddress()
-		return nil
-	case person.FieldHomePostalCode:
-		m.ClearHomePostalCode()
-		return nil
-	case person.FieldHomeLocality:
-		m.ClearHomeLocality()
-		return nil
-	case person.FieldHomeCountry:
-		m.ClearHomeCountry()
-		return nil
-	case person.FieldHomeTel:
-		m.ClearHomeTel()
-		return nil
-	case person.FieldDormStreetAddress:
-		m.ClearDormStreetAddress()
-		return nil
-	case person.FieldDormPostalCode:
-		m.ClearDormPostalCode()
-		return nil
-	case person.FieldDormLocality:
-		m.ClearDormLocality()
-		return nil
-	case person.FieldDormCountry:
-		m.ClearDormCountry()
-		return nil
-	case person.FieldResearchDiscipline:
-		m.ClearResearchDiscipline()
-		return nil
-	case person.FieldResearchDisciplineCode:
-		m.ClearResearchDisciplineCode()
-		return nil
-	case person.FieldUgentExpirationDate:
-		m.ClearUgentExpirationDate()
-		return nil
-	case person.FieldUzgentJobTitle:
-		m.ClearUzgentJobTitle()
-		return nil
-	case person.FieldUzgentDepartmentName:
-		m.ClearUzgentDepartmentName()
-		return nil
-	case person.FieldUzgentID:
-		m.ClearUzgentID()
-		return nil
-	case person.FieldUgentExtCategory:
-		m.ClearUgentExtCategory()
-		return nil
-	case person.FieldUgentAppointmentDate:
-		m.ClearUgentAppointmentDate()
-		return nil
-	case person.FieldUgentDepartmentName:
-		m.ClearUgentDepartmentName()
-		return nil
-	case person.FieldOrcidBio:
-		m.ClearOrcidBio()
-		return nil
-	case person.FieldOrcidID:
-		m.ClearOrcidID()
-		return nil
-	case person.FieldOrcidSettings:
-		m.ClearOrcidSettings()
+	case person.FieldOrcid:
+		m.ClearOrcid()
 		return nil
 	case person.FieldOrcidToken:
 		m.ClearOrcidToken()
-		return nil
-	case person.FieldOrcidVerify:
-		m.ClearOrcidVerify()
-		return nil
-	case person.FieldSettings:
-		m.ClearSettings()
-		return nil
-	case person.FieldRoles:
-		m.ClearRoles()
-		return nil
-	case person.FieldPublicationCount:
-		m.ClearPublicationCount()
-		return nil
-	case person.FieldUgentMemorialisID:
-		m.ClearUgentMemorialisID()
 		return nil
 	case person.FieldPreferredFirstName:
 		m.ClearPreferredFirstName()
@@ -4497,14 +1625,8 @@ func (m *PersonMutation) ClearField(name string) error {
 	case person.FieldPreferredLastName:
 		m.ClearPreferredLastName()
 		return nil
-	case person.FieldReplaces:
-		m.ClearReplaces()
-		return nil
-	case person.FieldReplacedBy:
-		m.ClearReplacedBy()
-		return nil
-	case person.FieldDateLastLogin:
-		m.ClearDateLastLogin()
+	case person.FieldJobTitle:
+		m.ClearJobTitle()
 		return nil
 	}
 	return fmt.Errorf("unknown Person nullable field %s", name)
@@ -4520,23 +1642,8 @@ func (m *PersonMutation) ResetField(name string) error {
 	case person.FieldDateUpdated:
 		m.ResetDateUpdated()
 		return nil
-	case person.FieldObjectClass:
-		m.ResetObjectClass()
-		return nil
-	case person.FieldUgentUsername:
-		m.ResetUgentUsername()
-		return nil
-	case person.FieldFirstName:
-		m.ResetFirstName()
-		return nil
-	case person.FieldMiddleName:
-		m.ResetMiddleName()
-		return nil
-	case person.FieldLastName:
-		m.ResetLastName()
-		return nil
-	case person.FieldUgentID:
-		m.ResetUgentID()
+	case person.FieldActive:
+		m.ResetActive()
 		return nil
 	case person.FieldBirthDate:
 		m.ResetBirthDate()
@@ -4544,131 +1651,29 @@ func (m *PersonMutation) ResetField(name string) error {
 	case person.FieldEmail:
 		m.ResetEmail()
 		return nil
-	case person.FieldNationality:
-		m.ResetNationality()
+	case person.FieldOtherID:
+		m.ResetOtherID()
 		return nil
-	case person.FieldUgentBarcode:
-		m.ResetUgentBarcode()
+	case person.FieldOrganizationID:
+		m.ResetOrganizationID()
 		return nil
-	case person.FieldUgentJobCategory:
-		m.ResetUgentJobCategory()
+	case person.FieldFirstName:
+		m.ResetFirstName()
 		return nil
-	case person.FieldTitle:
-		m.ResetTitle()
+	case person.FieldFullName:
+		m.ResetFullName()
 		return nil
-	case person.FieldUgentTel:
-		m.ResetUgentTel()
+	case person.FieldLastName:
+		m.ResetLastName()
 		return nil
-	case person.FieldUgentCampus:
-		m.ResetUgentCampus()
+	case person.FieldCategory:
+		m.ResetCategory()
 		return nil
-	case person.FieldUgentDepartmentID:
-		m.ResetUgentDepartmentID()
-		return nil
-	case person.FieldUgentFacultyID:
-		m.ResetUgentFacultyID()
-		return nil
-	case person.FieldUgentJobTitle:
-		m.ResetUgentJobTitle()
-		return nil
-	case person.FieldUgentStreetAddress:
-		m.ResetUgentStreetAddress()
-		return nil
-	case person.FieldUgentPostalCode:
-		m.ResetUgentPostalCode()
-		return nil
-	case person.FieldUgentLocality:
-		m.ResetUgentLocality()
-		return nil
-	case person.FieldUgentLastEnrolled:
-		m.ResetUgentLastEnrolled()
-		return nil
-	case person.FieldHomeStreetAddress:
-		m.ResetHomeStreetAddress()
-		return nil
-	case person.FieldHomePostalCode:
-		m.ResetHomePostalCode()
-		return nil
-	case person.FieldHomeLocality:
-		m.ResetHomeLocality()
-		return nil
-	case person.FieldHomeCountry:
-		m.ResetHomeCountry()
-		return nil
-	case person.FieldHomeTel:
-		m.ResetHomeTel()
-		return nil
-	case person.FieldDormStreetAddress:
-		m.ResetDormStreetAddress()
-		return nil
-	case person.FieldDormPostalCode:
-		m.ResetDormPostalCode()
-		return nil
-	case person.FieldDormLocality:
-		m.ResetDormLocality()
-		return nil
-	case person.FieldDormCountry:
-		m.ResetDormCountry()
-		return nil
-	case person.FieldResearchDiscipline:
-		m.ResetResearchDiscipline()
-		return nil
-	case person.FieldResearchDisciplineCode:
-		m.ResetResearchDisciplineCode()
-		return nil
-	case person.FieldUgentExpirationDate:
-		m.ResetUgentExpirationDate()
-		return nil
-	case person.FieldUzgentJobTitle:
-		m.ResetUzgentJobTitle()
-		return nil
-	case person.FieldUzgentDepartmentName:
-		m.ResetUzgentDepartmentName()
-		return nil
-	case person.FieldUzgentID:
-		m.ResetUzgentID()
-		return nil
-	case person.FieldUgentExtCategory:
-		m.ResetUgentExtCategory()
-		return nil
-	case person.FieldUgentAppointmentDate:
-		m.ResetUgentAppointmentDate()
-		return nil
-	case person.FieldUgentDepartmentName:
-		m.ResetUgentDepartmentName()
-		return nil
-	case person.FieldOrcidBio:
-		m.ResetOrcidBio()
-		return nil
-	case person.FieldOrcidID:
-		m.ResetOrcidID()
-		return nil
-	case person.FieldOrcidSettings:
-		m.ResetOrcidSettings()
+	case person.FieldOrcid:
+		m.ResetOrcid()
 		return nil
 	case person.FieldOrcidToken:
 		m.ResetOrcidToken()
-		return nil
-	case person.FieldOrcidVerify:
-		m.ResetOrcidVerify()
-		return nil
-	case person.FieldActive:
-		m.ResetActive()
-		return nil
-	case person.FieldDeleted:
-		m.ResetDeleted()
-		return nil
-	case person.FieldSettings:
-		m.ResetSettings()
-		return nil
-	case person.FieldRoles:
-		m.ResetRoles()
-		return nil
-	case person.FieldPublicationCount:
-		m.ResetPublicationCount()
-		return nil
-	case person.FieldUgentMemorialisID:
-		m.ResetUgentMemorialisID()
 		return nil
 	case person.FieldPreferredFirstName:
 		m.ResetPreferredFirstName()
@@ -4676,14 +1681,8 @@ func (m *PersonMutation) ResetField(name string) error {
 	case person.FieldPreferredLastName:
 		m.ResetPreferredLastName()
 		return nil
-	case person.FieldReplaces:
-		m.ResetReplaces()
-		return nil
-	case person.FieldReplacedBy:
-		m.ResetReplacedBy()
-		return nil
-	case person.FieldDateLastLogin:
-		m.ResetDateLastLogin()
+	case person.FieldJobTitle:
+		m.ResetJobTitle()
 		return nil
 	}
 	return fmt.Errorf("unknown Person field %s", name)

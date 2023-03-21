@@ -31,17 +31,9 @@ func init() {
 	// person.UpdateDefaultDateUpdated holds the default value on update for the date_updated field.
 	person.UpdateDefaultDateUpdated = personDescDateUpdated.UpdateDefault.(func() time.Time)
 	// personDescActive is the schema descriptor for active field.
-	personDescActive := personFields[44].Descriptor()
+	personDescActive := personFields[0].Descriptor()
 	// person.DefaultActive holds the default value on creation for the active field.
 	person.DefaultActive = personDescActive.Default.(bool)
-	// personDescDeleted is the schema descriptor for deleted field.
-	personDescDeleted := personFields[45].Descriptor()
-	// person.DefaultDeleted holds the default value on creation for the deleted field.
-	person.DefaultDeleted = personDescDeleted.Default.(bool)
-	// personDescPublicationCount is the schema descriptor for publication_count field.
-	personDescPublicationCount := personFields[48].Descriptor()
-	// person.DefaultPublicationCount holds the default value on creation for the publication_count field.
-	person.DefaultPublicationCount = personDescPublicationCount.Default.(int)
 	// personDescID is the schema descriptor for id field.
 	personDescID := personMixinFields0[0].Descriptor()
 	// person.DefaultID holds the default value on creation for the id field.

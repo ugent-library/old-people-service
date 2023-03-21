@@ -36,119 +36,17 @@ func (pu *PersonUpdate) SetDateUpdated(t time.Time) *PersonUpdate {
 	return pu
 }
 
-// SetObjectClass sets the "object_class" field.
-func (pu *PersonUpdate) SetObjectClass(s []string) *PersonUpdate {
-	pu.mutation.SetObjectClass(s)
+// SetActive sets the "active" field.
+func (pu *PersonUpdate) SetActive(b bool) *PersonUpdate {
+	pu.mutation.SetActive(b)
 	return pu
 }
 
-// AppendObjectClass appends s to the "object_class" field.
-func (pu *PersonUpdate) AppendObjectClass(s []string) *PersonUpdate {
-	pu.mutation.AppendObjectClass(s)
-	return pu
-}
-
-// ClearObjectClass clears the value of the "object_class" field.
-func (pu *PersonUpdate) ClearObjectClass() *PersonUpdate {
-	pu.mutation.ClearObjectClass()
-	return pu
-}
-
-// SetUgentUsername sets the "ugent_username" field.
-func (pu *PersonUpdate) SetUgentUsername(s string) *PersonUpdate {
-	pu.mutation.SetUgentUsername(s)
-	return pu
-}
-
-// SetNillableUgentUsername sets the "ugent_username" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableUgentUsername(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetUgentUsername(*s)
+// SetNillableActive sets the "active" field if the given value is not nil.
+func (pu *PersonUpdate) SetNillableActive(b *bool) *PersonUpdate {
+	if b != nil {
+		pu.SetActive(*b)
 	}
-	return pu
-}
-
-// ClearUgentUsername clears the value of the "ugent_username" field.
-func (pu *PersonUpdate) ClearUgentUsername() *PersonUpdate {
-	pu.mutation.ClearUgentUsername()
-	return pu
-}
-
-// SetFirstName sets the "first_name" field.
-func (pu *PersonUpdate) SetFirstName(s string) *PersonUpdate {
-	pu.mutation.SetFirstName(s)
-	return pu
-}
-
-// SetNillableFirstName sets the "first_name" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableFirstName(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetFirstName(*s)
-	}
-	return pu
-}
-
-// ClearFirstName clears the value of the "first_name" field.
-func (pu *PersonUpdate) ClearFirstName() *PersonUpdate {
-	pu.mutation.ClearFirstName()
-	return pu
-}
-
-// SetMiddleName sets the "middle_name" field.
-func (pu *PersonUpdate) SetMiddleName(s string) *PersonUpdate {
-	pu.mutation.SetMiddleName(s)
-	return pu
-}
-
-// SetNillableMiddleName sets the "middle_name" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableMiddleName(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetMiddleName(*s)
-	}
-	return pu
-}
-
-// ClearMiddleName clears the value of the "middle_name" field.
-func (pu *PersonUpdate) ClearMiddleName() *PersonUpdate {
-	pu.mutation.ClearMiddleName()
-	return pu
-}
-
-// SetLastName sets the "last_name" field.
-func (pu *PersonUpdate) SetLastName(s string) *PersonUpdate {
-	pu.mutation.SetLastName(s)
-	return pu
-}
-
-// SetNillableLastName sets the "last_name" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableLastName(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetLastName(*s)
-	}
-	return pu
-}
-
-// ClearLastName clears the value of the "last_name" field.
-func (pu *PersonUpdate) ClearLastName() *PersonUpdate {
-	pu.mutation.ClearLastName()
-	return pu
-}
-
-// SetUgentID sets the "ugent_id" field.
-func (pu *PersonUpdate) SetUgentID(s []string) *PersonUpdate {
-	pu.mutation.SetUgentID(s)
-	return pu
-}
-
-// AppendUgentID appends s to the "ugent_id" field.
-func (pu *PersonUpdate) AppendUgentID(s []string) *PersonUpdate {
-	pu.mutation.AppendUgentID(s)
-	return pu
-}
-
-// ClearUgentID clears the value of the "ugent_id" field.
-func (pu *PersonUpdate) ClearUgentID() *PersonUpdate {
-	pu.mutation.ClearUgentID()
 	return pu
 }
 
@@ -192,657 +90,137 @@ func (pu *PersonUpdate) ClearEmail() *PersonUpdate {
 	return pu
 }
 
-// SetNationality sets the "nationality" field.
-func (pu *PersonUpdate) SetNationality(s string) *PersonUpdate {
-	pu.mutation.SetNationality(s)
+// SetOtherID sets the "other_id" field.
+func (pu *PersonUpdate) SetOtherID(sr []schema.IdRef) *PersonUpdate {
+	pu.mutation.SetOtherID(sr)
 	return pu
 }
 
-// SetNillableNationality sets the "nationality" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableNationality(s *string) *PersonUpdate {
+// AppendOtherID appends sr to the "other_id" field.
+func (pu *PersonUpdate) AppendOtherID(sr []schema.IdRef) *PersonUpdate {
+	pu.mutation.AppendOtherID(sr)
+	return pu
+}
+
+// ClearOtherID clears the value of the "other_id" field.
+func (pu *PersonUpdate) ClearOtherID() *PersonUpdate {
+	pu.mutation.ClearOtherID()
+	return pu
+}
+
+// SetOrganizationID sets the "organization_id" field.
+func (pu *PersonUpdate) SetOrganizationID(s []string) *PersonUpdate {
+	pu.mutation.SetOrganizationID(s)
+	return pu
+}
+
+// AppendOrganizationID appends s to the "organization_id" field.
+func (pu *PersonUpdate) AppendOrganizationID(s []string) *PersonUpdate {
+	pu.mutation.AppendOrganizationID(s)
+	return pu
+}
+
+// ClearOrganizationID clears the value of the "organization_id" field.
+func (pu *PersonUpdate) ClearOrganizationID() *PersonUpdate {
+	pu.mutation.ClearOrganizationID()
+	return pu
+}
+
+// SetFirstName sets the "first_name" field.
+func (pu *PersonUpdate) SetFirstName(s string) *PersonUpdate {
+	pu.mutation.SetFirstName(s)
+	return pu
+}
+
+// SetNillableFirstName sets the "first_name" field if the given value is not nil.
+func (pu *PersonUpdate) SetNillableFirstName(s *string) *PersonUpdate {
 	if s != nil {
-		pu.SetNationality(*s)
+		pu.SetFirstName(*s)
 	}
 	return pu
 }
 
-// ClearNationality clears the value of the "nationality" field.
-func (pu *PersonUpdate) ClearNationality() *PersonUpdate {
-	pu.mutation.ClearNationality()
+// ClearFirstName clears the value of the "first_name" field.
+func (pu *PersonUpdate) ClearFirstName() *PersonUpdate {
+	pu.mutation.ClearFirstName()
 	return pu
 }
 
-// SetUgentBarcode sets the "ugent_barcode" field.
-func (pu *PersonUpdate) SetUgentBarcode(s []string) *PersonUpdate {
-	pu.mutation.SetUgentBarcode(s)
+// SetFullName sets the "full_name" field.
+func (pu *PersonUpdate) SetFullName(s string) *PersonUpdate {
+	pu.mutation.SetFullName(s)
 	return pu
 }
 
-// AppendUgentBarcode appends s to the "ugent_barcode" field.
-func (pu *PersonUpdate) AppendUgentBarcode(s []string) *PersonUpdate {
-	pu.mutation.AppendUgentBarcode(s)
-	return pu
-}
-
-// ClearUgentBarcode clears the value of the "ugent_barcode" field.
-func (pu *PersonUpdate) ClearUgentBarcode() *PersonUpdate {
-	pu.mutation.ClearUgentBarcode()
-	return pu
-}
-
-// SetUgentJobCategory sets the "ugent_job_category" field.
-func (pu *PersonUpdate) SetUgentJobCategory(s []string) *PersonUpdate {
-	pu.mutation.SetUgentJobCategory(s)
-	return pu
-}
-
-// AppendUgentJobCategory appends s to the "ugent_job_category" field.
-func (pu *PersonUpdate) AppendUgentJobCategory(s []string) *PersonUpdate {
-	pu.mutation.AppendUgentJobCategory(s)
-	return pu
-}
-
-// ClearUgentJobCategory clears the value of the "ugent_job_category" field.
-func (pu *PersonUpdate) ClearUgentJobCategory() *PersonUpdate {
-	pu.mutation.ClearUgentJobCategory()
-	return pu
-}
-
-// SetTitle sets the "title" field.
-func (pu *PersonUpdate) SetTitle(s string) *PersonUpdate {
-	pu.mutation.SetTitle(s)
-	return pu
-}
-
-// SetNillableTitle sets the "title" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableTitle(s *string) *PersonUpdate {
+// SetNillableFullName sets the "full_name" field if the given value is not nil.
+func (pu *PersonUpdate) SetNillableFullName(s *string) *PersonUpdate {
 	if s != nil {
-		pu.SetTitle(*s)
+		pu.SetFullName(*s)
 	}
 	return pu
 }
 
-// ClearTitle clears the value of the "title" field.
-func (pu *PersonUpdate) ClearTitle() *PersonUpdate {
-	pu.mutation.ClearTitle()
+// ClearFullName clears the value of the "full_name" field.
+func (pu *PersonUpdate) ClearFullName() *PersonUpdate {
+	pu.mutation.ClearFullName()
 	return pu
 }
 
-// SetUgentTel sets the "ugent_tel" field.
-func (pu *PersonUpdate) SetUgentTel(s string) *PersonUpdate {
-	pu.mutation.SetUgentTel(s)
+// SetLastName sets the "last_name" field.
+func (pu *PersonUpdate) SetLastName(s string) *PersonUpdate {
+	pu.mutation.SetLastName(s)
 	return pu
 }
 
-// SetNillableUgentTel sets the "ugent_tel" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableUgentTel(s *string) *PersonUpdate {
+// SetNillableLastName sets the "last_name" field if the given value is not nil.
+func (pu *PersonUpdate) SetNillableLastName(s *string) *PersonUpdate {
 	if s != nil {
-		pu.SetUgentTel(*s)
+		pu.SetLastName(*s)
 	}
 	return pu
 }
 
-// ClearUgentTel clears the value of the "ugent_tel" field.
-func (pu *PersonUpdate) ClearUgentTel() *PersonUpdate {
-	pu.mutation.ClearUgentTel()
+// ClearLastName clears the value of the "last_name" field.
+func (pu *PersonUpdate) ClearLastName() *PersonUpdate {
+	pu.mutation.ClearLastName()
 	return pu
 }
 
-// SetUgentCampus sets the "ugent_campus" field.
-func (pu *PersonUpdate) SetUgentCampus(s []string) *PersonUpdate {
-	pu.mutation.SetUgentCampus(s)
+// SetCategory sets the "category" field.
+func (pu *PersonUpdate) SetCategory(s []string) *PersonUpdate {
+	pu.mutation.SetCategory(s)
 	return pu
 }
 
-// AppendUgentCampus appends s to the "ugent_campus" field.
-func (pu *PersonUpdate) AppendUgentCampus(s []string) *PersonUpdate {
-	pu.mutation.AppendUgentCampus(s)
+// AppendCategory appends s to the "category" field.
+func (pu *PersonUpdate) AppendCategory(s []string) *PersonUpdate {
+	pu.mutation.AppendCategory(s)
 	return pu
 }
 
-// ClearUgentCampus clears the value of the "ugent_campus" field.
-func (pu *PersonUpdate) ClearUgentCampus() *PersonUpdate {
-	pu.mutation.ClearUgentCampus()
+// ClearCategory clears the value of the "category" field.
+func (pu *PersonUpdate) ClearCategory() *PersonUpdate {
+	pu.mutation.ClearCategory()
 	return pu
 }
 
-// SetUgentDepartmentID sets the "ugent_department_id" field.
-func (pu *PersonUpdate) SetUgentDepartmentID(s []string) *PersonUpdate {
-	pu.mutation.SetUgentDepartmentID(s)
+// SetOrcid sets the "orcid" field.
+func (pu *PersonUpdate) SetOrcid(s string) *PersonUpdate {
+	pu.mutation.SetOrcid(s)
 	return pu
 }
 
-// AppendUgentDepartmentID appends s to the "ugent_department_id" field.
-func (pu *PersonUpdate) AppendUgentDepartmentID(s []string) *PersonUpdate {
-	pu.mutation.AppendUgentDepartmentID(s)
-	return pu
-}
-
-// ClearUgentDepartmentID clears the value of the "ugent_department_id" field.
-func (pu *PersonUpdate) ClearUgentDepartmentID() *PersonUpdate {
-	pu.mutation.ClearUgentDepartmentID()
-	return pu
-}
-
-// SetUgentFacultyID sets the "ugent_faculty_id" field.
-func (pu *PersonUpdate) SetUgentFacultyID(s []string) *PersonUpdate {
-	pu.mutation.SetUgentFacultyID(s)
-	return pu
-}
-
-// AppendUgentFacultyID appends s to the "ugent_faculty_id" field.
-func (pu *PersonUpdate) AppendUgentFacultyID(s []string) *PersonUpdate {
-	pu.mutation.AppendUgentFacultyID(s)
-	return pu
-}
-
-// ClearUgentFacultyID clears the value of the "ugent_faculty_id" field.
-func (pu *PersonUpdate) ClearUgentFacultyID() *PersonUpdate {
-	pu.mutation.ClearUgentFacultyID()
-	return pu
-}
-
-// SetUgentJobTitle sets the "ugent_job_title" field.
-func (pu *PersonUpdate) SetUgentJobTitle(s []string) *PersonUpdate {
-	pu.mutation.SetUgentJobTitle(s)
-	return pu
-}
-
-// AppendUgentJobTitle appends s to the "ugent_job_title" field.
-func (pu *PersonUpdate) AppendUgentJobTitle(s []string) *PersonUpdate {
-	pu.mutation.AppendUgentJobTitle(s)
-	return pu
-}
-
-// ClearUgentJobTitle clears the value of the "ugent_job_title" field.
-func (pu *PersonUpdate) ClearUgentJobTitle() *PersonUpdate {
-	pu.mutation.ClearUgentJobTitle()
-	return pu
-}
-
-// SetUgentStreetAddress sets the "ugent_street_address" field.
-func (pu *PersonUpdate) SetUgentStreetAddress(s string) *PersonUpdate {
-	pu.mutation.SetUgentStreetAddress(s)
-	return pu
-}
-
-// SetNillableUgentStreetAddress sets the "ugent_street_address" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableUgentStreetAddress(s *string) *PersonUpdate {
+// SetNillableOrcid sets the "orcid" field if the given value is not nil.
+func (pu *PersonUpdate) SetNillableOrcid(s *string) *PersonUpdate {
 	if s != nil {
-		pu.SetUgentStreetAddress(*s)
+		pu.SetOrcid(*s)
 	}
 	return pu
 }
 
-// ClearUgentStreetAddress clears the value of the "ugent_street_address" field.
-func (pu *PersonUpdate) ClearUgentStreetAddress() *PersonUpdate {
-	pu.mutation.ClearUgentStreetAddress()
-	return pu
-}
-
-// SetUgentPostalCode sets the "ugent_postal_code" field.
-func (pu *PersonUpdate) SetUgentPostalCode(s string) *PersonUpdate {
-	pu.mutation.SetUgentPostalCode(s)
-	return pu
-}
-
-// SetNillableUgentPostalCode sets the "ugent_postal_code" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableUgentPostalCode(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetUgentPostalCode(*s)
-	}
-	return pu
-}
-
-// ClearUgentPostalCode clears the value of the "ugent_postal_code" field.
-func (pu *PersonUpdate) ClearUgentPostalCode() *PersonUpdate {
-	pu.mutation.ClearUgentPostalCode()
-	return pu
-}
-
-// SetUgentLocality sets the "ugent_locality" field.
-func (pu *PersonUpdate) SetUgentLocality(s string) *PersonUpdate {
-	pu.mutation.SetUgentLocality(s)
-	return pu
-}
-
-// SetNillableUgentLocality sets the "ugent_locality" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableUgentLocality(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetUgentLocality(*s)
-	}
-	return pu
-}
-
-// ClearUgentLocality clears the value of the "ugent_locality" field.
-func (pu *PersonUpdate) ClearUgentLocality() *PersonUpdate {
-	pu.mutation.ClearUgentLocality()
-	return pu
-}
-
-// SetUgentLastEnrolled sets the "ugent_last_enrolled" field.
-func (pu *PersonUpdate) SetUgentLastEnrolled(s string) *PersonUpdate {
-	pu.mutation.SetUgentLastEnrolled(s)
-	return pu
-}
-
-// SetNillableUgentLastEnrolled sets the "ugent_last_enrolled" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableUgentLastEnrolled(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetUgentLastEnrolled(*s)
-	}
-	return pu
-}
-
-// ClearUgentLastEnrolled clears the value of the "ugent_last_enrolled" field.
-func (pu *PersonUpdate) ClearUgentLastEnrolled() *PersonUpdate {
-	pu.mutation.ClearUgentLastEnrolled()
-	return pu
-}
-
-// SetHomeStreetAddress sets the "home_street_address" field.
-func (pu *PersonUpdate) SetHomeStreetAddress(s string) *PersonUpdate {
-	pu.mutation.SetHomeStreetAddress(s)
-	return pu
-}
-
-// SetNillableHomeStreetAddress sets the "home_street_address" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableHomeStreetAddress(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetHomeStreetAddress(*s)
-	}
-	return pu
-}
-
-// ClearHomeStreetAddress clears the value of the "home_street_address" field.
-func (pu *PersonUpdate) ClearHomeStreetAddress() *PersonUpdate {
-	pu.mutation.ClearHomeStreetAddress()
-	return pu
-}
-
-// SetHomePostalCode sets the "home_postal_code" field.
-func (pu *PersonUpdate) SetHomePostalCode(s string) *PersonUpdate {
-	pu.mutation.SetHomePostalCode(s)
-	return pu
-}
-
-// SetNillableHomePostalCode sets the "home_postal_code" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableHomePostalCode(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetHomePostalCode(*s)
-	}
-	return pu
-}
-
-// ClearHomePostalCode clears the value of the "home_postal_code" field.
-func (pu *PersonUpdate) ClearHomePostalCode() *PersonUpdate {
-	pu.mutation.ClearHomePostalCode()
-	return pu
-}
-
-// SetHomeLocality sets the "home_locality" field.
-func (pu *PersonUpdate) SetHomeLocality(s string) *PersonUpdate {
-	pu.mutation.SetHomeLocality(s)
-	return pu
-}
-
-// SetNillableHomeLocality sets the "home_locality" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableHomeLocality(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetHomeLocality(*s)
-	}
-	return pu
-}
-
-// ClearHomeLocality clears the value of the "home_locality" field.
-func (pu *PersonUpdate) ClearHomeLocality() *PersonUpdate {
-	pu.mutation.ClearHomeLocality()
-	return pu
-}
-
-// SetHomeCountry sets the "home_country" field.
-func (pu *PersonUpdate) SetHomeCountry(s string) *PersonUpdate {
-	pu.mutation.SetHomeCountry(s)
-	return pu
-}
-
-// SetNillableHomeCountry sets the "home_country" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableHomeCountry(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetHomeCountry(*s)
-	}
-	return pu
-}
-
-// ClearHomeCountry clears the value of the "home_country" field.
-func (pu *PersonUpdate) ClearHomeCountry() *PersonUpdate {
-	pu.mutation.ClearHomeCountry()
-	return pu
-}
-
-// SetHomeTel sets the "home_tel" field.
-func (pu *PersonUpdate) SetHomeTel(s string) *PersonUpdate {
-	pu.mutation.SetHomeTel(s)
-	return pu
-}
-
-// SetNillableHomeTel sets the "home_tel" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableHomeTel(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetHomeTel(*s)
-	}
-	return pu
-}
-
-// ClearHomeTel clears the value of the "home_tel" field.
-func (pu *PersonUpdate) ClearHomeTel() *PersonUpdate {
-	pu.mutation.ClearHomeTel()
-	return pu
-}
-
-// SetDormStreetAddress sets the "dorm_street_address" field.
-func (pu *PersonUpdate) SetDormStreetAddress(s string) *PersonUpdate {
-	pu.mutation.SetDormStreetAddress(s)
-	return pu
-}
-
-// SetNillableDormStreetAddress sets the "dorm_street_address" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableDormStreetAddress(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetDormStreetAddress(*s)
-	}
-	return pu
-}
-
-// ClearDormStreetAddress clears the value of the "dorm_street_address" field.
-func (pu *PersonUpdate) ClearDormStreetAddress() *PersonUpdate {
-	pu.mutation.ClearDormStreetAddress()
-	return pu
-}
-
-// SetDormPostalCode sets the "dorm_postal_code" field.
-func (pu *PersonUpdate) SetDormPostalCode(s string) *PersonUpdate {
-	pu.mutation.SetDormPostalCode(s)
-	return pu
-}
-
-// SetNillableDormPostalCode sets the "dorm_postal_code" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableDormPostalCode(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetDormPostalCode(*s)
-	}
-	return pu
-}
-
-// ClearDormPostalCode clears the value of the "dorm_postal_code" field.
-func (pu *PersonUpdate) ClearDormPostalCode() *PersonUpdate {
-	pu.mutation.ClearDormPostalCode()
-	return pu
-}
-
-// SetDormLocality sets the "dorm_locality" field.
-func (pu *PersonUpdate) SetDormLocality(s string) *PersonUpdate {
-	pu.mutation.SetDormLocality(s)
-	return pu
-}
-
-// SetNillableDormLocality sets the "dorm_locality" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableDormLocality(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetDormLocality(*s)
-	}
-	return pu
-}
-
-// ClearDormLocality clears the value of the "dorm_locality" field.
-func (pu *PersonUpdate) ClearDormLocality() *PersonUpdate {
-	pu.mutation.ClearDormLocality()
-	return pu
-}
-
-// SetDormCountry sets the "dorm_country" field.
-func (pu *PersonUpdate) SetDormCountry(s string) *PersonUpdate {
-	pu.mutation.SetDormCountry(s)
-	return pu
-}
-
-// SetNillableDormCountry sets the "dorm_country" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableDormCountry(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetDormCountry(*s)
-	}
-	return pu
-}
-
-// ClearDormCountry clears the value of the "dorm_country" field.
-func (pu *PersonUpdate) ClearDormCountry() *PersonUpdate {
-	pu.mutation.ClearDormCountry()
-	return pu
-}
-
-// SetResearchDiscipline sets the "research_discipline" field.
-func (pu *PersonUpdate) SetResearchDiscipline(s []string) *PersonUpdate {
-	pu.mutation.SetResearchDiscipline(s)
-	return pu
-}
-
-// AppendResearchDiscipline appends s to the "research_discipline" field.
-func (pu *PersonUpdate) AppendResearchDiscipline(s []string) *PersonUpdate {
-	pu.mutation.AppendResearchDiscipline(s)
-	return pu
-}
-
-// ClearResearchDiscipline clears the value of the "research_discipline" field.
-func (pu *PersonUpdate) ClearResearchDiscipline() *PersonUpdate {
-	pu.mutation.ClearResearchDiscipline()
-	return pu
-}
-
-// SetResearchDisciplineCode sets the "research_discipline_code" field.
-func (pu *PersonUpdate) SetResearchDisciplineCode(s []string) *PersonUpdate {
-	pu.mutation.SetResearchDisciplineCode(s)
-	return pu
-}
-
-// AppendResearchDisciplineCode appends s to the "research_discipline_code" field.
-func (pu *PersonUpdate) AppendResearchDisciplineCode(s []string) *PersonUpdate {
-	pu.mutation.AppendResearchDisciplineCode(s)
-	return pu
-}
-
-// ClearResearchDisciplineCode clears the value of the "research_discipline_code" field.
-func (pu *PersonUpdate) ClearResearchDisciplineCode() *PersonUpdate {
-	pu.mutation.ClearResearchDisciplineCode()
-	return pu
-}
-
-// SetUgentExpirationDate sets the "ugent_expiration_date" field.
-func (pu *PersonUpdate) SetUgentExpirationDate(s string) *PersonUpdate {
-	pu.mutation.SetUgentExpirationDate(s)
-	return pu
-}
-
-// SetNillableUgentExpirationDate sets the "ugent_expiration_date" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableUgentExpirationDate(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetUgentExpirationDate(*s)
-	}
-	return pu
-}
-
-// ClearUgentExpirationDate clears the value of the "ugent_expiration_date" field.
-func (pu *PersonUpdate) ClearUgentExpirationDate() *PersonUpdate {
-	pu.mutation.ClearUgentExpirationDate()
-	return pu
-}
-
-// SetUzgentJobTitle sets the "uzgent_job_title" field.
-func (pu *PersonUpdate) SetUzgentJobTitle(s []string) *PersonUpdate {
-	pu.mutation.SetUzgentJobTitle(s)
-	return pu
-}
-
-// AppendUzgentJobTitle appends s to the "uzgent_job_title" field.
-func (pu *PersonUpdate) AppendUzgentJobTitle(s []string) *PersonUpdate {
-	pu.mutation.AppendUzgentJobTitle(s)
-	return pu
-}
-
-// ClearUzgentJobTitle clears the value of the "uzgent_job_title" field.
-func (pu *PersonUpdate) ClearUzgentJobTitle() *PersonUpdate {
-	pu.mutation.ClearUzgentJobTitle()
-	return pu
-}
-
-// SetUzgentDepartmentName sets the "uzgent_department_name" field.
-func (pu *PersonUpdate) SetUzgentDepartmentName(s []string) *PersonUpdate {
-	pu.mutation.SetUzgentDepartmentName(s)
-	return pu
-}
-
-// AppendUzgentDepartmentName appends s to the "uzgent_department_name" field.
-func (pu *PersonUpdate) AppendUzgentDepartmentName(s []string) *PersonUpdate {
-	pu.mutation.AppendUzgentDepartmentName(s)
-	return pu
-}
-
-// ClearUzgentDepartmentName clears the value of the "uzgent_department_name" field.
-func (pu *PersonUpdate) ClearUzgentDepartmentName() *PersonUpdate {
-	pu.mutation.ClearUzgentDepartmentName()
-	return pu
-}
-
-// SetUzgentID sets the "uzgent_id" field.
-func (pu *PersonUpdate) SetUzgentID(s []string) *PersonUpdate {
-	pu.mutation.SetUzgentID(s)
-	return pu
-}
-
-// AppendUzgentID appends s to the "uzgent_id" field.
-func (pu *PersonUpdate) AppendUzgentID(s []string) *PersonUpdate {
-	pu.mutation.AppendUzgentID(s)
-	return pu
-}
-
-// ClearUzgentID clears the value of the "uzgent_id" field.
-func (pu *PersonUpdate) ClearUzgentID() *PersonUpdate {
-	pu.mutation.ClearUzgentID()
-	return pu
-}
-
-// SetUgentExtCategory sets the "ugent_ext_category" field.
-func (pu *PersonUpdate) SetUgentExtCategory(s []string) *PersonUpdate {
-	pu.mutation.SetUgentExtCategory(s)
-	return pu
-}
-
-// AppendUgentExtCategory appends s to the "ugent_ext_category" field.
-func (pu *PersonUpdate) AppendUgentExtCategory(s []string) *PersonUpdate {
-	pu.mutation.AppendUgentExtCategory(s)
-	return pu
-}
-
-// ClearUgentExtCategory clears the value of the "ugent_ext_category" field.
-func (pu *PersonUpdate) ClearUgentExtCategory() *PersonUpdate {
-	pu.mutation.ClearUgentExtCategory()
-	return pu
-}
-
-// SetUgentAppointmentDate sets the "ugent_appointment_date" field.
-func (pu *PersonUpdate) SetUgentAppointmentDate(s string) *PersonUpdate {
-	pu.mutation.SetUgentAppointmentDate(s)
-	return pu
-}
-
-// SetNillableUgentAppointmentDate sets the "ugent_appointment_date" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableUgentAppointmentDate(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetUgentAppointmentDate(*s)
-	}
-	return pu
-}
-
-// ClearUgentAppointmentDate clears the value of the "ugent_appointment_date" field.
-func (pu *PersonUpdate) ClearUgentAppointmentDate() *PersonUpdate {
-	pu.mutation.ClearUgentAppointmentDate()
-	return pu
-}
-
-// SetUgentDepartmentName sets the "ugent_department_name" field.
-func (pu *PersonUpdate) SetUgentDepartmentName(s []string) *PersonUpdate {
-	pu.mutation.SetUgentDepartmentName(s)
-	return pu
-}
-
-// AppendUgentDepartmentName appends s to the "ugent_department_name" field.
-func (pu *PersonUpdate) AppendUgentDepartmentName(s []string) *PersonUpdate {
-	pu.mutation.AppendUgentDepartmentName(s)
-	return pu
-}
-
-// ClearUgentDepartmentName clears the value of the "ugent_department_name" field.
-func (pu *PersonUpdate) ClearUgentDepartmentName() *PersonUpdate {
-	pu.mutation.ClearUgentDepartmentName()
-	return pu
-}
-
-// SetOrcidBio sets the "orcid_bio" field.
-func (pu *PersonUpdate) SetOrcidBio(s string) *PersonUpdate {
-	pu.mutation.SetOrcidBio(s)
-	return pu
-}
-
-// SetNillableOrcidBio sets the "orcid_bio" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableOrcidBio(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetOrcidBio(*s)
-	}
-	return pu
-}
-
-// ClearOrcidBio clears the value of the "orcid_bio" field.
-func (pu *PersonUpdate) ClearOrcidBio() *PersonUpdate {
-	pu.mutation.ClearOrcidBio()
-	return pu
-}
-
-// SetOrcidID sets the "orcid_id" field.
-func (pu *PersonUpdate) SetOrcidID(s string) *PersonUpdate {
-	pu.mutation.SetOrcidID(s)
-	return pu
-}
-
-// SetNillableOrcidID sets the "orcid_id" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableOrcidID(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetOrcidID(*s)
-	}
-	return pu
-}
-
-// ClearOrcidID clears the value of the "orcid_id" field.
-func (pu *PersonUpdate) ClearOrcidID() *PersonUpdate {
-	pu.mutation.ClearOrcidID()
-	return pu
-}
-
-// SetOrcidSettings sets the "orcid_settings" field.
-func (pu *PersonUpdate) SetOrcidSettings(ss schema.OrcidSettings) *PersonUpdate {
-	pu.mutation.SetOrcidSettings(ss)
-	return pu
-}
-
-// SetNillableOrcidSettings sets the "orcid_settings" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableOrcidSettings(ss *schema.OrcidSettings) *PersonUpdate {
-	if ss != nil {
-		pu.SetOrcidSettings(*ss)
-	}
-	return pu
-}
-
-// ClearOrcidSettings clears the value of the "orcid_settings" field.
-func (pu *PersonUpdate) ClearOrcidSettings() *PersonUpdate {
-	pu.mutation.ClearOrcidSettings()
+// ClearOrcid clears the value of the "orcid" field.
+func (pu *PersonUpdate) ClearOrcid() *PersonUpdate {
+	pu.mutation.ClearOrcid()
 	return pu
 }
 
@@ -863,139 +241,6 @@ func (pu *PersonUpdate) SetNillableOrcidToken(s *string) *PersonUpdate {
 // ClearOrcidToken clears the value of the "orcid_token" field.
 func (pu *PersonUpdate) ClearOrcidToken() *PersonUpdate {
 	pu.mutation.ClearOrcidToken()
-	return pu
-}
-
-// SetOrcidVerify sets the "orcid_verify" field.
-func (pu *PersonUpdate) SetOrcidVerify(sv schema.OrcidVerify) *PersonUpdate {
-	pu.mutation.SetOrcidVerify(sv)
-	return pu
-}
-
-// SetNillableOrcidVerify sets the "orcid_verify" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableOrcidVerify(sv *schema.OrcidVerify) *PersonUpdate {
-	if sv != nil {
-		pu.SetOrcidVerify(*sv)
-	}
-	return pu
-}
-
-// ClearOrcidVerify clears the value of the "orcid_verify" field.
-func (pu *PersonUpdate) ClearOrcidVerify() *PersonUpdate {
-	pu.mutation.ClearOrcidVerify()
-	return pu
-}
-
-// SetActive sets the "active" field.
-func (pu *PersonUpdate) SetActive(b bool) *PersonUpdate {
-	pu.mutation.SetActive(b)
-	return pu
-}
-
-// SetNillableActive sets the "active" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableActive(b *bool) *PersonUpdate {
-	if b != nil {
-		pu.SetActive(*b)
-	}
-	return pu
-}
-
-// SetDeleted sets the "deleted" field.
-func (pu *PersonUpdate) SetDeleted(b bool) *PersonUpdate {
-	pu.mutation.SetDeleted(b)
-	return pu
-}
-
-// SetNillableDeleted sets the "deleted" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableDeleted(b *bool) *PersonUpdate {
-	if b != nil {
-		pu.SetDeleted(*b)
-	}
-	return pu
-}
-
-// SetSettings sets the "settings" field.
-func (pu *PersonUpdate) SetSettings(s schema.Settings) *PersonUpdate {
-	pu.mutation.SetSettings(s)
-	return pu
-}
-
-// SetNillableSettings sets the "settings" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableSettings(s *schema.Settings) *PersonUpdate {
-	if s != nil {
-		pu.SetSettings(*s)
-	}
-	return pu
-}
-
-// ClearSettings clears the value of the "settings" field.
-func (pu *PersonUpdate) ClearSettings() *PersonUpdate {
-	pu.mutation.ClearSettings()
-	return pu
-}
-
-// SetRoles sets the "roles" field.
-func (pu *PersonUpdate) SetRoles(s []string) *PersonUpdate {
-	pu.mutation.SetRoles(s)
-	return pu
-}
-
-// AppendRoles appends s to the "roles" field.
-func (pu *PersonUpdate) AppendRoles(s []string) *PersonUpdate {
-	pu.mutation.AppendRoles(s)
-	return pu
-}
-
-// ClearRoles clears the value of the "roles" field.
-func (pu *PersonUpdate) ClearRoles() *PersonUpdate {
-	pu.mutation.ClearRoles()
-	return pu
-}
-
-// SetPublicationCount sets the "publication_count" field.
-func (pu *PersonUpdate) SetPublicationCount(i int) *PersonUpdate {
-	pu.mutation.ResetPublicationCount()
-	pu.mutation.SetPublicationCount(i)
-	return pu
-}
-
-// SetNillablePublicationCount sets the "publication_count" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillablePublicationCount(i *int) *PersonUpdate {
-	if i != nil {
-		pu.SetPublicationCount(*i)
-	}
-	return pu
-}
-
-// AddPublicationCount adds i to the "publication_count" field.
-func (pu *PersonUpdate) AddPublicationCount(i int) *PersonUpdate {
-	pu.mutation.AddPublicationCount(i)
-	return pu
-}
-
-// ClearPublicationCount clears the value of the "publication_count" field.
-func (pu *PersonUpdate) ClearPublicationCount() *PersonUpdate {
-	pu.mutation.ClearPublicationCount()
-	return pu
-}
-
-// SetUgentMemorialisID sets the "ugent_memorialis_id" field.
-func (pu *PersonUpdate) SetUgentMemorialisID(s string) *PersonUpdate {
-	pu.mutation.SetUgentMemorialisID(s)
-	return pu
-}
-
-// SetNillableUgentMemorialisID sets the "ugent_memorialis_id" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableUgentMemorialisID(s *string) *PersonUpdate {
-	if s != nil {
-		pu.SetUgentMemorialisID(*s)
-	}
-	return pu
-}
-
-// ClearUgentMemorialisID clears the value of the "ugent_memorialis_id" field.
-func (pu *PersonUpdate) ClearUgentMemorialisID() *PersonUpdate {
-	pu.mutation.ClearUgentMemorialisID()
 	return pu
 }
 
@@ -1039,59 +284,23 @@ func (pu *PersonUpdate) ClearPreferredLastName() *PersonUpdate {
 	return pu
 }
 
-// SetReplaces sets the "replaces" field.
-func (pu *PersonUpdate) SetReplaces(m []map[string]string) *PersonUpdate {
-	pu.mutation.SetReplaces(m)
+// SetJobTitle sets the "job_title" field.
+func (pu *PersonUpdate) SetJobTitle(s string) *PersonUpdate {
+	pu.mutation.SetJobTitle(s)
 	return pu
 }
 
-// AppendReplaces appends m to the "replaces" field.
-func (pu *PersonUpdate) AppendReplaces(m []map[string]string) *PersonUpdate {
-	pu.mutation.AppendReplaces(m)
-	return pu
-}
-
-// ClearReplaces clears the value of the "replaces" field.
-func (pu *PersonUpdate) ClearReplaces() *PersonUpdate {
-	pu.mutation.ClearReplaces()
-	return pu
-}
-
-// SetReplacedBy sets the "replaced_by" field.
-func (pu *PersonUpdate) SetReplacedBy(m []map[string]string) *PersonUpdate {
-	pu.mutation.SetReplacedBy(m)
-	return pu
-}
-
-// AppendReplacedBy appends m to the "replaced_by" field.
-func (pu *PersonUpdate) AppendReplacedBy(m []map[string]string) *PersonUpdate {
-	pu.mutation.AppendReplacedBy(m)
-	return pu
-}
-
-// ClearReplacedBy clears the value of the "replaced_by" field.
-func (pu *PersonUpdate) ClearReplacedBy() *PersonUpdate {
-	pu.mutation.ClearReplacedBy()
-	return pu
-}
-
-// SetDateLastLogin sets the "date_last_login" field.
-func (pu *PersonUpdate) SetDateLastLogin(t time.Time) *PersonUpdate {
-	pu.mutation.SetDateLastLogin(t)
-	return pu
-}
-
-// SetNillableDateLastLogin sets the "date_last_login" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableDateLastLogin(t *time.Time) *PersonUpdate {
-	if t != nil {
-		pu.SetDateLastLogin(*t)
+// SetNillableJobTitle sets the "job_title" field if the given value is not nil.
+func (pu *PersonUpdate) SetNillableJobTitle(s *string) *PersonUpdate {
+	if s != nil {
+		pu.SetJobTitle(*s)
 	}
 	return pu
 }
 
-// ClearDateLastLogin clears the value of the "date_last_login" field.
-func (pu *PersonUpdate) ClearDateLastLogin() *PersonUpdate {
-	pu.mutation.ClearDateLastLogin()
+// ClearJobTitle clears the value of the "job_title" field.
+func (pu *PersonUpdate) ClearJobTitle() *PersonUpdate {
+	pu.mutation.ClearJobTitle()
 	return pu
 }
 
@@ -1148,51 +357,8 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.DateUpdated(); ok {
 		_spec.SetField(person.FieldDateUpdated, field.TypeTime, value)
 	}
-	if value, ok := pu.mutation.ObjectClass(); ok {
-		_spec.SetField(person.FieldObjectClass, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedObjectClass(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldObjectClass, value)
-		})
-	}
-	if pu.mutation.ObjectClassCleared() {
-		_spec.ClearField(person.FieldObjectClass, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.UgentUsername(); ok {
-		_spec.SetField(person.FieldUgentUsername, field.TypeString, value)
-	}
-	if pu.mutation.UgentUsernameCleared() {
-		_spec.ClearField(person.FieldUgentUsername, field.TypeString)
-	}
-	if value, ok := pu.mutation.FirstName(); ok {
-		_spec.SetField(person.FieldFirstName, field.TypeString, value)
-	}
-	if pu.mutation.FirstNameCleared() {
-		_spec.ClearField(person.FieldFirstName, field.TypeString)
-	}
-	if value, ok := pu.mutation.MiddleName(); ok {
-		_spec.SetField(person.FieldMiddleName, field.TypeString, value)
-	}
-	if pu.mutation.MiddleNameCleared() {
-		_spec.ClearField(person.FieldMiddleName, field.TypeString)
-	}
-	if value, ok := pu.mutation.LastName(); ok {
-		_spec.SetField(person.FieldLastName, field.TypeString, value)
-	}
-	if pu.mutation.LastNameCleared() {
-		_spec.ClearField(person.FieldLastName, field.TypeString)
-	}
-	if value, ok := pu.mutation.UgentID(); ok {
-		_spec.SetField(person.FieldUgentID, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedUgentID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentID, value)
-		})
-	}
-	if pu.mutation.UgentIDCleared() {
-		_spec.ClearField(person.FieldUgentID, field.TypeJSON)
+	if value, ok := pu.mutation.Active(); ok {
+		_spec.SetField(person.FieldActive, field.TypeBool, value)
 	}
 	if value, ok := pu.mutation.BirthDate(); ok {
 		_spec.SetField(person.FieldBirthDate, field.TypeString, value)
@@ -1206,324 +372,68 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if pu.mutation.EmailCleared() {
 		_spec.ClearField(person.FieldEmail, field.TypeString)
 	}
-	if value, ok := pu.mutation.Nationality(); ok {
-		_spec.SetField(person.FieldNationality, field.TypeString, value)
+	if value, ok := pu.mutation.OtherID(); ok {
+		_spec.SetField(person.FieldOtherID, field.TypeJSON, value)
 	}
-	if pu.mutation.NationalityCleared() {
-		_spec.ClearField(person.FieldNationality, field.TypeString)
-	}
-	if value, ok := pu.mutation.UgentBarcode(); ok {
-		_spec.SetField(person.FieldUgentBarcode, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedUgentBarcode(); ok {
+	if value, ok := pu.mutation.AppendedOtherID(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentBarcode, value)
+			sqljson.Append(u, person.FieldOtherID, value)
 		})
 	}
-	if pu.mutation.UgentBarcodeCleared() {
-		_spec.ClearField(person.FieldUgentBarcode, field.TypeJSON)
+	if pu.mutation.OtherIDCleared() {
+		_spec.ClearField(person.FieldOtherID, field.TypeJSON)
 	}
-	if value, ok := pu.mutation.UgentJobCategory(); ok {
-		_spec.SetField(person.FieldUgentJobCategory, field.TypeJSON, value)
+	if value, ok := pu.mutation.OrganizationID(); ok {
+		_spec.SetField(person.FieldOrganizationID, field.TypeJSON, value)
 	}
-	if value, ok := pu.mutation.AppendedUgentJobCategory(); ok {
+	if value, ok := pu.mutation.AppendedOrganizationID(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentJobCategory, value)
+			sqljson.Append(u, person.FieldOrganizationID, value)
 		})
 	}
-	if pu.mutation.UgentJobCategoryCleared() {
-		_spec.ClearField(person.FieldUgentJobCategory, field.TypeJSON)
+	if pu.mutation.OrganizationIDCleared() {
+		_spec.ClearField(person.FieldOrganizationID, field.TypeJSON)
 	}
-	if value, ok := pu.mutation.Title(); ok {
-		_spec.SetField(person.FieldTitle, field.TypeString, value)
+	if value, ok := pu.mutation.FirstName(); ok {
+		_spec.SetField(person.FieldFirstName, field.TypeString, value)
 	}
-	if pu.mutation.TitleCleared() {
-		_spec.ClearField(person.FieldTitle, field.TypeString)
+	if pu.mutation.FirstNameCleared() {
+		_spec.ClearField(person.FieldFirstName, field.TypeString)
 	}
-	if value, ok := pu.mutation.UgentTel(); ok {
-		_spec.SetField(person.FieldUgentTel, field.TypeString, value)
+	if value, ok := pu.mutation.FullName(); ok {
+		_spec.SetField(person.FieldFullName, field.TypeString, value)
 	}
-	if pu.mutation.UgentTelCleared() {
-		_spec.ClearField(person.FieldUgentTel, field.TypeString)
+	if pu.mutation.FullNameCleared() {
+		_spec.ClearField(person.FieldFullName, field.TypeString)
 	}
-	if value, ok := pu.mutation.UgentCampus(); ok {
-		_spec.SetField(person.FieldUgentCampus, field.TypeJSON, value)
+	if value, ok := pu.mutation.LastName(); ok {
+		_spec.SetField(person.FieldLastName, field.TypeString, value)
 	}
-	if value, ok := pu.mutation.AppendedUgentCampus(); ok {
+	if pu.mutation.LastNameCleared() {
+		_spec.ClearField(person.FieldLastName, field.TypeString)
+	}
+	if value, ok := pu.mutation.Category(); ok {
+		_spec.SetField(person.FieldCategory, field.TypeJSON, value)
+	}
+	if value, ok := pu.mutation.AppendedCategory(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentCampus, value)
+			sqljson.Append(u, person.FieldCategory, value)
 		})
 	}
-	if pu.mutation.UgentCampusCleared() {
-		_spec.ClearField(person.FieldUgentCampus, field.TypeJSON)
+	if pu.mutation.CategoryCleared() {
+		_spec.ClearField(person.FieldCategory, field.TypeJSON)
 	}
-	if value, ok := pu.mutation.UgentDepartmentID(); ok {
-		_spec.SetField(person.FieldUgentDepartmentID, field.TypeJSON, value)
+	if value, ok := pu.mutation.Orcid(); ok {
+		_spec.SetField(person.FieldOrcid, field.TypeString, value)
 	}
-	if value, ok := pu.mutation.AppendedUgentDepartmentID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentDepartmentID, value)
-		})
-	}
-	if pu.mutation.UgentDepartmentIDCleared() {
-		_spec.ClearField(person.FieldUgentDepartmentID, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.UgentFacultyID(); ok {
-		_spec.SetField(person.FieldUgentFacultyID, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedUgentFacultyID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentFacultyID, value)
-		})
-	}
-	if pu.mutation.UgentFacultyIDCleared() {
-		_spec.ClearField(person.FieldUgentFacultyID, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.UgentJobTitle(); ok {
-		_spec.SetField(person.FieldUgentJobTitle, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedUgentJobTitle(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentJobTitle, value)
-		})
-	}
-	if pu.mutation.UgentJobTitleCleared() {
-		_spec.ClearField(person.FieldUgentJobTitle, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.UgentStreetAddress(); ok {
-		_spec.SetField(person.FieldUgentStreetAddress, field.TypeString, value)
-	}
-	if pu.mutation.UgentStreetAddressCleared() {
-		_spec.ClearField(person.FieldUgentStreetAddress, field.TypeString)
-	}
-	if value, ok := pu.mutation.UgentPostalCode(); ok {
-		_spec.SetField(person.FieldUgentPostalCode, field.TypeString, value)
-	}
-	if pu.mutation.UgentPostalCodeCleared() {
-		_spec.ClearField(person.FieldUgentPostalCode, field.TypeString)
-	}
-	if value, ok := pu.mutation.UgentLocality(); ok {
-		_spec.SetField(person.FieldUgentLocality, field.TypeString, value)
-	}
-	if pu.mutation.UgentLocalityCleared() {
-		_spec.ClearField(person.FieldUgentLocality, field.TypeString)
-	}
-	if value, ok := pu.mutation.UgentLastEnrolled(); ok {
-		_spec.SetField(person.FieldUgentLastEnrolled, field.TypeString, value)
-	}
-	if pu.mutation.UgentLastEnrolledCleared() {
-		_spec.ClearField(person.FieldUgentLastEnrolled, field.TypeString)
-	}
-	if value, ok := pu.mutation.HomeStreetAddress(); ok {
-		_spec.SetField(person.FieldHomeStreetAddress, field.TypeString, value)
-	}
-	if pu.mutation.HomeStreetAddressCleared() {
-		_spec.ClearField(person.FieldHomeStreetAddress, field.TypeString)
-	}
-	if value, ok := pu.mutation.HomePostalCode(); ok {
-		_spec.SetField(person.FieldHomePostalCode, field.TypeString, value)
-	}
-	if pu.mutation.HomePostalCodeCleared() {
-		_spec.ClearField(person.FieldHomePostalCode, field.TypeString)
-	}
-	if value, ok := pu.mutation.HomeLocality(); ok {
-		_spec.SetField(person.FieldHomeLocality, field.TypeString, value)
-	}
-	if pu.mutation.HomeLocalityCleared() {
-		_spec.ClearField(person.FieldHomeLocality, field.TypeString)
-	}
-	if value, ok := pu.mutation.HomeCountry(); ok {
-		_spec.SetField(person.FieldHomeCountry, field.TypeString, value)
-	}
-	if pu.mutation.HomeCountryCleared() {
-		_spec.ClearField(person.FieldHomeCountry, field.TypeString)
-	}
-	if value, ok := pu.mutation.HomeTel(); ok {
-		_spec.SetField(person.FieldHomeTel, field.TypeString, value)
-	}
-	if pu.mutation.HomeTelCleared() {
-		_spec.ClearField(person.FieldHomeTel, field.TypeString)
-	}
-	if value, ok := pu.mutation.DormStreetAddress(); ok {
-		_spec.SetField(person.FieldDormStreetAddress, field.TypeString, value)
-	}
-	if pu.mutation.DormStreetAddressCleared() {
-		_spec.ClearField(person.FieldDormStreetAddress, field.TypeString)
-	}
-	if value, ok := pu.mutation.DormPostalCode(); ok {
-		_spec.SetField(person.FieldDormPostalCode, field.TypeString, value)
-	}
-	if pu.mutation.DormPostalCodeCleared() {
-		_spec.ClearField(person.FieldDormPostalCode, field.TypeString)
-	}
-	if value, ok := pu.mutation.DormLocality(); ok {
-		_spec.SetField(person.FieldDormLocality, field.TypeString, value)
-	}
-	if pu.mutation.DormLocalityCleared() {
-		_spec.ClearField(person.FieldDormLocality, field.TypeString)
-	}
-	if value, ok := pu.mutation.DormCountry(); ok {
-		_spec.SetField(person.FieldDormCountry, field.TypeString, value)
-	}
-	if pu.mutation.DormCountryCleared() {
-		_spec.ClearField(person.FieldDormCountry, field.TypeString)
-	}
-	if value, ok := pu.mutation.ResearchDiscipline(); ok {
-		_spec.SetField(person.FieldResearchDiscipline, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedResearchDiscipline(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldResearchDiscipline, value)
-		})
-	}
-	if pu.mutation.ResearchDisciplineCleared() {
-		_spec.ClearField(person.FieldResearchDiscipline, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.ResearchDisciplineCode(); ok {
-		_spec.SetField(person.FieldResearchDisciplineCode, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedResearchDisciplineCode(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldResearchDisciplineCode, value)
-		})
-	}
-	if pu.mutation.ResearchDisciplineCodeCleared() {
-		_spec.ClearField(person.FieldResearchDisciplineCode, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.UgentExpirationDate(); ok {
-		_spec.SetField(person.FieldUgentExpirationDate, field.TypeString, value)
-	}
-	if pu.mutation.UgentExpirationDateCleared() {
-		_spec.ClearField(person.FieldUgentExpirationDate, field.TypeString)
-	}
-	if value, ok := pu.mutation.UzgentJobTitle(); ok {
-		_spec.SetField(person.FieldUzgentJobTitle, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedUzgentJobTitle(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUzgentJobTitle, value)
-		})
-	}
-	if pu.mutation.UzgentJobTitleCleared() {
-		_spec.ClearField(person.FieldUzgentJobTitle, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.UzgentDepartmentName(); ok {
-		_spec.SetField(person.FieldUzgentDepartmentName, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedUzgentDepartmentName(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUzgentDepartmentName, value)
-		})
-	}
-	if pu.mutation.UzgentDepartmentNameCleared() {
-		_spec.ClearField(person.FieldUzgentDepartmentName, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.UzgentID(); ok {
-		_spec.SetField(person.FieldUzgentID, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedUzgentID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUzgentID, value)
-		})
-	}
-	if pu.mutation.UzgentIDCleared() {
-		_spec.ClearField(person.FieldUzgentID, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.UgentExtCategory(); ok {
-		_spec.SetField(person.FieldUgentExtCategory, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedUgentExtCategory(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentExtCategory, value)
-		})
-	}
-	if pu.mutation.UgentExtCategoryCleared() {
-		_spec.ClearField(person.FieldUgentExtCategory, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.UgentAppointmentDate(); ok {
-		_spec.SetField(person.FieldUgentAppointmentDate, field.TypeString, value)
-	}
-	if pu.mutation.UgentAppointmentDateCleared() {
-		_spec.ClearField(person.FieldUgentAppointmentDate, field.TypeString)
-	}
-	if value, ok := pu.mutation.UgentDepartmentName(); ok {
-		_spec.SetField(person.FieldUgentDepartmentName, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedUgentDepartmentName(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentDepartmentName, value)
-		})
-	}
-	if pu.mutation.UgentDepartmentNameCleared() {
-		_spec.ClearField(person.FieldUgentDepartmentName, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.OrcidBio(); ok {
-		_spec.SetField(person.FieldOrcidBio, field.TypeString, value)
-	}
-	if pu.mutation.OrcidBioCleared() {
-		_spec.ClearField(person.FieldOrcidBio, field.TypeString)
-	}
-	if value, ok := pu.mutation.OrcidID(); ok {
-		_spec.SetField(person.FieldOrcidID, field.TypeString, value)
-	}
-	if pu.mutation.OrcidIDCleared() {
-		_spec.ClearField(person.FieldOrcidID, field.TypeString)
-	}
-	if value, ok := pu.mutation.OrcidSettings(); ok {
-		_spec.SetField(person.FieldOrcidSettings, field.TypeJSON, value)
-	}
-	if pu.mutation.OrcidSettingsCleared() {
-		_spec.ClearField(person.FieldOrcidSettings, field.TypeJSON)
+	if pu.mutation.OrcidCleared() {
+		_spec.ClearField(person.FieldOrcid, field.TypeString)
 	}
 	if value, ok := pu.mutation.OrcidToken(); ok {
 		_spec.SetField(person.FieldOrcidToken, field.TypeString, value)
 	}
 	if pu.mutation.OrcidTokenCleared() {
 		_spec.ClearField(person.FieldOrcidToken, field.TypeString)
-	}
-	if value, ok := pu.mutation.OrcidVerify(); ok {
-		_spec.SetField(person.FieldOrcidVerify, field.TypeJSON, value)
-	}
-	if pu.mutation.OrcidVerifyCleared() {
-		_spec.ClearField(person.FieldOrcidVerify, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.Active(); ok {
-		_spec.SetField(person.FieldActive, field.TypeBool, value)
-	}
-	if value, ok := pu.mutation.Deleted(); ok {
-		_spec.SetField(person.FieldDeleted, field.TypeBool, value)
-	}
-	if value, ok := pu.mutation.Settings(); ok {
-		_spec.SetField(person.FieldSettings, field.TypeJSON, value)
-	}
-	if pu.mutation.SettingsCleared() {
-		_spec.ClearField(person.FieldSettings, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.Roles(); ok {
-		_spec.SetField(person.FieldRoles, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedRoles(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldRoles, value)
-		})
-	}
-	if pu.mutation.RolesCleared() {
-		_spec.ClearField(person.FieldRoles, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.PublicationCount(); ok {
-		_spec.SetField(person.FieldPublicationCount, field.TypeInt, value)
-	}
-	if value, ok := pu.mutation.AddedPublicationCount(); ok {
-		_spec.AddField(person.FieldPublicationCount, field.TypeInt, value)
-	}
-	if pu.mutation.PublicationCountCleared() {
-		_spec.ClearField(person.FieldPublicationCount, field.TypeInt)
-	}
-	if value, ok := pu.mutation.UgentMemorialisID(); ok {
-		_spec.SetField(person.FieldUgentMemorialisID, field.TypeString, value)
-	}
-	if pu.mutation.UgentMemorialisIDCleared() {
-		_spec.ClearField(person.FieldUgentMemorialisID, field.TypeString)
 	}
 	if value, ok := pu.mutation.PreferredFirstName(); ok {
 		_spec.SetField(person.FieldPreferredFirstName, field.TypeString, value)
@@ -1537,33 +447,11 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if pu.mutation.PreferredLastNameCleared() {
 		_spec.ClearField(person.FieldPreferredLastName, field.TypeString)
 	}
-	if value, ok := pu.mutation.Replaces(); ok {
-		_spec.SetField(person.FieldReplaces, field.TypeJSON, value)
+	if value, ok := pu.mutation.JobTitle(); ok {
+		_spec.SetField(person.FieldJobTitle, field.TypeString, value)
 	}
-	if value, ok := pu.mutation.AppendedReplaces(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldReplaces, value)
-		})
-	}
-	if pu.mutation.ReplacesCleared() {
-		_spec.ClearField(person.FieldReplaces, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.ReplacedBy(); ok {
-		_spec.SetField(person.FieldReplacedBy, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedReplacedBy(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldReplacedBy, value)
-		})
-	}
-	if pu.mutation.ReplacedByCleared() {
-		_spec.ClearField(person.FieldReplacedBy, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.DateLastLogin(); ok {
-		_spec.SetField(person.FieldDateLastLogin, field.TypeTime, value)
-	}
-	if pu.mutation.DateLastLoginCleared() {
-		_spec.ClearField(person.FieldDateLastLogin, field.TypeTime)
+	if pu.mutation.JobTitleCleared() {
+		_spec.ClearField(person.FieldJobTitle, field.TypeString)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -1591,119 +479,17 @@ func (puo *PersonUpdateOne) SetDateUpdated(t time.Time) *PersonUpdateOne {
 	return puo
 }
 
-// SetObjectClass sets the "object_class" field.
-func (puo *PersonUpdateOne) SetObjectClass(s []string) *PersonUpdateOne {
-	puo.mutation.SetObjectClass(s)
+// SetActive sets the "active" field.
+func (puo *PersonUpdateOne) SetActive(b bool) *PersonUpdateOne {
+	puo.mutation.SetActive(b)
 	return puo
 }
 
-// AppendObjectClass appends s to the "object_class" field.
-func (puo *PersonUpdateOne) AppendObjectClass(s []string) *PersonUpdateOne {
-	puo.mutation.AppendObjectClass(s)
-	return puo
-}
-
-// ClearObjectClass clears the value of the "object_class" field.
-func (puo *PersonUpdateOne) ClearObjectClass() *PersonUpdateOne {
-	puo.mutation.ClearObjectClass()
-	return puo
-}
-
-// SetUgentUsername sets the "ugent_username" field.
-func (puo *PersonUpdateOne) SetUgentUsername(s string) *PersonUpdateOne {
-	puo.mutation.SetUgentUsername(s)
-	return puo
-}
-
-// SetNillableUgentUsername sets the "ugent_username" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableUgentUsername(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetUgentUsername(*s)
+// SetNillableActive sets the "active" field if the given value is not nil.
+func (puo *PersonUpdateOne) SetNillableActive(b *bool) *PersonUpdateOne {
+	if b != nil {
+		puo.SetActive(*b)
 	}
-	return puo
-}
-
-// ClearUgentUsername clears the value of the "ugent_username" field.
-func (puo *PersonUpdateOne) ClearUgentUsername() *PersonUpdateOne {
-	puo.mutation.ClearUgentUsername()
-	return puo
-}
-
-// SetFirstName sets the "first_name" field.
-func (puo *PersonUpdateOne) SetFirstName(s string) *PersonUpdateOne {
-	puo.mutation.SetFirstName(s)
-	return puo
-}
-
-// SetNillableFirstName sets the "first_name" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableFirstName(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetFirstName(*s)
-	}
-	return puo
-}
-
-// ClearFirstName clears the value of the "first_name" field.
-func (puo *PersonUpdateOne) ClearFirstName() *PersonUpdateOne {
-	puo.mutation.ClearFirstName()
-	return puo
-}
-
-// SetMiddleName sets the "middle_name" field.
-func (puo *PersonUpdateOne) SetMiddleName(s string) *PersonUpdateOne {
-	puo.mutation.SetMiddleName(s)
-	return puo
-}
-
-// SetNillableMiddleName sets the "middle_name" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableMiddleName(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetMiddleName(*s)
-	}
-	return puo
-}
-
-// ClearMiddleName clears the value of the "middle_name" field.
-func (puo *PersonUpdateOne) ClearMiddleName() *PersonUpdateOne {
-	puo.mutation.ClearMiddleName()
-	return puo
-}
-
-// SetLastName sets the "last_name" field.
-func (puo *PersonUpdateOne) SetLastName(s string) *PersonUpdateOne {
-	puo.mutation.SetLastName(s)
-	return puo
-}
-
-// SetNillableLastName sets the "last_name" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableLastName(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetLastName(*s)
-	}
-	return puo
-}
-
-// ClearLastName clears the value of the "last_name" field.
-func (puo *PersonUpdateOne) ClearLastName() *PersonUpdateOne {
-	puo.mutation.ClearLastName()
-	return puo
-}
-
-// SetUgentID sets the "ugent_id" field.
-func (puo *PersonUpdateOne) SetUgentID(s []string) *PersonUpdateOne {
-	puo.mutation.SetUgentID(s)
-	return puo
-}
-
-// AppendUgentID appends s to the "ugent_id" field.
-func (puo *PersonUpdateOne) AppendUgentID(s []string) *PersonUpdateOne {
-	puo.mutation.AppendUgentID(s)
-	return puo
-}
-
-// ClearUgentID clears the value of the "ugent_id" field.
-func (puo *PersonUpdateOne) ClearUgentID() *PersonUpdateOne {
-	puo.mutation.ClearUgentID()
 	return puo
 }
 
@@ -1747,657 +533,137 @@ func (puo *PersonUpdateOne) ClearEmail() *PersonUpdateOne {
 	return puo
 }
 
-// SetNationality sets the "nationality" field.
-func (puo *PersonUpdateOne) SetNationality(s string) *PersonUpdateOne {
-	puo.mutation.SetNationality(s)
+// SetOtherID sets the "other_id" field.
+func (puo *PersonUpdateOne) SetOtherID(sr []schema.IdRef) *PersonUpdateOne {
+	puo.mutation.SetOtherID(sr)
 	return puo
 }
 
-// SetNillableNationality sets the "nationality" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableNationality(s *string) *PersonUpdateOne {
+// AppendOtherID appends sr to the "other_id" field.
+func (puo *PersonUpdateOne) AppendOtherID(sr []schema.IdRef) *PersonUpdateOne {
+	puo.mutation.AppendOtherID(sr)
+	return puo
+}
+
+// ClearOtherID clears the value of the "other_id" field.
+func (puo *PersonUpdateOne) ClearOtherID() *PersonUpdateOne {
+	puo.mutation.ClearOtherID()
+	return puo
+}
+
+// SetOrganizationID sets the "organization_id" field.
+func (puo *PersonUpdateOne) SetOrganizationID(s []string) *PersonUpdateOne {
+	puo.mutation.SetOrganizationID(s)
+	return puo
+}
+
+// AppendOrganizationID appends s to the "organization_id" field.
+func (puo *PersonUpdateOne) AppendOrganizationID(s []string) *PersonUpdateOne {
+	puo.mutation.AppendOrganizationID(s)
+	return puo
+}
+
+// ClearOrganizationID clears the value of the "organization_id" field.
+func (puo *PersonUpdateOne) ClearOrganizationID() *PersonUpdateOne {
+	puo.mutation.ClearOrganizationID()
+	return puo
+}
+
+// SetFirstName sets the "first_name" field.
+func (puo *PersonUpdateOne) SetFirstName(s string) *PersonUpdateOne {
+	puo.mutation.SetFirstName(s)
+	return puo
+}
+
+// SetNillableFirstName sets the "first_name" field if the given value is not nil.
+func (puo *PersonUpdateOne) SetNillableFirstName(s *string) *PersonUpdateOne {
 	if s != nil {
-		puo.SetNationality(*s)
+		puo.SetFirstName(*s)
 	}
 	return puo
 }
 
-// ClearNationality clears the value of the "nationality" field.
-func (puo *PersonUpdateOne) ClearNationality() *PersonUpdateOne {
-	puo.mutation.ClearNationality()
+// ClearFirstName clears the value of the "first_name" field.
+func (puo *PersonUpdateOne) ClearFirstName() *PersonUpdateOne {
+	puo.mutation.ClearFirstName()
 	return puo
 }
 
-// SetUgentBarcode sets the "ugent_barcode" field.
-func (puo *PersonUpdateOne) SetUgentBarcode(s []string) *PersonUpdateOne {
-	puo.mutation.SetUgentBarcode(s)
+// SetFullName sets the "full_name" field.
+func (puo *PersonUpdateOne) SetFullName(s string) *PersonUpdateOne {
+	puo.mutation.SetFullName(s)
 	return puo
 }
 
-// AppendUgentBarcode appends s to the "ugent_barcode" field.
-func (puo *PersonUpdateOne) AppendUgentBarcode(s []string) *PersonUpdateOne {
-	puo.mutation.AppendUgentBarcode(s)
-	return puo
-}
-
-// ClearUgentBarcode clears the value of the "ugent_barcode" field.
-func (puo *PersonUpdateOne) ClearUgentBarcode() *PersonUpdateOne {
-	puo.mutation.ClearUgentBarcode()
-	return puo
-}
-
-// SetUgentJobCategory sets the "ugent_job_category" field.
-func (puo *PersonUpdateOne) SetUgentJobCategory(s []string) *PersonUpdateOne {
-	puo.mutation.SetUgentJobCategory(s)
-	return puo
-}
-
-// AppendUgentJobCategory appends s to the "ugent_job_category" field.
-func (puo *PersonUpdateOne) AppendUgentJobCategory(s []string) *PersonUpdateOne {
-	puo.mutation.AppendUgentJobCategory(s)
-	return puo
-}
-
-// ClearUgentJobCategory clears the value of the "ugent_job_category" field.
-func (puo *PersonUpdateOne) ClearUgentJobCategory() *PersonUpdateOne {
-	puo.mutation.ClearUgentJobCategory()
-	return puo
-}
-
-// SetTitle sets the "title" field.
-func (puo *PersonUpdateOne) SetTitle(s string) *PersonUpdateOne {
-	puo.mutation.SetTitle(s)
-	return puo
-}
-
-// SetNillableTitle sets the "title" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableTitle(s *string) *PersonUpdateOne {
+// SetNillableFullName sets the "full_name" field if the given value is not nil.
+func (puo *PersonUpdateOne) SetNillableFullName(s *string) *PersonUpdateOne {
 	if s != nil {
-		puo.SetTitle(*s)
+		puo.SetFullName(*s)
 	}
 	return puo
 }
 
-// ClearTitle clears the value of the "title" field.
-func (puo *PersonUpdateOne) ClearTitle() *PersonUpdateOne {
-	puo.mutation.ClearTitle()
+// ClearFullName clears the value of the "full_name" field.
+func (puo *PersonUpdateOne) ClearFullName() *PersonUpdateOne {
+	puo.mutation.ClearFullName()
 	return puo
 }
 
-// SetUgentTel sets the "ugent_tel" field.
-func (puo *PersonUpdateOne) SetUgentTel(s string) *PersonUpdateOne {
-	puo.mutation.SetUgentTel(s)
+// SetLastName sets the "last_name" field.
+func (puo *PersonUpdateOne) SetLastName(s string) *PersonUpdateOne {
+	puo.mutation.SetLastName(s)
 	return puo
 }
 
-// SetNillableUgentTel sets the "ugent_tel" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableUgentTel(s *string) *PersonUpdateOne {
+// SetNillableLastName sets the "last_name" field if the given value is not nil.
+func (puo *PersonUpdateOne) SetNillableLastName(s *string) *PersonUpdateOne {
 	if s != nil {
-		puo.SetUgentTel(*s)
+		puo.SetLastName(*s)
 	}
 	return puo
 }
 
-// ClearUgentTel clears the value of the "ugent_tel" field.
-func (puo *PersonUpdateOne) ClearUgentTel() *PersonUpdateOne {
-	puo.mutation.ClearUgentTel()
+// ClearLastName clears the value of the "last_name" field.
+func (puo *PersonUpdateOne) ClearLastName() *PersonUpdateOne {
+	puo.mutation.ClearLastName()
 	return puo
 }
 
-// SetUgentCampus sets the "ugent_campus" field.
-func (puo *PersonUpdateOne) SetUgentCampus(s []string) *PersonUpdateOne {
-	puo.mutation.SetUgentCampus(s)
+// SetCategory sets the "category" field.
+func (puo *PersonUpdateOne) SetCategory(s []string) *PersonUpdateOne {
+	puo.mutation.SetCategory(s)
 	return puo
 }
 
-// AppendUgentCampus appends s to the "ugent_campus" field.
-func (puo *PersonUpdateOne) AppendUgentCampus(s []string) *PersonUpdateOne {
-	puo.mutation.AppendUgentCampus(s)
+// AppendCategory appends s to the "category" field.
+func (puo *PersonUpdateOne) AppendCategory(s []string) *PersonUpdateOne {
+	puo.mutation.AppendCategory(s)
 	return puo
 }
 
-// ClearUgentCampus clears the value of the "ugent_campus" field.
-func (puo *PersonUpdateOne) ClearUgentCampus() *PersonUpdateOne {
-	puo.mutation.ClearUgentCampus()
+// ClearCategory clears the value of the "category" field.
+func (puo *PersonUpdateOne) ClearCategory() *PersonUpdateOne {
+	puo.mutation.ClearCategory()
 	return puo
 }
 
-// SetUgentDepartmentID sets the "ugent_department_id" field.
-func (puo *PersonUpdateOne) SetUgentDepartmentID(s []string) *PersonUpdateOne {
-	puo.mutation.SetUgentDepartmentID(s)
+// SetOrcid sets the "orcid" field.
+func (puo *PersonUpdateOne) SetOrcid(s string) *PersonUpdateOne {
+	puo.mutation.SetOrcid(s)
 	return puo
 }
 
-// AppendUgentDepartmentID appends s to the "ugent_department_id" field.
-func (puo *PersonUpdateOne) AppendUgentDepartmentID(s []string) *PersonUpdateOne {
-	puo.mutation.AppendUgentDepartmentID(s)
-	return puo
-}
-
-// ClearUgentDepartmentID clears the value of the "ugent_department_id" field.
-func (puo *PersonUpdateOne) ClearUgentDepartmentID() *PersonUpdateOne {
-	puo.mutation.ClearUgentDepartmentID()
-	return puo
-}
-
-// SetUgentFacultyID sets the "ugent_faculty_id" field.
-func (puo *PersonUpdateOne) SetUgentFacultyID(s []string) *PersonUpdateOne {
-	puo.mutation.SetUgentFacultyID(s)
-	return puo
-}
-
-// AppendUgentFacultyID appends s to the "ugent_faculty_id" field.
-func (puo *PersonUpdateOne) AppendUgentFacultyID(s []string) *PersonUpdateOne {
-	puo.mutation.AppendUgentFacultyID(s)
-	return puo
-}
-
-// ClearUgentFacultyID clears the value of the "ugent_faculty_id" field.
-func (puo *PersonUpdateOne) ClearUgentFacultyID() *PersonUpdateOne {
-	puo.mutation.ClearUgentFacultyID()
-	return puo
-}
-
-// SetUgentJobTitle sets the "ugent_job_title" field.
-func (puo *PersonUpdateOne) SetUgentJobTitle(s []string) *PersonUpdateOne {
-	puo.mutation.SetUgentJobTitle(s)
-	return puo
-}
-
-// AppendUgentJobTitle appends s to the "ugent_job_title" field.
-func (puo *PersonUpdateOne) AppendUgentJobTitle(s []string) *PersonUpdateOne {
-	puo.mutation.AppendUgentJobTitle(s)
-	return puo
-}
-
-// ClearUgentJobTitle clears the value of the "ugent_job_title" field.
-func (puo *PersonUpdateOne) ClearUgentJobTitle() *PersonUpdateOne {
-	puo.mutation.ClearUgentJobTitle()
-	return puo
-}
-
-// SetUgentStreetAddress sets the "ugent_street_address" field.
-func (puo *PersonUpdateOne) SetUgentStreetAddress(s string) *PersonUpdateOne {
-	puo.mutation.SetUgentStreetAddress(s)
-	return puo
-}
-
-// SetNillableUgentStreetAddress sets the "ugent_street_address" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableUgentStreetAddress(s *string) *PersonUpdateOne {
+// SetNillableOrcid sets the "orcid" field if the given value is not nil.
+func (puo *PersonUpdateOne) SetNillableOrcid(s *string) *PersonUpdateOne {
 	if s != nil {
-		puo.SetUgentStreetAddress(*s)
+		puo.SetOrcid(*s)
 	}
 	return puo
 }
 
-// ClearUgentStreetAddress clears the value of the "ugent_street_address" field.
-func (puo *PersonUpdateOne) ClearUgentStreetAddress() *PersonUpdateOne {
-	puo.mutation.ClearUgentStreetAddress()
-	return puo
-}
-
-// SetUgentPostalCode sets the "ugent_postal_code" field.
-func (puo *PersonUpdateOne) SetUgentPostalCode(s string) *PersonUpdateOne {
-	puo.mutation.SetUgentPostalCode(s)
-	return puo
-}
-
-// SetNillableUgentPostalCode sets the "ugent_postal_code" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableUgentPostalCode(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetUgentPostalCode(*s)
-	}
-	return puo
-}
-
-// ClearUgentPostalCode clears the value of the "ugent_postal_code" field.
-func (puo *PersonUpdateOne) ClearUgentPostalCode() *PersonUpdateOne {
-	puo.mutation.ClearUgentPostalCode()
-	return puo
-}
-
-// SetUgentLocality sets the "ugent_locality" field.
-func (puo *PersonUpdateOne) SetUgentLocality(s string) *PersonUpdateOne {
-	puo.mutation.SetUgentLocality(s)
-	return puo
-}
-
-// SetNillableUgentLocality sets the "ugent_locality" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableUgentLocality(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetUgentLocality(*s)
-	}
-	return puo
-}
-
-// ClearUgentLocality clears the value of the "ugent_locality" field.
-func (puo *PersonUpdateOne) ClearUgentLocality() *PersonUpdateOne {
-	puo.mutation.ClearUgentLocality()
-	return puo
-}
-
-// SetUgentLastEnrolled sets the "ugent_last_enrolled" field.
-func (puo *PersonUpdateOne) SetUgentLastEnrolled(s string) *PersonUpdateOne {
-	puo.mutation.SetUgentLastEnrolled(s)
-	return puo
-}
-
-// SetNillableUgentLastEnrolled sets the "ugent_last_enrolled" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableUgentLastEnrolled(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetUgentLastEnrolled(*s)
-	}
-	return puo
-}
-
-// ClearUgentLastEnrolled clears the value of the "ugent_last_enrolled" field.
-func (puo *PersonUpdateOne) ClearUgentLastEnrolled() *PersonUpdateOne {
-	puo.mutation.ClearUgentLastEnrolled()
-	return puo
-}
-
-// SetHomeStreetAddress sets the "home_street_address" field.
-func (puo *PersonUpdateOne) SetHomeStreetAddress(s string) *PersonUpdateOne {
-	puo.mutation.SetHomeStreetAddress(s)
-	return puo
-}
-
-// SetNillableHomeStreetAddress sets the "home_street_address" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableHomeStreetAddress(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetHomeStreetAddress(*s)
-	}
-	return puo
-}
-
-// ClearHomeStreetAddress clears the value of the "home_street_address" field.
-func (puo *PersonUpdateOne) ClearHomeStreetAddress() *PersonUpdateOne {
-	puo.mutation.ClearHomeStreetAddress()
-	return puo
-}
-
-// SetHomePostalCode sets the "home_postal_code" field.
-func (puo *PersonUpdateOne) SetHomePostalCode(s string) *PersonUpdateOne {
-	puo.mutation.SetHomePostalCode(s)
-	return puo
-}
-
-// SetNillableHomePostalCode sets the "home_postal_code" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableHomePostalCode(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetHomePostalCode(*s)
-	}
-	return puo
-}
-
-// ClearHomePostalCode clears the value of the "home_postal_code" field.
-func (puo *PersonUpdateOne) ClearHomePostalCode() *PersonUpdateOne {
-	puo.mutation.ClearHomePostalCode()
-	return puo
-}
-
-// SetHomeLocality sets the "home_locality" field.
-func (puo *PersonUpdateOne) SetHomeLocality(s string) *PersonUpdateOne {
-	puo.mutation.SetHomeLocality(s)
-	return puo
-}
-
-// SetNillableHomeLocality sets the "home_locality" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableHomeLocality(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetHomeLocality(*s)
-	}
-	return puo
-}
-
-// ClearHomeLocality clears the value of the "home_locality" field.
-func (puo *PersonUpdateOne) ClearHomeLocality() *PersonUpdateOne {
-	puo.mutation.ClearHomeLocality()
-	return puo
-}
-
-// SetHomeCountry sets the "home_country" field.
-func (puo *PersonUpdateOne) SetHomeCountry(s string) *PersonUpdateOne {
-	puo.mutation.SetHomeCountry(s)
-	return puo
-}
-
-// SetNillableHomeCountry sets the "home_country" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableHomeCountry(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetHomeCountry(*s)
-	}
-	return puo
-}
-
-// ClearHomeCountry clears the value of the "home_country" field.
-func (puo *PersonUpdateOne) ClearHomeCountry() *PersonUpdateOne {
-	puo.mutation.ClearHomeCountry()
-	return puo
-}
-
-// SetHomeTel sets the "home_tel" field.
-func (puo *PersonUpdateOne) SetHomeTel(s string) *PersonUpdateOne {
-	puo.mutation.SetHomeTel(s)
-	return puo
-}
-
-// SetNillableHomeTel sets the "home_tel" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableHomeTel(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetHomeTel(*s)
-	}
-	return puo
-}
-
-// ClearHomeTel clears the value of the "home_tel" field.
-func (puo *PersonUpdateOne) ClearHomeTel() *PersonUpdateOne {
-	puo.mutation.ClearHomeTel()
-	return puo
-}
-
-// SetDormStreetAddress sets the "dorm_street_address" field.
-func (puo *PersonUpdateOne) SetDormStreetAddress(s string) *PersonUpdateOne {
-	puo.mutation.SetDormStreetAddress(s)
-	return puo
-}
-
-// SetNillableDormStreetAddress sets the "dorm_street_address" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableDormStreetAddress(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetDormStreetAddress(*s)
-	}
-	return puo
-}
-
-// ClearDormStreetAddress clears the value of the "dorm_street_address" field.
-func (puo *PersonUpdateOne) ClearDormStreetAddress() *PersonUpdateOne {
-	puo.mutation.ClearDormStreetAddress()
-	return puo
-}
-
-// SetDormPostalCode sets the "dorm_postal_code" field.
-func (puo *PersonUpdateOne) SetDormPostalCode(s string) *PersonUpdateOne {
-	puo.mutation.SetDormPostalCode(s)
-	return puo
-}
-
-// SetNillableDormPostalCode sets the "dorm_postal_code" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableDormPostalCode(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetDormPostalCode(*s)
-	}
-	return puo
-}
-
-// ClearDormPostalCode clears the value of the "dorm_postal_code" field.
-func (puo *PersonUpdateOne) ClearDormPostalCode() *PersonUpdateOne {
-	puo.mutation.ClearDormPostalCode()
-	return puo
-}
-
-// SetDormLocality sets the "dorm_locality" field.
-func (puo *PersonUpdateOne) SetDormLocality(s string) *PersonUpdateOne {
-	puo.mutation.SetDormLocality(s)
-	return puo
-}
-
-// SetNillableDormLocality sets the "dorm_locality" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableDormLocality(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetDormLocality(*s)
-	}
-	return puo
-}
-
-// ClearDormLocality clears the value of the "dorm_locality" field.
-func (puo *PersonUpdateOne) ClearDormLocality() *PersonUpdateOne {
-	puo.mutation.ClearDormLocality()
-	return puo
-}
-
-// SetDormCountry sets the "dorm_country" field.
-func (puo *PersonUpdateOne) SetDormCountry(s string) *PersonUpdateOne {
-	puo.mutation.SetDormCountry(s)
-	return puo
-}
-
-// SetNillableDormCountry sets the "dorm_country" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableDormCountry(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetDormCountry(*s)
-	}
-	return puo
-}
-
-// ClearDormCountry clears the value of the "dorm_country" field.
-func (puo *PersonUpdateOne) ClearDormCountry() *PersonUpdateOne {
-	puo.mutation.ClearDormCountry()
-	return puo
-}
-
-// SetResearchDiscipline sets the "research_discipline" field.
-func (puo *PersonUpdateOne) SetResearchDiscipline(s []string) *PersonUpdateOne {
-	puo.mutation.SetResearchDiscipline(s)
-	return puo
-}
-
-// AppendResearchDiscipline appends s to the "research_discipline" field.
-func (puo *PersonUpdateOne) AppendResearchDiscipline(s []string) *PersonUpdateOne {
-	puo.mutation.AppendResearchDiscipline(s)
-	return puo
-}
-
-// ClearResearchDiscipline clears the value of the "research_discipline" field.
-func (puo *PersonUpdateOne) ClearResearchDiscipline() *PersonUpdateOne {
-	puo.mutation.ClearResearchDiscipline()
-	return puo
-}
-
-// SetResearchDisciplineCode sets the "research_discipline_code" field.
-func (puo *PersonUpdateOne) SetResearchDisciplineCode(s []string) *PersonUpdateOne {
-	puo.mutation.SetResearchDisciplineCode(s)
-	return puo
-}
-
-// AppendResearchDisciplineCode appends s to the "research_discipline_code" field.
-func (puo *PersonUpdateOne) AppendResearchDisciplineCode(s []string) *PersonUpdateOne {
-	puo.mutation.AppendResearchDisciplineCode(s)
-	return puo
-}
-
-// ClearResearchDisciplineCode clears the value of the "research_discipline_code" field.
-func (puo *PersonUpdateOne) ClearResearchDisciplineCode() *PersonUpdateOne {
-	puo.mutation.ClearResearchDisciplineCode()
-	return puo
-}
-
-// SetUgentExpirationDate sets the "ugent_expiration_date" field.
-func (puo *PersonUpdateOne) SetUgentExpirationDate(s string) *PersonUpdateOne {
-	puo.mutation.SetUgentExpirationDate(s)
-	return puo
-}
-
-// SetNillableUgentExpirationDate sets the "ugent_expiration_date" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableUgentExpirationDate(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetUgentExpirationDate(*s)
-	}
-	return puo
-}
-
-// ClearUgentExpirationDate clears the value of the "ugent_expiration_date" field.
-func (puo *PersonUpdateOne) ClearUgentExpirationDate() *PersonUpdateOne {
-	puo.mutation.ClearUgentExpirationDate()
-	return puo
-}
-
-// SetUzgentJobTitle sets the "uzgent_job_title" field.
-func (puo *PersonUpdateOne) SetUzgentJobTitle(s []string) *PersonUpdateOne {
-	puo.mutation.SetUzgentJobTitle(s)
-	return puo
-}
-
-// AppendUzgentJobTitle appends s to the "uzgent_job_title" field.
-func (puo *PersonUpdateOne) AppendUzgentJobTitle(s []string) *PersonUpdateOne {
-	puo.mutation.AppendUzgentJobTitle(s)
-	return puo
-}
-
-// ClearUzgentJobTitle clears the value of the "uzgent_job_title" field.
-func (puo *PersonUpdateOne) ClearUzgentJobTitle() *PersonUpdateOne {
-	puo.mutation.ClearUzgentJobTitle()
-	return puo
-}
-
-// SetUzgentDepartmentName sets the "uzgent_department_name" field.
-func (puo *PersonUpdateOne) SetUzgentDepartmentName(s []string) *PersonUpdateOne {
-	puo.mutation.SetUzgentDepartmentName(s)
-	return puo
-}
-
-// AppendUzgentDepartmentName appends s to the "uzgent_department_name" field.
-func (puo *PersonUpdateOne) AppendUzgentDepartmentName(s []string) *PersonUpdateOne {
-	puo.mutation.AppendUzgentDepartmentName(s)
-	return puo
-}
-
-// ClearUzgentDepartmentName clears the value of the "uzgent_department_name" field.
-func (puo *PersonUpdateOne) ClearUzgentDepartmentName() *PersonUpdateOne {
-	puo.mutation.ClearUzgentDepartmentName()
-	return puo
-}
-
-// SetUzgentID sets the "uzgent_id" field.
-func (puo *PersonUpdateOne) SetUzgentID(s []string) *PersonUpdateOne {
-	puo.mutation.SetUzgentID(s)
-	return puo
-}
-
-// AppendUzgentID appends s to the "uzgent_id" field.
-func (puo *PersonUpdateOne) AppendUzgentID(s []string) *PersonUpdateOne {
-	puo.mutation.AppendUzgentID(s)
-	return puo
-}
-
-// ClearUzgentID clears the value of the "uzgent_id" field.
-func (puo *PersonUpdateOne) ClearUzgentID() *PersonUpdateOne {
-	puo.mutation.ClearUzgentID()
-	return puo
-}
-
-// SetUgentExtCategory sets the "ugent_ext_category" field.
-func (puo *PersonUpdateOne) SetUgentExtCategory(s []string) *PersonUpdateOne {
-	puo.mutation.SetUgentExtCategory(s)
-	return puo
-}
-
-// AppendUgentExtCategory appends s to the "ugent_ext_category" field.
-func (puo *PersonUpdateOne) AppendUgentExtCategory(s []string) *PersonUpdateOne {
-	puo.mutation.AppendUgentExtCategory(s)
-	return puo
-}
-
-// ClearUgentExtCategory clears the value of the "ugent_ext_category" field.
-func (puo *PersonUpdateOne) ClearUgentExtCategory() *PersonUpdateOne {
-	puo.mutation.ClearUgentExtCategory()
-	return puo
-}
-
-// SetUgentAppointmentDate sets the "ugent_appointment_date" field.
-func (puo *PersonUpdateOne) SetUgentAppointmentDate(s string) *PersonUpdateOne {
-	puo.mutation.SetUgentAppointmentDate(s)
-	return puo
-}
-
-// SetNillableUgentAppointmentDate sets the "ugent_appointment_date" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableUgentAppointmentDate(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetUgentAppointmentDate(*s)
-	}
-	return puo
-}
-
-// ClearUgentAppointmentDate clears the value of the "ugent_appointment_date" field.
-func (puo *PersonUpdateOne) ClearUgentAppointmentDate() *PersonUpdateOne {
-	puo.mutation.ClearUgentAppointmentDate()
-	return puo
-}
-
-// SetUgentDepartmentName sets the "ugent_department_name" field.
-func (puo *PersonUpdateOne) SetUgentDepartmentName(s []string) *PersonUpdateOne {
-	puo.mutation.SetUgentDepartmentName(s)
-	return puo
-}
-
-// AppendUgentDepartmentName appends s to the "ugent_department_name" field.
-func (puo *PersonUpdateOne) AppendUgentDepartmentName(s []string) *PersonUpdateOne {
-	puo.mutation.AppendUgentDepartmentName(s)
-	return puo
-}
-
-// ClearUgentDepartmentName clears the value of the "ugent_department_name" field.
-func (puo *PersonUpdateOne) ClearUgentDepartmentName() *PersonUpdateOne {
-	puo.mutation.ClearUgentDepartmentName()
-	return puo
-}
-
-// SetOrcidBio sets the "orcid_bio" field.
-func (puo *PersonUpdateOne) SetOrcidBio(s string) *PersonUpdateOne {
-	puo.mutation.SetOrcidBio(s)
-	return puo
-}
-
-// SetNillableOrcidBio sets the "orcid_bio" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableOrcidBio(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetOrcidBio(*s)
-	}
-	return puo
-}
-
-// ClearOrcidBio clears the value of the "orcid_bio" field.
-func (puo *PersonUpdateOne) ClearOrcidBio() *PersonUpdateOne {
-	puo.mutation.ClearOrcidBio()
-	return puo
-}
-
-// SetOrcidID sets the "orcid_id" field.
-func (puo *PersonUpdateOne) SetOrcidID(s string) *PersonUpdateOne {
-	puo.mutation.SetOrcidID(s)
-	return puo
-}
-
-// SetNillableOrcidID sets the "orcid_id" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableOrcidID(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetOrcidID(*s)
-	}
-	return puo
-}
-
-// ClearOrcidID clears the value of the "orcid_id" field.
-func (puo *PersonUpdateOne) ClearOrcidID() *PersonUpdateOne {
-	puo.mutation.ClearOrcidID()
-	return puo
-}
-
-// SetOrcidSettings sets the "orcid_settings" field.
-func (puo *PersonUpdateOne) SetOrcidSettings(ss schema.OrcidSettings) *PersonUpdateOne {
-	puo.mutation.SetOrcidSettings(ss)
-	return puo
-}
-
-// SetNillableOrcidSettings sets the "orcid_settings" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableOrcidSettings(ss *schema.OrcidSettings) *PersonUpdateOne {
-	if ss != nil {
-		puo.SetOrcidSettings(*ss)
-	}
-	return puo
-}
-
-// ClearOrcidSettings clears the value of the "orcid_settings" field.
-func (puo *PersonUpdateOne) ClearOrcidSettings() *PersonUpdateOne {
-	puo.mutation.ClearOrcidSettings()
+// ClearOrcid clears the value of the "orcid" field.
+func (puo *PersonUpdateOne) ClearOrcid() *PersonUpdateOne {
+	puo.mutation.ClearOrcid()
 	return puo
 }
 
@@ -2418,139 +684,6 @@ func (puo *PersonUpdateOne) SetNillableOrcidToken(s *string) *PersonUpdateOne {
 // ClearOrcidToken clears the value of the "orcid_token" field.
 func (puo *PersonUpdateOne) ClearOrcidToken() *PersonUpdateOne {
 	puo.mutation.ClearOrcidToken()
-	return puo
-}
-
-// SetOrcidVerify sets the "orcid_verify" field.
-func (puo *PersonUpdateOne) SetOrcidVerify(sv schema.OrcidVerify) *PersonUpdateOne {
-	puo.mutation.SetOrcidVerify(sv)
-	return puo
-}
-
-// SetNillableOrcidVerify sets the "orcid_verify" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableOrcidVerify(sv *schema.OrcidVerify) *PersonUpdateOne {
-	if sv != nil {
-		puo.SetOrcidVerify(*sv)
-	}
-	return puo
-}
-
-// ClearOrcidVerify clears the value of the "orcid_verify" field.
-func (puo *PersonUpdateOne) ClearOrcidVerify() *PersonUpdateOne {
-	puo.mutation.ClearOrcidVerify()
-	return puo
-}
-
-// SetActive sets the "active" field.
-func (puo *PersonUpdateOne) SetActive(b bool) *PersonUpdateOne {
-	puo.mutation.SetActive(b)
-	return puo
-}
-
-// SetNillableActive sets the "active" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableActive(b *bool) *PersonUpdateOne {
-	if b != nil {
-		puo.SetActive(*b)
-	}
-	return puo
-}
-
-// SetDeleted sets the "deleted" field.
-func (puo *PersonUpdateOne) SetDeleted(b bool) *PersonUpdateOne {
-	puo.mutation.SetDeleted(b)
-	return puo
-}
-
-// SetNillableDeleted sets the "deleted" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableDeleted(b *bool) *PersonUpdateOne {
-	if b != nil {
-		puo.SetDeleted(*b)
-	}
-	return puo
-}
-
-// SetSettings sets the "settings" field.
-func (puo *PersonUpdateOne) SetSettings(s schema.Settings) *PersonUpdateOne {
-	puo.mutation.SetSettings(s)
-	return puo
-}
-
-// SetNillableSettings sets the "settings" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableSettings(s *schema.Settings) *PersonUpdateOne {
-	if s != nil {
-		puo.SetSettings(*s)
-	}
-	return puo
-}
-
-// ClearSettings clears the value of the "settings" field.
-func (puo *PersonUpdateOne) ClearSettings() *PersonUpdateOne {
-	puo.mutation.ClearSettings()
-	return puo
-}
-
-// SetRoles sets the "roles" field.
-func (puo *PersonUpdateOne) SetRoles(s []string) *PersonUpdateOne {
-	puo.mutation.SetRoles(s)
-	return puo
-}
-
-// AppendRoles appends s to the "roles" field.
-func (puo *PersonUpdateOne) AppendRoles(s []string) *PersonUpdateOne {
-	puo.mutation.AppendRoles(s)
-	return puo
-}
-
-// ClearRoles clears the value of the "roles" field.
-func (puo *PersonUpdateOne) ClearRoles() *PersonUpdateOne {
-	puo.mutation.ClearRoles()
-	return puo
-}
-
-// SetPublicationCount sets the "publication_count" field.
-func (puo *PersonUpdateOne) SetPublicationCount(i int) *PersonUpdateOne {
-	puo.mutation.ResetPublicationCount()
-	puo.mutation.SetPublicationCount(i)
-	return puo
-}
-
-// SetNillablePublicationCount sets the "publication_count" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillablePublicationCount(i *int) *PersonUpdateOne {
-	if i != nil {
-		puo.SetPublicationCount(*i)
-	}
-	return puo
-}
-
-// AddPublicationCount adds i to the "publication_count" field.
-func (puo *PersonUpdateOne) AddPublicationCount(i int) *PersonUpdateOne {
-	puo.mutation.AddPublicationCount(i)
-	return puo
-}
-
-// ClearPublicationCount clears the value of the "publication_count" field.
-func (puo *PersonUpdateOne) ClearPublicationCount() *PersonUpdateOne {
-	puo.mutation.ClearPublicationCount()
-	return puo
-}
-
-// SetUgentMemorialisID sets the "ugent_memorialis_id" field.
-func (puo *PersonUpdateOne) SetUgentMemorialisID(s string) *PersonUpdateOne {
-	puo.mutation.SetUgentMemorialisID(s)
-	return puo
-}
-
-// SetNillableUgentMemorialisID sets the "ugent_memorialis_id" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableUgentMemorialisID(s *string) *PersonUpdateOne {
-	if s != nil {
-		puo.SetUgentMemorialisID(*s)
-	}
-	return puo
-}
-
-// ClearUgentMemorialisID clears the value of the "ugent_memorialis_id" field.
-func (puo *PersonUpdateOne) ClearUgentMemorialisID() *PersonUpdateOne {
-	puo.mutation.ClearUgentMemorialisID()
 	return puo
 }
 
@@ -2594,59 +727,23 @@ func (puo *PersonUpdateOne) ClearPreferredLastName() *PersonUpdateOne {
 	return puo
 }
 
-// SetReplaces sets the "replaces" field.
-func (puo *PersonUpdateOne) SetReplaces(m []map[string]string) *PersonUpdateOne {
-	puo.mutation.SetReplaces(m)
+// SetJobTitle sets the "job_title" field.
+func (puo *PersonUpdateOne) SetJobTitle(s string) *PersonUpdateOne {
+	puo.mutation.SetJobTitle(s)
 	return puo
 }
 
-// AppendReplaces appends m to the "replaces" field.
-func (puo *PersonUpdateOne) AppendReplaces(m []map[string]string) *PersonUpdateOne {
-	puo.mutation.AppendReplaces(m)
-	return puo
-}
-
-// ClearReplaces clears the value of the "replaces" field.
-func (puo *PersonUpdateOne) ClearReplaces() *PersonUpdateOne {
-	puo.mutation.ClearReplaces()
-	return puo
-}
-
-// SetReplacedBy sets the "replaced_by" field.
-func (puo *PersonUpdateOne) SetReplacedBy(m []map[string]string) *PersonUpdateOne {
-	puo.mutation.SetReplacedBy(m)
-	return puo
-}
-
-// AppendReplacedBy appends m to the "replaced_by" field.
-func (puo *PersonUpdateOne) AppendReplacedBy(m []map[string]string) *PersonUpdateOne {
-	puo.mutation.AppendReplacedBy(m)
-	return puo
-}
-
-// ClearReplacedBy clears the value of the "replaced_by" field.
-func (puo *PersonUpdateOne) ClearReplacedBy() *PersonUpdateOne {
-	puo.mutation.ClearReplacedBy()
-	return puo
-}
-
-// SetDateLastLogin sets the "date_last_login" field.
-func (puo *PersonUpdateOne) SetDateLastLogin(t time.Time) *PersonUpdateOne {
-	puo.mutation.SetDateLastLogin(t)
-	return puo
-}
-
-// SetNillableDateLastLogin sets the "date_last_login" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableDateLastLogin(t *time.Time) *PersonUpdateOne {
-	if t != nil {
-		puo.SetDateLastLogin(*t)
+// SetNillableJobTitle sets the "job_title" field if the given value is not nil.
+func (puo *PersonUpdateOne) SetNillableJobTitle(s *string) *PersonUpdateOne {
+	if s != nil {
+		puo.SetJobTitle(*s)
 	}
 	return puo
 }
 
-// ClearDateLastLogin clears the value of the "date_last_login" field.
-func (puo *PersonUpdateOne) ClearDateLastLogin() *PersonUpdateOne {
-	puo.mutation.ClearDateLastLogin()
+// ClearJobTitle clears the value of the "job_title" field.
+func (puo *PersonUpdateOne) ClearJobTitle() *PersonUpdateOne {
+	puo.mutation.ClearJobTitle()
 	return puo
 }
 
@@ -2733,51 +830,8 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	if value, ok := puo.mutation.DateUpdated(); ok {
 		_spec.SetField(person.FieldDateUpdated, field.TypeTime, value)
 	}
-	if value, ok := puo.mutation.ObjectClass(); ok {
-		_spec.SetField(person.FieldObjectClass, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedObjectClass(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldObjectClass, value)
-		})
-	}
-	if puo.mutation.ObjectClassCleared() {
-		_spec.ClearField(person.FieldObjectClass, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.UgentUsername(); ok {
-		_spec.SetField(person.FieldUgentUsername, field.TypeString, value)
-	}
-	if puo.mutation.UgentUsernameCleared() {
-		_spec.ClearField(person.FieldUgentUsername, field.TypeString)
-	}
-	if value, ok := puo.mutation.FirstName(); ok {
-		_spec.SetField(person.FieldFirstName, field.TypeString, value)
-	}
-	if puo.mutation.FirstNameCleared() {
-		_spec.ClearField(person.FieldFirstName, field.TypeString)
-	}
-	if value, ok := puo.mutation.MiddleName(); ok {
-		_spec.SetField(person.FieldMiddleName, field.TypeString, value)
-	}
-	if puo.mutation.MiddleNameCleared() {
-		_spec.ClearField(person.FieldMiddleName, field.TypeString)
-	}
-	if value, ok := puo.mutation.LastName(); ok {
-		_spec.SetField(person.FieldLastName, field.TypeString, value)
-	}
-	if puo.mutation.LastNameCleared() {
-		_spec.ClearField(person.FieldLastName, field.TypeString)
-	}
-	if value, ok := puo.mutation.UgentID(); ok {
-		_spec.SetField(person.FieldUgentID, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedUgentID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentID, value)
-		})
-	}
-	if puo.mutation.UgentIDCleared() {
-		_spec.ClearField(person.FieldUgentID, field.TypeJSON)
+	if value, ok := puo.mutation.Active(); ok {
+		_spec.SetField(person.FieldActive, field.TypeBool, value)
 	}
 	if value, ok := puo.mutation.BirthDate(); ok {
 		_spec.SetField(person.FieldBirthDate, field.TypeString, value)
@@ -2791,324 +845,68 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	if puo.mutation.EmailCleared() {
 		_spec.ClearField(person.FieldEmail, field.TypeString)
 	}
-	if value, ok := puo.mutation.Nationality(); ok {
-		_spec.SetField(person.FieldNationality, field.TypeString, value)
+	if value, ok := puo.mutation.OtherID(); ok {
+		_spec.SetField(person.FieldOtherID, field.TypeJSON, value)
 	}
-	if puo.mutation.NationalityCleared() {
-		_spec.ClearField(person.FieldNationality, field.TypeString)
-	}
-	if value, ok := puo.mutation.UgentBarcode(); ok {
-		_spec.SetField(person.FieldUgentBarcode, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedUgentBarcode(); ok {
+	if value, ok := puo.mutation.AppendedOtherID(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentBarcode, value)
+			sqljson.Append(u, person.FieldOtherID, value)
 		})
 	}
-	if puo.mutation.UgentBarcodeCleared() {
-		_spec.ClearField(person.FieldUgentBarcode, field.TypeJSON)
+	if puo.mutation.OtherIDCleared() {
+		_spec.ClearField(person.FieldOtherID, field.TypeJSON)
 	}
-	if value, ok := puo.mutation.UgentJobCategory(); ok {
-		_spec.SetField(person.FieldUgentJobCategory, field.TypeJSON, value)
+	if value, ok := puo.mutation.OrganizationID(); ok {
+		_spec.SetField(person.FieldOrganizationID, field.TypeJSON, value)
 	}
-	if value, ok := puo.mutation.AppendedUgentJobCategory(); ok {
+	if value, ok := puo.mutation.AppendedOrganizationID(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentJobCategory, value)
+			sqljson.Append(u, person.FieldOrganizationID, value)
 		})
 	}
-	if puo.mutation.UgentJobCategoryCleared() {
-		_spec.ClearField(person.FieldUgentJobCategory, field.TypeJSON)
+	if puo.mutation.OrganizationIDCleared() {
+		_spec.ClearField(person.FieldOrganizationID, field.TypeJSON)
 	}
-	if value, ok := puo.mutation.Title(); ok {
-		_spec.SetField(person.FieldTitle, field.TypeString, value)
+	if value, ok := puo.mutation.FirstName(); ok {
+		_spec.SetField(person.FieldFirstName, field.TypeString, value)
 	}
-	if puo.mutation.TitleCleared() {
-		_spec.ClearField(person.FieldTitle, field.TypeString)
+	if puo.mutation.FirstNameCleared() {
+		_spec.ClearField(person.FieldFirstName, field.TypeString)
 	}
-	if value, ok := puo.mutation.UgentTel(); ok {
-		_spec.SetField(person.FieldUgentTel, field.TypeString, value)
+	if value, ok := puo.mutation.FullName(); ok {
+		_spec.SetField(person.FieldFullName, field.TypeString, value)
 	}
-	if puo.mutation.UgentTelCleared() {
-		_spec.ClearField(person.FieldUgentTel, field.TypeString)
+	if puo.mutation.FullNameCleared() {
+		_spec.ClearField(person.FieldFullName, field.TypeString)
 	}
-	if value, ok := puo.mutation.UgentCampus(); ok {
-		_spec.SetField(person.FieldUgentCampus, field.TypeJSON, value)
+	if value, ok := puo.mutation.LastName(); ok {
+		_spec.SetField(person.FieldLastName, field.TypeString, value)
 	}
-	if value, ok := puo.mutation.AppendedUgentCampus(); ok {
+	if puo.mutation.LastNameCleared() {
+		_spec.ClearField(person.FieldLastName, field.TypeString)
+	}
+	if value, ok := puo.mutation.Category(); ok {
+		_spec.SetField(person.FieldCategory, field.TypeJSON, value)
+	}
+	if value, ok := puo.mutation.AppendedCategory(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentCampus, value)
+			sqljson.Append(u, person.FieldCategory, value)
 		})
 	}
-	if puo.mutation.UgentCampusCleared() {
-		_spec.ClearField(person.FieldUgentCampus, field.TypeJSON)
+	if puo.mutation.CategoryCleared() {
+		_spec.ClearField(person.FieldCategory, field.TypeJSON)
 	}
-	if value, ok := puo.mutation.UgentDepartmentID(); ok {
-		_spec.SetField(person.FieldUgentDepartmentID, field.TypeJSON, value)
+	if value, ok := puo.mutation.Orcid(); ok {
+		_spec.SetField(person.FieldOrcid, field.TypeString, value)
 	}
-	if value, ok := puo.mutation.AppendedUgentDepartmentID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentDepartmentID, value)
-		})
-	}
-	if puo.mutation.UgentDepartmentIDCleared() {
-		_spec.ClearField(person.FieldUgentDepartmentID, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.UgentFacultyID(); ok {
-		_spec.SetField(person.FieldUgentFacultyID, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedUgentFacultyID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentFacultyID, value)
-		})
-	}
-	if puo.mutation.UgentFacultyIDCleared() {
-		_spec.ClearField(person.FieldUgentFacultyID, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.UgentJobTitle(); ok {
-		_spec.SetField(person.FieldUgentJobTitle, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedUgentJobTitle(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentJobTitle, value)
-		})
-	}
-	if puo.mutation.UgentJobTitleCleared() {
-		_spec.ClearField(person.FieldUgentJobTitle, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.UgentStreetAddress(); ok {
-		_spec.SetField(person.FieldUgentStreetAddress, field.TypeString, value)
-	}
-	if puo.mutation.UgentStreetAddressCleared() {
-		_spec.ClearField(person.FieldUgentStreetAddress, field.TypeString)
-	}
-	if value, ok := puo.mutation.UgentPostalCode(); ok {
-		_spec.SetField(person.FieldUgentPostalCode, field.TypeString, value)
-	}
-	if puo.mutation.UgentPostalCodeCleared() {
-		_spec.ClearField(person.FieldUgentPostalCode, field.TypeString)
-	}
-	if value, ok := puo.mutation.UgentLocality(); ok {
-		_spec.SetField(person.FieldUgentLocality, field.TypeString, value)
-	}
-	if puo.mutation.UgentLocalityCleared() {
-		_spec.ClearField(person.FieldUgentLocality, field.TypeString)
-	}
-	if value, ok := puo.mutation.UgentLastEnrolled(); ok {
-		_spec.SetField(person.FieldUgentLastEnrolled, field.TypeString, value)
-	}
-	if puo.mutation.UgentLastEnrolledCleared() {
-		_spec.ClearField(person.FieldUgentLastEnrolled, field.TypeString)
-	}
-	if value, ok := puo.mutation.HomeStreetAddress(); ok {
-		_spec.SetField(person.FieldHomeStreetAddress, field.TypeString, value)
-	}
-	if puo.mutation.HomeStreetAddressCleared() {
-		_spec.ClearField(person.FieldHomeStreetAddress, field.TypeString)
-	}
-	if value, ok := puo.mutation.HomePostalCode(); ok {
-		_spec.SetField(person.FieldHomePostalCode, field.TypeString, value)
-	}
-	if puo.mutation.HomePostalCodeCleared() {
-		_spec.ClearField(person.FieldHomePostalCode, field.TypeString)
-	}
-	if value, ok := puo.mutation.HomeLocality(); ok {
-		_spec.SetField(person.FieldHomeLocality, field.TypeString, value)
-	}
-	if puo.mutation.HomeLocalityCleared() {
-		_spec.ClearField(person.FieldHomeLocality, field.TypeString)
-	}
-	if value, ok := puo.mutation.HomeCountry(); ok {
-		_spec.SetField(person.FieldHomeCountry, field.TypeString, value)
-	}
-	if puo.mutation.HomeCountryCleared() {
-		_spec.ClearField(person.FieldHomeCountry, field.TypeString)
-	}
-	if value, ok := puo.mutation.HomeTel(); ok {
-		_spec.SetField(person.FieldHomeTel, field.TypeString, value)
-	}
-	if puo.mutation.HomeTelCleared() {
-		_spec.ClearField(person.FieldHomeTel, field.TypeString)
-	}
-	if value, ok := puo.mutation.DormStreetAddress(); ok {
-		_spec.SetField(person.FieldDormStreetAddress, field.TypeString, value)
-	}
-	if puo.mutation.DormStreetAddressCleared() {
-		_spec.ClearField(person.FieldDormStreetAddress, field.TypeString)
-	}
-	if value, ok := puo.mutation.DormPostalCode(); ok {
-		_spec.SetField(person.FieldDormPostalCode, field.TypeString, value)
-	}
-	if puo.mutation.DormPostalCodeCleared() {
-		_spec.ClearField(person.FieldDormPostalCode, field.TypeString)
-	}
-	if value, ok := puo.mutation.DormLocality(); ok {
-		_spec.SetField(person.FieldDormLocality, field.TypeString, value)
-	}
-	if puo.mutation.DormLocalityCleared() {
-		_spec.ClearField(person.FieldDormLocality, field.TypeString)
-	}
-	if value, ok := puo.mutation.DormCountry(); ok {
-		_spec.SetField(person.FieldDormCountry, field.TypeString, value)
-	}
-	if puo.mutation.DormCountryCleared() {
-		_spec.ClearField(person.FieldDormCountry, field.TypeString)
-	}
-	if value, ok := puo.mutation.ResearchDiscipline(); ok {
-		_spec.SetField(person.FieldResearchDiscipline, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedResearchDiscipline(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldResearchDiscipline, value)
-		})
-	}
-	if puo.mutation.ResearchDisciplineCleared() {
-		_spec.ClearField(person.FieldResearchDiscipline, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.ResearchDisciplineCode(); ok {
-		_spec.SetField(person.FieldResearchDisciplineCode, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedResearchDisciplineCode(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldResearchDisciplineCode, value)
-		})
-	}
-	if puo.mutation.ResearchDisciplineCodeCleared() {
-		_spec.ClearField(person.FieldResearchDisciplineCode, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.UgentExpirationDate(); ok {
-		_spec.SetField(person.FieldUgentExpirationDate, field.TypeString, value)
-	}
-	if puo.mutation.UgentExpirationDateCleared() {
-		_spec.ClearField(person.FieldUgentExpirationDate, field.TypeString)
-	}
-	if value, ok := puo.mutation.UzgentJobTitle(); ok {
-		_spec.SetField(person.FieldUzgentJobTitle, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedUzgentJobTitle(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUzgentJobTitle, value)
-		})
-	}
-	if puo.mutation.UzgentJobTitleCleared() {
-		_spec.ClearField(person.FieldUzgentJobTitle, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.UzgentDepartmentName(); ok {
-		_spec.SetField(person.FieldUzgentDepartmentName, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedUzgentDepartmentName(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUzgentDepartmentName, value)
-		})
-	}
-	if puo.mutation.UzgentDepartmentNameCleared() {
-		_spec.ClearField(person.FieldUzgentDepartmentName, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.UzgentID(); ok {
-		_spec.SetField(person.FieldUzgentID, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedUzgentID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUzgentID, value)
-		})
-	}
-	if puo.mutation.UzgentIDCleared() {
-		_spec.ClearField(person.FieldUzgentID, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.UgentExtCategory(); ok {
-		_spec.SetField(person.FieldUgentExtCategory, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedUgentExtCategory(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentExtCategory, value)
-		})
-	}
-	if puo.mutation.UgentExtCategoryCleared() {
-		_spec.ClearField(person.FieldUgentExtCategory, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.UgentAppointmentDate(); ok {
-		_spec.SetField(person.FieldUgentAppointmentDate, field.TypeString, value)
-	}
-	if puo.mutation.UgentAppointmentDateCleared() {
-		_spec.ClearField(person.FieldUgentAppointmentDate, field.TypeString)
-	}
-	if value, ok := puo.mutation.UgentDepartmentName(); ok {
-		_spec.SetField(person.FieldUgentDepartmentName, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedUgentDepartmentName(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldUgentDepartmentName, value)
-		})
-	}
-	if puo.mutation.UgentDepartmentNameCleared() {
-		_spec.ClearField(person.FieldUgentDepartmentName, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.OrcidBio(); ok {
-		_spec.SetField(person.FieldOrcidBio, field.TypeString, value)
-	}
-	if puo.mutation.OrcidBioCleared() {
-		_spec.ClearField(person.FieldOrcidBio, field.TypeString)
-	}
-	if value, ok := puo.mutation.OrcidID(); ok {
-		_spec.SetField(person.FieldOrcidID, field.TypeString, value)
-	}
-	if puo.mutation.OrcidIDCleared() {
-		_spec.ClearField(person.FieldOrcidID, field.TypeString)
-	}
-	if value, ok := puo.mutation.OrcidSettings(); ok {
-		_spec.SetField(person.FieldOrcidSettings, field.TypeJSON, value)
-	}
-	if puo.mutation.OrcidSettingsCleared() {
-		_spec.ClearField(person.FieldOrcidSettings, field.TypeJSON)
+	if puo.mutation.OrcidCleared() {
+		_spec.ClearField(person.FieldOrcid, field.TypeString)
 	}
 	if value, ok := puo.mutation.OrcidToken(); ok {
 		_spec.SetField(person.FieldOrcidToken, field.TypeString, value)
 	}
 	if puo.mutation.OrcidTokenCleared() {
 		_spec.ClearField(person.FieldOrcidToken, field.TypeString)
-	}
-	if value, ok := puo.mutation.OrcidVerify(); ok {
-		_spec.SetField(person.FieldOrcidVerify, field.TypeJSON, value)
-	}
-	if puo.mutation.OrcidVerifyCleared() {
-		_spec.ClearField(person.FieldOrcidVerify, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.Active(); ok {
-		_spec.SetField(person.FieldActive, field.TypeBool, value)
-	}
-	if value, ok := puo.mutation.Deleted(); ok {
-		_spec.SetField(person.FieldDeleted, field.TypeBool, value)
-	}
-	if value, ok := puo.mutation.Settings(); ok {
-		_spec.SetField(person.FieldSettings, field.TypeJSON, value)
-	}
-	if puo.mutation.SettingsCleared() {
-		_spec.ClearField(person.FieldSettings, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.Roles(); ok {
-		_spec.SetField(person.FieldRoles, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedRoles(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldRoles, value)
-		})
-	}
-	if puo.mutation.RolesCleared() {
-		_spec.ClearField(person.FieldRoles, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.PublicationCount(); ok {
-		_spec.SetField(person.FieldPublicationCount, field.TypeInt, value)
-	}
-	if value, ok := puo.mutation.AddedPublicationCount(); ok {
-		_spec.AddField(person.FieldPublicationCount, field.TypeInt, value)
-	}
-	if puo.mutation.PublicationCountCleared() {
-		_spec.ClearField(person.FieldPublicationCount, field.TypeInt)
-	}
-	if value, ok := puo.mutation.UgentMemorialisID(); ok {
-		_spec.SetField(person.FieldUgentMemorialisID, field.TypeString, value)
-	}
-	if puo.mutation.UgentMemorialisIDCleared() {
-		_spec.ClearField(person.FieldUgentMemorialisID, field.TypeString)
 	}
 	if value, ok := puo.mutation.PreferredFirstName(); ok {
 		_spec.SetField(person.FieldPreferredFirstName, field.TypeString, value)
@@ -3122,33 +920,11 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	if puo.mutation.PreferredLastNameCleared() {
 		_spec.ClearField(person.FieldPreferredLastName, field.TypeString)
 	}
-	if value, ok := puo.mutation.Replaces(); ok {
-		_spec.SetField(person.FieldReplaces, field.TypeJSON, value)
+	if value, ok := puo.mutation.JobTitle(); ok {
+		_spec.SetField(person.FieldJobTitle, field.TypeString, value)
 	}
-	if value, ok := puo.mutation.AppendedReplaces(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldReplaces, value)
-		})
-	}
-	if puo.mutation.ReplacesCleared() {
-		_spec.ClearField(person.FieldReplaces, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.ReplacedBy(); ok {
-		_spec.SetField(person.FieldReplacedBy, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedReplacedBy(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldReplacedBy, value)
-		})
-	}
-	if puo.mutation.ReplacedByCleared() {
-		_spec.ClearField(person.FieldReplacedBy, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.DateLastLogin(); ok {
-		_spec.SetField(person.FieldDateLastLogin, field.TypeTime, value)
-	}
-	if puo.mutation.DateLastLoginCleared() {
-		_spec.ClearField(person.FieldDateLastLogin, field.TypeTime)
+	if puo.mutation.JobTitleCleared() {
+		_spec.ClearField(person.FieldJobTitle, field.TypeString)
 	}
 	_node = &Person{config: puo.config}
 	_spec.Assign = _node.assignValues

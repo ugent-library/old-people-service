@@ -9,6 +9,18 @@ import (
 	"github.com/ugent-library/people/ent"
 )
 
+// The IdentifierFunc type is an adapter to allow the use of ordinary
+// function as Identifier mutator.
+type IdentifierFunc func(context.Context, *ent.IdentifierMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f IdentifierFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.IdentifierMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.IdentifierMutation", m)
+}
+
 // The PersonFunc type is an adapter to allow the use of ordinary
 // function as Person mutator.
 type PersonFunc func(context.Context, *ent.PersonMutation) (ent.Value, error)

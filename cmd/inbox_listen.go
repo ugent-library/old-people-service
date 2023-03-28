@@ -171,6 +171,8 @@ var inboxListenCmd = &cobra.Command{
 					logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", "person.updated", err))
 				}
 
+				logger.Infof("published deactivated person %s to subject person.updated", person.ID)
+
 			} else if iMsg.Subject == "person.delete" {
 
 				person, err := personService.Get(context.Background(), iMsg.Message.ID)
@@ -198,6 +200,8 @@ var inboxListenCmd = &cobra.Command{
 				if err := nc.Publish("person.deleted", outboxBytes); err != nil {
 					logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", "person.deleted", err))
 				}
+
+				logger.Infof("published deactivated person %s to subject person.deleted", person.ID)
 
 			}
 

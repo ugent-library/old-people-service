@@ -25,273 +25,8 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeIdentifier = "Identifier"
-	TypePerson     = "Person"
+	TypePerson = "Person"
 )
-
-// IdentifierMutation represents an operation that mutates the Identifier nodes in the graph.
-type IdentifierMutation struct {
-	config
-	op            Op
-	typ           string
-	id            *int
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Identifier, error)
-	predicates    []predicate.Identifier
-}
-
-var _ ent.Mutation = (*IdentifierMutation)(nil)
-
-// identifierOption allows management of the mutation configuration using functional options.
-type identifierOption func(*IdentifierMutation)
-
-// newIdentifierMutation creates new mutation for the Identifier entity.
-func newIdentifierMutation(c config, op Op, opts ...identifierOption) *IdentifierMutation {
-	m := &IdentifierMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeIdentifier,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withIdentifierID sets the ID field of the mutation.
-func withIdentifierID(id int) identifierOption {
-	return func(m *IdentifierMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *Identifier
-		)
-		m.oldValue = func(ctx context.Context) (*Identifier, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().Identifier.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withIdentifier sets the old Identifier of the mutation.
-func withIdentifier(node *Identifier) identifierOption {
-	return func(m *IdentifierMutation) {
-		m.oldValue = func(context.Context) (*Identifier, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m IdentifierMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m IdentifierMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *IdentifierMutation) ID() (id int, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *IdentifierMutation) IDs(ctx context.Context) ([]int, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []int{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().Identifier.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// Where appends a list predicates to the IdentifierMutation builder.
-func (m *IdentifierMutation) Where(ps ...predicate.Identifier) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// WhereP appends storage-level predicates to the IdentifierMutation builder. Using this method,
-// users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *IdentifierMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.Identifier, len(ps))
-	for i := range ps {
-		p[i] = ps[i]
-	}
-	m.Where(p...)
-}
-
-// Op returns the operation name.
-func (m *IdentifierMutation) Op() Op {
-	return m.op
-}
-
-// SetOp allows setting the mutation operation.
-func (m *IdentifierMutation) SetOp(op Op) {
-	m.op = op
-}
-
-// Type returns the node type of this mutation (Identifier).
-func (m *IdentifierMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *IdentifierMutation) Fields() []string {
-	fields := make([]string, 0, 0)
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *IdentifierMutation) Field(name string) (ent.Value, bool) {
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *IdentifierMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	return nil, fmt.Errorf("unknown Identifier field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *IdentifierMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown Identifier field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *IdentifierMutation) AddedFields() []string {
-	return nil
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *IdentifierMutation) AddedField(name string) (ent.Value, bool) {
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *IdentifierMutation) AddField(name string, value ent.Value) error {
-	return fmt.Errorf("unknown Identifier numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *IdentifierMutation) ClearedFields() []string {
-	return nil
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *IdentifierMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *IdentifierMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown Identifier nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *IdentifierMutation) ResetField(name string) error {
-	return fmt.Errorf("unknown Identifier field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *IdentifierMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *IdentifierMutation) AddedIDs(name string) []ent.Value {
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *IdentifierMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *IdentifierMutation) RemovedIDs(name string) []ent.Value {
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *IdentifierMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *IdentifierMutation) EdgeCleared(name string) bool {
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *IdentifierMutation) ClearEdge(name string) error {
-	return fmt.Errorf("unknown Identifier unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *IdentifierMutation) ResetEdge(name string) error {
-	return fmt.Errorf("unknown Identifier edge %s", name)
-}
 
 // PersonMutation represents an operation that mutates the Person nodes in the graph.
 type PersonMutation struct {
@@ -311,8 +46,8 @@ type PersonMutation struct {
 	first_name            *string
 	full_name             *string
 	last_name             *string
-	category              *[]string
-	appendcategory        []string
+	job_category          *[]string
+	appendjob_category    []string
 	orcid                 *string
 	orcid_token           *string
 	preferred_first_name  *string
@@ -911,69 +646,69 @@ func (m *PersonMutation) ResetLastName() {
 	delete(m.clearedFields, person.FieldLastName)
 }
 
-// SetCategory sets the "category" field.
-func (m *PersonMutation) SetCategory(s []string) {
-	m.category = &s
-	m.appendcategory = nil
+// SetJobCategory sets the "job_category" field.
+func (m *PersonMutation) SetJobCategory(s []string) {
+	m.job_category = &s
+	m.appendjob_category = nil
 }
 
-// Category returns the value of the "category" field in the mutation.
-func (m *PersonMutation) Category() (r []string, exists bool) {
-	v := m.category
+// JobCategory returns the value of the "job_category" field in the mutation.
+func (m *PersonMutation) JobCategory() (r []string, exists bool) {
+	v := m.job_category
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCategory returns the old "category" field's value of the Person entity.
+// OldJobCategory returns the old "job_category" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldCategory(ctx context.Context) (v []string, err error) {
+func (m *PersonMutation) OldJobCategory(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+		return v, errors.New("OldJobCategory is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCategory requires an ID field in the mutation")
+		return v, errors.New("OldJobCategory requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+		return v, fmt.Errorf("querying old value for OldJobCategory: %w", err)
 	}
-	return oldValue.Category, nil
+	return oldValue.JobCategory, nil
 }
 
-// AppendCategory adds s to the "category" field.
-func (m *PersonMutation) AppendCategory(s []string) {
-	m.appendcategory = append(m.appendcategory, s...)
+// AppendJobCategory adds s to the "job_category" field.
+func (m *PersonMutation) AppendJobCategory(s []string) {
+	m.appendjob_category = append(m.appendjob_category, s...)
 }
 
-// AppendedCategory returns the list of values that were appended to the "category" field in this mutation.
-func (m *PersonMutation) AppendedCategory() ([]string, bool) {
-	if len(m.appendcategory) == 0 {
+// AppendedJobCategory returns the list of values that were appended to the "job_category" field in this mutation.
+func (m *PersonMutation) AppendedJobCategory() ([]string, bool) {
+	if len(m.appendjob_category) == 0 {
 		return nil, false
 	}
-	return m.appendcategory, true
+	return m.appendjob_category, true
 }
 
-// ClearCategory clears the value of the "category" field.
-func (m *PersonMutation) ClearCategory() {
-	m.category = nil
-	m.appendcategory = nil
-	m.clearedFields[person.FieldCategory] = struct{}{}
+// ClearJobCategory clears the value of the "job_category" field.
+func (m *PersonMutation) ClearJobCategory() {
+	m.job_category = nil
+	m.appendjob_category = nil
+	m.clearedFields[person.FieldJobCategory] = struct{}{}
 }
 
-// CategoryCleared returns if the "category" field was cleared in this mutation.
-func (m *PersonMutation) CategoryCleared() bool {
-	_, ok := m.clearedFields[person.FieldCategory]
+// JobCategoryCleared returns if the "job_category" field was cleared in this mutation.
+func (m *PersonMutation) JobCategoryCleared() bool {
+	_, ok := m.clearedFields[person.FieldJobCategory]
 	return ok
 }
 
-// ResetCategory resets all changes to the "category" field.
-func (m *PersonMutation) ResetCategory() {
-	m.category = nil
-	m.appendcategory = nil
-	delete(m.clearedFields, person.FieldCategory)
+// ResetJobCategory resets all changes to the "job_category" field.
+func (m *PersonMutation) ResetJobCategory() {
+	m.job_category = nil
+	m.appendjob_category = nil
+	delete(m.clearedFields, person.FieldJobCategory)
 }
 
 // SetOrcid sets the "orcid" field.
@@ -1286,8 +1021,8 @@ func (m *PersonMutation) Fields() []string {
 	if m.last_name != nil {
 		fields = append(fields, person.FieldLastName)
 	}
-	if m.category != nil {
-		fields = append(fields, person.FieldCategory)
+	if m.job_category != nil {
+		fields = append(fields, person.FieldJobCategory)
 	}
 	if m.orcid != nil {
 		fields = append(fields, person.FieldOrcid)
@@ -1332,8 +1067,8 @@ func (m *PersonMutation) Field(name string) (ent.Value, bool) {
 		return m.FullName()
 	case person.FieldLastName:
 		return m.LastName()
-	case person.FieldCategory:
-		return m.Category()
+	case person.FieldJobCategory:
+		return m.JobCategory()
 	case person.FieldOrcid:
 		return m.Orcid()
 	case person.FieldOrcidToken:
@@ -1373,8 +1108,8 @@ func (m *PersonMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldFullName(ctx)
 	case person.FieldLastName:
 		return m.OldLastName(ctx)
-	case person.FieldCategory:
-		return m.OldCategory(ctx)
+	case person.FieldJobCategory:
+		return m.OldJobCategory(ctx)
 	case person.FieldOrcid:
 		return m.OldOrcid(ctx)
 	case person.FieldOrcidToken:
@@ -1464,12 +1199,12 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetLastName(v)
 		return nil
-	case person.FieldCategory:
+	case person.FieldJobCategory:
 		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCategory(v)
+		m.SetJobCategory(v)
 		return nil
 	case person.FieldOrcid:
 		v, ok := value.(string)
@@ -1557,8 +1292,8 @@ func (m *PersonMutation) ClearedFields() []string {
 	if m.FieldCleared(person.FieldLastName) {
 		fields = append(fields, person.FieldLastName)
 	}
-	if m.FieldCleared(person.FieldCategory) {
-		fields = append(fields, person.FieldCategory)
+	if m.FieldCleared(person.FieldJobCategory) {
+		fields = append(fields, person.FieldJobCategory)
 	}
 	if m.FieldCleared(person.FieldOrcid) {
 		fields = append(fields, person.FieldOrcid)
@@ -1610,8 +1345,8 @@ func (m *PersonMutation) ClearField(name string) error {
 	case person.FieldLastName:
 		m.ClearLastName()
 		return nil
-	case person.FieldCategory:
-		m.ClearCategory()
+	case person.FieldJobCategory:
+		m.ClearJobCategory()
 		return nil
 	case person.FieldOrcid:
 		m.ClearOrcid()
@@ -1666,8 +1401,8 @@ func (m *PersonMutation) ResetField(name string) error {
 	case person.FieldLastName:
 		m.ResetLastName()
 		return nil
-	case person.FieldCategory:
-		m.ResetCategory()
+	case person.FieldJobCategory:
+		m.ResetJobCategory()
 		return nil
 	case person.FieldOrcid:
 		m.ResetOrcid()

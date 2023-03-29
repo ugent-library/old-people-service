@@ -145,9 +145,9 @@ func (pc *PersonCreate) SetNillableLastName(s *string) *PersonCreate {
 	return pc
 }
 
-// SetCategory sets the "category" field.
-func (pc *PersonCreate) SetCategory(s []string) *PersonCreate {
-	pc.mutation.SetCategory(s)
+// SetJobCategory sets the "job_category" field.
+func (pc *PersonCreate) SetJobCategory(s []string) *PersonCreate {
+	pc.mutation.SetJobCategory(s)
 	return pc
 }
 
@@ -374,9 +374,9 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 		_spec.SetField(person.FieldLastName, field.TypeString, value)
 		_node.LastName = value
 	}
-	if value, ok := pc.mutation.Category(); ok {
-		_spec.SetField(person.FieldCategory, field.TypeJSON, value)
-		_node.Category = value
+	if value, ok := pc.mutation.JobCategory(); ok {
+		_spec.SetField(person.FieldJobCategory, field.TypeJSON, value)
+		_node.JobCategory = value
 	}
 	if value, ok := pc.mutation.Orcid(); ok {
 		_spec.SetField(person.FieldOrcid, field.TypeString, value)

@@ -12,8 +12,6 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
-	// Identifier is the client for interacting with the Identifier builders.
-	Identifier *IdentifierClient
 	// Person is the client for interacting with the Person builders.
 	Person *PersonClient
 
@@ -147,7 +145,6 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
-	tx.Identifier = NewIdentifierClient(tx.config)
 	tx.Person = NewPersonClient(tx.config)
 }
 
@@ -158,7 +155,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Identifier.QueryXXX(), the query will be executed
+// applies a query, for example: Person.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

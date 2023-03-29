@@ -10,7 +10,6 @@ import (
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	v1 "github.com/ugent-library/people/api/v1"
-	"github.com/ugent-library/people/ent/schema"
 	"github.com/ugent-library/people/models"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -141,34 +140,11 @@ func mapPerson(p *models.Person) *v1.Person {
 	v.OrganizationId = append([]string{}, p.OrganizationID...)
 	v.OtherId = make([]*v1.IdRef, 0, len(p.OtherID))
 	for _, otherId := range p.OtherID {
-		v.OtherId = append(v.OtherId, mapIdRef(&otherId))
+		v.OtherId = append(v.OtherId, &v1.IdRef{
+			Id:   otherId.ID,
+			Type: otherId.Type,
+		})
 	}
 
 	return v
-}
-
-func mapIdRef(idRef *schema.IdRef) *v1.IdRef {
-	return &v1.IdRef{
-		Id:   idRef.ID,
-		Type: mapIdRefType(idRef.Type),
-	}
-}
-
-func mapIdRefType(typ string) v1.IdRefType {
-	var idRefType v1.IdRefType
-	switch typ {
-	case "ugent_id":
-		idRefType = v1.IdRefType_ugent_id
-	case "historic_ugent_id":
-		idRefType = v1.IdRefType_historic_ugent_id
-	case "ugent_barcode":
-		idRefType = v1.IdRefType_ugent_barcode
-	case "ugent_username":
-		idRefType = v1.IdRefType_ugent_username
-	case "ugent_memorialis_id":
-		idRefType = v1.IdRefType_ugent_memorialis_id
-	case "uzgent_id":
-		idRefType = v1.IdRefType_uzgent_id
-	}
-	return idRefType
 }

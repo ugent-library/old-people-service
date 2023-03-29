@@ -58,7 +58,7 @@ func (ps *personService) Create(ctx context.Context, p *Person) (*Person, error)
 	// keep in order; copy to Update if it changes
 	t.SetActive(p.Active)
 	t.SetBirthDate(p.BirthDate)
-	t.SetCategory(p.Category)
+	t.SetJobCategory(p.JobCategory)
 	t.SetEmail(p.Email)
 	t.SetFirstName(p.FirstName)
 	t.SetFullName(p.FullName)
@@ -91,7 +91,7 @@ func (ps *personService) Update(ctx context.Context, p *Person) (*Person, error)
 	// keep in order; copy to Update if it changes
 	t.SetActive(p.Active)
 	t.SetBirthDate(p.BirthDate)
-	t.SetCategory(p.Category)
+	t.SetJobCategory(p.JobCategory)
 	t.SetEmail(p.Email)
 	t.SetFirstName(p.FirstName)
 	t.SetFullName(p.FullName)
@@ -143,7 +143,7 @@ func personUnwrap(e *ent.Person) *Person {
 		FullName:           e.FullName,
 		ID:                 e.ID,
 		LastName:           e.LastName,
-		Category:           e.Category,
+		JobCategory:        e.JobCategory,
 		Orcid:              e.Orcid,
 		OrcidToken:         e.OrcidToken,
 		OrganizationID:     e.OrganizationID,

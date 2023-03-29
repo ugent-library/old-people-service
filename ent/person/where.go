@@ -604,14 +604,14 @@ func LastNameContainsFold(v string) predicate.Person {
 	return predicate.Person(sql.FieldContainsFold(FieldLastName, v))
 }
 
-// CategoryIsNil applies the IsNil predicate on the "category" field.
-func CategoryIsNil() predicate.Person {
-	return predicate.Person(sql.FieldIsNull(FieldCategory))
+// JobCategoryIsNil applies the IsNil predicate on the "job_category" field.
+func JobCategoryIsNil() predicate.Person {
+	return predicate.Person(sql.FieldIsNull(FieldJobCategory))
 }
 
-// CategoryNotNil applies the NotNil predicate on the "category" field.
-func CategoryNotNil() predicate.Person {
-	return predicate.Person(sql.FieldNotNull(FieldCategory))
+// JobCategoryNotNil applies the NotNil predicate on the "job_category" field.
+func JobCategoryNotNil() predicate.Person {
+	return predicate.Person(sql.FieldNotNull(FieldJobCategory))
 }
 
 // OrcidEQ applies the EQ predicate on the "orcid" field.

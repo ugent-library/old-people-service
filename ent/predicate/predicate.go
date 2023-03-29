@@ -6,8 +6,5 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// Identifier is the predicate function for identifier builders.
-type Identifier func(*sql.Selector)
-
 // Person is the predicate function for person builders.
 type Person func(*sql.Selector)

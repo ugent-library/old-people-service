@@ -31,8 +31,8 @@ const (
 	FieldFullName = "full_name"
 	// FieldLastName holds the string denoting the last_name field in the database.
 	FieldLastName = "last_name"
-	// FieldCategory holds the string denoting the category field in the database.
-	FieldCategory = "category"
+	// FieldJobCategory holds the string denoting the job_category field in the database.
+	FieldJobCategory = "job_category"
 	// FieldOrcid holds the string denoting the orcid field in the database.
 	FieldOrcid = "orcid"
 	// FieldOrcidToken holds the string denoting the orcid_token field in the database.
@@ -60,7 +60,7 @@ var Columns = []string{
 	FieldFirstName,
 	FieldFullName,
 	FieldLastName,
-	FieldCategory,
+	FieldJobCategory,
 	FieldOrcid,
 	FieldOrcidToken,
 	FieldPreferredFirstName,

@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"github.com/ugent-library/people/validation"
 )
 
 // Person holds the schema definition for the Person entity.
@@ -13,27 +14,6 @@ type Person struct {
 	ent.Schema
 }
 
-type Identifier struct {
-	ent.Schema
-}
-
-// parent: "ugent" or "uzgent"
-type Department struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Parent string `json:"parent"`
-}
-
-/*
-types:
-
-	ugent_memorialis_id
-	ugent_id
-	old_ugent_id
-	ugent_username
-	ugent_barcode
-	uzgent_id
-*/
 type IdRef struct {
 	ID   string `json:"id"`
 	Type string `json:"type"`
@@ -41,10 +21,11 @@ type IdRef struct {
 
 // TODO validate type
 var IdRefTypes = []string{
-	"ugent_memorialis_id",
 	"ugent_id",
-	"ugent_username",
 	"ugent_barcode",
+	"ugent_username",
+	"historic_ugent_id",
+	"ugent_memorialis_id",
 	"uzgent_id",
 }
 
@@ -65,7 +46,7 @@ func (Person) Fields() []ent.Field {
 		field.String("first_name").Optional(),
 		field.String("full_name").Optional(),
 		field.String("last_name").Optional(),
-		field.Strings("category").Optional(),
+		field.Strings("job_category").Optional(),
 		field.String("orcid").Optional(),
 		field.String("orcid_token").Optional(),
 		field.String("preferred_first_name").Optional(),
@@ -94,5 +75,37 @@ func (Person) Indexes() []ent.Index {
 		index.Fields("first_name"),
 		index.Fields("last_name"),
 		index.Fields("full_name"),
+	}
+}
+
+func (idRef IdRef) Validate() validation.Errors {
+	var errs validation.Errors
+
+	if idRef.ID == "" {
+		errs = append(errs, &validation.Error{
+			Pointer: "/id",
+			Code:    "id.required",
+		})
+	}
+
+	if idRef.Type == "" {
+		errs = append(errs, &validation.Error{
+			Pointer: "/type",
+			Code:    "type.required",
+		})
+	} else if !validation.InArray(IdRefTypes, idRef.Type) {
+		errs = append(errs, &validation.Error{
+			Pointer: "/type",
+			Code:    "type.invalid",
+		})
+	}
+
+	return errs
+}
+
+func (idRef IdRef) Dup() IdRef {
+	return IdRef{
+		ID:   idRef.ID,
+		Type: idRef.Type,
 	}
 }

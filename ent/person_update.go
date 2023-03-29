@@ -186,21 +186,21 @@ func (pu *PersonUpdate) ClearLastName() *PersonUpdate {
 	return pu
 }
 
-// SetCategory sets the "category" field.
-func (pu *PersonUpdate) SetCategory(s []string) *PersonUpdate {
-	pu.mutation.SetCategory(s)
+// SetJobCategory sets the "job_category" field.
+func (pu *PersonUpdate) SetJobCategory(s []string) *PersonUpdate {
+	pu.mutation.SetJobCategory(s)
 	return pu
 }
 
-// AppendCategory appends s to the "category" field.
-func (pu *PersonUpdate) AppendCategory(s []string) *PersonUpdate {
-	pu.mutation.AppendCategory(s)
+// AppendJobCategory appends s to the "job_category" field.
+func (pu *PersonUpdate) AppendJobCategory(s []string) *PersonUpdate {
+	pu.mutation.AppendJobCategory(s)
 	return pu
 }
 
-// ClearCategory clears the value of the "category" field.
-func (pu *PersonUpdate) ClearCategory() *PersonUpdate {
-	pu.mutation.ClearCategory()
+// ClearJobCategory clears the value of the "job_category" field.
+func (pu *PersonUpdate) ClearJobCategory() *PersonUpdate {
+	pu.mutation.ClearJobCategory()
 	return pu
 }
 
@@ -412,16 +412,16 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if pu.mutation.LastNameCleared() {
 		_spec.ClearField(person.FieldLastName, field.TypeString)
 	}
-	if value, ok := pu.mutation.Category(); ok {
-		_spec.SetField(person.FieldCategory, field.TypeJSON, value)
+	if value, ok := pu.mutation.JobCategory(); ok {
+		_spec.SetField(person.FieldJobCategory, field.TypeJSON, value)
 	}
-	if value, ok := pu.mutation.AppendedCategory(); ok {
+	if value, ok := pu.mutation.AppendedJobCategory(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldCategory, value)
+			sqljson.Append(u, person.FieldJobCategory, value)
 		})
 	}
-	if pu.mutation.CategoryCleared() {
-		_spec.ClearField(person.FieldCategory, field.TypeJSON)
+	if pu.mutation.JobCategoryCleared() {
+		_spec.ClearField(person.FieldJobCategory, field.TypeJSON)
 	}
 	if value, ok := pu.mutation.Orcid(); ok {
 		_spec.SetField(person.FieldOrcid, field.TypeString, value)
@@ -629,21 +629,21 @@ func (puo *PersonUpdateOne) ClearLastName() *PersonUpdateOne {
 	return puo
 }
 
-// SetCategory sets the "category" field.
-func (puo *PersonUpdateOne) SetCategory(s []string) *PersonUpdateOne {
-	puo.mutation.SetCategory(s)
+// SetJobCategory sets the "job_category" field.
+func (puo *PersonUpdateOne) SetJobCategory(s []string) *PersonUpdateOne {
+	puo.mutation.SetJobCategory(s)
 	return puo
 }
 
-// AppendCategory appends s to the "category" field.
-func (puo *PersonUpdateOne) AppendCategory(s []string) *PersonUpdateOne {
-	puo.mutation.AppendCategory(s)
+// AppendJobCategory appends s to the "job_category" field.
+func (puo *PersonUpdateOne) AppendJobCategory(s []string) *PersonUpdateOne {
+	puo.mutation.AppendJobCategory(s)
 	return puo
 }
 
-// ClearCategory clears the value of the "category" field.
-func (puo *PersonUpdateOne) ClearCategory() *PersonUpdateOne {
-	puo.mutation.ClearCategory()
+// ClearJobCategory clears the value of the "job_category" field.
+func (puo *PersonUpdateOne) ClearJobCategory() *PersonUpdateOne {
+	puo.mutation.ClearJobCategory()
 	return puo
 }
 
@@ -885,16 +885,16 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	if puo.mutation.LastNameCleared() {
 		_spec.ClearField(person.FieldLastName, field.TypeString)
 	}
-	if value, ok := puo.mutation.Category(); ok {
-		_spec.SetField(person.FieldCategory, field.TypeJSON, value)
+	if value, ok := puo.mutation.JobCategory(); ok {
+		_spec.SetField(person.FieldJobCategory, field.TypeJSON, value)
 	}
-	if value, ok := puo.mutation.AppendedCategory(); ok {
+	if value, ok := puo.mutation.AppendedJobCategory(); ok {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldCategory, value)
+			sqljson.Append(u, person.FieldJobCategory, value)
 		})
 	}
-	if puo.mutation.CategoryCleared() {
-		_spec.ClearField(person.FieldCategory, field.TypeJSON)
+	if puo.mutation.JobCategoryCleared() {
+		_spec.ClearField(person.FieldJobCategory, field.TypeJSON)
 	}
 	if value, ok := puo.mutation.Orcid(); ok {
 		_spec.SetField(person.FieldOrcid, field.TypeString, value)

@@ -9,16 +9,6 @@ import (
 )
 
 var (
-	// IdentifiersColumns holds the columns for the "identifiers" table.
-	IdentifiersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-	}
-	// IdentifiersTable holds the schema information for the "identifiers" table.
-	IdentifiersTable = &schema.Table{
-		Name:       "identifiers",
-		Columns:    IdentifiersColumns,
-		PrimaryKey: []*schema.Column{IdentifiersColumns[0]},
-	}
 	// PersonColumns holds the columns for the "person" table.
 	PersonColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
@@ -32,7 +22,7 @@ var (
 		{Name: "first_name", Type: field.TypeString, Nullable: true},
 		{Name: "full_name", Type: field.TypeString, Nullable: true},
 		{Name: "last_name", Type: field.TypeString, Nullable: true},
-		{Name: "category", Type: field.TypeJSON, Nullable: true},
+		{Name: "job_category", Type: field.TypeJSON, Nullable: true},
 		{Name: "orcid", Type: field.TypeString, Nullable: true},
 		{Name: "orcid_token", Type: field.TypeString, Nullable: true},
 		{Name: "preferred_first_name", Type: field.TypeString, Nullable: true},
@@ -79,7 +69,6 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		IdentifiersTable,
 		PersonTable,
 	}
 )

@@ -13,7 +13,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"github.com/ugent-library/people/ent/identifier"
 	"github.com/ugent-library/people/ent/person"
 )
 
@@ -22,8 +21,6 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Identifier is the client for interacting with the Identifier builders.
-	Identifier *IdentifierClient
 	// Person is the client for interacting with the Person builders.
 	Person *PersonClient
 }
@@ -39,7 +36,6 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Identifier = NewIdentifierClient(c.config)
 	c.Person = NewPersonClient(c.config)
 }
 
@@ -121,10 +117,9 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:        ctx,
-		config:     cfg,
-		Identifier: NewIdentifierClient(cfg),
-		Person:     NewPersonClient(cfg),
+		ctx:    ctx,
+		config: cfg,
+		Person: NewPersonClient(cfg),
 	}, nil
 }
 
@@ -142,17 +137,16 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:        ctx,
-		config:     cfg,
-		Identifier: NewIdentifierClient(cfg),
-		Person:     NewPersonClient(cfg),
+		ctx:    ctx,
+		config: cfg,
+		Person: NewPersonClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Identifier.
+//		Person.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -174,144 +168,22 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Identifier.Use(hooks...)
 	c.Person.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Identifier.Intercept(interceptors...)
 	c.Person.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *IdentifierMutation:
-		return c.Identifier.mutate(ctx, m)
 	case *PersonMutation:
 		return c.Person.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
-	}
-}
-
-// IdentifierClient is a client for the Identifier schema.
-type IdentifierClient struct {
-	config
-}
-
-// NewIdentifierClient returns a client for the Identifier from the given config.
-func NewIdentifierClient(c config) *IdentifierClient {
-	return &IdentifierClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `identifier.Hooks(f(g(h())))`.
-func (c *IdentifierClient) Use(hooks ...Hook) {
-	c.hooks.Identifier = append(c.hooks.Identifier, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `identifier.Intercept(f(g(h())))`.
-func (c *IdentifierClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Identifier = append(c.inters.Identifier, interceptors...)
-}
-
-// Create returns a builder for creating a Identifier entity.
-func (c *IdentifierClient) Create() *IdentifierCreate {
-	mutation := newIdentifierMutation(c.config, OpCreate)
-	return &IdentifierCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Identifier entities.
-func (c *IdentifierClient) CreateBulk(builders ...*IdentifierCreate) *IdentifierCreateBulk {
-	return &IdentifierCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Identifier.
-func (c *IdentifierClient) Update() *IdentifierUpdate {
-	mutation := newIdentifierMutation(c.config, OpUpdate)
-	return &IdentifierUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *IdentifierClient) UpdateOne(i *Identifier) *IdentifierUpdateOne {
-	mutation := newIdentifierMutation(c.config, OpUpdateOne, withIdentifier(i))
-	return &IdentifierUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *IdentifierClient) UpdateOneID(id int) *IdentifierUpdateOne {
-	mutation := newIdentifierMutation(c.config, OpUpdateOne, withIdentifierID(id))
-	return &IdentifierUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Identifier.
-func (c *IdentifierClient) Delete() *IdentifierDelete {
-	mutation := newIdentifierMutation(c.config, OpDelete)
-	return &IdentifierDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *IdentifierClient) DeleteOne(i *Identifier) *IdentifierDeleteOne {
-	return c.DeleteOneID(i.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *IdentifierClient) DeleteOneID(id int) *IdentifierDeleteOne {
-	builder := c.Delete().Where(identifier.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &IdentifierDeleteOne{builder}
-}
-
-// Query returns a query builder for Identifier.
-func (c *IdentifierClient) Query() *IdentifierQuery {
-	return &IdentifierQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeIdentifier},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Identifier entity by its id.
-func (c *IdentifierClient) Get(ctx context.Context, id int) (*Identifier, error) {
-	return c.Query().Where(identifier.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *IdentifierClient) GetX(ctx context.Context, id int) *Identifier {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *IdentifierClient) Hooks() []Hook {
-	return c.hooks.Identifier
-}
-
-// Interceptors returns the client interceptors.
-func (c *IdentifierClient) Interceptors() []Interceptor {
-	return c.inters.Identifier
-}
-
-func (c *IdentifierClient) mutate(ctx context.Context, m *IdentifierMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&IdentifierCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&IdentifierUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&IdentifierUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&IdentifierDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Identifier mutation op: %q", m.Op())
 	}
 }
 
@@ -436,9 +308,9 @@ func (c *PersonClient) mutate(ctx context.Context, m *PersonMutation) (Value, er
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Identifier, Person []ent.Hook
+		Person []ent.Hook
 	}
 	inters struct {
-		Identifier, Person []ent.Interceptor
+		Person []ent.Interceptor
 	}
 )

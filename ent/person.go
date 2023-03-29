@@ -38,8 +38,8 @@ type Person struct {
 	FullName string `json:"full_name,omitempty"`
 	// LastName holds the value of the "last_name" field.
 	LastName string `json:"last_name,omitempty"`
-	// Category holds the value of the "category" field.
-	Category []string `json:"category,omitempty"`
+	// JobCategory holds the value of the "job_category" field.
+	JobCategory []string `json:"job_category,omitempty"`
 	// Orcid holds the value of the "orcid" field.
 	Orcid string `json:"orcid,omitempty"`
 	// OrcidToken holds the value of the "orcid_token" field.
@@ -57,7 +57,7 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case person.FieldOtherID, person.FieldOrganizationID, person.FieldCategory:
+		case person.FieldOtherID, person.FieldOrganizationID, person.FieldJobCategory:
 			values[i] = new([]byte)
 		case person.FieldActive:
 			values[i] = new(sql.NullBool)
@@ -150,12 +150,12 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pe.LastName = value.String
 			}
-		case person.FieldCategory:
+		case person.FieldJobCategory:
 			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field category", values[i])
+				return fmt.Errorf("unexpected type %T for field job_category", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &pe.Category); err != nil {
-					return fmt.Errorf("unmarshal field category: %w", err)
+				if err := json.Unmarshal(*value, &pe.JobCategory); err != nil {
+					return fmt.Errorf("unmarshal field job_category: %w", err)
 				}
 			}
 		case person.FieldOrcid:
@@ -246,8 +246,8 @@ func (pe *Person) String() string {
 	builder.WriteString("last_name=")
 	builder.WriteString(pe.LastName)
 	builder.WriteString(", ")
-	builder.WriteString("category=")
-	builder.WriteString(fmt.Sprintf("%v", pe.Category))
+	builder.WriteString("job_category=")
+	builder.WriteString(fmt.Sprintf("%v", pe.JobCategory))
 	builder.WriteString(", ")
 	builder.WriteString("orcid=")
 	builder.WriteString(pe.Orcid)

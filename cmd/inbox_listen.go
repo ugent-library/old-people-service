@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"runtime"
@@ -16,12 +15,16 @@ import (
 )
 
 var inboxStreamName string = "PEOPLE"
-var inboxStreamSubjects []string = []string{"person.update", "person.delete"}
+var inboxStreamSubjects []string = []string{"person.update"}
 var inboxConsumerName string = "inbox"
 var inboxDeliverSubject = "inboxDeliverSubject"
 
 var outboxStreamName string = "PEOPLE_SERVICE"
-var outboxStreamSubjects []string = []string{"person.updated", "person.deleted"}
+var outboxStreamSubjects []string = []string{
+	"person.updated",
+	"inbox.rejected",
+	"inbox.person.rejected",
+}
 
 func initInboxStream(js nats.JetStreamContext) error {
 
@@ -93,6 +96,12 @@ func initInboxConsumer(js nats.JetStreamContext) error {
 	return nil
 }
 
+func ensureAck(msg *nats.Msg) {
+	if err := msg.Ack(); err != nil {
+		logger.Fatal(fmt.Errorf("unable to acknowledge nats message: %w", err))
+	}
+}
+
 var inboxListenCmd = &cobra.Command{
 	Use: "listen",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -124,90 +133,92 @@ var inboxListenCmd = &cobra.Command{
 			logger.Fatal(fmt.Errorf("unable to create nats consumer: %w", err))
 		}
 
-		// subscribe to person.*
-		_, subErr := js.Subscribe("person.*", func(msg *nats.Msg) {
+		// subscribe to person.update
+		_, subErr := js.Subscribe("person.update", func(msg *nats.Msg) {
 
 			iMsg := &inbox.InboxMessage{}
 			iMsg.Subject = msg.Subject
 			iMsg.Message = &inbox.Message{}
 
-			/*
-				TODO: really stop here?
-				if json is not valid, can it ever be processed?
-				better not acknowledge it?
-			*/
+			// remove malformed message
+			// leave no trace
 			if err := json.Unmarshal(msg.Data, iMsg.Message); err != nil {
-				logger.Fatal(fmt.Errorf("unable to decode nats message data as json: %w", err))
+				logger.Errorf("unable to decode nats message data as json: %w", err)
+				ensureAck(msg)
+				return
 			}
 
-			if iMsg.Message.ID == "" {
-				logger.Fatal(errors.New("incoming message has no person id"))
+			// remove malformed message
+			// push validation errors to subject inbox.rejected
+			if vErrs := iMsg.Validate(); vErrs != nil {
+				iErrMsg := &inbox.InboxErrorMessage{
+					InboxMessage: iMsg,
+					Errors:       vErrs,
+				}
+				outboxBytes, _ := json.Marshal(iErrMsg)
+				if err := nc.Publish("inbox.rejected", outboxBytes); err != nil {
+					logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", "inbox.rejected", err))
+				}
+				ensureAck(msg)
+				return
 			}
 
-			if iMsg.Subject == "person.update" {
+			person, err := personService.Get(context.Background(), iMsg.Message.ID)
 
-				person, err := personService.Get(context.Background(), iMsg.Message.ID)
-
-				if err != nil && err == models.ErrNotFound {
-					person = &models.Person{}
-				} else if err != nil {
-					log.Fatal(fmt.Errorf("unable to fetch person record '%s': %w", iMsg.Message.ID, err))
-				}
-
-				iMsg.UpdatePersonAttr(person)
-				person.Active = true
-
-				if person.IsStored() {
-					personService.Update(context.Background(), person)
-				} else {
-					personService.Create(context.Background(), person)
-				}
-
-				logger.Infof("updated person %s via subject person.update", person.ID)
-
-				outboxBytes, _ := json.Marshal(person)
-
-				if err := nc.Publish("person.updated", outboxBytes); err != nil {
-					logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", "person.updated", err))
-				}
-
-				logger.Infof("published deactivated person %s to subject person.updated", person.ID)
-
-			} else if iMsg.Subject == "person.delete" {
-
-				person, err := personService.Get(context.Background(), iMsg.Message.ID)
-
-				if err != nil && err == models.ErrNotFound {
-					person = &models.Person{}
-				} else if err != nil {
-					log.Fatal(fmt.Errorf("unable to fetch person record '%s': %w", iMsg.Message.ID, err))
-				}
-
-				iMsg.UpdatePersonAttr(person)
-
-				person.Active = false
-
-				if person.IsStored() {
-					personService.Update(context.Background(), person)
-				} else {
-					personService.Create(context.Background(), person)
-				}
-
-				logger.Infof("deactivated person %s via subject person.delete", person.ID)
-
-				outboxBytes, _ := json.Marshal(person)
-
-				if err := nc.Publish("person.deleted", outboxBytes); err != nil {
-					logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", "person.deleted", err))
-				}
-
-				logger.Infof("published deactivated person %s to subject person.deleted", person.ID)
-
+			if err != nil && err == models.ErrNotFound {
+				person = &models.Person{}
+			} else if err != nil {
+				// something is seriously wrong. We should stop processing records
+				log.Fatal(fmt.Errorf("unable to fetch person record '%s': %w", iMsg.Message.ID, err))
 			}
 
-			if err := msg.Ack(); err != nil {
-				logger.Fatal(fmt.Errorf("unable to acknowledge nats message: %w", err))
+			oldPerson := person.Dup()
+
+			iMsg.UpdatePersonAttr(person)
+
+			// TODO: how to deactive people?
+			person.Active = true
+
+			// report invalid changes to subject inbox.person.rejected
+			if vErrs := person.Validate(); vErrs != nil {
+				pChangeErr := &inbox.PersonChangeError{
+					OldPerson: oldPerson,
+					NewPerson: person,
+					Errors:    vErrs,
+				}
+				outboxBytes, _ := json.Marshal(pChangeErr)
+				if err := nc.Publish("inbox.person.rejected", outboxBytes); err != nil {
+					logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", "inbox.person.rejected", err))
+				}
+				ensureAck(msg)
+				return
 			}
+
+			var updateErr error
+			if person.IsStored() {
+				person, updateErr = personService.Update(context.Background(), person)
+			} else {
+				person, updateErr = personService.Create(context.Background(), person)
+			}
+
+			// create/update failed: stop processing records
+			if updateErr != nil {
+				logger.Fatal(fmt.Errorf("unable to store person %s: %w", person.ID, updateErr))
+			}
+
+			// republish updated record to subject person.update
+			logger.Infof("updated person %s via subject person.update", person.ID)
+			outboxBytes, _ := json.Marshal(person)
+
+			// failed to contact nats: stop processing records
+			if err := nc.Publish("person.updated", outboxBytes); err != nil {
+				logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", "person.updated", err))
+			}
+
+			logger.Infof("published person %s to subject person.updated", person.ID)
+
+			// acknowledge msg or die
+			ensureAck(msg)
 
 		},
 			// second and next subscription will fail when using Bind

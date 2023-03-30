@@ -115,7 +115,25 @@ $ ./people inbox listen -c people.toml
 
 * creates NATS stream `PEOPLE` with subjects `person.update`. If already present, does not try to change it. Expections are:
 
-  *  messages must be persisted to disk
+  * messages must be persisted to disk
+
+  * messages are created by [soap-bridge](https://github.com/ugent-library/soap-bridge) and look as [following](https://github.com/ugent-library/soap-bridge/blob/main/main.go#L59):
+
+    ```
+    {
+        "id": "<person identifier>",
+        "language": "<iso language code>",
+        "attributes": [
+            {
+                "name": "<attribute name>",
+                "value": "<attribute value>",
+                "start_date": "<value valid from start date>",
+                "end_date": "<value valid till end date>"
+            },
+            ...
+        ]
+    }
+    ```
 
 * creates NATS push consumer `inbox` on stream `PEOPLE`. If already present, does not try to change it. Expectations are:
 

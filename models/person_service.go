@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
+	"os"
 
 	entdialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -22,8 +24,10 @@ type PersonConfig struct {
 type PersonService interface {
 	Create(context.Context, *Person) (*Person, error)
 	Update(context.Context, *Person) (*Person, error)
+	Upsert(context.Context, *Person) (*Person, error)
 	Get(context.Context, string) (*Person, error)
 	Delete(context.Context, string) error
+	Each(context.Context, func(*Person) bool) error
 }
 
 type personService struct {
@@ -49,6 +53,18 @@ func NewPersonService(cfg *PersonConfig) (PersonService, error) {
 	return &personService{
 		db: client,
 	}, nil
+}
+
+func (ps *personService) Upsert(ctx context.Context, p *Person) (*Person, error) {
+	_, err := ps.db.Person.Query().Where(person.IDEQ(p.ID)).First(ctx)
+	if err != nil {
+		var e *ent.NotFoundError
+		if errors.As(err, &e) {
+			return ps.Create(ctx, p)
+		}
+		return nil, err
+	}
+	return ps.Update(ctx, p)
 }
 
 func (ps *personService) Create(ctx context.Context, p *Person) (*Person, error) {
@@ -129,6 +145,32 @@ func (ps *personService) Get(ctx context.Context, id string) (*Person, error) {
 
 func (ps *personService) Delete(ctx context.Context, id string) error {
 	return ps.db.Person.DeleteOneID(id).Exec(ctx)
+}
+
+func (ps *personService) Each(ctx context.Context, cb func(*Person) bool) error {
+
+	// TODO: find a better way to do this (no cursors possible)
+	var offset int = 0
+	var limit int = 500
+	for {
+		fmt.Fprintf(os.Stderr, "offset: %d, limit: %d\n", offset, limit)
+		rows, err := ps.db.Person.Query().Offset(offset).Limit(limit).Order(ent.Asc(person.FieldDateCreated)).All(ctx)
+		if err != nil {
+			return err
+		}
+		// entgo returns no error on empty results
+		if len(rows) == 0 {
+			break
+		}
+		for _, row := range rows {
+			if !cb(personUnwrap(row)) {
+				return nil
+			}
+		}
+		offset += limit
+	}
+
+	return nil
 }
 
 func personUnwrap(e *ent.Person) *Person {

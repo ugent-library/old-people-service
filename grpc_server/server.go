@@ -98,18 +98,18 @@ func NewServer(serverConfig *ServerConfig) *grpc.Server {
 	return gsrv
 }
 
-func (srv *server) GetPerson(ctx context.Context, getPersonRequest *v1.GetPersonRequest) (*v1.GetPersonResponse, error) {
-	person, err := srv.personService.Get(ctx, getPersonRequest.Id)
+func (srv *server) GetPerson(ctx context.Context, req *v1.GetPersonRequest) (*v1.GetPersonResponse, error) {
+	person, err := srv.personService.Get(ctx, req.Id)
 
 	if err != nil && err == models.ErrNotFound {
-		grpcErr := status.New(codes.InvalidArgument, fmt.Errorf("could not find person with id %s", getPersonRequest.Id).Error())
+		grpcErr := status.New(codes.InvalidArgument, fmt.Errorf("could not find person with id %s", req.Id).Error())
 		return &v1.GetPersonResponse{
 			Response: &v1.GetPersonResponse_Error{
 				Error: grpcErr.Proto(),
 			},
 		}, nil
 	} else if err != nil {
-		return nil, status.Errorf(codes.Internal, "unable to retrieve person with id '%s': %s", getPersonRequest.Id, err.Error())
+		return nil, status.Errorf(codes.Internal, "unable to retrieve person with id '%s': %s", req.Id, err.Error())
 	}
 
 	return &v1.GetPersonResponse{
@@ -117,6 +117,21 @@ func (srv *server) GetPerson(ctx context.Context, getPersonRequest *v1.GetPerson
 			Person: mapPerson(person),
 		},
 	}, nil
+}
+
+func (srv *server) GetAllPerson(req *v1.GetAllPersonRequest, stream v1.People_GetAllPersonServer) error {
+
+	return srv.personService.Each(context.Background(), func(p *models.Person) bool {
+		streamErr := stream.Send(&v1.GetAllPersonResponse{
+			Person: mapPerson(p),
+		})
+		if streamErr != nil {
+			srv.logger.Errorf("unable to send message to stream: %w", streamErr)
+			return false
+		}
+		return true
+	})
+
 }
 
 func mapPerson(p *models.Person) *v1.Person {

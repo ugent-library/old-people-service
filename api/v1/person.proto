@@ -4,7 +4,7 @@
   go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
   go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
   then generate with
-  protoc -I./api/v1 --go_out=api/v1/. --go_opt=paths=source_relative --go-grpc_out=api/v1/. --go-grpc_opt=paths=source_relative --grpc-gateway_out ./gen/go --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt standalone=true api/v1/person.proto
+  protoc -I./api/v1 --go_out=api/v1/. --go_opt=paths=source_relative --go-grpc_out=api/v1/. --go-grpc_opt=paths=source_relative api/v1/person.proto
 */
 syntax="proto3";
 
@@ -55,6 +55,13 @@ message GetPersonResponse {
   }
 }
 
+message GetAllPersonRequest {}
+
+message GetAllPersonResponse{
+  Person person = 1;
+}
+
 service People {
-  rpc GetPerson(GetPersonRequest) returns (GetPersonResponse); 
+  rpc GetPerson(GetPersonRequest) returns (GetPersonResponse);
+  rpc GetAllPerson(GetAllPersonRequest) returns (stream GetAllPersonResponse);
 }

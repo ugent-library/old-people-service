@@ -1,9 +1,20 @@
-host = "localhost"
-port = "5432"
 production = false
 
+[api]
+
+username = "people"
+password = "people"
+port = 3999
+host = "127.0.0.1"
+
+[api_client]
+
+insecure = true
+
 [db]
+
 url = "postgres://biblio:biblio@localhost:5432/authority?sslmode=disable"
 
 [nats]
+
 url = "nats://127.0.0.1:4222"

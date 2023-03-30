@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
-	"os"
 
 	entdialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -153,7 +151,6 @@ func (ps *personService) Each(ctx context.Context, cb func(*Person) bool) error 
 	var offset int = 0
 	var limit int = 500
 	for {
-		fmt.Fprintf(os.Stderr, "offset: %d, limit: %d\n", offset, limit)
 		rows, err := ps.db.Person.Query().Offset(offset).Limit(limit).Order(ent.Asc(person.FieldDateCreated)).All(ctx)
 		if err != nil {
 			return err

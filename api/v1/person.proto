@@ -3,9 +3,23 @@
   and install the go plugins with
   go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
   go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-  then generate with
+  then generate with:
+
   protoc -I./api/v1 --go_out=api/v1/. --go_opt=paths=source_relative --go-grpc_out=api/v1/. --go-grpc_opt=paths=source_relative api/v1/person.proto
-*/
+
+  for the grpc-gateway install the following:
+
+  go get github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
+  go get github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
+  go get google.golang.org/protobuf/cmd/protoc-gen-go
+  go get google.golang.org/grpc/cmd/protoc-gen-go-grpc
+
+  and then run:
+
+  protoc -I./api/v1 --grpc-gateway_out api/v1 --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative --grpc-gateway_opt generate_unbound_methods=true api/v1/person.proto
+  
+  which generates person.pb.gw.go in api/v1
+  */
 syntax="proto3";
 
 package api.v1;

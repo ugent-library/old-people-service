@@ -18,6 +18,11 @@ type ConfigApi struct {
 	TlsServerKey  string `json:"tls_server_key,omitempty"`
 }
 
+type ConfigApiProxy struct {
+	Host string `json:"host,omitempty"`
+	Port int    `json:"port,omitempty"`
+}
+
 type ConfigApiClient struct {
 	Insecure bool   `json:"insecure"`
 	CaCert   string `json:"cacert,omitempty"`
@@ -28,5 +33,6 @@ type Config struct {
 	Db         ConfigDb        `json:"db,omitempty" mapstructure:"db"`
 	Nats       ConfigNats      `json:"nats,omitempty" mapstructure:"nats"`
 	Api        ConfigApi       `json:"api,omitempty" mapstructure:"api"`
+	ApiProxy   ConfigApiProxy  `json:"api_proxy,omitempty" mapstructure:"api_proxy"`
 	ApiClient  ConfigApiClient `json:"api_client,omitempty" mapstructure:"api_client"`
 }

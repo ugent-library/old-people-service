@@ -26,6 +26,8 @@ func init() {
 	viper.SetDefault("db.url", "postgres://biblio:biblio@localhost:5432/authority?sslmode=disable")
 	viper.SetDefault("api.host", "localhost")
 	viper.SetDefault("api.port", 3999)
+	viper.SetDefault("api_proxy.host", "localhost")
+	viper.SetDefault("api_proxy.port", 4001)
 
 	cobra.OnInitialize(initConfig, initLogger)
 	cobra.OnFinalize(func() {

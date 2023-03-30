@@ -85,6 +85,22 @@ type: `string`
 
 description: file location to root certificate. Only needed when GRPC is running with TLS support
 
+**api_proxy.host**
+
+type: `string`
+
+description: host address for api proxy
+
+default: `localhost`
+
+**api_proxy.port**
+
+type: `int`
+
+description: proxy address for api proxy
+
+default: `4001`
+
 **db.url**
 
 type: `string`
@@ -106,6 +122,23 @@ description: NATS connection url
 ```
 $ ./people api start -c people.toml
 ```
+
+# Start GRPC gateway
+
+
+```
+$ ./people api proxy -c people.toml
+```
+
+Starts a JSON api at address `localhost:4001` with the following routes:
+
+* `POST /api.v1.People/GetAllPerson`
+
+No request body is expected
+
+* `POST /api.v1.People/GetPerson`
+
+Expected is a JSON request body. In this case JSON with attribute "id"
 
 # Start NATS consumer
 

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -13,6 +12,7 @@ import (
 	v1 "github.com/ugent-library/people/api/v1"
 	"github.com/ugent-library/people/grpc_client"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func init() {
@@ -54,7 +54,12 @@ var getCmd = &cobra.Command{
 
 			person := res.GetPerson()
 
-			bytes, err := json.Marshal(person)
+			marshaller := protojson.MarshalOptions{
+				EmitUnpopulated: true,
+				UseProtoNames:   true,
+			}
+
+			bytes, err := marshaller.Marshal(person)
 
 			if err != nil {
 				return err
@@ -84,6 +89,12 @@ var allCmd = &cobra.Command{
 				return err
 			}
 
+			marshaller := protojson.MarshalOptions{
+				EmitUnpopulated: true,
+				// alternative to protobuf field option "json_name"
+				UseProtoNames: true,
+			}
+
 			for {
 				res, err := stream.Recv()
 				if err == io.EOF {
@@ -99,7 +110,7 @@ var allCmd = &cobra.Command{
 				}
 
 				if p := res.GetPerson(); p != nil {
-					bytes, _ := json.Marshal(p)
+					bytes, _ := marshaller.Marshal(p)
 					fmt.Printf("%s\n", string(bytes))
 				}
 			}

@@ -39,6 +39,7 @@ message IdRef {
   string type = 2;
 }
 
+// IMPORTANT: tag "json_name" only works for protojson
 message Person {
   string id = 1;
   bool active = 2;

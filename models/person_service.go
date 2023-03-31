@@ -77,7 +77,7 @@ func (ps *personService) Create(ctx context.Context, p *Person) (*Person, error)
 	t.SetFirstName(p.FirstName)
 	t.SetFullName(p.FullName)
 	t.SetID(p.ID) // TODO: nil value overriden by entgo default function?
-	t.SetJobTitle(p.JobTitle)
+	t.SetTitle(p.JobTitle)
 	t.SetLastName(p.LastName)
 	t.SetOrcid(p.Orcid)
 	t.SetOrganizationID(p.OrganizationID)
@@ -109,7 +109,7 @@ func (ps *personService) Update(ctx context.Context, p *Person) (*Person, error)
 	t.SetEmail(p.Email)
 	t.SetFirstName(p.FirstName)
 	t.SetFullName(p.FullName)
-	t.SetJobTitle(p.JobTitle)
+	t.SetTitle(p.JobTitle)
 	t.SetLastName(p.LastName)
 	t.SetOrcid(p.Orcid)
 	t.SetOrcidToken(p.OrcidToken)
@@ -188,7 +188,7 @@ func personUnwrap(e *ent.Person) *Person {
 		OrganizationID:     e.OrganizationID,
 		PreferedLastName:   e.PreferredLastName,
 		PreferredFirstName: e.PreferredFirstName,
-		JobTitle:           e.JobTitle,
+		JobTitle:           e.Title,
 	}
 	return p
 }

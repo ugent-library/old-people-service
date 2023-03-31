@@ -51,7 +51,7 @@ func (Person) Fields() []ent.Field {
 		field.String("orcid_token").Optional(),
 		field.String("preferred_first_name").Optional(),
 		field.String("preferred_last_name").Optional(),
-		field.String("job_title").Optional(),
+		field.String("title").Optional(),
 	}
 }
 

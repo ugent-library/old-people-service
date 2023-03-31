@@ -114,9 +114,9 @@ func PreferredLastName(v string) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldPreferredLastName, v))
 }
 
-// JobTitle applies equality check predicate on the "job_title" field. It's identical to JobTitleEQ.
-func JobTitle(v string) predicate.Person {
-	return predicate.Person(sql.FieldEQ(FieldJobTitle, v))
+// Title applies equality check predicate on the "title" field. It's identical to TitleEQ.
+func Title(v string) predicate.Person {
+	return predicate.Person(sql.FieldEQ(FieldTitle, v))
 }
 
 // DateCreatedEQ applies the EQ predicate on the "date_created" field.
@@ -914,79 +914,79 @@ func PreferredLastNameContainsFold(v string) predicate.Person {
 	return predicate.Person(sql.FieldContainsFold(FieldPreferredLastName, v))
 }
 
-// JobTitleEQ applies the EQ predicate on the "job_title" field.
-func JobTitleEQ(v string) predicate.Person {
-	return predicate.Person(sql.FieldEQ(FieldJobTitle, v))
+// TitleEQ applies the EQ predicate on the "title" field.
+func TitleEQ(v string) predicate.Person {
+	return predicate.Person(sql.FieldEQ(FieldTitle, v))
 }
 
-// JobTitleNEQ applies the NEQ predicate on the "job_title" field.
-func JobTitleNEQ(v string) predicate.Person {
-	return predicate.Person(sql.FieldNEQ(FieldJobTitle, v))
+// TitleNEQ applies the NEQ predicate on the "title" field.
+func TitleNEQ(v string) predicate.Person {
+	return predicate.Person(sql.FieldNEQ(FieldTitle, v))
 }
 
-// JobTitleIn applies the In predicate on the "job_title" field.
-func JobTitleIn(vs ...string) predicate.Person {
-	return predicate.Person(sql.FieldIn(FieldJobTitle, vs...))
+// TitleIn applies the In predicate on the "title" field.
+func TitleIn(vs ...string) predicate.Person {
+	return predicate.Person(sql.FieldIn(FieldTitle, vs...))
 }
 
-// JobTitleNotIn applies the NotIn predicate on the "job_title" field.
-func JobTitleNotIn(vs ...string) predicate.Person {
-	return predicate.Person(sql.FieldNotIn(FieldJobTitle, vs...))
+// TitleNotIn applies the NotIn predicate on the "title" field.
+func TitleNotIn(vs ...string) predicate.Person {
+	return predicate.Person(sql.FieldNotIn(FieldTitle, vs...))
 }
 
-// JobTitleGT applies the GT predicate on the "job_title" field.
-func JobTitleGT(v string) predicate.Person {
-	return predicate.Person(sql.FieldGT(FieldJobTitle, v))
+// TitleGT applies the GT predicate on the "title" field.
+func TitleGT(v string) predicate.Person {
+	return predicate.Person(sql.FieldGT(FieldTitle, v))
 }
 
-// JobTitleGTE applies the GTE predicate on the "job_title" field.
-func JobTitleGTE(v string) predicate.Person {
-	return predicate.Person(sql.FieldGTE(FieldJobTitle, v))
+// TitleGTE applies the GTE predicate on the "title" field.
+func TitleGTE(v string) predicate.Person {
+	return predicate.Person(sql.FieldGTE(FieldTitle, v))
 }
 
-// JobTitleLT applies the LT predicate on the "job_title" field.
-func JobTitleLT(v string) predicate.Person {
-	return predicate.Person(sql.FieldLT(FieldJobTitle, v))
+// TitleLT applies the LT predicate on the "title" field.
+func TitleLT(v string) predicate.Person {
+	return predicate.Person(sql.FieldLT(FieldTitle, v))
 }
 
-// JobTitleLTE applies the LTE predicate on the "job_title" field.
-func JobTitleLTE(v string) predicate.Person {
-	return predicate.Person(sql.FieldLTE(FieldJobTitle, v))
+// TitleLTE applies the LTE predicate on the "title" field.
+func TitleLTE(v string) predicate.Person {
+	return predicate.Person(sql.FieldLTE(FieldTitle, v))
 }
 
-// JobTitleContains applies the Contains predicate on the "job_title" field.
-func JobTitleContains(v string) predicate.Person {
-	return predicate.Person(sql.FieldContains(FieldJobTitle, v))
+// TitleContains applies the Contains predicate on the "title" field.
+func TitleContains(v string) predicate.Person {
+	return predicate.Person(sql.FieldContains(FieldTitle, v))
 }
 
-// JobTitleHasPrefix applies the HasPrefix predicate on the "job_title" field.
-func JobTitleHasPrefix(v string) predicate.Person {
-	return predicate.Person(sql.FieldHasPrefix(FieldJobTitle, v))
+// TitleHasPrefix applies the HasPrefix predicate on the "title" field.
+func TitleHasPrefix(v string) predicate.Person {
+	return predicate.Person(sql.FieldHasPrefix(FieldTitle, v))
 }
 
-// JobTitleHasSuffix applies the HasSuffix predicate on the "job_title" field.
-func JobTitleHasSuffix(v string) predicate.Person {
-	return predicate.Person(sql.FieldHasSuffix(FieldJobTitle, v))
+// TitleHasSuffix applies the HasSuffix predicate on the "title" field.
+func TitleHasSuffix(v string) predicate.Person {
+	return predicate.Person(sql.FieldHasSuffix(FieldTitle, v))
 }
 
-// JobTitleIsNil applies the IsNil predicate on the "job_title" field.
-func JobTitleIsNil() predicate.Person {
-	return predicate.Person(sql.FieldIsNull(FieldJobTitle))
+// TitleIsNil applies the IsNil predicate on the "title" field.
+func TitleIsNil() predicate.Person {
+	return predicate.Person(sql.FieldIsNull(FieldTitle))
 }
 
-// JobTitleNotNil applies the NotNil predicate on the "job_title" field.
-func JobTitleNotNil() predicate.Person {
-	return predicate.Person(sql.FieldNotNull(FieldJobTitle))
+// TitleNotNil applies the NotNil predicate on the "title" field.
+func TitleNotNil() predicate.Person {
+	return predicate.Person(sql.FieldNotNull(FieldTitle))
 }
 
-// JobTitleEqualFold applies the EqualFold predicate on the "job_title" field.
-func JobTitleEqualFold(v string) predicate.Person {
-	return predicate.Person(sql.FieldEqualFold(FieldJobTitle, v))
+// TitleEqualFold applies the EqualFold predicate on the "title" field.
+func TitleEqualFold(v string) predicate.Person {
+	return predicate.Person(sql.FieldEqualFold(FieldTitle, v))
 }
 
-// JobTitleContainsFold applies the ContainsFold predicate on the "job_title" field.
-func JobTitleContainsFold(v string) predicate.Person {
-	return predicate.Person(sql.FieldContainsFold(FieldJobTitle, v))
+// TitleContainsFold applies the ContainsFold predicate on the "title" field.
+func TitleContainsFold(v string) predicate.Person {
+	return predicate.Person(sql.FieldContainsFold(FieldTitle, v))
 }
 
 // And groups predicates with the AND operator between them.

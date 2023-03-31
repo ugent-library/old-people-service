@@ -41,8 +41,8 @@ const (
 	FieldPreferredFirstName = "preferred_first_name"
 	// FieldPreferredLastName holds the string denoting the preferred_last_name field in the database.
 	FieldPreferredLastName = "preferred_last_name"
-	// FieldJobTitle holds the string denoting the job_title field in the database.
-	FieldJobTitle = "job_title"
+	// FieldTitle holds the string denoting the title field in the database.
+	FieldTitle = "title"
 	// Table holds the table name of the person in the database.
 	Table = "person"
 )
@@ -65,7 +65,7 @@ var Columns = []string{
 	FieldOrcidToken,
 	FieldPreferredFirstName,
 	FieldPreferredLastName,
-	FieldJobTitle,
+	FieldTitle,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

@@ -207,16 +207,16 @@ func (pc *PersonCreate) SetNillablePreferredLastName(s *string) *PersonCreate {
 	return pc
 }
 
-// SetJobTitle sets the "job_title" field.
-func (pc *PersonCreate) SetJobTitle(s string) *PersonCreate {
-	pc.mutation.SetJobTitle(s)
+// SetTitle sets the "title" field.
+func (pc *PersonCreate) SetTitle(s string) *PersonCreate {
+	pc.mutation.SetTitle(s)
 	return pc
 }
 
-// SetNillableJobTitle sets the "job_title" field if the given value is not nil.
-func (pc *PersonCreate) SetNillableJobTitle(s *string) *PersonCreate {
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (pc *PersonCreate) SetNillableTitle(s *string) *PersonCreate {
 	if s != nil {
-		pc.SetJobTitle(*s)
+		pc.SetTitle(*s)
 	}
 	return pc
 }
@@ -394,9 +394,9 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 		_spec.SetField(person.FieldPreferredLastName, field.TypeString, value)
 		_node.PreferredLastName = value
 	}
-	if value, ok := pc.mutation.JobTitle(); ok {
-		_spec.SetField(person.FieldJobTitle, field.TypeString, value)
-		_node.JobTitle = value
+	if value, ok := pc.mutation.Title(); ok {
+		_spec.SetField(person.FieldTitle, field.TypeString, value)
+		_node.Title = value
 	}
 	return _node, _spec
 }

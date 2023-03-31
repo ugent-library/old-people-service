@@ -54,7 +54,7 @@ message Person {
   string preferred_first_name = 11;
   string preferred_last_name = 12;
   string birth_date = 13;
-  string job_title = 14;
+  string title = 14;
   repeated IdRef other_id = 15;
   repeated string organization_id = 16;
 }

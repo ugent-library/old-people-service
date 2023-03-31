@@ -48,8 +48,8 @@ type Person struct {
 	PreferredFirstName string `json:"preferred_first_name,omitempty"`
 	// PreferredLastName holds the value of the "preferred_last_name" field.
 	PreferredLastName string `json:"preferred_last_name,omitempty"`
-	// JobTitle holds the value of the "job_title" field.
-	JobTitle string `json:"job_title,omitempty"`
+	// Title holds the value of the "title" field.
+	Title string `json:"title,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -61,7 +61,7 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case person.FieldActive:
 			values[i] = new(sql.NullBool)
-		case person.FieldID, person.FieldBirthDate, person.FieldEmail, person.FieldFirstName, person.FieldFullName, person.FieldLastName, person.FieldOrcid, person.FieldOrcidToken, person.FieldPreferredFirstName, person.FieldPreferredLastName, person.FieldJobTitle:
+		case person.FieldID, person.FieldBirthDate, person.FieldEmail, person.FieldFirstName, person.FieldFullName, person.FieldLastName, person.FieldOrcid, person.FieldOrcidToken, person.FieldPreferredFirstName, person.FieldPreferredLastName, person.FieldTitle:
 			values[i] = new(sql.NullString)
 		case person.FieldDateCreated, person.FieldDateUpdated:
 			values[i] = new(sql.NullTime)
@@ -182,11 +182,11 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pe.PreferredLastName = value.String
 			}
-		case person.FieldJobTitle:
+		case person.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field job_title", values[i])
+				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				pe.JobTitle = value.String
+				pe.Title = value.String
 			}
 		}
 	}
@@ -261,8 +261,8 @@ func (pe *Person) String() string {
 	builder.WriteString("preferred_last_name=")
 	builder.WriteString(pe.PreferredLastName)
 	builder.WriteString(", ")
-	builder.WriteString("job_title=")
-	builder.WriteString(pe.JobTitle)
+	builder.WriteString("title=")
+	builder.WriteString(pe.Title)
 	builder.WriteByte(')')
 	return builder.String()
 }

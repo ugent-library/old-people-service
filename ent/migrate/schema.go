@@ -27,7 +27,7 @@ var (
 		{Name: "orcid_token", Type: field.TypeString, Nullable: true},
 		{Name: "preferred_first_name", Type: field.TypeString, Nullable: true},
 		{Name: "preferred_last_name", Type: field.TypeString, Nullable: true},
-		{Name: "job_title", Type: field.TypeString, Nullable: true},
+		{Name: "title", Type: field.TypeString, Nullable: true},
 	}
 	// PersonTable holds the schema information for the "person" table.
 	PersonTable = &schema.Table{

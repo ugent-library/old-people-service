@@ -284,23 +284,23 @@ func (pu *PersonUpdate) ClearPreferredLastName() *PersonUpdate {
 	return pu
 }
 
-// SetJobTitle sets the "job_title" field.
-func (pu *PersonUpdate) SetJobTitle(s string) *PersonUpdate {
-	pu.mutation.SetJobTitle(s)
+// SetTitle sets the "title" field.
+func (pu *PersonUpdate) SetTitle(s string) *PersonUpdate {
+	pu.mutation.SetTitle(s)
 	return pu
 }
 
-// SetNillableJobTitle sets the "job_title" field if the given value is not nil.
-func (pu *PersonUpdate) SetNillableJobTitle(s *string) *PersonUpdate {
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (pu *PersonUpdate) SetNillableTitle(s *string) *PersonUpdate {
 	if s != nil {
-		pu.SetJobTitle(*s)
+		pu.SetTitle(*s)
 	}
 	return pu
 }
 
-// ClearJobTitle clears the value of the "job_title" field.
-func (pu *PersonUpdate) ClearJobTitle() *PersonUpdate {
-	pu.mutation.ClearJobTitle()
+// ClearTitle clears the value of the "title" field.
+func (pu *PersonUpdate) ClearTitle() *PersonUpdate {
+	pu.mutation.ClearTitle()
 	return pu
 }
 
@@ -447,11 +447,11 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if pu.mutation.PreferredLastNameCleared() {
 		_spec.ClearField(person.FieldPreferredLastName, field.TypeString)
 	}
-	if value, ok := pu.mutation.JobTitle(); ok {
-		_spec.SetField(person.FieldJobTitle, field.TypeString, value)
+	if value, ok := pu.mutation.Title(); ok {
+		_spec.SetField(person.FieldTitle, field.TypeString, value)
 	}
-	if pu.mutation.JobTitleCleared() {
-		_spec.ClearField(person.FieldJobTitle, field.TypeString)
+	if pu.mutation.TitleCleared() {
+		_spec.ClearField(person.FieldTitle, field.TypeString)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -727,23 +727,23 @@ func (puo *PersonUpdateOne) ClearPreferredLastName() *PersonUpdateOne {
 	return puo
 }
 
-// SetJobTitle sets the "job_title" field.
-func (puo *PersonUpdateOne) SetJobTitle(s string) *PersonUpdateOne {
-	puo.mutation.SetJobTitle(s)
+// SetTitle sets the "title" field.
+func (puo *PersonUpdateOne) SetTitle(s string) *PersonUpdateOne {
+	puo.mutation.SetTitle(s)
 	return puo
 }
 
-// SetNillableJobTitle sets the "job_title" field if the given value is not nil.
-func (puo *PersonUpdateOne) SetNillableJobTitle(s *string) *PersonUpdateOne {
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (puo *PersonUpdateOne) SetNillableTitle(s *string) *PersonUpdateOne {
 	if s != nil {
-		puo.SetJobTitle(*s)
+		puo.SetTitle(*s)
 	}
 	return puo
 }
 
-// ClearJobTitle clears the value of the "job_title" field.
-func (puo *PersonUpdateOne) ClearJobTitle() *PersonUpdateOne {
-	puo.mutation.ClearJobTitle()
+// ClearTitle clears the value of the "title" field.
+func (puo *PersonUpdateOne) ClearTitle() *PersonUpdateOne {
+	puo.mutation.ClearTitle()
 	return puo
 }
 
@@ -920,11 +920,11 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	if puo.mutation.PreferredLastNameCleared() {
 		_spec.ClearField(person.FieldPreferredLastName, field.TypeString)
 	}
-	if value, ok := puo.mutation.JobTitle(); ok {
-		_spec.SetField(person.FieldJobTitle, field.TypeString, value)
+	if value, ok := puo.mutation.Title(); ok {
+		_spec.SetField(person.FieldTitle, field.TypeString, value)
 	}
-	if puo.mutation.JobTitleCleared() {
-		_spec.ClearField(person.FieldJobTitle, field.TypeString)
+	if puo.mutation.TitleCleared() {
+		_spec.ClearField(person.FieldTitle, field.TypeString)
 	}
 	_node = &Person{config: puo.config}
 	_spec.Assign = _node.assignValues

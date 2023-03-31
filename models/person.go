@@ -25,7 +25,7 @@ type Person struct {
 	OrganizationID     []string       `json:"organization_id,omitempty"`
 	PreferedLastName   string         `json:"preferred_last_name,omitempty"`
 	PreferredFirstName string         `json:"preferred_first_name,omitempty"`
-	JobTitle           string         `json:"job_title,omitempty"`
+	Title              string         `json:"title,omitempty"`
 }
 
 func (person *Person) IsStored() bool {

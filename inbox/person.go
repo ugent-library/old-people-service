@@ -65,7 +65,7 @@ func (s *InboxMessage) UpdatePersonAttr(person *models.Person) *models.Person {
 				ID:   attr.Value,
 			})
 		case "title":
-			person.JobTitle = attr.Value
+			person.Title = attr.Value
 		case "organization_id":
 			person.OrganizationID = append(person.OrganizationID, attr.Value)
 		}

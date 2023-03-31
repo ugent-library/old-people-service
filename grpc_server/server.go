@@ -149,7 +149,7 @@ func mapPerson(p *models.Person) *v1.Person {
 		PreferredFirstName: p.PreferredFirstName,
 		PreferredLastName:  p.PreferedLastName,
 		BirthDate:          p.BirthDate,
-		Title:              p.JobTitle,
+		Title:              p.Title,
 	}
 
 	v.OrganizationId = append([]string{}, p.OrganizationID...)

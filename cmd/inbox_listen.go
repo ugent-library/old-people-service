@@ -12,15 +12,16 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/ugent-library/people/inbox"
 	"github.com/ugent-library/people/models"
+	"github.com/ugent-library/people/validation"
 )
 
-var inboxStreamName string = "PEOPLE"
-var inboxStreamSubjects []string = []string{"person.update"}
-var inboxConsumerName string = "inbox"
+var inboxStreamName = "PEOPLE"
+var inboxStreamSubjects = []string{"person.update", "person.delete"}
+var inboxConsumerName = "inbox"
 var inboxDeliverSubject = "inboxDeliverSubject"
 
-var outboxStreamName string = "PEOPLE_SERVICE"
-var outboxStreamSubjects []string = []string{
+var outboxStreamName = "PEOPLE_SERVICE"
+var outboxStreamSubjects = []string{
 	"person.updated",
 	"inbox.rejected",
 	"inbox.person.rejected",
@@ -134,11 +135,17 @@ var inboxListenCmd = &cobra.Command{
 		}
 
 		// subscribe to person.update
-		_, subErr := js.Subscribe("person.update", func(msg *nats.Msg) {
+		_, subErr := js.Subscribe("person.*", func(msg *nats.Msg) {
 
 			iMsg := &inbox.InboxMessage{}
 			iMsg.Subject = msg.Subject
 			iMsg.Message = &inbox.Message{}
+
+			// remove message on invalid subject
+			if !validation.InArray(inboxStreamSubjects, iMsg.Subject) {
+				ensureAck(msg)
+				return
+			}
 
 			// remove malformed message
 			// leave no trace
@@ -174,10 +181,13 @@ var inboxListenCmd = &cobra.Command{
 
 			oldPerson := person.Dup()
 
-			iMsg.UpdatePersonAttr(person)
-
-			// TODO: how to deactive people?
-			person.Active = true
+			// TODO update attributes during a delete?
+			if iMsg.Subject == "person.update" {
+				iMsg.UpdatePersonAttr(person)
+				person.Active = true
+			} else if iMsg.Subject == "person.delete" {
+				person.Active = false
+			}
 
 			// report invalid changes to subject inbox.person.rejected
 			if vErrs := person.Validate(); vErrs != nil {
@@ -206,16 +216,19 @@ var inboxListenCmd = &cobra.Command{
 				logger.Fatal(fmt.Errorf("unable to store person %s: %w", person.ID, updateErr))
 			}
 
+			// outbox subject
+			outboxSubject := "person.updated"
+
 			// republish updated record to subject person.update
-			logger.Infof("updated person %s via subject person.update", person.ID)
+			logger.Infof("updated person %s via subject %s", person.ID, outboxSubject)
 			outboxBytes, _ := json.Marshal(person)
 
 			// failed to contact nats: stop processing records
-			if err := nc.Publish("person.updated", outboxBytes); err != nil {
-				logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", "person.updated", err))
+			if err := nc.Publish(outboxSubject, outboxBytes); err != nil {
+				logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", outboxSubject, err))
 			}
 
-			logger.Infof("published person %s to subject person.updated", person.ID)
+			logger.Infof("published person %s to subject %s", person.ID, outboxSubject)
 
 			// acknowledge msg or die
 			ensureAck(msg)

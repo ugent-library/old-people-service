@@ -89,6 +89,8 @@ var allCmd = &cobra.Command{
 				return err
 			}
 
+			stream.CloseSend()
+
 			marshaller := protojson.MarshalOptions{
 				EmitUnpopulated: true,
 				// alternative to protobuf field option "json_name"

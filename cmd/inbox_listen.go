@@ -213,14 +213,14 @@ var inboxListenCmd = &cobra.Command{
 
 			// create/update failed: stop processing records
 			if updateErr != nil {
-				logger.Fatal(fmt.Errorf("unable to store person %s: %w", person.ID, updateErr))
+				logger.Fatal(fmt.Errorf("unable to store person %s: %w", person.Id, updateErr))
 			}
 
 			// outbox subject
 			outboxSubject := "person.updated"
 
 			// republish updated record to subject person.update
-			logger.Infof("updated person %s via subject %s", person.ID, outboxSubject)
+			logger.Infof("updated person %s via subject %s", person.Id, outboxSubject)
 			outboxBytes, _ := json.Marshal(person)
 
 			// failed to contact nats: stop processing records
@@ -228,7 +228,7 @@ var inboxListenCmd = &cobra.Command{
 				logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", outboxSubject, err))
 			}
 
-			logger.Infof("published person %s to subject %s", person.ID, outboxSubject)
+			logger.Infof("published person %s to subject %s", person.Id, outboxSubject)
 
 			// acknowledge msg or die
 			ensureAck(msg)

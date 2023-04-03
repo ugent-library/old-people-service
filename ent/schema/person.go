@@ -6,7 +6,6 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"github.com/ugent-library/people/validation"
 )
 
 // Person holds the schema definition for the Person entity.
@@ -75,37 +74,5 @@ func (Person) Indexes() []ent.Index {
 		index.Fields("first_name"),
 		index.Fields("last_name"),
 		index.Fields("full_name"),
-	}
-}
-
-func (idRef IdRef) Validate() validation.Errors {
-	var errs validation.Errors
-
-	if idRef.ID == "" {
-		errs = append(errs, &validation.Error{
-			Pointer: "/id",
-			Code:    "id.required",
-		})
-	}
-
-	if idRef.Type == "" {
-		errs = append(errs, &validation.Error{
-			Pointer: "/type",
-			Code:    "type.required",
-		})
-	} else if !validation.InArray(IdRefTypes, idRef.Type) {
-		errs = append(errs, &validation.Error{
-			Pointer: "/type",
-			Code:    "type.invalid",
-		})
-	}
-
-	return errs
-}
-
-func (idRef IdRef) Dup() IdRef {
-	return IdRef{
-		ID:   idRef.ID,
-		Type: idRef.Type,
 	}
 }

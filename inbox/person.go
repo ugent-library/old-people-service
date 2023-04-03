@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ugent-library/people/ent/schema"
+	v1 "github.com/ugent-library/people/api/v1"
 	"github.com/ugent-library/people/models"
 	"github.com/ugent-library/people/validation"
 )
@@ -44,7 +44,7 @@ type PersonChangeError struct {
 
 func (s *InboxMessage) UpdatePersonAttr(person *models.Person) *models.Person {
 
-	person.ID = s.Message.ID
+	person.Id = s.Message.ID
 
 	now := time.Now()
 
@@ -60,24 +60,24 @@ func (s *InboxMessage) UpdatePersonAttr(person *models.Person) *models.Person {
 		case "last_name":
 			person.LastName = attr.Value
 		case "ugent_id":
-			person.OtherID = append(person.OtherID, schema.IdRef{
+			person.OtherId = append(person.OtherId, &v1.IdRef{
 				Type: "ugent_id",
-				ID:   attr.Value,
+				Id:   attr.Value,
 			})
 		case "title":
 			person.Title = attr.Value
 		case "organization_id":
-			person.OrganizationID = append(person.OrganizationID, attr.Value)
+			person.OrganizationId = append(person.OrganizationId, attr.Value)
 		}
 	}
 
 	// cleanup other_id
 	{
-		values := make([]schema.IdRef, 0, len(person.OtherID))
-		for _, id := range person.OtherID {
+		values := make([]*v1.IdRef, 0, len(person.OtherId))
+		for _, id := range person.OtherId {
 			var found bool = false
 			for _, val := range values {
-				if val.ID == id.ID && val.Type == id.Type {
+				if val.Id == id.Id && val.Type == id.Type {
 					found = true
 					break
 				}
@@ -86,13 +86,13 @@ func (s *InboxMessage) UpdatePersonAttr(person *models.Person) *models.Person {
 				values = append(values, id)
 			}
 		}
-		person.OtherID = values
+		person.OtherId = values
 	}
 
 	// cleanup organization_id
 	{
-		values := make([]string, 0, len(person.OrganizationID))
-		for _, oid := range person.OrganizationID {
+		values := make([]string, 0, len(person.OrganizationId))
+		for _, oid := range person.OrganizationId {
 			var found bool = false
 			for _, val := range values {
 				if oid == val {
@@ -104,7 +104,7 @@ func (s *InboxMessage) UpdatePersonAttr(person *models.Person) *models.Person {
 				values = append(values, oid)
 			}
 		}
-		person.OrganizationID = values
+		person.OrganizationId = values
 	}
 
 	return person

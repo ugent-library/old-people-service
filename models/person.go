@@ -2,30 +2,14 @@ package models
 
 import (
 	"fmt"
-	"time"
 
+	v1 "github.com/ugent-library/people/api/v1"
 	"github.com/ugent-library/people/ent/schema"
 	"github.com/ugent-library/people/validation"
 )
 
 type Person struct {
-	Active             bool           `json:"active"`
-	BirthDate          string         `json:"birth_date,omitempty"`
-	DateCreated        *time.Time     `json:"date_created"`
-	DateUpdated        *time.Time     `json:"date_updated"`
-	Email              string         `json:"email,omitempty"`
-	OtherID            []schema.IdRef `json:"other_id,omitempty"`
-	FirstName          string         `json:"first_name,omitempty"`
-	FullName           string         `json:"full_name,omitempty"`
-	ID                 string         `json:"id,omitempty"`
-	LastName           string         `json:"last_name,omitempty"`
-	JobCategory        []string       `json:"job_category,omitempty"`
-	Orcid              string         `json:"orcid,omitempty"`
-	OrcidToken         string         `json:"orcid_token,omitempty"`
-	OrganizationID     []string       `json:"organization_id,omitempty"`
-	PreferedLastName   string         `json:"preferred_last_name,omitempty"`
-	PreferredFirstName string         `json:"preferred_first_name,omitempty"`
-	Title              string         `json:"title,omitempty"`
+	v1.Person
 }
 
 func (person *Person) IsStored() bool {
@@ -35,12 +19,22 @@ func (person *Person) IsStored() bool {
 func (person *Person) Validate() validation.Errors {
 	var errs validation.Errors
 
-	for i, otherId := range person.OtherID {
-		idErrs := otherId.Validate()
-		for _, idErr := range idErrs {
+	for i, otherId := range person.GetOtherId() {
+		if otherId.Id == "" {
 			errs = append(errs, &validation.Error{
-				Pointer: fmt.Sprintf("/other_id/%d%s", i, idErr.Pointer),
-				Code:    "other_id." + idErr.Code,
+				Pointer: fmt.Sprintf("/other_id/%d/id", i),
+				Code:    "other_id.id.required",
+			})
+		}
+		if otherId.Type == "" {
+			errs = append(errs, &validation.Error{
+				Pointer: fmt.Sprintf("/other_id/%d/type", i),
+				Code:    "other_id.type.required",
+			})
+		} else if !validation.InArray(schema.IdRefTypes, otherId.Type) {
+			errs = append(errs, &validation.Error{
+				Pointer: fmt.Sprintf("/other_id/%d/type", i),
+				Code:    "other_id.type.invalid",
 			})
 		}
 	}
@@ -48,24 +42,42 @@ func (person *Person) Validate() validation.Errors {
 	return errs
 }
 
-func (person *Person) Dup() *Person {
-	np := *person
+func (p *Person) Dup() *Person {
+	// *p copies mutex values too..
+	np := &Person{
+		Person: v1.Person{
+			Id:                 p.Id,
+			Active:             p.Active,
+			FullName:           p.FullName,
+			FirstName:          p.FirstName,
+			LastName:           p.LastName,
+			Email:              p.Email,
+			Orcid:              p.Orcid,
+			OrcidToken:         p.OrcidToken,
+			JobCategory:        append([]string{}, p.JobCategory...),
+			OrganizationId:     append([]string{}, p.OrganizationId...),
+			PreferredFirstName: p.PreferredFirstName,
+			PreferredLastName:  p.PreferredLastName,
+			BirthDate:          p.BirthDate,
+			Title:              p.Title,
+		},
+	}
 
-	if person.DateCreated != nil {
-		t := *person.DateCreated
+	if p.DateCreated != nil {
+		t := *p.DateCreated
 		np.DateCreated = &t
 	}
-	if person.DateUpdated != nil {
-		t := *person.DateUpdated
+	if p.DateUpdated != nil {
+		t := *p.DateUpdated
 		np.DateUpdated = &t
 	}
-	idRefs := make([]schema.IdRef, 0, len(person.OtherID))
-	for _, idRef := range person.OtherID {
-		idRefs = append(idRefs, idRef.Dup())
+	np.OtherId = make([]*v1.IdRef, 0, len(p.OtherId))
+	for _, oldIdRef := range p.GetOtherId() {
+		np.OtherId = append(np.OtherId, &v1.IdRef{
+			Id:   oldIdRef.Id,
+			Type: oldIdRef.Type,
+		})
 	}
-	np.OtherID = idRefs
-	np.JobCategory = append([]string{}, person.JobCategory...)
-	np.OrganizationID = append([]string{}, person.OrganizationID...)
 
-	return &np
+	return np
 }

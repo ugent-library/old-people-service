@@ -8,9 +8,12 @@ import (
 	entdialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	v1 "github.com/ugent-library/people/api/v1"
 	"github.com/ugent-library/people/ent"
 	entmigrate "github.com/ugent-library/people/ent/migrate"
 	"github.com/ugent-library/people/ent/person"
+	"github.com/ugent-library/people/ent/schema"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var ErrNotFound = errors.New("not found")
@@ -54,7 +57,7 @@ func NewPersonService(cfg *PersonConfig) (PersonService, error) {
 }
 
 func (ps *personService) Upsert(ctx context.Context, p *Person) (*Person, error) {
-	_, err := ps.db.Person.Query().Where(person.IDEQ(p.ID)).First(ctx)
+	_, err := ps.db.Person.Query().Where(person.IDEQ(p.Id)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -76,15 +79,22 @@ func (ps *personService) Create(ctx context.Context, p *Person) (*Person, error)
 	t.SetEmail(p.Email)
 	t.SetFirstName(p.FirstName)
 	t.SetFullName(p.FullName)
-	t.SetID(p.ID) // TODO: nil value overriden by entgo default function?
+	t.SetID(p.Id) // TODO: nil value overriden by entgo default function?
 	t.SetTitle(p.Title)
 	t.SetLastName(p.LastName)
 	t.SetOrcid(p.Orcid)
-	t.SetOrganizationID(p.OrganizationID)
+	t.SetOrganizationID(p.OrganizationId)
 	t.SetOrcidToken(p.OrcidToken)
-	t.SetOtherID(p.OtherID)
+	schemaOtherIds := make([]schema.IdRef, 0, len(p.OtherId))
+	for _, refId := range p.OtherId {
+		schemaOtherIds = append(schemaOtherIds, schema.IdRef{
+			ID:   refId.Id,
+			Type: refId.Type,
+		})
+	}
+	t.SetOtherID(schemaOtherIds)
 	t.SetPreferredFirstName(p.PreferredFirstName)
-	t.SetPreferredLastName(p.PreferedLastName)
+	t.SetPreferredLastName(p.PreferredLastName)
 
 	row, err := t.Save(ctx)
 	if err != nil {
@@ -92,15 +102,15 @@ func (ps *personService) Create(ctx context.Context, p *Person) (*Person, error)
 	}
 
 	// collect entgo managed fields
-	p.DateCreated = &row.DateCreated
-	p.DateUpdated = &row.DateUpdated
-	p.ID = row.ID
+	p.DateCreated = timestamppb.New(row.DateCreated)
+	p.DateUpdated = timestamppb.New(row.DateUpdated)
+	p.Id = row.ID
 
 	return p, nil
 }
 
 func (ps *personService) Update(ctx context.Context, p *Person) (*Person, error) {
-	t := ps.db.Person.UpdateOneID(p.ID)
+	t := ps.db.Person.UpdateOneID(p.Id)
 
 	// keep in order; copy to Update if it changes
 	t.SetActive(p.Active)
@@ -113,10 +123,17 @@ func (ps *personService) Update(ctx context.Context, p *Person) (*Person, error)
 	t.SetLastName(p.LastName)
 	t.SetOrcid(p.Orcid)
 	t.SetOrcidToken(p.OrcidToken)
-	t.SetOrganizationID(p.OrganizationID)
-	t.SetOtherID(p.OtherID)
+	t.SetOrganizationID(p.OrganizationId)
+	schemaOtherIds := make([]schema.IdRef, 0, len(p.OtherId))
+	for _, refId := range p.OtherId {
+		schemaOtherIds = append(schemaOtherIds, schema.IdRef{
+			ID:   refId.Id,
+			Type: refId.Type,
+		})
+	}
+	t.SetOtherID(schemaOtherIds)
 	t.SetPreferredFirstName(p.PreferredFirstName)
-	t.SetPreferredLastName(p.PreferedLastName)
+	t.SetPreferredLastName(p.PreferredLastName)
 
 	row, err := t.Save(ctx)
 	if err != nil {
@@ -124,7 +141,7 @@ func (ps *personService) Update(ctx context.Context, p *Person) (*Person, error)
 	}
 
 	// collect entgo managed fields (ID and DateCreated are supposed to preexist)
-	p.DateUpdated = &row.DateUpdated
+	p.DateUpdated = timestamppb.New(row.DateUpdated)
 
 	return p, nil
 }
@@ -171,24 +188,33 @@ func (ps *personService) Each(ctx context.Context, cb func(*Person) bool) error 
 }
 
 func personUnwrap(e *ent.Person) *Person {
+	refIds := make([]*v1.IdRef, 0, len(e.OtherID))
+	for _, schemaOtherId := range e.OtherID {
+		refIds = append(refIds, &v1.IdRef{
+			Id:   schemaOtherId.ID,
+			Type: schemaOtherId.Type,
+		})
+	}
 	p := &Person{
-		Active:             e.Active,
-		BirthDate:          e.BirthDate,
-		DateCreated:        &e.DateCreated,
-		DateUpdated:        &e.DateUpdated,
-		Email:              e.Email,
-		OtherID:            e.OtherID,
-		FirstName:          e.FirstName,
-		FullName:           e.FullName,
-		ID:                 e.ID,
-		LastName:           e.LastName,
-		JobCategory:        e.JobCategory,
-		Orcid:              e.Orcid,
-		OrcidToken:         e.OrcidToken,
-		OrganizationID:     e.OrganizationID,
-		PreferedLastName:   e.PreferredLastName,
-		PreferredFirstName: e.PreferredFirstName,
-		Title:              e.Title,
+		Person: v1.Person{
+			Active:             e.Active,
+			BirthDate:          e.BirthDate,
+			DateCreated:        timestamppb.New(e.DateCreated),
+			DateUpdated:        timestamppb.New(e.DateUpdated),
+			Email:              e.Email,
+			OtherId:            refIds,
+			FirstName:          e.FirstName,
+			FullName:           e.FullName,
+			Id:                 e.ID,
+			LastName:           e.LastName,
+			JobCategory:        e.JobCategory,
+			Orcid:              e.Orcid,
+			OrcidToken:         e.OrcidToken,
+			OrganizationId:     e.OrganizationID,
+			PreferredLastName:  e.PreferredLastName,
+			PreferredFirstName: e.PreferredFirstName,
+			Title:              e.Title,
+		},
 	}
 	return p
 }

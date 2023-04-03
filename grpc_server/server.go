@@ -17,7 +17,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type ServerConfig struct {
@@ -114,7 +113,7 @@ func (srv *server) GetPerson(ctx context.Context, req *v1.GetPersonRequest) (*v1
 
 	return &v1.GetPersonResponse{
 		Response: &v1.GetPersonResponse_Person{
-			Person: mapPerson(person),
+			Person: &person.Person,
 		},
 	}, nil
 }
@@ -123,7 +122,7 @@ func (srv *server) GetAllPerson(req *v1.GetAllPersonRequest, stream v1.People_Ge
 
 	return srv.personService.Each(context.Background(), func(p *models.Person) bool {
 		streamErr := stream.Send(&v1.GetAllPersonResponse{
-			Person: mapPerson(p),
+			Person: &p.Person,
 		})
 		if streamErr != nil {
 			srv.logger.Errorf("unable to send message to stream: %w", streamErr)
@@ -132,34 +131,4 @@ func (srv *server) GetAllPerson(req *v1.GetAllPersonRequest, stream v1.People_Ge
 		return true
 	})
 
-}
-
-func mapPerson(p *models.Person) *v1.Person {
-	v := &v1.Person{
-		Id:                 p.ID,
-		Active:             p.Active,
-		DateCreated:        timestamppb.New(*p.DateCreated),
-		DateUpdated:        timestamppb.New(*p.DateUpdated),
-		FullName:           p.FullName,
-		FirstName:          p.FirstName,
-		LastName:           p.LastName,
-		Email:              p.Email,
-		Orcid:              p.Orcid,
-		OrcidToken:         p.OrcidToken,
-		PreferredFirstName: p.PreferredFirstName,
-		PreferredLastName:  p.PreferedLastName,
-		BirthDate:          p.BirthDate,
-		Title:              p.Title,
-	}
-
-	v.OrganizationId = append([]string{}, p.OrganizationID...)
-	v.OtherId = make([]*v1.IdRef, 0, len(p.OtherID))
-	for _, otherId := range p.OtherID {
-		v.OtherId = append(v.OtherId, &v1.IdRef{
-			Id:   otherId.ID,
-			Type: otherId.Type,
-		})
-	}
-
-	return v
 }

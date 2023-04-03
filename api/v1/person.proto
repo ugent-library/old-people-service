@@ -57,6 +57,7 @@ message Person {
   string title = 14;
   repeated IdRef other_id = 15;
   repeated string organization_id = 16;
+  repeated string job_category = 17;
 }
 
 message GetPersonRequest {

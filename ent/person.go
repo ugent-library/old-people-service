@@ -17,11 +17,13 @@ import (
 type Person struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
 	DateCreated time.Time `json:"date_created,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
+	// PrimaryID holds the value of the "primary_id" field.
+	PrimaryID string `json:"primary_id,omitempty"`
 	// Active holds the value of the "active" field.
 	Active bool `json:"active,omitempty"`
 	// BirthDate holds the value of the "birth_date" field.
@@ -30,8 +32,6 @@ type Person struct {
 	Email string `json:"email,omitempty"`
 	// OtherID holds the value of the "other_id" field.
 	OtherID []schema.IdRef `json:"other_id,omitempty"`
-	// OrganizationID holds the value of the "organization_id" field.
-	OrganizationID []string `json:"organization_id,omitempty"`
 	// FirstName holds the value of the "first_name" field.
 	FirstName string `json:"first_name,omitempty"`
 	// FullName holds the value of the "full_name" field.
@@ -50,6 +50,27 @@ type Person struct {
 	PreferredLastName string `json:"preferred_last_name,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the PersonQuery when eager-loading is set.
+	Edges PersonEdges `json:"edges"`
+}
+
+// PersonEdges holds the relations/edges for other nodes in the graph.
+type PersonEdges struct {
+	// Organizations holds the value of the organizations edge.
+	Organizations []*Organization `json:"organizations,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// OrganizationsOrErr returns the Organizations value or an error if the edge
+// was not loaded in eager-loading.
+func (e PersonEdges) OrganizationsOrErr() ([]*Organization, error) {
+	if e.loadedTypes[0] {
+		return e.Organizations, nil
+	}
+	return nil, &NotLoadedError{edge: "organizations"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -57,11 +78,13 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case person.FieldOtherID, person.FieldOrganizationID, person.FieldJobCategory:
+		case person.FieldOtherID, person.FieldJobCategory:
 			values[i] = new([]byte)
 		case person.FieldActive:
 			values[i] = new(sql.NullBool)
-		case person.FieldID, person.FieldBirthDate, person.FieldEmail, person.FieldFirstName, person.FieldFullName, person.FieldLastName, person.FieldOrcid, person.FieldOrcidToken, person.FieldPreferredFirstName, person.FieldPreferredLastName, person.FieldTitle:
+		case person.FieldID:
+			values[i] = new(sql.NullInt64)
+		case person.FieldPrimaryID, person.FieldBirthDate, person.FieldEmail, person.FieldFirstName, person.FieldFullName, person.FieldLastName, person.FieldOrcid, person.FieldOrcidToken, person.FieldPreferredFirstName, person.FieldPreferredLastName, person.FieldTitle:
 			values[i] = new(sql.NullString)
 		case person.FieldDateCreated, person.FieldDateUpdated:
 			values[i] = new(sql.NullTime)
@@ -81,11 +104,11 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case person.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				pe.ID = value.String
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
 			}
+			pe.ID = int(value.Int64)
 		case person.FieldDateCreated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field date_created", values[i])
@@ -97,6 +120,12 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field date_updated", values[i])
 			} else if value.Valid {
 				pe.DateUpdated = value.Time
+			}
+		case person.FieldPrimaryID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field primary_id", values[i])
+			} else if value.Valid {
+				pe.PrimaryID = value.String
 			}
 		case person.FieldActive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -122,14 +151,6 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 			} else if value != nil && len(*value) > 0 {
 				if err := json.Unmarshal(*value, &pe.OtherID); err != nil {
 					return fmt.Errorf("unmarshal field other_id: %w", err)
-				}
-			}
-		case person.FieldOrganizationID:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field organization_id", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &pe.OrganizationID); err != nil {
-					return fmt.Errorf("unmarshal field organization_id: %w", err)
 				}
 			}
 		case person.FieldFirstName:
@@ -193,6 +214,11 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 	return nil
 }
 
+// QueryOrganizations queries the "organizations" edge of the Person entity.
+func (pe *Person) QueryOrganizations() *OrganizationQuery {
+	return NewPersonClient(pe.config).QueryOrganizations(pe)
+}
+
 // Update returns a builder for updating this Person.
 // Note that you need to call Person.Unwrap() before calling this method if this Person
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -222,6 +248,9 @@ func (pe *Person) String() string {
 	builder.WriteString("date_updated=")
 	builder.WriteString(pe.DateUpdated.Format(time.ANSIC))
 	builder.WriteString(", ")
+	builder.WriteString("primary_id=")
+	builder.WriteString(pe.PrimaryID)
+	builder.WriteString(", ")
 	builder.WriteString("active=")
 	builder.WriteString(fmt.Sprintf("%v", pe.Active))
 	builder.WriteString(", ")
@@ -233,9 +262,6 @@ func (pe *Person) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("other_id=")
 	builder.WriteString(fmt.Sprintf("%v", pe.OtherID))
-	builder.WriteString(", ")
-	builder.WriteString("organization_id=")
-	builder.WriteString(fmt.Sprintf("%v", pe.OrganizationID))
 	builder.WriteString(", ")
 	builder.WriteString("first_name=")
 	builder.WriteString(pe.FirstName)

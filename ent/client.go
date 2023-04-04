@@ -13,6 +13,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/ugent-library/people/ent/organization"
 	"github.com/ugent-library/people/ent/person"
 )
 
@@ -21,6 +23,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Organization is the client for interacting with the Organization builders.
+	Organization *OrganizationClient
 	// Person is the client for interacting with the Person builders.
 	Person *PersonClient
 }
@@ -36,6 +40,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Organization = NewOrganizationClient(c.config)
 	c.Person = NewPersonClient(c.config)
 }
 
@@ -117,9 +122,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Person: NewPersonClient(cfg),
+		ctx:          ctx,
+		config:       cfg,
+		Organization: NewOrganizationClient(cfg),
+		Person:       NewPersonClient(cfg),
 	}, nil
 }
 
@@ -137,16 +143,17 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Person: NewPersonClient(cfg),
+		ctx:          ctx,
+		config:       cfg,
+		Organization: NewOrganizationClient(cfg),
+		Person:       NewPersonClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Person.
+//		Organization.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -168,22 +175,160 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Organization.Use(hooks...)
 	c.Person.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.Organization.Intercept(interceptors...)
 	c.Person.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *OrganizationMutation:
+		return c.Organization.mutate(ctx, m)
 	case *PersonMutation:
 		return c.Person.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// OrganizationClient is a client for the Organization schema.
+type OrganizationClient struct {
+	config
+}
+
+// NewOrganizationClient returns a client for the Organization from the given config.
+func NewOrganizationClient(c config) *OrganizationClient {
+	return &OrganizationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `organization.Hooks(f(g(h())))`.
+func (c *OrganizationClient) Use(hooks ...Hook) {
+	c.hooks.Organization = append(c.hooks.Organization, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `organization.Intercept(f(g(h())))`.
+func (c *OrganizationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Organization = append(c.inters.Organization, interceptors...)
+}
+
+// Create returns a builder for creating a Organization entity.
+func (c *OrganizationClient) Create() *OrganizationCreate {
+	mutation := newOrganizationMutation(c.config, OpCreate)
+	return &OrganizationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Organization entities.
+func (c *OrganizationClient) CreateBulk(builders ...*OrganizationCreate) *OrganizationCreateBulk {
+	return &OrganizationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Organization.
+func (c *OrganizationClient) Update() *OrganizationUpdate {
+	mutation := newOrganizationMutation(c.config, OpUpdate)
+	return &OrganizationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *OrganizationClient) UpdateOne(o *Organization) *OrganizationUpdateOne {
+	mutation := newOrganizationMutation(c.config, OpUpdateOne, withOrganization(o))
+	return &OrganizationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *OrganizationClient) UpdateOneID(id int) *OrganizationUpdateOne {
+	mutation := newOrganizationMutation(c.config, OpUpdateOne, withOrganizationID(id))
+	return &OrganizationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Organization.
+func (c *OrganizationClient) Delete() *OrganizationDelete {
+	mutation := newOrganizationMutation(c.config, OpDelete)
+	return &OrganizationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *OrganizationClient) DeleteOne(o *Organization) *OrganizationDeleteOne {
+	return c.DeleteOneID(o.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *OrganizationClient) DeleteOneID(id int) *OrganizationDeleteOne {
+	builder := c.Delete().Where(organization.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &OrganizationDeleteOne{builder}
+}
+
+// Query returns a query builder for Organization.
+func (c *OrganizationClient) Query() *OrganizationQuery {
+	return &OrganizationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeOrganization},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Organization entity by its id.
+func (c *OrganizationClient) Get(ctx context.Context, id int) (*Organization, error) {
+	return c.Query().Where(organization.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *OrganizationClient) GetX(ctx context.Context, id int) *Organization {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryPeople queries the people edge of a Organization.
+func (c *OrganizationClient) QueryPeople(o *Organization) *PersonQuery {
+	query := (&PersonClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := o.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(organization.Table, organization.FieldID, id),
+			sqlgraph.To(person.Table, person.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, organization.PeopleTable, organization.PeoplePrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(o.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *OrganizationClient) Hooks() []Hook {
+	return c.hooks.Organization
+}
+
+// Interceptors returns the client interceptors.
+func (c *OrganizationClient) Interceptors() []Interceptor {
+	return c.inters.Organization
+}
+
+func (c *OrganizationClient) mutate(ctx context.Context, m *OrganizationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&OrganizationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&OrganizationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&OrganizationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&OrganizationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Organization mutation op: %q", m.Op())
 	}
 }
 
@@ -233,7 +378,7 @@ func (c *PersonClient) UpdateOne(pe *Person) *PersonUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *PersonClient) UpdateOneID(id string) *PersonUpdateOne {
+func (c *PersonClient) UpdateOneID(id int) *PersonUpdateOne {
 	mutation := newPersonMutation(c.config, OpUpdateOne, withPersonID(id))
 	return &PersonUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -250,7 +395,7 @@ func (c *PersonClient) DeleteOne(pe *Person) *PersonDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PersonClient) DeleteOneID(id string) *PersonDeleteOne {
+func (c *PersonClient) DeleteOneID(id int) *PersonDeleteOne {
 	builder := c.Delete().Where(person.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -267,17 +412,33 @@ func (c *PersonClient) Query() *PersonQuery {
 }
 
 // Get returns a Person entity by its id.
-func (c *PersonClient) Get(ctx context.Context, id string) (*Person, error) {
+func (c *PersonClient) Get(ctx context.Context, id int) (*Person, error) {
 	return c.Query().Where(person.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *PersonClient) GetX(ctx context.Context, id string) *Person {
+func (c *PersonClient) GetX(ctx context.Context, id int) *Person {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryOrganizations queries the organizations edge of a Person.
+func (c *PersonClient) QueryOrganizations(pe *Person) *OrganizationQuery {
+	query := (&OrganizationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pe.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(person.Table, person.FieldID, id),
+			sqlgraph.To(organization.Table, organization.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, person.OrganizationsTable, person.OrganizationsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(pe.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -308,9 +469,9 @@ func (c *PersonClient) mutate(ctx context.Context, m *PersonMutation) (Value, er
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Person []ent.Hook
+		Organization, Person []ent.Hook
 	}
 	inters struct {
-		Person []ent.Interceptor
+		Organization, Person []ent.Interceptor
 	}
 )

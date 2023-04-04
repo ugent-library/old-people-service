@@ -9,6 +9,18 @@ import (
 	"github.com/ugent-library/people/ent"
 )
 
+// The OrganizationFunc type is an adapter to allow the use of ordinary
+// function as Organization mutator.
+type OrganizationFunc func(context.Context, *ent.OrganizationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OrganizationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OrganizationMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrganizationMutation", m)
+}
+
 // The PersonFunc type is an adapter to allow the use of ordinary
 // function as Person mutator.
 type PersonFunc func(context.Context, *ent.PersonMutation) (ent.Value, error)

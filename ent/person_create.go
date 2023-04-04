@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ugent-library/people/ent/organization"
 	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/schema"
 )
@@ -46,6 +47,12 @@ func (pc *PersonCreate) SetNillableDateUpdated(t *time.Time) *PersonCreate {
 	if t != nil {
 		pc.SetDateUpdated(*t)
 	}
+	return pc
+}
+
+// SetPrimaryID sets the "primary_id" field.
+func (pc *PersonCreate) SetPrimaryID(s string) *PersonCreate {
+	pc.mutation.SetPrimaryID(s)
 	return pc
 }
 
@@ -94,12 +101,6 @@ func (pc *PersonCreate) SetNillableEmail(s *string) *PersonCreate {
 // SetOtherID sets the "other_id" field.
 func (pc *PersonCreate) SetOtherID(sr []schema.IdRef) *PersonCreate {
 	pc.mutation.SetOtherID(sr)
-	return pc
-}
-
-// SetOrganizationID sets the "organization_id" field.
-func (pc *PersonCreate) SetOrganizationID(s []string) *PersonCreate {
-	pc.mutation.SetOrganizationID(s)
 	return pc
 }
 
@@ -221,18 +222,19 @@ func (pc *PersonCreate) SetNillableTitle(s *string) *PersonCreate {
 	return pc
 }
 
-// SetID sets the "id" field.
-func (pc *PersonCreate) SetID(s string) *PersonCreate {
-	pc.mutation.SetID(s)
+// AddOrganizationIDs adds the "organizations" edge to the Organization entity by IDs.
+func (pc *PersonCreate) AddOrganizationIDs(ids ...int) *PersonCreate {
+	pc.mutation.AddOrganizationIDs(ids...)
 	return pc
 }
 
-// SetNillableID sets the "id" field if the given value is not nil.
-func (pc *PersonCreate) SetNillableID(s *string) *PersonCreate {
-	if s != nil {
-		pc.SetID(*s)
+// AddOrganizations adds the "organizations" edges to the Organization entity.
+func (pc *PersonCreate) AddOrganizations(o ...*Organization) *PersonCreate {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
 	}
-	return pc
+	return pc.AddOrganizationIDs(ids...)
 }
 
 // Mutation returns the PersonMutation object of the builder.
@@ -282,10 +284,6 @@ func (pc *PersonCreate) defaults() {
 		v := person.DefaultActive
 		pc.mutation.SetActive(v)
 	}
-	if _, ok := pc.mutation.ID(); !ok {
-		v := person.DefaultID()
-		pc.mutation.SetID(v)
-	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -295,6 +293,9 @@ func (pc *PersonCreate) check() error {
 	}
 	if _, ok := pc.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Person.date_updated"`)}
+	}
+	if _, ok := pc.mutation.PrimaryID(); !ok {
+		return &ValidationError{Name: "primary_id", err: errors.New(`ent: missing required field "Person.primary_id"`)}
 	}
 	if _, ok := pc.mutation.Active(); !ok {
 		return &ValidationError{Name: "active", err: errors.New(`ent: missing required field "Person.active"`)}
@@ -313,13 +314,8 @@ func (pc *PersonCreate) sqlSave(ctx context.Context) (*Person, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected Person.ID type: %T", _spec.ID.Value)
-		}
-	}
+	id := _spec.ID.Value.(int64)
+	_node.ID = int(id)
 	pc.mutation.id = &_node.ID
 	pc.mutation.done = true
 	return _node, nil
@@ -328,12 +324,8 @@ func (pc *PersonCreate) sqlSave(ctx context.Context) (*Person, error) {
 func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Person{config: pc.config}
-		_spec = sqlgraph.NewCreateSpec(person.Table, sqlgraph.NewFieldSpec(person.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(person.Table, sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt))
 	)
-	if id, ok := pc.mutation.ID(); ok {
-		_node.ID = id
-		_spec.ID.Value = id
-	}
 	if value, ok := pc.mutation.DateCreated(); ok {
 		_spec.SetField(person.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
@@ -341,6 +333,10 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.DateUpdated(); ok {
 		_spec.SetField(person.FieldDateUpdated, field.TypeTime, value)
 		_node.DateUpdated = value
+	}
+	if value, ok := pc.mutation.PrimaryID(); ok {
+		_spec.SetField(person.FieldPrimaryID, field.TypeString, value)
+		_node.PrimaryID = value
 	}
 	if value, ok := pc.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)
@@ -357,10 +353,6 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.OtherID(); ok {
 		_spec.SetField(person.FieldOtherID, field.TypeJSON, value)
 		_node.OtherID = value
-	}
-	if value, ok := pc.mutation.OrganizationID(); ok {
-		_spec.SetField(person.FieldOrganizationID, field.TypeJSON, value)
-		_node.OrganizationID = value
 	}
 	if value, ok := pc.mutation.FirstName(); ok {
 		_spec.SetField(person.FieldFirstName, field.TypeString, value)
@@ -397,6 +389,25 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.Title(); ok {
 		_spec.SetField(person.FieldTitle, field.TypeString, value)
 		_node.Title = value
+	}
+	if nodes := pc.mutation.OrganizationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   person.OrganizationsTable,
+			Columns: person.OrganizationsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: organization.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -442,6 +453,10 @@ func (pcb *PersonCreateBulk) Save(ctx context.Context) ([]*Person, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})

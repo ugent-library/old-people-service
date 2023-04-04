@@ -6,51 +6,52 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ugent-library/people/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id string) predicate.Person {
+func ID(id int) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id string) predicate.Person {
+func IDEQ(id int) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id string) predicate.Person {
+func IDNEQ(id int) predicate.Person {
 	return predicate.Person(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...string) predicate.Person {
+func IDIn(ids ...int) predicate.Person {
 	return predicate.Person(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...string) predicate.Person {
+func IDNotIn(ids ...int) predicate.Person {
 	return predicate.Person(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id string) predicate.Person {
+func IDGT(id int) predicate.Person {
 	return predicate.Person(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id string) predicate.Person {
+func IDGTE(id int) predicate.Person {
 	return predicate.Person(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id string) predicate.Person {
+func IDLT(id int) predicate.Person {
 	return predicate.Person(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id string) predicate.Person {
+func IDLTE(id int) predicate.Person {
 	return predicate.Person(sql.FieldLTE(FieldID, id))
 }
 
@@ -62,6 +63,11 @@ func DateCreated(v time.Time) predicate.Person {
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
 func DateUpdated(v time.Time) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldDateUpdated, v))
+}
+
+// PrimaryID applies equality check predicate on the "primary_id" field. It's identical to PrimaryIDEQ.
+func PrimaryID(v string) predicate.Person {
+	return predicate.Person(sql.FieldEQ(FieldPrimaryID, v))
 }
 
 // Active applies equality check predicate on the "active" field. It's identical to ActiveEQ.
@@ -197,6 +203,71 @@ func DateUpdatedLT(v time.Time) predicate.Person {
 // DateUpdatedLTE applies the LTE predicate on the "date_updated" field.
 func DateUpdatedLTE(v time.Time) predicate.Person {
 	return predicate.Person(sql.FieldLTE(FieldDateUpdated, v))
+}
+
+// PrimaryIDEQ applies the EQ predicate on the "primary_id" field.
+func PrimaryIDEQ(v string) predicate.Person {
+	return predicate.Person(sql.FieldEQ(FieldPrimaryID, v))
+}
+
+// PrimaryIDNEQ applies the NEQ predicate on the "primary_id" field.
+func PrimaryIDNEQ(v string) predicate.Person {
+	return predicate.Person(sql.FieldNEQ(FieldPrimaryID, v))
+}
+
+// PrimaryIDIn applies the In predicate on the "primary_id" field.
+func PrimaryIDIn(vs ...string) predicate.Person {
+	return predicate.Person(sql.FieldIn(FieldPrimaryID, vs...))
+}
+
+// PrimaryIDNotIn applies the NotIn predicate on the "primary_id" field.
+func PrimaryIDNotIn(vs ...string) predicate.Person {
+	return predicate.Person(sql.FieldNotIn(FieldPrimaryID, vs...))
+}
+
+// PrimaryIDGT applies the GT predicate on the "primary_id" field.
+func PrimaryIDGT(v string) predicate.Person {
+	return predicate.Person(sql.FieldGT(FieldPrimaryID, v))
+}
+
+// PrimaryIDGTE applies the GTE predicate on the "primary_id" field.
+func PrimaryIDGTE(v string) predicate.Person {
+	return predicate.Person(sql.FieldGTE(FieldPrimaryID, v))
+}
+
+// PrimaryIDLT applies the LT predicate on the "primary_id" field.
+func PrimaryIDLT(v string) predicate.Person {
+	return predicate.Person(sql.FieldLT(FieldPrimaryID, v))
+}
+
+// PrimaryIDLTE applies the LTE predicate on the "primary_id" field.
+func PrimaryIDLTE(v string) predicate.Person {
+	return predicate.Person(sql.FieldLTE(FieldPrimaryID, v))
+}
+
+// PrimaryIDContains applies the Contains predicate on the "primary_id" field.
+func PrimaryIDContains(v string) predicate.Person {
+	return predicate.Person(sql.FieldContains(FieldPrimaryID, v))
+}
+
+// PrimaryIDHasPrefix applies the HasPrefix predicate on the "primary_id" field.
+func PrimaryIDHasPrefix(v string) predicate.Person {
+	return predicate.Person(sql.FieldHasPrefix(FieldPrimaryID, v))
+}
+
+// PrimaryIDHasSuffix applies the HasSuffix predicate on the "primary_id" field.
+func PrimaryIDHasSuffix(v string) predicate.Person {
+	return predicate.Person(sql.FieldHasSuffix(FieldPrimaryID, v))
+}
+
+// PrimaryIDEqualFold applies the EqualFold predicate on the "primary_id" field.
+func PrimaryIDEqualFold(v string) predicate.Person {
+	return predicate.Person(sql.FieldEqualFold(FieldPrimaryID, v))
+}
+
+// PrimaryIDContainsFold applies the ContainsFold predicate on the "primary_id" field.
+func PrimaryIDContainsFold(v string) predicate.Person {
+	return predicate.Person(sql.FieldContainsFold(FieldPrimaryID, v))
 }
 
 // ActiveEQ applies the EQ predicate on the "active" field.
@@ -367,16 +438,6 @@ func OtherIDIsNil() predicate.Person {
 // OtherIDNotNil applies the NotNil predicate on the "other_id" field.
 func OtherIDNotNil() predicate.Person {
 	return predicate.Person(sql.FieldNotNull(FieldOtherID))
-}
-
-// OrganizationIDIsNil applies the IsNil predicate on the "organization_id" field.
-func OrganizationIDIsNil() predicate.Person {
-	return predicate.Person(sql.FieldIsNull(FieldOrganizationID))
-}
-
-// OrganizationIDNotNil applies the NotNil predicate on the "organization_id" field.
-func OrganizationIDNotNil() predicate.Person {
-	return predicate.Person(sql.FieldNotNull(FieldOrganizationID))
 }
 
 // FirstNameEQ applies the EQ predicate on the "first_name" field.
@@ -987,6 +1048,33 @@ func TitleEqualFold(v string) predicate.Person {
 // TitleContainsFold applies the ContainsFold predicate on the "title" field.
 func TitleContainsFold(v string) predicate.Person {
 	return predicate.Person(sql.FieldContainsFold(FieldTitle, v))
+}
+
+// HasOrganizations applies the HasEdge predicate on the "organizations" edge.
+func HasOrganizations() predicate.Person {
+	return predicate.Person(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, OrganizationsTable, OrganizationsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasOrganizationsWith applies the HasEdge predicate on the "organizations" edge with a given conditions (other predicates).
+func HasOrganizationsWith(preds ...predicate.Organization) predicate.Person {
+	return predicate.Person(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(OrganizationsInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, OrganizationsTable, OrganizationsPrimaryKey...),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

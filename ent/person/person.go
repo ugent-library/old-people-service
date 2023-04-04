@@ -15,6 +15,8 @@ const (
 	FieldDateCreated = "date_created"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
+	// FieldPrimaryID holds the string denoting the primary_id field in the database.
+	FieldPrimaryID = "primary_id"
 	// FieldActive holds the string denoting the active field in the database.
 	FieldActive = "active"
 	// FieldBirthDate holds the string denoting the birth_date field in the database.
@@ -23,8 +25,6 @@ const (
 	FieldEmail = "email"
 	// FieldOtherID holds the string denoting the other_id field in the database.
 	FieldOtherID = "other_id"
-	// FieldOrganizationID holds the string denoting the organization_id field in the database.
-	FieldOrganizationID = "organization_id"
 	// FieldFirstName holds the string denoting the first_name field in the database.
 	FieldFirstName = "first_name"
 	// FieldFullName holds the string denoting the full_name field in the database.
@@ -43,8 +43,15 @@ const (
 	FieldPreferredLastName = "preferred_last_name"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
+	// EdgeOrganizations holds the string denoting the organizations edge name in mutations.
+	EdgeOrganizations = "organizations"
 	// Table holds the table name of the person in the database.
 	Table = "person"
+	// OrganizationsTable is the table that holds the organizations relation/edge. The primary key declared below.
+	OrganizationsTable = "organization_person"
+	// OrganizationsInverseTable is the table name for the Organization entity.
+	// It exists in this package in order to avoid circular dependency with the "organization" package.
+	OrganizationsInverseTable = "organization"
 )
 
 // Columns holds all SQL columns for person fields.
@@ -52,11 +59,11 @@ var Columns = []string{
 	FieldID,
 	FieldDateCreated,
 	FieldDateUpdated,
+	FieldPrimaryID,
 	FieldActive,
 	FieldBirthDate,
 	FieldEmail,
 	FieldOtherID,
-	FieldOrganizationID,
 	FieldFirstName,
 	FieldFullName,
 	FieldLastName,
@@ -67,6 +74,12 @@ var Columns = []string{
 	FieldPreferredLastName,
 	FieldTitle,
 }
+
+var (
+	// OrganizationsPrimaryKey and OrganizationsColumn2 are the table columns denoting the
+	// primary key for the organizations relation (M2M).
+	OrganizationsPrimaryKey = []string{"organization_id", "person_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -87,6 +100,4 @@ var (
 	UpdateDefaultDateUpdated func() time.Time
 	// DefaultActive holds the default value on creation for the "active" field.
 	DefaultActive bool
-	// DefaultID holds the default value on creation for the "id" field.
-	DefaultID func() string
 )

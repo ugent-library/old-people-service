@@ -9,16 +9,28 @@ import (
 )
 
 var (
+	// OrganizationColumns holds the columns for the "organization" table.
+	OrganizationColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "primary_id", Type: field.TypeString},
+		{Name: "name", Type: field.TypeString},
+	}
+	// OrganizationTable holds the schema information for the "organization" table.
+	OrganizationTable = &schema.Table{
+		Name:       "organization",
+		Columns:    OrganizationColumns,
+		PrimaryKey: []*schema.Column{OrganizationColumns[0]},
+	}
 	// PersonColumns holds the columns for the "person" table.
 	PersonColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
+		{Name: "primary_id", Type: field.TypeString, Unique: true},
 		{Name: "active", Type: field.TypeBool, Default: false},
 		{Name: "birth_date", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString, Nullable: true},
 		{Name: "other_id", Type: field.TypeJSON, Nullable: true},
-		{Name: "organization_id", Type: field.TypeJSON, Nullable: true},
 		{Name: "first_name", Type: field.TypeString, Nullable: true},
 		{Name: "full_name", Type: field.TypeString, Nullable: true},
 		{Name: "last_name", Type: field.TypeString, Nullable: true},
@@ -36,9 +48,14 @@ var (
 		PrimaryKey: []*schema.Column{PersonColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "person_active",
+				Name:    "person_primary_id",
 				Unique:  false,
 				Columns: []*schema.Column{PersonColumns[3]},
+			},
+			{
+				Name:    "person_active",
+				Unique:  false,
+				Columns: []*schema.Column{PersonColumns[4]},
 			},
 			{
 				Name:    "person_orcid",
@@ -48,7 +65,7 @@ var (
 			{
 				Name:    "person_email",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[5]},
+				Columns: []*schema.Column{PersonColumns[6]},
 			},
 			{
 				Name:    "person_first_name",
@@ -67,14 +84,46 @@ var (
 			},
 		},
 	}
+	// OrganizationPersonColumns holds the columns for the "organization_person" table.
+	OrganizationPersonColumns = []*schema.Column{
+		{Name: "organization_id", Type: field.TypeInt},
+		{Name: "person_id", Type: field.TypeInt},
+	}
+	// OrganizationPersonTable holds the schema information for the "organization_person" table.
+	OrganizationPersonTable = &schema.Table{
+		Name:       "organization_person",
+		Columns:    OrganizationPersonColumns,
+		PrimaryKey: []*schema.Column{OrganizationPersonColumns[0], OrganizationPersonColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "organization_person_organization_id",
+				Columns:    []*schema.Column{OrganizationPersonColumns[0]},
+				RefColumns: []*schema.Column{OrganizationColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "organization_person_person_id",
+				Columns:    []*schema.Column{OrganizationPersonColumns[1]},
+				RefColumns: []*schema.Column{PersonColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		OrganizationTable,
 		PersonTable,
+		OrganizationPersonTable,
 	}
 )
 
 func init() {
+	OrganizationTable.Annotation = &entsql.Annotation{
+		Table: "organization",
+	}
 	PersonTable.Annotation = &entsql.Annotation{
 		Table: "person",
 	}
+	OrganizationPersonTable.ForeignKeys[0].RefTable = OrganizationTable
+	OrganizationPersonTable.ForeignKeys[1].RefTable = PersonTable
 }

@@ -11,6 +11,7 @@ import (
 	v1 "github.com/ugent-library/people/api/v1"
 	"github.com/ugent-library/people/ent"
 	entmigrate "github.com/ugent-library/people/ent/migrate"
+	"github.com/ugent-library/people/ent/organization"
 	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/schema"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -25,7 +26,6 @@ type PersonConfig struct {
 type PersonService interface {
 	Create(context.Context, *Person) (*Person, error)
 	Update(context.Context, *Person) (*Person, error)
-	Upsert(context.Context, *Person) (*Person, error)
 	Get(context.Context, string) (*Person, error)
 	Delete(context.Context, string) error
 	Each(context.Context, func(*Person) bool) error
@@ -56,18 +56,6 @@ func NewPersonService(cfg *PersonConfig) (PersonService, error) {
 	}, nil
 }
 
-func (ps *personService) Upsert(ctx context.Context, p *Person) (*Person, error) {
-	_, err := ps.db.Person.Query().Where(person.IDEQ(p.Id)).First(ctx)
-	if err != nil {
-		var e *ent.NotFoundError
-		if errors.As(err, &e) {
-			return ps.Create(ctx, p)
-		}
-		return nil, err
-	}
-	return ps.Update(ctx, p)
-}
-
 func (ps *personService) Create(ctx context.Context, p *Person) (*Person, error) {
 	// date fields filled by schema
 	t := ps.db.Person.Create()
@@ -79,11 +67,10 @@ func (ps *personService) Create(ctx context.Context, p *Person) (*Person, error)
 	t.SetEmail(p.Email)
 	t.SetFirstName(p.FirstName)
 	t.SetFullName(p.FullName)
-	t.SetID(p.Id) // TODO: nil value overriden by entgo default function?
+	t.SetPrimaryID(p.Id) // TODO: nil value overriden by entgo default function?
 	t.SetTitle(p.Title)
 	t.SetLastName(p.LastName)
 	t.SetOrcid(p.Orcid)
-	t.SetOrganizationID(p.OrganizationId)
 	t.SetOrcidToken(p.OrcidToken)
 	schemaOtherIds := make([]schema.IdRef, 0, len(p.OtherId))
 	for _, refId := range p.OtherId {
@@ -96,6 +83,16 @@ func (ps *personService) Create(ctx context.Context, p *Person) (*Person, error)
 	t.SetPreferredFirstName(p.PreferredFirstName)
 	t.SetPreferredLastName(p.PreferredLastName)
 
+	// TODO: test
+	if p.OrganizationId != nil && len(p.OrganizationId) > 0 {
+		// TODO: crashes with segmentation violation error when org does not exist
+		orgs, err := ps.db.Organization.Query().Where(organization.PrimaryIDIn(p.OrganizationId...)).All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		t.AddOrganizations(orgs...)
+	}
+
 	row, err := t.Save(ctx)
 	if err != nil {
 		return nil, err
@@ -104,13 +101,13 @@ func (ps *personService) Create(ctx context.Context, p *Person) (*Person, error)
 	// collect entgo managed fields
 	p.DateCreated = timestamppb.New(row.DateCreated)
 	p.DateUpdated = timestamppb.New(row.DateUpdated)
-	p.Id = row.ID
+	p.Id = row.PrimaryID
 
 	return p, nil
 }
 
 func (ps *personService) Update(ctx context.Context, p *Person) (*Person, error) {
-	t := ps.db.Person.UpdateOneID(p.Id)
+	t := ps.db.Person.Update().Where(person.PrimaryIDEQ(p.Id))
 
 	// keep in order; copy to Update if it changes
 	t.SetActive(p.Active)
@@ -123,7 +120,6 @@ func (ps *personService) Update(ctx context.Context, p *Person) (*Person, error)
 	t.SetLastName(p.LastName)
 	t.SetOrcid(p.Orcid)
 	t.SetOrcidToken(p.OrcidToken)
-	t.SetOrganizationID(p.OrganizationId)
 	schemaOtherIds := make([]schema.IdRef, 0, len(p.OtherId))
 	for _, refId := range p.OtherId {
 		schemaOtherIds = append(schemaOtherIds, schema.IdRef{
@@ -135,19 +131,26 @@ func (ps *personService) Update(ctx context.Context, p *Person) (*Person, error)
 	t.SetPreferredFirstName(p.PreferredFirstName)
 	t.SetPreferredLastName(p.PreferredLastName)
 
-	row, err := t.Save(ctx)
+	t.ClearOrganizations()
+	if p.OrganizationId != nil && len(p.OrganizationId) > 0 {
+		// TODO: crashes with segmentation violation error when org does not exist
+		orgs, err := ps.db.Organization.Query().Where(organization.PrimaryIDIn(p.OrganizationId...)).All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		t.AddOrganizations(orgs...)
+	}
+
+	_, err := t.Save(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	// collect entgo managed fields (ID and DateCreated are supposed to preexist)
-	p.DateUpdated = timestamppb.New(row.DateUpdated)
-
-	return p, nil
+	return ps.Get(ctx, p.Id)
 }
 
 func (ps *personService) Get(ctx context.Context, id string) (*Person, error) {
-	row, err := ps.db.Person.Query().Where(person.IDEQ(id)).First(ctx)
+	row, err := ps.db.Person.Query().WithOrganizations().Where(person.PrimaryIDEQ(id)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -159,7 +162,8 @@ func (ps *personService) Get(ctx context.Context, id string) (*Person, error) {
 }
 
 func (ps *personService) Delete(ctx context.Context, id string) error {
-	return ps.db.Person.DeleteOneID(id).Exec(ctx)
+	_, err := ps.db.Person.Delete().Where(person.PrimaryIDEQ(id)).Exec(ctx)
+	return err
 }
 
 func (ps *personService) Each(ctx context.Context, cb func(*Person) bool) error {
@@ -168,7 +172,7 @@ func (ps *personService) Each(ctx context.Context, cb func(*Person) bool) error 
 	var offset int = 0
 	var limit int = 500
 	for {
-		rows, err := ps.db.Person.Query().Offset(offset).Limit(limit).Order(ent.Asc(person.FieldDateCreated)).All(ctx)
+		rows, err := ps.db.Person.Query().WithOrganizations().Offset(offset).Limit(limit).Order(ent.Asc(person.FieldDateCreated)).All(ctx)
 		if err != nil {
 			return err
 		}
@@ -195,6 +199,10 @@ func personUnwrap(e *ent.Person) *Person {
 			Type: schemaOtherId.Type,
 		})
 	}
+	orgIds := make([]string, 0)
+	for _, org := range e.Edges.Organizations {
+		orgIds = append(orgIds, org.PrimaryID)
+	}
 	p := &Person{
 		Person: v1.Person{
 			Active:             e.Active,
@@ -205,12 +213,12 @@ func personUnwrap(e *ent.Person) *Person {
 			OtherId:            refIds,
 			FirstName:          e.FirstName,
 			FullName:           e.FullName,
-			Id:                 e.ID,
+			Id:                 e.PrimaryID,
 			LastName:           e.LastName,
 			JobCategory:        e.JobCategory,
 			Orcid:              e.Orcid,
 			OrcidToken:         e.OrcidToken,
-			OrganizationId:     e.OrganizationID,
+			OrganizationId:     orgIds,
 			PreferredLastName:  e.PreferredLastName,
 			PreferredFirstName: e.PreferredFirstName,
 			Title:              e.Title,

@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 )
@@ -37,11 +38,11 @@ func (Person) Annotations() []schema.Annotation {
 // Fields of the Person.
 func (Person) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("primary_id").Immutable().Unique(),
 		field.Bool("active").Default(false),
 		field.String("birth_date").Optional(),
 		field.String("email").Optional(),
 		field.JSON("other_id", []IdRef{}).Optional(),
-		field.Strings("organization_id").Optional(),
 		field.String("first_name").Optional(),
 		field.String("full_name").Optional(),
 		field.String("last_name").Optional(),
@@ -56,18 +57,20 @@ func (Person) Fields() []ent.Field {
 
 func (Person) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		UUIDMixin{},
 		TimeMixin{},
 	}
 }
 
 // Edges of the Person.
 func (Person) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("organizations", Organization.Type).Ref("people"),
+	}
 }
 
 func (Person) Indexes() []ent.Index {
 	return []ent.Index{
+		index.Fields("primary_id"),
 		index.Fields("active"),
 		index.Fields("orcid"),
 		index.Fields("email"),

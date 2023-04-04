@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
+	"github.com/ugent-library/people/ent/organization"
 	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/predicate"
 	"github.com/ugent-library/people/ent/schema"
@@ -105,24 +106,6 @@ func (pu *PersonUpdate) AppendOtherID(sr []schema.IdRef) *PersonUpdate {
 // ClearOtherID clears the value of the "other_id" field.
 func (pu *PersonUpdate) ClearOtherID() *PersonUpdate {
 	pu.mutation.ClearOtherID()
-	return pu
-}
-
-// SetOrganizationID sets the "organization_id" field.
-func (pu *PersonUpdate) SetOrganizationID(s []string) *PersonUpdate {
-	pu.mutation.SetOrganizationID(s)
-	return pu
-}
-
-// AppendOrganizationID appends s to the "organization_id" field.
-func (pu *PersonUpdate) AppendOrganizationID(s []string) *PersonUpdate {
-	pu.mutation.AppendOrganizationID(s)
-	return pu
-}
-
-// ClearOrganizationID clears the value of the "organization_id" field.
-func (pu *PersonUpdate) ClearOrganizationID() *PersonUpdate {
-	pu.mutation.ClearOrganizationID()
 	return pu
 }
 
@@ -304,9 +287,45 @@ func (pu *PersonUpdate) ClearTitle() *PersonUpdate {
 	return pu
 }
 
+// AddOrganizationIDs adds the "organizations" edge to the Organization entity by IDs.
+func (pu *PersonUpdate) AddOrganizationIDs(ids ...int) *PersonUpdate {
+	pu.mutation.AddOrganizationIDs(ids...)
+	return pu
+}
+
+// AddOrganizations adds the "organizations" edges to the Organization entity.
+func (pu *PersonUpdate) AddOrganizations(o ...*Organization) *PersonUpdate {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return pu.AddOrganizationIDs(ids...)
+}
+
 // Mutation returns the PersonMutation object of the builder.
 func (pu *PersonUpdate) Mutation() *PersonMutation {
 	return pu.mutation
+}
+
+// ClearOrganizations clears all "organizations" edges to the Organization entity.
+func (pu *PersonUpdate) ClearOrganizations() *PersonUpdate {
+	pu.mutation.ClearOrganizations()
+	return pu
+}
+
+// RemoveOrganizationIDs removes the "organizations" edge to Organization entities by IDs.
+func (pu *PersonUpdate) RemoveOrganizationIDs(ids ...int) *PersonUpdate {
+	pu.mutation.RemoveOrganizationIDs(ids...)
+	return pu
+}
+
+// RemoveOrganizations removes "organizations" edges to Organization entities.
+func (pu *PersonUpdate) RemoveOrganizations(o ...*Organization) *PersonUpdate {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return pu.RemoveOrganizationIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -346,7 +365,7 @@ func (pu *PersonUpdate) defaults() {
 }
 
 func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(person.Table, person.Columns, sqlgraph.NewFieldSpec(person.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(person.Table, person.Columns, sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt))
 	if ps := pu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -382,17 +401,6 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.OtherIDCleared() {
 		_spec.ClearField(person.FieldOtherID, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.OrganizationID(); ok {
-		_spec.SetField(person.FieldOrganizationID, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedOrganizationID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldOrganizationID, value)
-		})
-	}
-	if pu.mutation.OrganizationIDCleared() {
-		_spec.ClearField(person.FieldOrganizationID, field.TypeJSON)
 	}
 	if value, ok := pu.mutation.FirstName(); ok {
 		_spec.SetField(person.FieldFirstName, field.TypeString, value)
@@ -452,6 +460,60 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.TitleCleared() {
 		_spec.ClearField(person.FieldTitle, field.TypeString)
+	}
+	if pu.mutation.OrganizationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   person.OrganizationsTable,
+			Columns: person.OrganizationsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: organization.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.RemovedOrganizationsIDs(); len(nodes) > 0 && !pu.mutation.OrganizationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   person.OrganizationsTable,
+			Columns: person.OrganizationsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: organization.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.OrganizationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   person.OrganizationsTable,
+			Columns: person.OrganizationsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: organization.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -548,24 +610,6 @@ func (puo *PersonUpdateOne) AppendOtherID(sr []schema.IdRef) *PersonUpdateOne {
 // ClearOtherID clears the value of the "other_id" field.
 func (puo *PersonUpdateOne) ClearOtherID() *PersonUpdateOne {
 	puo.mutation.ClearOtherID()
-	return puo
-}
-
-// SetOrganizationID sets the "organization_id" field.
-func (puo *PersonUpdateOne) SetOrganizationID(s []string) *PersonUpdateOne {
-	puo.mutation.SetOrganizationID(s)
-	return puo
-}
-
-// AppendOrganizationID appends s to the "organization_id" field.
-func (puo *PersonUpdateOne) AppendOrganizationID(s []string) *PersonUpdateOne {
-	puo.mutation.AppendOrganizationID(s)
-	return puo
-}
-
-// ClearOrganizationID clears the value of the "organization_id" field.
-func (puo *PersonUpdateOne) ClearOrganizationID() *PersonUpdateOne {
-	puo.mutation.ClearOrganizationID()
 	return puo
 }
 
@@ -747,9 +791,45 @@ func (puo *PersonUpdateOne) ClearTitle() *PersonUpdateOne {
 	return puo
 }
 
+// AddOrganizationIDs adds the "organizations" edge to the Organization entity by IDs.
+func (puo *PersonUpdateOne) AddOrganizationIDs(ids ...int) *PersonUpdateOne {
+	puo.mutation.AddOrganizationIDs(ids...)
+	return puo
+}
+
+// AddOrganizations adds the "organizations" edges to the Organization entity.
+func (puo *PersonUpdateOne) AddOrganizations(o ...*Organization) *PersonUpdateOne {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return puo.AddOrganizationIDs(ids...)
+}
+
 // Mutation returns the PersonMutation object of the builder.
 func (puo *PersonUpdateOne) Mutation() *PersonMutation {
 	return puo.mutation
+}
+
+// ClearOrganizations clears all "organizations" edges to the Organization entity.
+func (puo *PersonUpdateOne) ClearOrganizations() *PersonUpdateOne {
+	puo.mutation.ClearOrganizations()
+	return puo
+}
+
+// RemoveOrganizationIDs removes the "organizations" edge to Organization entities by IDs.
+func (puo *PersonUpdateOne) RemoveOrganizationIDs(ids ...int) *PersonUpdateOne {
+	puo.mutation.RemoveOrganizationIDs(ids...)
+	return puo
+}
+
+// RemoveOrganizations removes "organizations" edges to Organization entities.
+func (puo *PersonUpdateOne) RemoveOrganizations(o ...*Organization) *PersonUpdateOne {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return puo.RemoveOrganizationIDs(ids...)
 }
 
 // Where appends a list predicates to the PersonUpdate builder.
@@ -802,7 +882,7 @@ func (puo *PersonUpdateOne) defaults() {
 }
 
 func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err error) {
-	_spec := sqlgraph.NewUpdateSpec(person.Table, person.Columns, sqlgraph.NewFieldSpec(person.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(person.Table, person.Columns, sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt))
 	id, ok := puo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Person.id" for update`)}
@@ -855,17 +935,6 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	}
 	if puo.mutation.OtherIDCleared() {
 		_spec.ClearField(person.FieldOtherID, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.OrganizationID(); ok {
-		_spec.SetField(person.FieldOrganizationID, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedOrganizationID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldOrganizationID, value)
-		})
-	}
-	if puo.mutation.OrganizationIDCleared() {
-		_spec.ClearField(person.FieldOrganizationID, field.TypeJSON)
 	}
 	if value, ok := puo.mutation.FirstName(); ok {
 		_spec.SetField(person.FieldFirstName, field.TypeString, value)
@@ -925,6 +994,60 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	}
 	if puo.mutation.TitleCleared() {
 		_spec.ClearField(person.FieldTitle, field.TypeString)
+	}
+	if puo.mutation.OrganizationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   person.OrganizationsTable,
+			Columns: person.OrganizationsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: organization.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.RemovedOrganizationsIDs(); len(nodes) > 0 && !puo.mutation.OrganizationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   person.OrganizationsTable,
+			Columns: person.OrganizationsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: organization.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.OrganizationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   person.OrganizationsTable,
+			Columns: person.OrganizationsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: organization.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Person{config: puo.config}
 	_spec.Assign = _node.assignValues

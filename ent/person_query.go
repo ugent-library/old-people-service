@@ -4,12 +4,14 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ugent-library/people/ent/organization"
 	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/predicate"
 )
@@ -17,10 +19,11 @@ import (
 // PersonQuery is the builder for querying Person entities.
 type PersonQuery struct {
 	config
-	ctx        *QueryContext
-	order      []OrderFunc
-	inters     []Interceptor
-	predicates []predicate.Person
+	ctx               *QueryContext
+	order             []OrderFunc
+	inters            []Interceptor
+	predicates        []predicate.Person
+	withOrganizations *OrganizationQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,6 +60,28 @@ func (pq *PersonQuery) Order(o ...OrderFunc) *PersonQuery {
 	return pq
 }
 
+// QueryOrganizations chains the current query on the "organizations" edge.
+func (pq *PersonQuery) QueryOrganizations() *OrganizationQuery {
+	query := (&OrganizationClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(person.Table, person.FieldID, selector),
+			sqlgraph.To(organization.Table, organization.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, person.OrganizationsTable, person.OrganizationsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Person entity from the query.
 // Returns a *NotFoundError when no Person was found.
 func (pq *PersonQuery) First(ctx context.Context) (*Person, error) {
@@ -81,8 +106,8 @@ func (pq *PersonQuery) FirstX(ctx context.Context) *Person {
 
 // FirstID returns the first Person ID from the query.
 // Returns a *NotFoundError when no Person ID was found.
-func (pq *PersonQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (pq *PersonQuery) FirstID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = pq.Limit(1).IDs(setContextOp(ctx, pq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -94,7 +119,7 @@ func (pq *PersonQuery) FirstID(ctx context.Context) (id string, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (pq *PersonQuery) FirstIDX(ctx context.Context) string {
+func (pq *PersonQuery) FirstIDX(ctx context.Context) int {
 	id, err := pq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -132,8 +157,8 @@ func (pq *PersonQuery) OnlyX(ctx context.Context) *Person {
 // OnlyID is like Only, but returns the only Person ID in the query.
 // Returns a *NotSingularError when more than one Person ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (pq *PersonQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (pq *PersonQuery) OnlyID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = pq.Limit(2).IDs(setContextOp(ctx, pq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -149,7 +174,7 @@ func (pq *PersonQuery) OnlyID(ctx context.Context) (id string, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (pq *PersonQuery) OnlyIDX(ctx context.Context) string {
+func (pq *PersonQuery) OnlyIDX(ctx context.Context) int {
 	id, err := pq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -177,7 +202,7 @@ func (pq *PersonQuery) AllX(ctx context.Context) []*Person {
 }
 
 // IDs executes the query and returns a list of Person IDs.
-func (pq *PersonQuery) IDs(ctx context.Context) (ids []string, err error) {
+func (pq *PersonQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if pq.ctx.Unique == nil && pq.path != nil {
 		pq.Unique(true)
 	}
@@ -189,7 +214,7 @@ func (pq *PersonQuery) IDs(ctx context.Context) (ids []string, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (pq *PersonQuery) IDsX(ctx context.Context) []string {
+func (pq *PersonQuery) IDsX(ctx context.Context) []int {
 	ids, err := pq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -244,15 +269,27 @@ func (pq *PersonQuery) Clone() *PersonQuery {
 		return nil
 	}
 	return &PersonQuery{
-		config:     pq.config,
-		ctx:        pq.ctx.Clone(),
-		order:      append([]OrderFunc{}, pq.order...),
-		inters:     append([]Interceptor{}, pq.inters...),
-		predicates: append([]predicate.Person{}, pq.predicates...),
+		config:            pq.config,
+		ctx:               pq.ctx.Clone(),
+		order:             append([]OrderFunc{}, pq.order...),
+		inters:            append([]Interceptor{}, pq.inters...),
+		predicates:        append([]predicate.Person{}, pq.predicates...),
+		withOrganizations: pq.withOrganizations.Clone(),
 		// clone intermediate query.
 		sql:  pq.sql.Clone(),
 		path: pq.path,
 	}
+}
+
+// WithOrganizations tells the query-builder to eager-load the nodes that are connected to
+// the "organizations" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *PersonQuery) WithOrganizations(opts ...func(*OrganizationQuery)) *PersonQuery {
+	query := (&OrganizationClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withOrganizations = query
+	return pq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -331,8 +368,11 @@ func (pq *PersonQuery) prepareQuery(ctx context.Context) error {
 
 func (pq *PersonQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Person, error) {
 	var (
-		nodes = []*Person{}
-		_spec = pq.querySpec()
+		nodes       = []*Person{}
+		_spec       = pq.querySpec()
+		loadedTypes = [1]bool{
+			pq.withOrganizations != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Person).scanValues(nil, columns)
@@ -340,6 +380,7 @@ func (pq *PersonQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Perso
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Person{config: pq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -351,7 +392,76 @@ func (pq *PersonQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Perso
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := pq.withOrganizations; query != nil {
+		if err := pq.loadOrganizations(ctx, query, nodes,
+			func(n *Person) { n.Edges.Organizations = []*Organization{} },
+			func(n *Person, e *Organization) { n.Edges.Organizations = append(n.Edges.Organizations, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (pq *PersonQuery) loadOrganizations(ctx context.Context, query *OrganizationQuery, nodes []*Person, init func(*Person), assign func(*Person, *Organization)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[int]*Person)
+	nids := make(map[int]map[*Person]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(person.OrganizationsTable)
+		s.Join(joinT).On(s.C(organization.FieldID), joinT.C(person.OrganizationsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(person.OrganizationsPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(person.OrganizationsPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullInt64)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := int(values[0].(*sql.NullInt64).Int64)
+				inValue := int(values[1].(*sql.NullInt64).Int64)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*Person]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Organization](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "organizations" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
 }
 
 func (pq *PersonQuery) sqlCount(ctx context.Context) (int, error) {
@@ -364,7 +474,7 @@ func (pq *PersonQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (pq *PersonQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(person.Table, person.Columns, sqlgraph.NewFieldSpec(person.FieldID, field.TypeString))
+	_spec := sqlgraph.NewQuerySpec(person.Table, person.Columns, sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt))
 	_spec.From = pq.sql
 	if unique := pq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

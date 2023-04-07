@@ -36,7 +36,7 @@ type OrganizationMutation struct {
 	op            Op
 	typ           string
 	id            *int
-	primary_id    *string
+	public_id     *string
 	name          *string
 	clearedFields map[string]struct{}
 	people        map[int]struct{}
@@ -145,40 +145,40 @@ func (m *OrganizationMutation) IDs(ctx context.Context) ([]int, error) {
 	}
 }
 
-// SetPrimaryID sets the "primary_id" field.
-func (m *OrganizationMutation) SetPrimaryID(s string) {
-	m.primary_id = &s
+// SetPublicID sets the "public_id" field.
+func (m *OrganizationMutation) SetPublicID(s string) {
+	m.public_id = &s
 }
 
-// PrimaryID returns the value of the "primary_id" field in the mutation.
-func (m *OrganizationMutation) PrimaryID() (r string, exists bool) {
-	v := m.primary_id
+// PublicID returns the value of the "public_id" field in the mutation.
+func (m *OrganizationMutation) PublicID() (r string, exists bool) {
+	v := m.public_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldPrimaryID returns the old "primary_id" field's value of the Organization entity.
+// OldPublicID returns the old "public_id" field's value of the Organization entity.
 // If the Organization object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrganizationMutation) OldPrimaryID(ctx context.Context) (v string, err error) {
+func (m *OrganizationMutation) OldPublicID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPrimaryID is only allowed on UpdateOne operations")
+		return v, errors.New("OldPublicID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPrimaryID requires an ID field in the mutation")
+		return v, errors.New("OldPublicID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPrimaryID: %w", err)
+		return v, fmt.Errorf("querying old value for OldPublicID: %w", err)
 	}
-	return oldValue.PrimaryID, nil
+	return oldValue.PublicID, nil
 }
 
-// ResetPrimaryID resets all changes to the "primary_id" field.
-func (m *OrganizationMutation) ResetPrimaryID() {
-	m.primary_id = nil
+// ResetPublicID resets all changes to the "public_id" field.
+func (m *OrganizationMutation) ResetPublicID() {
+	m.public_id = nil
 }
 
 // SetName sets the "name" field.
@@ -306,8 +306,8 @@ func (m *OrganizationMutation) Type() string {
 // AddedFields().
 func (m *OrganizationMutation) Fields() []string {
 	fields := make([]string, 0, 2)
-	if m.primary_id != nil {
-		fields = append(fields, organization.FieldPrimaryID)
+	if m.public_id != nil {
+		fields = append(fields, organization.FieldPublicID)
 	}
 	if m.name != nil {
 		fields = append(fields, organization.FieldName)
@@ -320,8 +320,8 @@ func (m *OrganizationMutation) Fields() []string {
 // schema.
 func (m *OrganizationMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case organization.FieldPrimaryID:
-		return m.PrimaryID()
+	case organization.FieldPublicID:
+		return m.PublicID()
 	case organization.FieldName:
 		return m.Name()
 	}
@@ -333,8 +333,8 @@ func (m *OrganizationMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *OrganizationMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case organization.FieldPrimaryID:
-		return m.OldPrimaryID(ctx)
+	case organization.FieldPublicID:
+		return m.OldPublicID(ctx)
 	case organization.FieldName:
 		return m.OldName(ctx)
 	}
@@ -346,12 +346,12 @@ func (m *OrganizationMutation) OldField(ctx context.Context, name string) (ent.V
 // type.
 func (m *OrganizationMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case organization.FieldPrimaryID:
+	case organization.FieldPublicID:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetPrimaryID(v)
+		m.SetPublicID(v)
 		return nil
 	case organization.FieldName:
 		v, ok := value.(string)
@@ -409,8 +409,8 @@ func (m *OrganizationMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *OrganizationMutation) ResetField(name string) error {
 	switch name {
-	case organization.FieldPrimaryID:
-		m.ResetPrimaryID()
+	case organization.FieldPublicID:
+		m.ResetPublicID()
 		return nil
 	case organization.FieldName:
 		m.ResetName()
@@ -511,7 +511,7 @@ type PersonMutation struct {
 	id                   *int
 	date_created         *time.Time
 	date_updated         *time.Time
-	primary_id           *string
+	public_id            *string
 	active               *bool
 	birth_date           *string
 	email                *string
@@ -706,40 +706,40 @@ func (m *PersonMutation) ResetDateUpdated() {
 	m.date_updated = nil
 }
 
-// SetPrimaryID sets the "primary_id" field.
-func (m *PersonMutation) SetPrimaryID(s string) {
-	m.primary_id = &s
+// SetPublicID sets the "public_id" field.
+func (m *PersonMutation) SetPublicID(s string) {
+	m.public_id = &s
 }
 
-// PrimaryID returns the value of the "primary_id" field in the mutation.
-func (m *PersonMutation) PrimaryID() (r string, exists bool) {
-	v := m.primary_id
+// PublicID returns the value of the "public_id" field in the mutation.
+func (m *PersonMutation) PublicID() (r string, exists bool) {
+	v := m.public_id
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldPrimaryID returns the old "primary_id" field's value of the Person entity.
+// OldPublicID returns the old "public_id" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldPrimaryID(ctx context.Context) (v string, err error) {
+func (m *PersonMutation) OldPublicID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldPrimaryID is only allowed on UpdateOne operations")
+		return v, errors.New("OldPublicID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldPrimaryID requires an ID field in the mutation")
+		return v, errors.New("OldPublicID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPrimaryID: %w", err)
+		return v, fmt.Errorf("querying old value for OldPublicID: %w", err)
 	}
-	return oldValue.PrimaryID, nil
+	return oldValue.PublicID, nil
 }
 
-// ResetPrimaryID resets all changes to the "primary_id" field.
-func (m *PersonMutation) ResetPrimaryID() {
-	m.primary_id = nil
+// ResetPublicID resets all changes to the "public_id" field.
+func (m *PersonMutation) ResetPublicID() {
+	m.public_id = nil
 }
 
 // SetActive sets the "active" field.
@@ -1493,8 +1493,8 @@ func (m *PersonMutation) Fields() []string {
 	if m.date_updated != nil {
 		fields = append(fields, person.FieldDateUpdated)
 	}
-	if m.primary_id != nil {
-		fields = append(fields, person.FieldPrimaryID)
+	if m.public_id != nil {
+		fields = append(fields, person.FieldPublicID)
 	}
 	if m.active != nil {
 		fields = append(fields, person.FieldActive)
@@ -1547,8 +1547,8 @@ func (m *PersonMutation) Field(name string) (ent.Value, bool) {
 		return m.DateCreated()
 	case person.FieldDateUpdated:
 		return m.DateUpdated()
-	case person.FieldPrimaryID:
-		return m.PrimaryID()
+	case person.FieldPublicID:
+		return m.PublicID()
 	case person.FieldActive:
 		return m.Active()
 	case person.FieldBirthDate:
@@ -1588,8 +1588,8 @@ func (m *PersonMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldDateCreated(ctx)
 	case person.FieldDateUpdated:
 		return m.OldDateUpdated(ctx)
-	case person.FieldPrimaryID:
-		return m.OldPrimaryID(ctx)
+	case person.FieldPublicID:
+		return m.OldPublicID(ctx)
 	case person.FieldActive:
 		return m.OldActive(ctx)
 	case person.FieldBirthDate:
@@ -1639,12 +1639,12 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDateUpdated(v)
 		return nil
-	case person.FieldPrimaryID:
+	case person.FieldPublicID:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetPrimaryID(v)
+		m.SetPublicID(v)
 		return nil
 	case person.FieldActive:
 		v, ok := value.(bool)
@@ -1867,8 +1867,8 @@ func (m *PersonMutation) ResetField(name string) error {
 	case person.FieldDateUpdated:
 		m.ResetDateUpdated()
 		return nil
-	case person.FieldPrimaryID:
-		m.ResetPrimaryID()
+	case person.FieldPublicID:
+		m.ResetPublicID()
 		return nil
 	case person.FieldActive:
 		m.ResetActive()

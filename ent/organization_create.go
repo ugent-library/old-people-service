@@ -20,9 +20,9 @@ type OrganizationCreate struct {
 	hooks    []Hook
 }
 
-// SetPrimaryID sets the "primary_id" field.
-func (oc *OrganizationCreate) SetPrimaryID(s string) *OrganizationCreate {
-	oc.mutation.SetPrimaryID(s)
+// SetPublicID sets the "public_id" field.
+func (oc *OrganizationCreate) SetPublicID(s string) *OrganizationCreate {
+	oc.mutation.SetPublicID(s)
 	return oc
 }
 
@@ -81,8 +81,8 @@ func (oc *OrganizationCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (oc *OrganizationCreate) check() error {
-	if _, ok := oc.mutation.PrimaryID(); !ok {
-		return &ValidationError{Name: "primary_id", err: errors.New(`ent: missing required field "Organization.primary_id"`)}
+	if _, ok := oc.mutation.PublicID(); !ok {
+		return &ValidationError{Name: "public_id", err: errors.New(`ent: missing required field "Organization.public_id"`)}
 	}
 	if _, ok := oc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Organization.name"`)}
@@ -113,9 +113,9 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 		_node = &Organization{config: oc.config}
 		_spec = sqlgraph.NewCreateSpec(organization.Table, sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt))
 	)
-	if value, ok := oc.mutation.PrimaryID(); ok {
-		_spec.SetField(organization.FieldPrimaryID, field.TypeString, value)
-		_node.PrimaryID = value
+	if value, ok := oc.mutation.PublicID(); ok {
+		_spec.SetField(organization.FieldPublicID, field.TypeString, value)
+		_node.PublicID = value
 	}
 	if value, ok := oc.mutation.Name(); ok {
 		_spec.SetField(organization.FieldName, field.TypeString, value)

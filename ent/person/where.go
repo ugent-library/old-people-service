@@ -65,9 +65,9 @@ func DateUpdated(v time.Time) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldDateUpdated, v))
 }
 
-// PrimaryID applies equality check predicate on the "primary_id" field. It's identical to PrimaryIDEQ.
-func PrimaryID(v string) predicate.Person {
-	return predicate.Person(sql.FieldEQ(FieldPrimaryID, v))
+// PublicID applies equality check predicate on the "public_id" field. It's identical to PublicIDEQ.
+func PublicID(v string) predicate.Person {
+	return predicate.Person(sql.FieldEQ(FieldPublicID, v))
 }
 
 // Active applies equality check predicate on the "active" field. It's identical to ActiveEQ.
@@ -205,69 +205,69 @@ func DateUpdatedLTE(v time.Time) predicate.Person {
 	return predicate.Person(sql.FieldLTE(FieldDateUpdated, v))
 }
 
-// PrimaryIDEQ applies the EQ predicate on the "primary_id" field.
-func PrimaryIDEQ(v string) predicate.Person {
-	return predicate.Person(sql.FieldEQ(FieldPrimaryID, v))
+// PublicIDEQ applies the EQ predicate on the "public_id" field.
+func PublicIDEQ(v string) predicate.Person {
+	return predicate.Person(sql.FieldEQ(FieldPublicID, v))
 }
 
-// PrimaryIDNEQ applies the NEQ predicate on the "primary_id" field.
-func PrimaryIDNEQ(v string) predicate.Person {
-	return predicate.Person(sql.FieldNEQ(FieldPrimaryID, v))
+// PublicIDNEQ applies the NEQ predicate on the "public_id" field.
+func PublicIDNEQ(v string) predicate.Person {
+	return predicate.Person(sql.FieldNEQ(FieldPublicID, v))
 }
 
-// PrimaryIDIn applies the In predicate on the "primary_id" field.
-func PrimaryIDIn(vs ...string) predicate.Person {
-	return predicate.Person(sql.FieldIn(FieldPrimaryID, vs...))
+// PublicIDIn applies the In predicate on the "public_id" field.
+func PublicIDIn(vs ...string) predicate.Person {
+	return predicate.Person(sql.FieldIn(FieldPublicID, vs...))
 }
 
-// PrimaryIDNotIn applies the NotIn predicate on the "primary_id" field.
-func PrimaryIDNotIn(vs ...string) predicate.Person {
-	return predicate.Person(sql.FieldNotIn(FieldPrimaryID, vs...))
+// PublicIDNotIn applies the NotIn predicate on the "public_id" field.
+func PublicIDNotIn(vs ...string) predicate.Person {
+	return predicate.Person(sql.FieldNotIn(FieldPublicID, vs...))
 }
 
-// PrimaryIDGT applies the GT predicate on the "primary_id" field.
-func PrimaryIDGT(v string) predicate.Person {
-	return predicate.Person(sql.FieldGT(FieldPrimaryID, v))
+// PublicIDGT applies the GT predicate on the "public_id" field.
+func PublicIDGT(v string) predicate.Person {
+	return predicate.Person(sql.FieldGT(FieldPublicID, v))
 }
 
-// PrimaryIDGTE applies the GTE predicate on the "primary_id" field.
-func PrimaryIDGTE(v string) predicate.Person {
-	return predicate.Person(sql.FieldGTE(FieldPrimaryID, v))
+// PublicIDGTE applies the GTE predicate on the "public_id" field.
+func PublicIDGTE(v string) predicate.Person {
+	return predicate.Person(sql.FieldGTE(FieldPublicID, v))
 }
 
-// PrimaryIDLT applies the LT predicate on the "primary_id" field.
-func PrimaryIDLT(v string) predicate.Person {
-	return predicate.Person(sql.FieldLT(FieldPrimaryID, v))
+// PublicIDLT applies the LT predicate on the "public_id" field.
+func PublicIDLT(v string) predicate.Person {
+	return predicate.Person(sql.FieldLT(FieldPublicID, v))
 }
 
-// PrimaryIDLTE applies the LTE predicate on the "primary_id" field.
-func PrimaryIDLTE(v string) predicate.Person {
-	return predicate.Person(sql.FieldLTE(FieldPrimaryID, v))
+// PublicIDLTE applies the LTE predicate on the "public_id" field.
+func PublicIDLTE(v string) predicate.Person {
+	return predicate.Person(sql.FieldLTE(FieldPublicID, v))
 }
 
-// PrimaryIDContains applies the Contains predicate on the "primary_id" field.
-func PrimaryIDContains(v string) predicate.Person {
-	return predicate.Person(sql.FieldContains(FieldPrimaryID, v))
+// PublicIDContains applies the Contains predicate on the "public_id" field.
+func PublicIDContains(v string) predicate.Person {
+	return predicate.Person(sql.FieldContains(FieldPublicID, v))
 }
 
-// PrimaryIDHasPrefix applies the HasPrefix predicate on the "primary_id" field.
-func PrimaryIDHasPrefix(v string) predicate.Person {
-	return predicate.Person(sql.FieldHasPrefix(FieldPrimaryID, v))
+// PublicIDHasPrefix applies the HasPrefix predicate on the "public_id" field.
+func PublicIDHasPrefix(v string) predicate.Person {
+	return predicate.Person(sql.FieldHasPrefix(FieldPublicID, v))
 }
 
-// PrimaryIDHasSuffix applies the HasSuffix predicate on the "primary_id" field.
-func PrimaryIDHasSuffix(v string) predicate.Person {
-	return predicate.Person(sql.FieldHasSuffix(FieldPrimaryID, v))
+// PublicIDHasSuffix applies the HasSuffix predicate on the "public_id" field.
+func PublicIDHasSuffix(v string) predicate.Person {
+	return predicate.Person(sql.FieldHasSuffix(FieldPublicID, v))
 }
 
-// PrimaryIDEqualFold applies the EqualFold predicate on the "primary_id" field.
-func PrimaryIDEqualFold(v string) predicate.Person {
-	return predicate.Person(sql.FieldEqualFold(FieldPrimaryID, v))
+// PublicIDEqualFold applies the EqualFold predicate on the "public_id" field.
+func PublicIDEqualFold(v string) predicate.Person {
+	return predicate.Person(sql.FieldEqualFold(FieldPublicID, v))
 }
 
-// PrimaryIDContainsFold applies the ContainsFold predicate on the "primary_id" field.
-func PrimaryIDContainsFold(v string) predicate.Person {
-	return predicate.Person(sql.FieldContainsFold(FieldPrimaryID, v))
+// PublicIDContainsFold applies the ContainsFold predicate on the "public_id" field.
+func PublicIDContainsFold(v string) predicate.Person {
+	return predicate.Person(sql.FieldContainsFold(FieldPublicID, v))
 }
 
 // ActiveEQ applies the EQ predicate on the "active" field.

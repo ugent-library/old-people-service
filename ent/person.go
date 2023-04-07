@@ -22,8 +22,8 @@ type Person struct {
 	DateCreated time.Time `json:"date_created,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
-	// PrimaryID holds the value of the "primary_id" field.
-	PrimaryID string `json:"primary_id,omitempty"`
+	// PublicID holds the value of the "public_id" field.
+	PublicID string `json:"public_id,omitempty"`
 	// Active holds the value of the "active" field.
 	Active bool `json:"active,omitempty"`
 	// BirthDate holds the value of the "birth_date" field.
@@ -84,7 +84,7 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case person.FieldID:
 			values[i] = new(sql.NullInt64)
-		case person.FieldPrimaryID, person.FieldBirthDate, person.FieldEmail, person.FieldFirstName, person.FieldFullName, person.FieldLastName, person.FieldOrcid, person.FieldOrcidToken, person.FieldPreferredFirstName, person.FieldPreferredLastName, person.FieldTitle:
+		case person.FieldPublicID, person.FieldBirthDate, person.FieldEmail, person.FieldFirstName, person.FieldFullName, person.FieldLastName, person.FieldOrcid, person.FieldOrcidToken, person.FieldPreferredFirstName, person.FieldPreferredLastName, person.FieldTitle:
 			values[i] = new(sql.NullString)
 		case person.FieldDateCreated, person.FieldDateUpdated:
 			values[i] = new(sql.NullTime)
@@ -121,11 +121,11 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pe.DateUpdated = value.Time
 			}
-		case person.FieldPrimaryID:
+		case person.FieldPublicID:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field primary_id", values[i])
+				return fmt.Errorf("unexpected type %T for field public_id", values[i])
 			} else if value.Valid {
-				pe.PrimaryID = value.String
+				pe.PublicID = value.String
 			}
 		case person.FieldActive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -248,8 +248,8 @@ func (pe *Person) String() string {
 	builder.WriteString("date_updated=")
 	builder.WriteString(pe.DateUpdated.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("primary_id=")
-	builder.WriteString(pe.PrimaryID)
+	builder.WriteString("public_id=")
+	builder.WriteString(pe.PublicID)
 	builder.WriteString(", ")
 	builder.WriteString("active=")
 	builder.WriteString(fmt.Sprintf("%v", pe.Active))

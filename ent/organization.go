@@ -15,8 +15,8 @@ type Organization struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// PrimaryID holds the value of the "primary_id" field.
-	PrimaryID string `json:"primary_id,omitempty"`
+	// PublicID holds the value of the "public_id" field.
+	PublicID string `json:"public_id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -49,7 +49,7 @@ func (*Organization) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case organization.FieldID:
 			values[i] = new(sql.NullInt64)
-		case organization.FieldPrimaryID, organization.FieldName:
+		case organization.FieldPublicID, organization.FieldName:
 			values[i] = new(sql.NullString)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Organization", columns[i])
@@ -72,11 +72,11 @@ func (o *Organization) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			o.ID = int(value.Int64)
-		case organization.FieldPrimaryID:
+		case organization.FieldPublicID:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field primary_id", values[i])
+				return fmt.Errorf("unexpected type %T for field public_id", values[i])
 			} else if value.Valid {
-				o.PrimaryID = value.String
+				o.PublicID = value.String
 			}
 		case organization.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -117,8 +117,8 @@ func (o *Organization) String() string {
 	var builder strings.Builder
 	builder.WriteString("Organization(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", o.ID))
-	builder.WriteString("primary_id=")
-	builder.WriteString(o.PrimaryID)
+	builder.WriteString("public_id=")
+	builder.WriteString(o.PublicID)
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(o.Name)

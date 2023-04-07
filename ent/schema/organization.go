@@ -21,7 +21,7 @@ func (Organization) Annotations() []schema.Annotation {
 func (Organization) Fields() []ent.Field {
 	// field "id" is implied
 	return []ent.Field{
-		field.String("primary_id"),
+		field.String("public_id").Immutable().Unique(),
 		field.String("name"),
 	}
 }

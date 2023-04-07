@@ -7,8 +7,8 @@ const (
 	Label = "organization"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldPrimaryID holds the string denoting the primary_id field in the database.
-	FieldPrimaryID = "primary_id"
+	// FieldPublicID holds the string denoting the public_id field in the database.
+	FieldPublicID = "public_id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// EdgePeople holds the string denoting the people edge name in mutations.
@@ -25,7 +25,7 @@ const (
 // Columns holds all SQL columns for organization fields.
 var Columns = []string{
 	FieldID,
-	FieldPrimaryID,
+	FieldPublicID,
 	FieldName,
 }
 

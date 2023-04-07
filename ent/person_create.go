@@ -50,9 +50,9 @@ func (pc *PersonCreate) SetNillableDateUpdated(t *time.Time) *PersonCreate {
 	return pc
 }
 
-// SetPrimaryID sets the "primary_id" field.
-func (pc *PersonCreate) SetPrimaryID(s string) *PersonCreate {
-	pc.mutation.SetPrimaryID(s)
+// SetPublicID sets the "public_id" field.
+func (pc *PersonCreate) SetPublicID(s string) *PersonCreate {
+	pc.mutation.SetPublicID(s)
 	return pc
 }
 
@@ -294,8 +294,8 @@ func (pc *PersonCreate) check() error {
 	if _, ok := pc.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Person.date_updated"`)}
 	}
-	if _, ok := pc.mutation.PrimaryID(); !ok {
-		return &ValidationError{Name: "primary_id", err: errors.New(`ent: missing required field "Person.primary_id"`)}
+	if _, ok := pc.mutation.PublicID(); !ok {
+		return &ValidationError{Name: "public_id", err: errors.New(`ent: missing required field "Person.public_id"`)}
 	}
 	if _, ok := pc.mutation.Active(); !ok {
 		return &ValidationError{Name: "active", err: errors.New(`ent: missing required field "Person.active"`)}
@@ -334,9 +334,9 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 		_spec.SetField(person.FieldDateUpdated, field.TypeTime, value)
 		_node.DateUpdated = value
 	}
-	if value, ok := pc.mutation.PrimaryID(); ok {
-		_spec.SetField(person.FieldPrimaryID, field.TypeString, value)
-		_node.PrimaryID = value
+	if value, ok := pc.mutation.PublicID(); ok {
+		_spec.SetField(person.FieldPublicID, field.TypeString, value)
+		_node.PublicID = value
 	}
 	if value, ok := pc.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)

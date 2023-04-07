@@ -298,12 +298,12 @@ func (oq *OrganizationQuery) WithPeople(opts ...func(*PersonQuery)) *Organizatio
 // Example:
 //
 //	var v []struct {
-//		PrimaryID string `json:"primary_id,omitempty"`
+//		PublicID string `json:"public_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Organization.Query().
-//		GroupBy(organization.FieldPrimaryID).
+//		GroupBy(organization.FieldPublicID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (oq *OrganizationQuery) GroupBy(field string, fields ...string) *OrganizationGroupBy {
@@ -321,11 +321,11 @@ func (oq *OrganizationQuery) GroupBy(field string, fields ...string) *Organizati
 // Example:
 //
 //	var v []struct {
-//		PrimaryID string `json:"primary_id,omitempty"`
+//		PublicID string `json:"public_id,omitempty"`
 //	}
 //
 //	client.Organization.Query().
-//		Select(organization.FieldPrimaryID).
+//		Select(organization.FieldPublicID).
 //		Scan(ctx, &v)
 func (oq *OrganizationQuery) Select(fields ...string) *OrganizationSelect {
 	oq.ctx.Fields = append(oq.ctx.Fields, fields...)

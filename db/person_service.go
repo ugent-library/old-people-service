@@ -60,7 +60,7 @@ func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.
 	t.SetEmail(p.Email)
 	t.SetFirstName(p.FirstName)
 	t.SetFullName(p.FullName)
-	t.SetPrimaryID(p.Id) // TODO: nil value overriden by entgo default function?
+	t.SetPublicID(p.Id) // TODO: nil value overriden by entgo default function?
 	t.SetTitle(p.Title)
 	t.SetLastName(p.LastName)
 	t.SetOrcid(p.Orcid)
@@ -79,7 +79,7 @@ func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.
 	// TODO: test
 	if p.OrganizationId != nil && len(p.OrganizationId) > 0 {
 		// TODO: crashes with segmentation violation error when org does not exist
-		orgs, err := ps.db.Organization.Query().Where(organization.PrimaryIDIn(p.OrganizationId...)).All(ctx)
+		orgs, err := ps.db.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -94,13 +94,13 @@ func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.
 	// collect entgo managed fields
 	p.DateCreated = timestamppb.New(row.DateCreated)
 	p.DateUpdated = timestamppb.New(row.DateUpdated)
-	p.Id = row.PrimaryID
+	p.Id = row.PublicID
 
 	return p, nil
 }
 
 func (ps *personService) Update(ctx context.Context, p *models.Person) (*models.Person, error) {
-	t := ps.db.Person.Update().Where(person.PrimaryIDEQ(p.Id))
+	t := ps.db.Person.Update().Where(person.PublicIDEQ(p.Id))
 
 	// keep in order; copy to Update if it changes
 	t.SetActive(p.Active)
@@ -127,7 +127,7 @@ func (ps *personService) Update(ctx context.Context, p *models.Person) (*models.
 	t.ClearOrganizations()
 	if p.OrganizationId != nil && len(p.OrganizationId) > 0 {
 		// TODO: crashes with segmentation violation error when org does not exist
-		orgs, err := ps.db.Organization.Query().Where(organization.PrimaryIDIn(p.OrganizationId...)).All(ctx)
+		orgs, err := ps.db.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -143,7 +143,7 @@ func (ps *personService) Update(ctx context.Context, p *models.Person) (*models.
 }
 
 func (ps *personService) Get(ctx context.Context, id string) (*models.Person, error) {
-	row, err := ps.db.Person.Query().WithOrganizations().Where(person.PrimaryIDEQ(id)).First(ctx)
+	row, err := ps.db.Person.Query().WithOrganizations().Where(person.PublicIDEQ(id)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -156,7 +156,7 @@ func (ps *personService) Get(ctx context.Context, id string) (*models.Person, er
 }
 
 func (ps *personService) Delete(ctx context.Context, id string) error {
-	_, err := ps.db.Person.Delete().Where(person.PrimaryIDEQ(id)).Exec(ctx)
+	_, err := ps.db.Person.Delete().Where(person.PublicIDEQ(id)).Exec(ctx)
 	return err
 }
 
@@ -195,7 +195,7 @@ func personUnwrap(e *ent.Person) *models.Person {
 	}
 	orgIds := make([]string, 0)
 	for _, org := range e.Edges.Organizations {
-		orgIds = append(orgIds, org.PrimaryID)
+		orgIds = append(orgIds, org.PublicID)
 	}
 	p := &models.Person{
 		Person: v1.Person{
@@ -207,7 +207,7 @@ func personUnwrap(e *ent.Person) *models.Person {
 			OtherId:            refIds,
 			FirstName:          e.FirstName,
 			FullName:           e.FullName,
-			Id:                 e.PrimaryID,
+			Id:                 e.PublicID,
 			LastName:           e.LastName,
 			JobCategory:        e.JobCategory,
 			Orcid:              e.Orcid,

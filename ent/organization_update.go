@@ -28,12 +28,6 @@ func (ou *OrganizationUpdate) Where(ps ...predicate.Organization) *OrganizationU
 	return ou
 }
 
-// SetPrimaryID sets the "primary_id" field.
-func (ou *OrganizationUpdate) SetPrimaryID(s string) *OrganizationUpdate {
-	ou.mutation.SetPrimaryID(s)
-	return ou
-}
-
 // SetName sets the "name" field.
 func (ou *OrganizationUpdate) SetName(s string) *OrganizationUpdate {
 	ou.mutation.SetName(s)
@@ -117,9 +111,6 @@ func (ou *OrganizationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := ou.mutation.PrimaryID(); ok {
-		_spec.SetField(organization.FieldPrimaryID, field.TypeString, value)
-	}
 	if value, ok := ou.mutation.Name(); ok {
 		_spec.SetField(organization.FieldName, field.TypeString, value)
 	}
@@ -195,12 +186,6 @@ type OrganizationUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *OrganizationMutation
-}
-
-// SetPrimaryID sets the "primary_id" field.
-func (ouo *OrganizationUpdateOne) SetPrimaryID(s string) *OrganizationUpdateOne {
-	ouo.mutation.SetPrimaryID(s)
-	return ouo
 }
 
 // SetName sets the "name" field.
@@ -315,9 +300,6 @@ func (ouo *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizat
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := ouo.mutation.PrimaryID(); ok {
-		_spec.SetField(organization.FieldPrimaryID, field.TypeString, value)
 	}
 	if value, ok := ouo.mutation.Name(); ok {
 		_spec.SetField(organization.FieldName, field.TypeString, value)

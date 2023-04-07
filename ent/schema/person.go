@@ -38,7 +38,7 @@ func (Person) Annotations() []schema.Annotation {
 // Fields of the Person.
 func (Person) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("primary_id").Immutable().Unique(),
+		field.String("public_id").Immutable().Unique(),
 		field.Bool("active").Default(false),
 		field.String("birth_date").Optional(),
 		field.String("email").Optional(),
@@ -70,7 +70,7 @@ func (Person) Edges() []ent.Edge {
 
 func (Person) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("primary_id"),
+		index.Fields("public_id"),
 		index.Fields("active"),
 		index.Fields("orcid"),
 		index.Fields("email"),

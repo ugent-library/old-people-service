@@ -15,8 +15,8 @@ const (
 	FieldDateCreated = "date_created"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
-	// FieldPrimaryID holds the string denoting the primary_id field in the database.
-	FieldPrimaryID = "primary_id"
+	// FieldPublicID holds the string denoting the public_id field in the database.
+	FieldPublicID = "public_id"
 	// FieldActive holds the string denoting the active field in the database.
 	FieldActive = "active"
 	// FieldBirthDate holds the string denoting the birth_date field in the database.
@@ -59,7 +59,7 @@ var Columns = []string{
 	FieldID,
 	FieldDateCreated,
 	FieldDateUpdated,
-	FieldPrimaryID,
+	FieldPublicID,
 	FieldActive,
 	FieldBirthDate,
 	FieldEmail,

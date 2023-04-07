@@ -12,7 +12,7 @@ var (
 	// OrganizationColumns holds the columns for the "organization" table.
 	OrganizationColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "primary_id", Type: field.TypeString},
+		{Name: "public_id", Type: field.TypeString, Unique: true},
 		{Name: "name", Type: field.TypeString},
 	}
 	// OrganizationTable holds the schema information for the "organization" table.
@@ -26,7 +26,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
-		{Name: "primary_id", Type: field.TypeString, Unique: true},
+		{Name: "public_id", Type: field.TypeString, Unique: true},
 		{Name: "active", Type: field.TypeBool, Default: false},
 		{Name: "birth_date", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString, Nullable: true},
@@ -48,7 +48,7 @@ var (
 		PrimaryKey: []*schema.Column{PersonColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "person_primary_id",
+				Name:    "person_public_id",
 				Unique:  false,
 				Columns: []*schema.Column{PersonColumns[3]},
 			},

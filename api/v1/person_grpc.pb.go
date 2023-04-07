@@ -41,8 +41,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	People_GetPerson_FullMethodName    = "/api.v1.People/GetPerson"
-	People_GetAllPerson_FullMethodName = "/api.v1.People/GetAllPerson"
+	People_GetPerson_FullMethodName     = "/api.v1.People/GetPerson"
+	People_GetAllPerson_FullMethodName  = "/api.v1.People/GetAllPerson"
+	People_ReindexPerson_FullMethodName = "/api.v1.People/ReindexPerson"
+	People_SuggestPerson_FullMethodName = "/api.v1.People/SuggestPerson"
 )
 
 // PeopleClient is the client API for People service.
@@ -51,6 +53,8 @@ const (
 type PeopleClient interface {
 	GetPerson(ctx context.Context, in *GetPersonRequest, opts ...grpc.CallOption) (*GetPersonResponse, error)
 	GetAllPerson(ctx context.Context, in *GetAllPersonRequest, opts ...grpc.CallOption) (People_GetAllPersonClient, error)
+	ReindexPerson(ctx context.Context, in *ReindexPersonRequest, opts ...grpc.CallOption) (People_ReindexPersonClient, error)
+	SuggestPerson(ctx context.Context, in *SuggestPersonRequest, opts ...grpc.CallOption) (People_SuggestPersonClient, error)
 }
 
 type peopleClient struct {
@@ -102,12 +106,78 @@ func (x *peopleGetAllPersonClient) Recv() (*GetAllPersonResponse, error) {
 	return m, nil
 }
 
+func (c *peopleClient) ReindexPerson(ctx context.Context, in *ReindexPersonRequest, opts ...grpc.CallOption) (People_ReindexPersonClient, error) {
+	stream, err := c.cc.NewStream(ctx, &People_ServiceDesc.Streams[1], People_ReindexPerson_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &peopleReindexPersonClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type People_ReindexPersonClient interface {
+	Recv() (*ReindexPersonResponse, error)
+	grpc.ClientStream
+}
+
+type peopleReindexPersonClient struct {
+	grpc.ClientStream
+}
+
+func (x *peopleReindexPersonClient) Recv() (*ReindexPersonResponse, error) {
+	m := new(ReindexPersonResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *peopleClient) SuggestPerson(ctx context.Context, in *SuggestPersonRequest, opts ...grpc.CallOption) (People_SuggestPersonClient, error) {
+	stream, err := c.cc.NewStream(ctx, &People_ServiceDesc.Streams[2], People_SuggestPerson_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &peopleSuggestPersonClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type People_SuggestPersonClient interface {
+	Recv() (*SuggestPersonResponse, error)
+	grpc.ClientStream
+}
+
+type peopleSuggestPersonClient struct {
+	grpc.ClientStream
+}
+
+func (x *peopleSuggestPersonClient) Recv() (*SuggestPersonResponse, error) {
+	m := new(SuggestPersonResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // PeopleServer is the server API for People service.
 // All implementations must embed UnimplementedPeopleServer
 // for forward compatibility
 type PeopleServer interface {
 	GetPerson(context.Context, *GetPersonRequest) (*GetPersonResponse, error)
 	GetAllPerson(*GetAllPersonRequest, People_GetAllPersonServer) error
+	ReindexPerson(*ReindexPersonRequest, People_ReindexPersonServer) error
+	SuggestPerson(*SuggestPersonRequest, People_SuggestPersonServer) error
 	mustEmbedUnimplementedPeopleServer()
 }
 
@@ -120,6 +190,12 @@ func (UnimplementedPeopleServer) GetPerson(context.Context, *GetPersonRequest) (
 }
 func (UnimplementedPeopleServer) GetAllPerson(*GetAllPersonRequest, People_GetAllPersonServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAllPerson not implemented")
+}
+func (UnimplementedPeopleServer) ReindexPerson(*ReindexPersonRequest, People_ReindexPersonServer) error {
+	return status.Errorf(codes.Unimplemented, "method ReindexPerson not implemented")
+}
+func (UnimplementedPeopleServer) SuggestPerson(*SuggestPersonRequest, People_SuggestPersonServer) error {
+	return status.Errorf(codes.Unimplemented, "method SuggestPerson not implemented")
 }
 func (UnimplementedPeopleServer) mustEmbedUnimplementedPeopleServer() {}
 
@@ -173,6 +249,48 @@ func (x *peopleGetAllPersonServer) Send(m *GetAllPersonResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _People_ReindexPerson_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ReindexPersonRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(PeopleServer).ReindexPerson(m, &peopleReindexPersonServer{stream})
+}
+
+type People_ReindexPersonServer interface {
+	Send(*ReindexPersonResponse) error
+	grpc.ServerStream
+}
+
+type peopleReindexPersonServer struct {
+	grpc.ServerStream
+}
+
+func (x *peopleReindexPersonServer) Send(m *ReindexPersonResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _People_SuggestPerson_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SuggestPersonRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(PeopleServer).SuggestPerson(m, &peopleSuggestPersonServer{stream})
+}
+
+type People_SuggestPersonServer interface {
+	Send(*SuggestPersonResponse) error
+	grpc.ServerStream
+}
+
+type peopleSuggestPersonServer struct {
+	grpc.ServerStream
+}
+
+func (x *peopleSuggestPersonServer) Send(m *SuggestPersonResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // People_ServiceDesc is the grpc.ServiceDesc for People service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -189,6 +307,16 @@ var People_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "GetAllPerson",
 			Handler:       _People_GetAllPerson_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ReindexPerson",
+			Handler:       _People_ReindexPerson_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "SuggestPerson",
+			Handler:       _People_SuggestPerson_Handler,
 			ServerStreams: true,
 		},
 	},

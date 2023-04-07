@@ -1,9 +1,11 @@
-package models
+package db
 
 import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
+	"os"
 
 	entdialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -14,28 +16,19 @@ import (
 	"github.com/ugent-library/people/ent/organization"
 	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/schema"
+	"github.com/ugent-library/people/models"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-var ErrNotFound = errors.New("not found")
-
 type PersonConfig struct {
 	DB string
-}
-
-type PersonService interface {
-	Create(context.Context, *Person) (*Person, error)
-	Update(context.Context, *Person) (*Person, error)
-	Get(context.Context, string) (*Person, error)
-	Delete(context.Context, string) error
-	Each(context.Context, func(*Person) bool) error
 }
 
 type personService struct {
 	db *ent.Client
 }
 
-func NewPersonService(cfg *PersonConfig) (PersonService, error) {
+func NewPersonService(cfg *PersonConfig) (models.PersonService, error) {
 	db, err := sql.Open("pgx", cfg.DB)
 	if err != nil {
 		return nil, err
@@ -56,7 +49,7 @@ func NewPersonService(cfg *PersonConfig) (PersonService, error) {
 	}, nil
 }
 
-func (ps *personService) Create(ctx context.Context, p *Person) (*Person, error) {
+func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.Person, error) {
 	// date fields filled by schema
 	t := ps.db.Person.Create()
 
@@ -106,7 +99,7 @@ func (ps *personService) Create(ctx context.Context, p *Person) (*Person, error)
 	return p, nil
 }
 
-func (ps *personService) Update(ctx context.Context, p *Person) (*Person, error) {
+func (ps *personService) Update(ctx context.Context, p *models.Person) (*models.Person, error) {
 	t := ps.db.Person.Update().Where(person.PrimaryIDEQ(p.Id))
 
 	// keep in order; copy to Update if it changes
@@ -149,13 +142,14 @@ func (ps *personService) Update(ctx context.Context, p *Person) (*Person, error)
 	return ps.Get(ctx, p.Id)
 }
 
-func (ps *personService) Get(ctx context.Context, id string) (*Person, error) {
+func (ps *personService) Get(ctx context.Context, id string) (*models.Person, error) {
 	row, err := ps.db.Person.Query().WithOrganizations().Where(person.PrimaryIDEQ(id)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
-			return nil, ErrNotFound
+			return nil, models.ErrNotFound
 		}
+		fmt.Fprintf(os.Stderr, "return other error!!!!\n")
 		return nil, err
 	}
 	return personUnwrap(row), nil
@@ -166,7 +160,7 @@ func (ps *personService) Delete(ctx context.Context, id string) error {
 	return err
 }
 
-func (ps *personService) Each(ctx context.Context, cb func(*Person) bool) error {
+func (ps *personService) Each(ctx context.Context, cb func(*models.Person) bool) error {
 
 	// TODO: find a better way to do this (no cursors possible)
 	var offset int = 0
@@ -191,7 +185,7 @@ func (ps *personService) Each(ctx context.Context, cb func(*Person) bool) error 
 	return nil
 }
 
-func personUnwrap(e *ent.Person) *Person {
+func personUnwrap(e *ent.Person) *models.Person {
 	refIds := make([]*v1.IdRef, 0, len(e.OtherID))
 	for _, schemaOtherId := range e.OtherID {
 		refIds = append(refIds, &v1.IdRef{
@@ -203,7 +197,7 @@ func personUnwrap(e *ent.Person) *Person {
 	for _, org := range e.Edges.Organizations {
 		orgIds = append(orgIds, org.PrimaryID)
 	}
-	p := &Person{
+	p := &models.Person{
 		Person: v1.Person{
 			Active:             e.Active,
 			BirthDate:          e.BirthDate,

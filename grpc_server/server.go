@@ -20,19 +20,21 @@ import (
 )
 
 type ServerConfig struct {
-	Logger        *zap.SugaredLogger
-	TlsEnabled    bool
-	TlsServerCert string
-	TlsServerKey  string
-	Username      string
-	Password      string
-	PersonService models.PersonService
+	Logger              *zap.SugaredLogger
+	TlsEnabled          bool
+	TlsServerCert       string
+	TlsServerKey        string
+	Username            string
+	Password            string
+	PersonService       models.PersonService
+	PersonSearchService models.PersonSearchService
 }
 
 type server struct {
 	v1.UnimplementedPeopleServer
-	personService models.PersonService
-	logger        *zap.SugaredLogger
+	personService       models.PersonService
+	personSearchService models.PersonSearchService
+	logger              *zap.SugaredLogger
 }
 
 func NewServer(serverConfig *ServerConfig) *grpc.Server {
@@ -88,8 +90,9 @@ func NewServer(serverConfig *ServerConfig) *grpc.Server {
 	reflection.Register(gsrv)
 
 	srv := &server{
-		personService: serverConfig.PersonService,
-		logger:        serverConfig.Logger,
+		personService:       serverConfig.PersonService,
+		personSearchService: serverConfig.PersonSearchService,
+		logger:              serverConfig.Logger,
 	}
 
 	v1.RegisterPeopleServer(gsrv, srv)
@@ -131,4 +134,86 @@ func (srv *server) GetAllPerson(req *v1.GetAllPersonRequest, stream v1.People_Ge
 		return true
 	})
 
+}
+
+func (srv *server) ReindexPerson(req *v1.ReindexPersonRequest, stream v1.People_ReindexPersonServer) error {
+
+	ctx := stream.Context()
+	idxSwitcher, err := srv.personSearchService.NewIndexSwitcher(models.BulkIndexerConfig{
+		OnError: func(err error) {
+			grpcErr := status.New(codes.Internal, fmt.Errorf("es6 index error: %w").Error())
+			if err := stream.Send(&v1.ReindexPersonResponse{
+				Response: &v1.ReindexPersonResponse_Error{
+					Error: grpcErr.Proto(),
+				},
+			}); err != nil {
+				log.Fatal(err)
+			}
+		},
+		OnIndexError: func(id string, err error) {
+			grpcErr := status.New(codes.Internal, fmt.Errorf("es6 index error for %s: %w", id, err).Error())
+			if err := stream.Send(&v1.ReindexPersonResponse{
+				Response: &v1.ReindexPersonResponse_Error{
+					Error: grpcErr.Proto(),
+				},
+			}); err != nil {
+				log.Fatal(err)
+			}
+		},
+	})
+	if err != nil {
+		log.Fatal("unable to initialize index switcher: %s", err.Error())
+	}
+
+	numIndexed := 0
+	srv.personService.Each(ctx, func(person *models.Person) bool {
+		if err := idxSwitcher.Index(ctx, person); err != nil {
+			grpcErr := status.New(codes.Internal, fmt.Errorf("es6 index error for record %s: %w", person.Id, err).Error())
+			if err := stream.Send(&v1.ReindexPersonResponse{
+				Response: &v1.ReindexPersonResponse_Error{
+					Error: grpcErr.Proto(),
+				},
+			}); err != nil {
+				log.Fatal(err)
+			}
+			return false
+		}
+		numIndexed++
+		return true
+	})
+
+	if err := idxSwitcher.Switch(ctx); err != nil {
+		grpcErr := status.New(codes.Internal, fmt.Errorf("es6 index error: %s", err).Error())
+		if err := stream.Send(&v1.ReindexPersonResponse{
+			Response: &v1.ReindexPersonResponse_Error{
+				Error: grpcErr.Proto(),
+			},
+		}); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if err := stream.Send(&v1.ReindexPersonResponse{
+		Response: &v1.ReindexPersonResponse_Message{
+			Message: fmt.Sprintf("%d records reindexed", numIndexed),
+		},
+	}); err != nil {
+		log.Fatal(err)
+	}
+
+	return nil
+}
+
+func (srv *server) SuggestPerson(req *v1.SuggestPersonRequest, stream v1.People_SuggestPersonServer) error {
+	persons, _ := srv.personSearchService.Suggest(req.Query)
+
+	for _, person := range persons {
+		if err := stream.Send(&v1.SuggestPersonResponse{
+			Person: &person.Person,
+		}); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	return nil
 }

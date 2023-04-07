@@ -12,7 +12,6 @@ import (
 	"github.com/spf13/viper"
 	v1 "github.com/ugent-library/people/api/v1"
 	"github.com/ugent-library/people/grpc_server"
-	"github.com/ugent-library/people/models"
 )
 
 func init() {
@@ -31,22 +30,15 @@ var apiStartCmd = &cobra.Command{
 	Short: "start the api server",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		ps, err := models.NewPersonService(&models.PersonConfig{
-			DB: config.Db.Url,
-		})
-
-		if err != nil {
-			logger.Fatal(err)
-		}
-
 		srv := grpc_server.NewServer(&grpc_server.ServerConfig{
-			Logger:        logger,
-			PersonService: ps,
-			Username:      viper.GetString("api.username"),
-			Password:      viper.GetString("api.password"),
-			TlsEnabled:    viper.GetBool("api.tls_enabled"),
-			TlsServerCert: viper.GetString("api.tls_server_crt"),
-			TlsServerKey:  viper.GetString("api.tls_server_key"),
+			Logger:              logger,
+			PersonService:       Services().PersonService,
+			PersonSearchService: Services().PersonSearchService,
+			Username:            viper.GetString("api.username"),
+			Password:            viper.GetString("api.password"),
+			TlsEnabled:          viper.GetBool("api.tls_enabled"),
+			TlsServerCert:       viper.GetString("api.tls_server_crt"),
+			TlsServerKey:        viper.GetString("api.tls_server_key"),
 		})
 
 		addr := fmt.Sprintf("%s:%d", viper.GetString("api.host"), viper.GetInt("api.port"))

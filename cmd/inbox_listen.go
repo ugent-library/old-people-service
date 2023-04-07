@@ -107,13 +107,9 @@ var inboxListenCmd = &cobra.Command{
 	Use: "listen",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		personService, err := models.NewPersonService(&models.PersonConfig{
-			DB: config.Db.Url,
-		})
-
-		if err != nil {
-			logger.Fatal(fmt.Errorf("unable to connect to database: %w", err))
-		}
+		services := Services()
+		personService := services.PersonService
+		personSearchService := services.PersonSearchService
 
 		nc, err := nats.Connect(config.Nats.Url)
 
@@ -214,6 +210,11 @@ var inboxListenCmd = &cobra.Command{
 			// create/update failed: stop processing records
 			if updateErr != nil {
 				logger.Fatal(fmt.Errorf("unable to store person %s: %w", person.Id, updateErr))
+			}
+
+			// index
+			if err := personSearchService.Index(person); err != nil {
+				logger.Errorf("unable to index person %s: %s", person.Id, err)
 			}
 
 			// outbox subject

@@ -124,7 +124,7 @@ func (s *InboxMessage) UpdatePersonAttr(person *models.Person) *models.Person {
 	}
 
 	// TODO: cleanup job_category
-	person.JobCategory = validation.Uniq[string](person.JobCategory)
+	person.JobCategory = validation.Uniq(person.JobCategory)
 
 	// cleanup other_id
 	{

@@ -77,7 +77,25 @@ message GetAllPersonResponse{
   Person person = 1;
 }
 
+message ReindexPersonRequest{}
+
+message ReindexPersonResponse{
+  oneof response {
+    string message = 1;
+    google.rpc.Status error = 2;
+  }
+}
+
+message SuggestPersonRequest{
+  string query = 1;
+}
+message SuggestPersonResponse{
+  Person person = 1;
+}
+
 service People {
   rpc GetPerson(GetPersonRequest) returns (GetPersonResponse);
   rpc GetAllPerson(GetAllPersonRequest) returns (stream GetAllPersonResponse);
+  rpc ReindexPerson(ReindexPersonRequest) returns (stream ReindexPersonResponse);
+  rpc SuggestPerson(SuggestPersonRequest) returns (stream SuggestPersonResponse);
 }

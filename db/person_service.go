@@ -52,7 +52,13 @@ func NewPersonService(cfg *PersonConfig) (models.PersonService, error) {
 
 func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.Person, error) {
 	// date fields filled by schema
-	t := ps.db.Person.Create()
+	tx, txErr := ps.db.Tx(ctx)
+	if txErr != nil {
+		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
+	}
+	defer tx.Rollback()
+
+	t := tx.Person.Create()
 
 	// keep in order; copy to Update if it changes
 	t.SetActive(p.Active)
@@ -80,7 +86,7 @@ func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.
 	// TODO: test
 	if p.OrganizationId != nil && len(p.OrganizationId) > 0 {
 		// TODO: crashes with segmentation violation error when org does not exist
-		orgs, err := ps.db.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
+		orgs, err := tx.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +100,7 @@ func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.
 				}
 			}
 			if !found {
-				oc := ps.db.Organization.Create()
+				oc := tx.Organization.Create()
 				oc.SetPublicID(orgId)
 				oc.SetName(orgId)
 				newOrg, err := oc.Save(ctx)
@@ -112,6 +118,10 @@ func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.
 		return nil, err
 	}
 
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
 	// collect entgo managed fields
 	p.DateCreated = timestamppb.New(row.DateCreated)
 	p.DateUpdated = timestamppb.New(row.DateUpdated)
@@ -121,7 +131,13 @@ func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.
 }
 
 func (ps *personService) Update(ctx context.Context, p *models.Person) (*models.Person, error) {
-	t := ps.db.Person.Update().Where(person.PublicIDEQ(p.Id))
+	tx, txErr := ps.db.Tx(ctx)
+	if txErr != nil {
+		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
+	}
+	defer tx.Rollback()
+
+	t := tx.Person.Update().Where(person.PublicIDEQ(p.Id))
 
 	// keep in order; copy to Update if it changes
 	t.SetActive(p.Active)
@@ -148,7 +164,7 @@ func (ps *personService) Update(ctx context.Context, p *models.Person) (*models.
 	t.ClearOrganizations()
 	if p.OrganizationId != nil && len(p.OrganizationId) > 0 {
 		// TODO: crashes with segmentation violation error when org does not exist
-		orgs, err := ps.db.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
+		orgs, err := tx.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -162,7 +178,7 @@ func (ps *personService) Update(ctx context.Context, p *models.Person) (*models.
 				}
 			}
 			if !found {
-				oc := ps.db.Organization.Create()
+				oc := tx.Organization.Create()
 				oc.SetPublicID(orgId)
 				oc.SetName(orgId)
 				newOrg, err := oc.Save(ctx)
@@ -177,6 +193,10 @@ func (ps *personService) Update(ctx context.Context, p *models.Person) (*models.
 
 	_, err := t.Save(ctx)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 

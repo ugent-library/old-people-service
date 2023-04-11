@@ -2,17 +2,27 @@
 
 package organization
 
+import (
+	"time"
+)
+
 const (
 	// Label holds the string label denoting the organization type in the database.
 	Label = "organization"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldDateCreated holds the string denoting the date_created field in the database.
+	FieldDateCreated = "date_created"
+	// FieldDateUpdated holds the string denoting the date_updated field in the database.
+	FieldDateUpdated = "date_updated"
 	// FieldPublicID holds the string denoting the public_id field in the database.
 	FieldPublicID = "public_id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// EdgePeople holds the string denoting the people edge name in mutations.
 	EdgePeople = "people"
+	// EdgeOrganizationPerson holds the string denoting the organization_person edge name in mutations.
+	EdgeOrganizationPerson = "organization_person"
 	// Table holds the table name of the organization in the database.
 	Table = "organization"
 	// PeopleTable is the table that holds the people relation/edge. The primary key declared below.
@@ -20,11 +30,20 @@ const (
 	// PeopleInverseTable is the table name for the Person entity.
 	// It exists in this package in order to avoid circular dependency with the "person" package.
 	PeopleInverseTable = "person"
+	// OrganizationPersonTable is the table that holds the organization_person relation/edge.
+	OrganizationPersonTable = "organization_person"
+	// OrganizationPersonInverseTable is the table name for the OrganizationPerson entity.
+	// It exists in this package in order to avoid circular dependency with the "organizationperson" package.
+	OrganizationPersonInverseTable = "organization_person"
+	// OrganizationPersonColumn is the table column denoting the organization_person relation/edge.
+	OrganizationPersonColumn = "organization_id"
 )
 
 // Columns holds all SQL columns for organization fields.
 var Columns = []string{
 	FieldID,
+	FieldDateCreated,
+	FieldDateUpdated,
 	FieldPublicID,
 	FieldName,
 }
@@ -32,7 +51,7 @@ var Columns = []string{
 var (
 	// PeoplePrimaryKey and PeopleColumn2 are the table columns denoting the
 	// primary key for the people relation (M2M).
-	PeoplePrimaryKey = []string{"organization_id", "person_id"}
+	PeoplePrimaryKey = []string{"person_id", "organization_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -44,3 +63,12 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultDateCreated holds the default value on creation for the "date_created" field.
+	DefaultDateCreated func() time.Time
+	// DefaultDateUpdated holds the default value on creation for the "date_updated" field.
+	DefaultDateUpdated func() time.Time
+	// UpdateDefaultDateUpdated holds the default value on update for the "date_updated" field.
+	UpdateDefaultDateUpdated func() time.Time
+)

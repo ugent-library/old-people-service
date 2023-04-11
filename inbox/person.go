@@ -145,22 +145,7 @@ func (s *InboxMessage) UpdatePersonAttr(person *models.Person) *models.Person {
 	}
 
 	// cleanup organization_id
-	{
-		values := make([]string, 0, len(person.OrganizationId))
-		for _, oid := range person.OrganizationId {
-			var found bool = false
-			for _, val := range values {
-				if oid == val {
-					found = true
-					break
-				}
-			}
-			if !found {
-				values = append(values, oid)
-			}
-		}
-		person.OrganizationId = values
-	}
+	person.OrganizationId = validation.Uniq(person.OrganizationId)
 
 	return person
 }

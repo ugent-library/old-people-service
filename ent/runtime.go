@@ -5,6 +5,8 @@ package ent
 import (
 	"time"
 
+	"github.com/ugent-library/people/ent/organization"
+	"github.com/ugent-library/people/ent/organizationperson"
 	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/schema"
 )
@@ -13,6 +15,36 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	organizationMixin := schema.Organization{}.Mixin()
+	organizationMixinFields0 := organizationMixin[0].Fields()
+	_ = organizationMixinFields0
+	organizationFields := schema.Organization{}.Fields()
+	_ = organizationFields
+	// organizationDescDateCreated is the schema descriptor for date_created field.
+	organizationDescDateCreated := organizationMixinFields0[0].Descriptor()
+	// organization.DefaultDateCreated holds the default value on creation for the date_created field.
+	organization.DefaultDateCreated = organizationDescDateCreated.Default.(func() time.Time)
+	// organizationDescDateUpdated is the schema descriptor for date_updated field.
+	organizationDescDateUpdated := organizationMixinFields0[1].Descriptor()
+	// organization.DefaultDateUpdated holds the default value on creation for the date_updated field.
+	organization.DefaultDateUpdated = organizationDescDateUpdated.Default.(func() time.Time)
+	// organization.UpdateDefaultDateUpdated holds the default value on update for the date_updated field.
+	organization.UpdateDefaultDateUpdated = organizationDescDateUpdated.UpdateDefault.(func() time.Time)
+	organizationpersonMixin := schema.OrganizationPerson{}.Mixin()
+	organizationpersonMixinFields0 := organizationpersonMixin[0].Fields()
+	_ = organizationpersonMixinFields0
+	organizationpersonFields := schema.OrganizationPerson{}.Fields()
+	_ = organizationpersonFields
+	// organizationpersonDescDateCreated is the schema descriptor for date_created field.
+	organizationpersonDescDateCreated := organizationpersonMixinFields0[0].Descriptor()
+	// organizationperson.DefaultDateCreated holds the default value on creation for the date_created field.
+	organizationperson.DefaultDateCreated = organizationpersonDescDateCreated.Default.(func() time.Time)
+	// organizationpersonDescDateUpdated is the schema descriptor for date_updated field.
+	organizationpersonDescDateUpdated := organizationpersonMixinFields0[1].Descriptor()
+	// organizationperson.DefaultDateUpdated holds the default value on creation for the date_updated field.
+	organizationperson.DefaultDateUpdated = organizationpersonDescDateUpdated.Default.(func() time.Time)
+	// organizationperson.UpdateDefaultDateUpdated holds the default value on update for the date_updated field.
+	organizationperson.UpdateDefaultDateUpdated = organizationpersonDescDateUpdated.UpdateDefault.(func() time.Time)
 	personMixin := schema.Person{}.Mixin()
 	personMixinFields0 := personMixin[0].Fields()
 	_ = personMixinFields0

@@ -28,7 +28,14 @@ func (Organization) Fields() []ent.Field {
 
 func (Organization) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("people", Person.Type).
-			StorageKey(edge.Table("organization_person")),
+		edge.From("people", Person.Type).
+			Ref("organizations").
+			Through("organization_person", OrganizationPerson.Type),
+	}
+}
+
+func (Organization) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		TimeMixin{},
 	}
 }

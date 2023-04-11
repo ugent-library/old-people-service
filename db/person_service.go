@@ -83,6 +83,26 @@ func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.
 		if err != nil {
 			return nil, err
 		}
+		// add missing organizations
+		for _, orgId := range p.OrganizationId {
+			found := false
+			for _, org := range orgs {
+				if org.PublicID == orgId {
+					found = true
+					break
+				}
+			}
+			if !found {
+				oc := ps.db.Organization.Create()
+				oc.SetPublicID(orgId)
+				oc.SetName(orgId)
+				newOrg, err := oc.Save(ctx)
+				if err != nil {
+					return nil, err
+				}
+				orgs = append(orgs, newOrg)
+			}
+		}
 		t.AddOrganizations(orgs...)
 	}
 
@@ -130,6 +150,26 @@ func (ps *personService) Update(ctx context.Context, p *models.Person) (*models.
 		orgs, err := ps.db.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
 		if err != nil {
 			return nil, err
+		}
+		// add missing organizations
+		for _, orgId := range p.OrganizationId {
+			found := false
+			for _, org := range orgs {
+				if org.PublicID == orgId {
+					found = true
+					break
+				}
+			}
+			if !found {
+				oc := ps.db.Organization.Create()
+				oc.SetPublicID(orgId)
+				oc.SetName(orgId)
+				newOrg, err := oc.Save(ctx)
+				if err != nil {
+					return nil, err
+				}
+				orgs = append(orgs, newOrg)
+			}
 		}
 		t.AddOrganizations(orgs...)
 	}

@@ -64,7 +64,8 @@ func (Person) Mixin() []ent.Mixin {
 // Edges of the Person.
 func (Person) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("organizations", Organization.Type).Ref("people"),
+		edge.To("organizations", Organization.Type).
+			Through("organization_person", OrganizationPerson.Type),
 	}
 }
 

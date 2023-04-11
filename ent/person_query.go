@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people/ent/organization"
+	"github.com/ugent-library/people/ent/organizationperson"
 	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/predicate"
 )
@@ -19,11 +20,12 @@ import (
 // PersonQuery is the builder for querying Person entities.
 type PersonQuery struct {
 	config
-	ctx               *QueryContext
-	order             []OrderFunc
-	inters            []Interceptor
-	predicates        []predicate.Person
-	withOrganizations *OrganizationQuery
+	ctx                    *QueryContext
+	order                  []OrderFunc
+	inters                 []Interceptor
+	predicates             []predicate.Person
+	withOrganizations      *OrganizationQuery
+	withOrganizationPerson *OrganizationPersonQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -74,7 +76,29 @@ func (pq *PersonQuery) QueryOrganizations() *OrganizationQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(person.Table, person.FieldID, selector),
 			sqlgraph.To(organization.Table, organization.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, person.OrganizationsTable, person.OrganizationsPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, false, person.OrganizationsTable, person.OrganizationsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryOrganizationPerson chains the current query on the "organization_person" edge.
+func (pq *PersonQuery) QueryOrganizationPerson() *OrganizationPersonQuery {
+	query := (&OrganizationPersonClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(person.Table, person.FieldID, selector),
+			sqlgraph.To(organizationperson.Table, organizationperson.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, person.OrganizationPersonTable, person.OrganizationPersonColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -269,12 +293,13 @@ func (pq *PersonQuery) Clone() *PersonQuery {
 		return nil
 	}
 	return &PersonQuery{
-		config:            pq.config,
-		ctx:               pq.ctx.Clone(),
-		order:             append([]OrderFunc{}, pq.order...),
-		inters:            append([]Interceptor{}, pq.inters...),
-		predicates:        append([]predicate.Person{}, pq.predicates...),
-		withOrganizations: pq.withOrganizations.Clone(),
+		config:                 pq.config,
+		ctx:                    pq.ctx.Clone(),
+		order:                  append([]OrderFunc{}, pq.order...),
+		inters:                 append([]Interceptor{}, pq.inters...),
+		predicates:             append([]predicate.Person{}, pq.predicates...),
+		withOrganizations:      pq.withOrganizations.Clone(),
+		withOrganizationPerson: pq.withOrganizationPerson.Clone(),
 		// clone intermediate query.
 		sql:  pq.sql.Clone(),
 		path: pq.path,
@@ -289,6 +314,17 @@ func (pq *PersonQuery) WithOrganizations(opts ...func(*OrganizationQuery)) *Pers
 		opt(query)
 	}
 	pq.withOrganizations = query
+	return pq
+}
+
+// WithOrganizationPerson tells the query-builder to eager-load the nodes that are connected to
+// the "organization_person" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *PersonQuery) WithOrganizationPerson(opts ...func(*OrganizationPersonQuery)) *PersonQuery {
+	query := (&OrganizationPersonClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withOrganizationPerson = query
 	return pq
 }
 
@@ -370,8 +406,9 @@ func (pq *PersonQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Perso
 	var (
 		nodes       = []*Person{}
 		_spec       = pq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			pq.withOrganizations != nil,
+			pq.withOrganizationPerson != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -399,6 +436,15 @@ func (pq *PersonQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Perso
 			return nil, err
 		}
 	}
+	if query := pq.withOrganizationPerson; query != nil {
+		if err := pq.loadOrganizationPerson(ctx, query, nodes,
+			func(n *Person) { n.Edges.OrganizationPerson = []*OrganizationPerson{} },
+			func(n *Person, e *OrganizationPerson) {
+				n.Edges.OrganizationPerson = append(n.Edges.OrganizationPerson, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -415,10 +461,10 @@ func (pq *PersonQuery) loadOrganizations(ctx context.Context, query *Organizatio
 	}
 	query.Where(func(s *sql.Selector) {
 		joinT := sql.Table(person.OrganizationsTable)
-		s.Join(joinT).On(s.C(organization.FieldID), joinT.C(person.OrganizationsPrimaryKey[0]))
-		s.Where(sql.InValues(joinT.C(person.OrganizationsPrimaryKey[1]), edgeIDs...))
+		s.Join(joinT).On(s.C(organization.FieldID), joinT.C(person.OrganizationsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(person.OrganizationsPrimaryKey[0]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(person.OrganizationsPrimaryKey[1]))
+		s.Select(joinT.C(person.OrganizationsPrimaryKey[0]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -460,6 +506,33 @@ func (pq *PersonQuery) loadOrganizations(ctx context.Context, query *Organizatio
 		for kn := range nodes {
 			assign(kn, n)
 		}
+	}
+	return nil
+}
+func (pq *PersonQuery) loadOrganizationPerson(ctx context.Context, query *OrganizationPersonQuery, nodes []*Person, init func(*Person), assign func(*Person, *OrganizationPerson)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Person)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.Where(predicate.OrganizationPerson(func(s *sql.Selector) {
+		s.Where(sql.InValues(person.OrganizationPersonColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.PersonID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "person_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

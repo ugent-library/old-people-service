@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/ugent-library/people/ent/organization"
@@ -15,6 +16,10 @@ type Organization struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// DateCreated holds the value of the "date_created" field.
+	DateCreated time.Time `json:"date_created,omitempty"`
+	// DateUpdated holds the value of the "date_updated" field.
+	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// PublicID holds the value of the "public_id" field.
 	PublicID string `json:"public_id,omitempty"`
 	// Name holds the value of the "name" field.
@@ -28,9 +33,11 @@ type Organization struct {
 type OrganizationEdges struct {
 	// People holds the value of the people edge.
 	People []*Person `json:"people,omitempty"`
+	// OrganizationPerson holds the value of the organization_person edge.
+	OrganizationPerson []*OrganizationPerson `json:"organization_person,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // PeopleOrErr returns the People value or an error if the edge
@@ -42,6 +49,15 @@ func (e OrganizationEdges) PeopleOrErr() ([]*Person, error) {
 	return nil, &NotLoadedError{edge: "people"}
 }
 
+// OrganizationPersonOrErr returns the OrganizationPerson value or an error if the edge
+// was not loaded in eager-loading.
+func (e OrganizationEdges) OrganizationPersonOrErr() ([]*OrganizationPerson, error) {
+	if e.loadedTypes[1] {
+		return e.OrganizationPerson, nil
+	}
+	return nil, &NotLoadedError{edge: "organization_person"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Organization) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -51,6 +67,8 @@ func (*Organization) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case organization.FieldPublicID, organization.FieldName:
 			values[i] = new(sql.NullString)
+		case organization.FieldDateCreated, organization.FieldDateUpdated:
+			values[i] = new(sql.NullTime)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Organization", columns[i])
 		}
@@ -72,6 +90,18 @@ func (o *Organization) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			o.ID = int(value.Int64)
+		case organization.FieldDateCreated:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field date_created", values[i])
+			} else if value.Valid {
+				o.DateCreated = value.Time
+			}
+		case organization.FieldDateUpdated:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field date_updated", values[i])
+			} else if value.Valid {
+				o.DateUpdated = value.Time
+			}
 		case organization.FieldPublicID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field public_id", values[i])
@@ -92,6 +122,11 @@ func (o *Organization) assignValues(columns []string, values []any) error {
 // QueryPeople queries the "people" edge of the Organization entity.
 func (o *Organization) QueryPeople() *PersonQuery {
 	return NewOrganizationClient(o.config).QueryPeople(o)
+}
+
+// QueryOrganizationPerson queries the "organization_person" edge of the Organization entity.
+func (o *Organization) QueryOrganizationPerson() *OrganizationPersonQuery {
+	return NewOrganizationClient(o.config).QueryOrganizationPerson(o)
 }
 
 // Update returns a builder for updating this Organization.
@@ -117,6 +152,12 @@ func (o *Organization) String() string {
 	var builder strings.Builder
 	builder.WriteString("Organization(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", o.ID))
+	builder.WriteString("date_created=")
+	builder.WriteString(o.DateCreated.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("date_updated=")
+	builder.WriteString(o.DateUpdated.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("public_id=")
 	builder.WriteString(o.PublicID)
 	builder.WriteString(", ")

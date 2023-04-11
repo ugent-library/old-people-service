@@ -45,6 +45,8 @@ const (
 	FieldTitle = "title"
 	// EdgeOrganizations holds the string denoting the organizations edge name in mutations.
 	EdgeOrganizations = "organizations"
+	// EdgeOrganizationPerson holds the string denoting the organization_person edge name in mutations.
+	EdgeOrganizationPerson = "organization_person"
 	// Table holds the table name of the person in the database.
 	Table = "person"
 	// OrganizationsTable is the table that holds the organizations relation/edge. The primary key declared below.
@@ -52,6 +54,13 @@ const (
 	// OrganizationsInverseTable is the table name for the Organization entity.
 	// It exists in this package in order to avoid circular dependency with the "organization" package.
 	OrganizationsInverseTable = "organization"
+	// OrganizationPersonTable is the table that holds the organization_person relation/edge.
+	OrganizationPersonTable = "organization_person"
+	// OrganizationPersonInverseTable is the table name for the OrganizationPerson entity.
+	// It exists in this package in order to avoid circular dependency with the "organizationperson" package.
+	OrganizationPersonInverseTable = "organization_person"
+	// OrganizationPersonColumn is the table column denoting the organization_person relation/edge.
+	OrganizationPersonColumn = "person_id"
 )
 
 // Columns holds all SQL columns for person fields.
@@ -78,7 +87,7 @@ var Columns = []string{
 var (
 	// OrganizationsPrimaryKey and OrganizationsColumn2 are the table columns denoting the
 	// primary key for the organizations relation (M2M).
-	OrganizationsPrimaryKey = []string{"organization_id", "person_id"}
+	OrganizationsPrimaryKey = []string{"person_id", "organization_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).

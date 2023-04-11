@@ -6,10 +6,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people/ent/organization"
+	"github.com/ugent-library/people/ent/organizationperson"
 	"github.com/ugent-library/people/ent/person"
 )
 
@@ -18,6 +20,34 @@ type OrganizationCreate struct {
 	config
 	mutation *OrganizationMutation
 	hooks    []Hook
+}
+
+// SetDateCreated sets the "date_created" field.
+func (oc *OrganizationCreate) SetDateCreated(t time.Time) *OrganizationCreate {
+	oc.mutation.SetDateCreated(t)
+	return oc
+}
+
+// SetNillableDateCreated sets the "date_created" field if the given value is not nil.
+func (oc *OrganizationCreate) SetNillableDateCreated(t *time.Time) *OrganizationCreate {
+	if t != nil {
+		oc.SetDateCreated(*t)
+	}
+	return oc
+}
+
+// SetDateUpdated sets the "date_updated" field.
+func (oc *OrganizationCreate) SetDateUpdated(t time.Time) *OrganizationCreate {
+	oc.mutation.SetDateUpdated(t)
+	return oc
+}
+
+// SetNillableDateUpdated sets the "date_updated" field if the given value is not nil.
+func (oc *OrganizationCreate) SetNillableDateUpdated(t *time.Time) *OrganizationCreate {
+	if t != nil {
+		oc.SetDateUpdated(*t)
+	}
+	return oc
 }
 
 // SetPublicID sets the "public_id" field.
@@ -47,6 +77,21 @@ func (oc *OrganizationCreate) AddPeople(p ...*Person) *OrganizationCreate {
 	return oc.AddPersonIDs(ids...)
 }
 
+// AddOrganizationPersonIDs adds the "organization_person" edge to the OrganizationPerson entity by IDs.
+func (oc *OrganizationCreate) AddOrganizationPersonIDs(ids ...int) *OrganizationCreate {
+	oc.mutation.AddOrganizationPersonIDs(ids...)
+	return oc
+}
+
+// AddOrganizationPerson adds the "organization_person" edges to the OrganizationPerson entity.
+func (oc *OrganizationCreate) AddOrganizationPerson(o ...*OrganizationPerson) *OrganizationCreate {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return oc.AddOrganizationPersonIDs(ids...)
+}
+
 // Mutation returns the OrganizationMutation object of the builder.
 func (oc *OrganizationCreate) Mutation() *OrganizationMutation {
 	return oc.mutation
@@ -54,6 +99,7 @@ func (oc *OrganizationCreate) Mutation() *OrganizationMutation {
 
 // Save creates the Organization in the database.
 func (oc *OrganizationCreate) Save(ctx context.Context) (*Organization, error) {
+	oc.defaults()
 	return withHooks[*Organization, OrganizationMutation](ctx, oc.sqlSave, oc.mutation, oc.hooks)
 }
 
@@ -79,8 +125,26 @@ func (oc *OrganizationCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (oc *OrganizationCreate) defaults() {
+	if _, ok := oc.mutation.DateCreated(); !ok {
+		v := organization.DefaultDateCreated()
+		oc.mutation.SetDateCreated(v)
+	}
+	if _, ok := oc.mutation.DateUpdated(); !ok {
+		v := organization.DefaultDateUpdated()
+		oc.mutation.SetDateUpdated(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (oc *OrganizationCreate) check() error {
+	if _, ok := oc.mutation.DateCreated(); !ok {
+		return &ValidationError{Name: "date_created", err: errors.New(`ent: missing required field "Organization.date_created"`)}
+	}
+	if _, ok := oc.mutation.DateUpdated(); !ok {
+		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Organization.date_updated"`)}
+	}
 	if _, ok := oc.mutation.PublicID(); !ok {
 		return &ValidationError{Name: "public_id", err: errors.New(`ent: missing required field "Organization.public_id"`)}
 	}
@@ -113,6 +177,14 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 		_node = &Organization{config: oc.config}
 		_spec = sqlgraph.NewCreateSpec(organization.Table, sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt))
 	)
+	if value, ok := oc.mutation.DateCreated(); ok {
+		_spec.SetField(organization.FieldDateCreated, field.TypeTime, value)
+		_node.DateCreated = value
+	}
+	if value, ok := oc.mutation.DateUpdated(); ok {
+		_spec.SetField(organization.FieldDateUpdated, field.TypeTime, value)
+		_node.DateUpdated = value
+	}
 	if value, ok := oc.mutation.PublicID(); ok {
 		_spec.SetField(organization.FieldPublicID, field.TypeString, value)
 		_node.PublicID = value
@@ -124,7 +196,7 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 	if nodes := oc.mutation.PeopleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
-			Inverse: false,
+			Inverse: true,
 			Table:   organization.PeopleTable,
 			Columns: organization.PeoplePrimaryKey,
 			Bidi:    false,
@@ -132,6 +204,29 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: person.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		createE := &OrganizationPersonCreate{config: oc.config, mutation: newOrganizationPersonMutation(oc.config, OpCreate)}
+		createE.defaults()
+		_, specE := createE.createSpec()
+		edge.Target.Fields = specE.Fields
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := oc.mutation.OrganizationPersonIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   organization.OrganizationPersonTable,
+			Columns: []string{organization.OrganizationPersonColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: organizationperson.FieldID,
 				},
 			},
 		}
@@ -157,6 +252,7 @@ func (ocb *OrganizationCreateBulk) Save(ctx context.Context) ([]*Organization, e
 	for i := range ocb.builders {
 		func(i int, root context.Context) {
 			builder := ocb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*OrganizationMutation)
 				if !ok {

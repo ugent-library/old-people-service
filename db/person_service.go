@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
 
 	entdialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -234,6 +235,10 @@ func personUnwrap(e *ent.Person) *models.Person {
 		})
 	}
 	orgIds := make([]string, 0)
+	orgRows := e.Edges.Organizations
+	sort.SliceStable(orgRows, func(i, j int) bool {
+		return orgRows[i].DateCreated.Before(orgRows[j].DateCreated)
+	})
 	for _, org := range e.Edges.Organizations {
 		orgIds = append(orgIds, org.PublicID)
 	}

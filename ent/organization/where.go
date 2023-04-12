@@ -70,9 +70,24 @@ func PublicID(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldEQ(FieldPublicID, v))
 }
 
-// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
-func Name(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldEQ(FieldName, v))
+// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
+func Type(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldType, v))
+}
+
+// NameDut applies equality check predicate on the "name_dut" field. It's identical to NameDutEQ.
+func NameDut(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldNameDut, v))
+}
+
+// NameEng applies equality check predicate on the "name_eng" field. It's identical to NameEngEQ.
+func NameEng(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldNameEng, v))
+}
+
+// ParentID applies equality check predicate on the "parent_id" field. It's identical to ParentIDEQ.
+func ParentID(v int) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldParentID, v))
 }
 
 // DateCreatedEQ applies the EQ predicate on the "date_created" field.
@@ -220,69 +235,259 @@ func PublicIDContainsFold(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldContainsFold(FieldPublicID, v))
 }
 
-// NameEQ applies the EQ predicate on the "name" field.
-func NameEQ(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldEQ(FieldName, v))
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldType, v))
 }
 
-// NameNEQ applies the NEQ predicate on the "name" field.
-func NameNEQ(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldNEQ(FieldName, v))
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldNEQ(FieldType, v))
 }
 
-// NameIn applies the In predicate on the "name" field.
-func NameIn(vs ...string) predicate.Organization {
-	return predicate.Organization(sql.FieldIn(FieldName, vs...))
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...string) predicate.Organization {
+	return predicate.Organization(sql.FieldIn(FieldType, vs...))
 }
 
-// NameNotIn applies the NotIn predicate on the "name" field.
-func NameNotIn(vs ...string) predicate.Organization {
-	return predicate.Organization(sql.FieldNotIn(FieldName, vs...))
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...string) predicate.Organization {
+	return predicate.Organization(sql.FieldNotIn(FieldType, vs...))
 }
 
-// NameGT applies the GT predicate on the "name" field.
-func NameGT(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldGT(FieldName, v))
+// TypeGT applies the GT predicate on the "type" field.
+func TypeGT(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldGT(FieldType, v))
 }
 
-// NameGTE applies the GTE predicate on the "name" field.
-func NameGTE(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldGTE(FieldName, v))
+// TypeGTE applies the GTE predicate on the "type" field.
+func TypeGTE(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldGTE(FieldType, v))
 }
 
-// NameLT applies the LT predicate on the "name" field.
-func NameLT(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldLT(FieldName, v))
+// TypeLT applies the LT predicate on the "type" field.
+func TypeLT(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldLT(FieldType, v))
 }
 
-// NameLTE applies the LTE predicate on the "name" field.
-func NameLTE(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldLTE(FieldName, v))
+// TypeLTE applies the LTE predicate on the "type" field.
+func TypeLTE(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldLTE(FieldType, v))
 }
 
-// NameContains applies the Contains predicate on the "name" field.
-func NameContains(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldContains(FieldName, v))
+// TypeContains applies the Contains predicate on the "type" field.
+func TypeContains(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldContains(FieldType, v))
 }
 
-// NameHasPrefix applies the HasPrefix predicate on the "name" field.
-func NameHasPrefix(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldHasPrefix(FieldName, v))
+// TypeHasPrefix applies the HasPrefix predicate on the "type" field.
+func TypeHasPrefix(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldHasPrefix(FieldType, v))
 }
 
-// NameHasSuffix applies the HasSuffix predicate on the "name" field.
-func NameHasSuffix(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldHasSuffix(FieldName, v))
+// TypeHasSuffix applies the HasSuffix predicate on the "type" field.
+func TypeHasSuffix(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldHasSuffix(FieldType, v))
 }
 
-// NameEqualFold applies the EqualFold predicate on the "name" field.
-func NameEqualFold(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldEqualFold(FieldName, v))
+// TypeEqualFold applies the EqualFold predicate on the "type" field.
+func TypeEqualFold(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEqualFold(FieldType, v))
 }
 
-// NameContainsFold applies the ContainsFold predicate on the "name" field.
-func NameContainsFold(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldContainsFold(FieldName, v))
+// TypeContainsFold applies the ContainsFold predicate on the "type" field.
+func TypeContainsFold(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldContainsFold(FieldType, v))
+}
+
+// NameDutEQ applies the EQ predicate on the "name_dut" field.
+func NameDutEQ(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldNameDut, v))
+}
+
+// NameDutNEQ applies the NEQ predicate on the "name_dut" field.
+func NameDutNEQ(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldNEQ(FieldNameDut, v))
+}
+
+// NameDutIn applies the In predicate on the "name_dut" field.
+func NameDutIn(vs ...string) predicate.Organization {
+	return predicate.Organization(sql.FieldIn(FieldNameDut, vs...))
+}
+
+// NameDutNotIn applies the NotIn predicate on the "name_dut" field.
+func NameDutNotIn(vs ...string) predicate.Organization {
+	return predicate.Organization(sql.FieldNotIn(FieldNameDut, vs...))
+}
+
+// NameDutGT applies the GT predicate on the "name_dut" field.
+func NameDutGT(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldGT(FieldNameDut, v))
+}
+
+// NameDutGTE applies the GTE predicate on the "name_dut" field.
+func NameDutGTE(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldGTE(FieldNameDut, v))
+}
+
+// NameDutLT applies the LT predicate on the "name_dut" field.
+func NameDutLT(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldLT(FieldNameDut, v))
+}
+
+// NameDutLTE applies the LTE predicate on the "name_dut" field.
+func NameDutLTE(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldLTE(FieldNameDut, v))
+}
+
+// NameDutContains applies the Contains predicate on the "name_dut" field.
+func NameDutContains(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldContains(FieldNameDut, v))
+}
+
+// NameDutHasPrefix applies the HasPrefix predicate on the "name_dut" field.
+func NameDutHasPrefix(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldHasPrefix(FieldNameDut, v))
+}
+
+// NameDutHasSuffix applies the HasSuffix predicate on the "name_dut" field.
+func NameDutHasSuffix(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldHasSuffix(FieldNameDut, v))
+}
+
+// NameDutIsNil applies the IsNil predicate on the "name_dut" field.
+func NameDutIsNil() predicate.Organization {
+	return predicate.Organization(sql.FieldIsNull(FieldNameDut))
+}
+
+// NameDutNotNil applies the NotNil predicate on the "name_dut" field.
+func NameDutNotNil() predicate.Organization {
+	return predicate.Organization(sql.FieldNotNull(FieldNameDut))
+}
+
+// NameDutEqualFold applies the EqualFold predicate on the "name_dut" field.
+func NameDutEqualFold(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEqualFold(FieldNameDut, v))
+}
+
+// NameDutContainsFold applies the ContainsFold predicate on the "name_dut" field.
+func NameDutContainsFold(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldContainsFold(FieldNameDut, v))
+}
+
+// NameEngEQ applies the EQ predicate on the "name_eng" field.
+func NameEngEQ(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldNameEng, v))
+}
+
+// NameEngNEQ applies the NEQ predicate on the "name_eng" field.
+func NameEngNEQ(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldNEQ(FieldNameEng, v))
+}
+
+// NameEngIn applies the In predicate on the "name_eng" field.
+func NameEngIn(vs ...string) predicate.Organization {
+	return predicate.Organization(sql.FieldIn(FieldNameEng, vs...))
+}
+
+// NameEngNotIn applies the NotIn predicate on the "name_eng" field.
+func NameEngNotIn(vs ...string) predicate.Organization {
+	return predicate.Organization(sql.FieldNotIn(FieldNameEng, vs...))
+}
+
+// NameEngGT applies the GT predicate on the "name_eng" field.
+func NameEngGT(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldGT(FieldNameEng, v))
+}
+
+// NameEngGTE applies the GTE predicate on the "name_eng" field.
+func NameEngGTE(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldGTE(FieldNameEng, v))
+}
+
+// NameEngLT applies the LT predicate on the "name_eng" field.
+func NameEngLT(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldLT(FieldNameEng, v))
+}
+
+// NameEngLTE applies the LTE predicate on the "name_eng" field.
+func NameEngLTE(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldLTE(FieldNameEng, v))
+}
+
+// NameEngContains applies the Contains predicate on the "name_eng" field.
+func NameEngContains(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldContains(FieldNameEng, v))
+}
+
+// NameEngHasPrefix applies the HasPrefix predicate on the "name_eng" field.
+func NameEngHasPrefix(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldHasPrefix(FieldNameEng, v))
+}
+
+// NameEngHasSuffix applies the HasSuffix predicate on the "name_eng" field.
+func NameEngHasSuffix(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldHasSuffix(FieldNameEng, v))
+}
+
+// NameEngIsNil applies the IsNil predicate on the "name_eng" field.
+func NameEngIsNil() predicate.Organization {
+	return predicate.Organization(sql.FieldIsNull(FieldNameEng))
+}
+
+// NameEngNotNil applies the NotNil predicate on the "name_eng" field.
+func NameEngNotNil() predicate.Organization {
+	return predicate.Organization(sql.FieldNotNull(FieldNameEng))
+}
+
+// NameEngEqualFold applies the EqualFold predicate on the "name_eng" field.
+func NameEngEqualFold(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEqualFold(FieldNameEng, v))
+}
+
+// NameEngContainsFold applies the ContainsFold predicate on the "name_eng" field.
+func NameEngContainsFold(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldContainsFold(FieldNameEng, v))
+}
+
+// OtherIDIsNil applies the IsNil predicate on the "other_id" field.
+func OtherIDIsNil() predicate.Organization {
+	return predicate.Organization(sql.FieldIsNull(FieldOtherID))
+}
+
+// OtherIDNotNil applies the NotNil predicate on the "other_id" field.
+func OtherIDNotNil() predicate.Organization {
+	return predicate.Organization(sql.FieldNotNull(FieldOtherID))
+}
+
+// ParentIDEQ applies the EQ predicate on the "parent_id" field.
+func ParentIDEQ(v int) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldParentID, v))
+}
+
+// ParentIDNEQ applies the NEQ predicate on the "parent_id" field.
+func ParentIDNEQ(v int) predicate.Organization {
+	return predicate.Organization(sql.FieldNEQ(FieldParentID, v))
+}
+
+// ParentIDIn applies the In predicate on the "parent_id" field.
+func ParentIDIn(vs ...int) predicate.Organization {
+	return predicate.Organization(sql.FieldIn(FieldParentID, vs...))
+}
+
+// ParentIDNotIn applies the NotIn predicate on the "parent_id" field.
+func ParentIDNotIn(vs ...int) predicate.Organization {
+	return predicate.Organization(sql.FieldNotIn(FieldParentID, vs...))
+}
+
+// ParentIDIsNil applies the IsNil predicate on the "parent_id" field.
+func ParentIDIsNil() predicate.Organization {
+	return predicate.Organization(sql.FieldIsNull(FieldParentID))
+}
+
+// ParentIDNotNil applies the NotNil predicate on the "parent_id" field.
+func ParentIDNotNil() predicate.Organization {
+	return predicate.Organization(sql.FieldNotNull(FieldParentID))
 }
 
 // HasPeople applies the HasEdge predicate on the "people" edge.
@@ -303,6 +508,60 @@ func HasPeopleWith(preds ...predicate.Person) predicate.Organization {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(PeopleInverseTable, FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, PeopleTable, PeoplePrimaryKey...),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasParent applies the HasEdge predicate on the "parent" edge.
+func HasParent() predicate.Organization {
+	return predicate.Organization(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ParentTable, ParentColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasParentWith applies the HasEdge predicate on the "parent" edge with a given conditions (other predicates).
+func HasParentWith(preds ...predicate.Organization) predicate.Organization {
+	return predicate.Organization(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ParentTable, ParentColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasChildren applies the HasEdge predicate on the "children" edge.
+func HasChildren() predicate.Organization {
+	return predicate.Organization(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ChildrenTable, ChildrenColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasChildrenWith applies the HasEdge predicate on the "children" edge with a given conditions (other predicates).
+func HasChildrenWith(preds ...predicate.Organization) predicate.Organization {
+	return predicate.Organization(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ChildrenTable, ChildrenColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"os"
 	"sort"
 
 	entdialect "entgo.io/ent/dialect"
@@ -50,7 +49,7 @@ func NewPersonService(cfg *PersonConfig) (models.PersonService, error) {
 	}, nil
 }
 
-func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.Person, error) {
+func (ps *personService) CreatePerson(ctx context.Context, p *models.Person) (*models.Person, error) {
 	// date fields filled by schema
 	tx, txErr := ps.db.Tx(ctx)
 	if txErr != nil {
@@ -88,7 +87,7 @@ func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.
 		// TODO: crashes with segmentation violation error when org does not exist
 		orgs, err := tx.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("unable to query organizations: %w", err)
 		}
 		// add missing organizations
 		for _, orgId := range p.OrganizationId {
@@ -102,10 +101,11 @@ func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.
 			if !found {
 				oc := tx.Organization.Create()
 				oc.SetPublicID(orgId)
-				oc.SetName(orgId)
+				oc.SetNameDut(orgId)
+				oc.SetNameEng(orgId)
 				newOrg, err := oc.Save(ctx)
 				if err != nil {
-					return nil, err
+					return nil, fmt.Errorf("unable to save new organization: %w", err)
 				}
 				orgs = append(orgs, newOrg)
 			}
@@ -119,18 +119,17 @@ func (ps *personService) Create(ctx context.Context, p *models.Person) (*models.
 	}
 
 	if err := tx.Commit(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to commit transaction: %w", err)
 	}
 
 	// collect entgo managed fields
 	p.DateCreated = timestamppb.New(row.DateCreated)
 	p.DateUpdated = timestamppb.New(row.DateUpdated)
-	p.Id = row.PublicID
 
 	return p, nil
 }
 
-func (ps *personService) Update(ctx context.Context, p *models.Person) (*models.Person, error) {
+func (ps *personService) UpdatePerson(ctx context.Context, p *models.Person) (*models.Person, error) {
 	tx, txErr := ps.db.Tx(ctx)
 	if txErr != nil {
 		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
@@ -180,7 +179,8 @@ func (ps *personService) Update(ctx context.Context, p *models.Person) (*models.
 			if !found {
 				oc := tx.Organization.Create()
 				oc.SetPublicID(orgId)
-				oc.SetName(orgId)
+				oc.SetNameDut(orgId)
+				oc.SetNameEng(orgId)
 				newOrg, err := oc.Save(ctx)
 				if err != nil {
 					return nil, err
@@ -200,28 +200,27 @@ func (ps *personService) Update(ctx context.Context, p *models.Person) (*models.
 		return nil, err
 	}
 
-	return ps.Get(ctx, p.Id)
+	return ps.GetPerson(ctx, p.Id)
 }
 
-func (ps *personService) Get(ctx context.Context, id string) (*models.Person, error) {
+func (ps *personService) GetPerson(ctx context.Context, id string) (*models.Person, error) {
 	row, err := ps.db.Person.Query().WithOrganizations().Where(person.PublicIDEQ(id)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
 			return nil, models.ErrNotFound
 		}
-		fmt.Fprintf(os.Stderr, "return other error!!!!\n")
 		return nil, err
 	}
 	return personUnwrap(row), nil
 }
 
-func (ps *personService) Delete(ctx context.Context, id string) error {
+func (ps *personService) DeletePerson(ctx context.Context, id string) error {
 	_, err := ps.db.Person.Delete().Where(person.PublicIDEQ(id)).Exec(ctx)
 	return err
 }
 
-func (ps *personService) Each(ctx context.Context, cb func(*models.Person) bool) error {
+func (ps *personService) EachPerson(ctx context.Context, cb func(*models.Person) bool) error {
 
 	// TODO: find a better way to do this (no cursors possible)
 	var offset int = 0

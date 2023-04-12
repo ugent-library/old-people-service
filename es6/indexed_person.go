@@ -22,6 +22,9 @@ func ParseTimeUTC(ds string) (*time.Time, error) {
 	return &t, nil
 }
 
+/*
+TODO: make other_id better suitable for querying
+*/
 type indexedPerson struct {
 	*models.Person
 	DateCreated string `json:"date_created"`

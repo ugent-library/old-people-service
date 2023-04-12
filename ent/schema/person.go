@@ -20,7 +20,7 @@ type IdRef struct {
 }
 
 // TODO validate type
-var IdRefTypes = []string{
+var PersonIdTypes = []string{
 	"ugent_id",
 	"ugent_barcode",
 	"ugent_username",

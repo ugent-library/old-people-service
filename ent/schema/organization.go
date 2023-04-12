@@ -12,6 +12,23 @@ type Organization struct {
 	ent.Schema
 }
 
+var OrganizationTypes = []string{
+	"organization",
+	"department",
+}
+
+var OrganizationIdTypes = []string{
+	// vb. WE03, WE03V
+	// (gismo: org-code)
+	"ugent_id",
+	// vb. WE03* (biblio uses "*" to mark historic organizations)
+	// (gismo: biblio-code)
+	"biblio_id",
+	// vb. 000006045
+	// (gismo: memorialis)
+	"ugent_memorialis_id",
+}
+
 func (Organization) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "organization"},
@@ -21,8 +38,13 @@ func (Organization) Annotations() []schema.Annotation {
 func (Organization) Fields() []ent.Field {
 	// field "id" is implied
 	return []ent.Field{
+		// TODO: public_id is derived from what gismo attribute??
 		field.String("public_id").Immutable().Unique(),
-		field.String("name"),
+		field.String("type").Default("organization"),
+		field.String("name_dut").Optional(),
+		field.String("name_eng").Optional(),
+		field.JSON("other_id", []IdRef{}).Optional(),
+		field.Int("parent_id").Optional(),
 	}
 }
 
@@ -31,6 +53,10 @@ func (Organization) Edges() []ent.Edge {
 		edge.From("people", Person.Type).
 			Ref("organizations").
 			Through("organization_person", OrganizationPerson.Type),
+		edge.To("children", Organization.Type).
+			From("parent").
+			Field("parent_id").
+			Unique(),
 	}
 }
 

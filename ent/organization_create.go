@@ -13,6 +13,7 @@ import (
 	"github.com/ugent-library/people/ent/organization"
 	"github.com/ugent-library/people/ent/organizationperson"
 	"github.com/ugent-library/people/ent/person"
+	"github.com/ugent-library/people/ent/schema"
 )
 
 // OrganizationCreate is the builder for creating a Organization entity.
@@ -56,9 +57,65 @@ func (oc *OrganizationCreate) SetPublicID(s string) *OrganizationCreate {
 	return oc
 }
 
-// SetName sets the "name" field.
-func (oc *OrganizationCreate) SetName(s string) *OrganizationCreate {
-	oc.mutation.SetName(s)
+// SetType sets the "type" field.
+func (oc *OrganizationCreate) SetType(s string) *OrganizationCreate {
+	oc.mutation.SetType(s)
+	return oc
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (oc *OrganizationCreate) SetNillableType(s *string) *OrganizationCreate {
+	if s != nil {
+		oc.SetType(*s)
+	}
+	return oc
+}
+
+// SetNameDut sets the "name_dut" field.
+func (oc *OrganizationCreate) SetNameDut(s string) *OrganizationCreate {
+	oc.mutation.SetNameDut(s)
+	return oc
+}
+
+// SetNillableNameDut sets the "name_dut" field if the given value is not nil.
+func (oc *OrganizationCreate) SetNillableNameDut(s *string) *OrganizationCreate {
+	if s != nil {
+		oc.SetNameDut(*s)
+	}
+	return oc
+}
+
+// SetNameEng sets the "name_eng" field.
+func (oc *OrganizationCreate) SetNameEng(s string) *OrganizationCreate {
+	oc.mutation.SetNameEng(s)
+	return oc
+}
+
+// SetNillableNameEng sets the "name_eng" field if the given value is not nil.
+func (oc *OrganizationCreate) SetNillableNameEng(s *string) *OrganizationCreate {
+	if s != nil {
+		oc.SetNameEng(*s)
+	}
+	return oc
+}
+
+// SetOtherID sets the "other_id" field.
+func (oc *OrganizationCreate) SetOtherID(sr []schema.IdRef) *OrganizationCreate {
+	oc.mutation.SetOtherID(sr)
+	return oc
+}
+
+// SetParentID sets the "parent_id" field.
+func (oc *OrganizationCreate) SetParentID(i int) *OrganizationCreate {
+	oc.mutation.SetParentID(i)
+	return oc
+}
+
+// SetNillableParentID sets the "parent_id" field if the given value is not nil.
+func (oc *OrganizationCreate) SetNillableParentID(i *int) *OrganizationCreate {
+	if i != nil {
+		oc.SetParentID(*i)
+	}
 	return oc
 }
 
@@ -75,6 +132,26 @@ func (oc *OrganizationCreate) AddPeople(p ...*Person) *OrganizationCreate {
 		ids[i] = p[i].ID
 	}
 	return oc.AddPersonIDs(ids...)
+}
+
+// SetParent sets the "parent" edge to the Organization entity.
+func (oc *OrganizationCreate) SetParent(o *Organization) *OrganizationCreate {
+	return oc.SetParentID(o.ID)
+}
+
+// AddChildIDs adds the "children" edge to the Organization entity by IDs.
+func (oc *OrganizationCreate) AddChildIDs(ids ...int) *OrganizationCreate {
+	oc.mutation.AddChildIDs(ids...)
+	return oc
+}
+
+// AddChildren adds the "children" edges to the Organization entity.
+func (oc *OrganizationCreate) AddChildren(o ...*Organization) *OrganizationCreate {
+	ids := make([]int, len(o))
+	for i := range o {
+		ids[i] = o[i].ID
+	}
+	return oc.AddChildIDs(ids...)
 }
 
 // AddOrganizationPersonIDs adds the "organization_person" edge to the OrganizationPerson entity by IDs.
@@ -135,6 +212,10 @@ func (oc *OrganizationCreate) defaults() {
 		v := organization.DefaultDateUpdated()
 		oc.mutation.SetDateUpdated(v)
 	}
+	if _, ok := oc.mutation.GetType(); !ok {
+		v := organization.DefaultType
+		oc.mutation.SetType(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -148,8 +229,8 @@ func (oc *OrganizationCreate) check() error {
 	if _, ok := oc.mutation.PublicID(); !ok {
 		return &ValidationError{Name: "public_id", err: errors.New(`ent: missing required field "Organization.public_id"`)}
 	}
-	if _, ok := oc.mutation.Name(); !ok {
-		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Organization.name"`)}
+	if _, ok := oc.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Organization.type"`)}
 	}
 	return nil
 }
@@ -189,9 +270,21 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 		_spec.SetField(organization.FieldPublicID, field.TypeString, value)
 		_node.PublicID = value
 	}
-	if value, ok := oc.mutation.Name(); ok {
-		_spec.SetField(organization.FieldName, field.TypeString, value)
-		_node.Name = value
+	if value, ok := oc.mutation.GetType(); ok {
+		_spec.SetField(organization.FieldType, field.TypeString, value)
+		_node.Type = value
+	}
+	if value, ok := oc.mutation.NameDut(); ok {
+		_spec.SetField(organization.FieldNameDut, field.TypeString, value)
+		_node.NameDut = value
+	}
+	if value, ok := oc.mutation.NameEng(); ok {
+		_spec.SetField(organization.FieldNameEng, field.TypeString, value)
+		_node.NameEng = value
+	}
+	if value, ok := oc.mutation.OtherID(); ok {
+		_spec.SetField(organization.FieldOtherID, field.TypeJSON, value)
+		_node.OtherID = value
 	}
 	if nodes := oc.mutation.PeopleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -214,6 +307,45 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := oc.mutation.ParentIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   organization.ParentTable,
+			Columns: []string{organization.ParentColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: organization.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.ParentID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := oc.mutation.ChildrenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   organization.ChildrenTable,
+			Columns: []string{organization.ChildrenColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: organization.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := oc.mutation.OrganizationPersonIDs(); len(nodes) > 0 {

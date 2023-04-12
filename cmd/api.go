@@ -30,15 +30,18 @@ var apiStartCmd = &cobra.Command{
 	Short: "start the api server",
 	Run: func(cmd *cobra.Command, args []string) {
 
+		services := Services()
 		srv := grpc_server.NewServer(&grpc_server.ServerConfig{
-			Logger:              logger,
-			PersonService:       Services().PersonService,
-			PersonSearchService: Services().PersonSearchService,
-			Username:            viper.GetString("api.username"),
-			Password:            viper.GetString("api.password"),
-			TlsEnabled:          viper.GetBool("api.tls_enabled"),
-			TlsServerCert:       viper.GetString("api.tls_server_crt"),
-			TlsServerKey:        viper.GetString("api.tls_server_key"),
+			Logger:                    logger,
+			PersonService:             services.PersonService,
+			PersonSearchService:       services.PersonSearchService,
+			OrganizationService:       services.OrganizationService,
+			OrganizationSearchService: services.OrganizationSearchService,
+			Username:                  viper.GetString("api.username"),
+			Password:                  viper.GetString("api.password"),
+			TlsEnabled:                viper.GetBool("api.tls_enabled"),
+			TlsServerCert:             viper.GetString("api.tls_server_crt"),
+			TlsServerKey:              viper.GetString("api.tls_server_key"),
 		})
 
 		addr := fmt.Sprintf("%s:%d", viper.GetString("api.host"), viper.GetInt("api.port"))

@@ -7,15 +7,6 @@ type PersonHits struct {
 	Hits  []*Person `json:"hits"`
 }
 
-type M map[string]any
-
-type SearchArgs struct {
-	Start int
-	Limit int
-	Query M
-	Sort  []M
-}
-
 type PersonSearchService interface {
 	Search(*SearchArgs) (*PersonHits, error)
 	Index(*Person) error

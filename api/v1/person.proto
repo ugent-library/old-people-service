@@ -60,6 +60,17 @@ message Person {
   repeated string job_category = 17;
 }
 
+message Organization {
+  string id = 1;
+  google.protobuf.Timestamp date_created = 2;
+  google.protobuf.Timestamp date_updated = 3;
+  string type = 4;
+  string name_dut = 5;
+  string name_eng = 6;
+  string parent_id = 7;
+  repeated IdRef other_id = 8;
+}
+
 message GetPersonRequest {
   string id = 1;
 }
@@ -93,9 +104,43 @@ message SuggestPersonResponse{
   Person person = 1;
 }
 
+message GetOrganizationRequest {
+  string id = 1;
+}
+message GetOrganizationResponse {
+  oneof response {
+    Organization organization = 1;   
+    google.rpc.Status error = 2;
+  }
+}
+
+message GetAllOrganizationRequest {}
+message GetAllOrganizationResponse {
+  Organization organization = 1;
+}
+
+message ReindexOrganizationRequest{}
+message ReindexOrganizationResponse{
+  oneof response {
+    string message = 1;
+    google.rpc.Status error = 2;
+  }
+}
+
+message SuggestOrganizationRequest{
+  string query = 1;
+}
+message SuggestOrganizationResponse{
+  Organization organization = 1;
+}
+
 service People {
   rpc GetPerson(GetPersonRequest) returns (GetPersonResponse);
   rpc GetAllPerson(GetAllPersonRequest) returns (stream GetAllPersonResponse);
   rpc ReindexPerson(ReindexPersonRequest) returns (stream ReindexPersonResponse);
   rpc SuggestPerson(SuggestPersonRequest) returns (stream SuggestPersonResponse);
+  rpc GetOrganization(GetOrganizationRequest) returns (GetOrganizationResponse);
+  rpc GetAllOrganization(GetAllOrganizationRequest) returns (stream GetAllOrganizationResponse);
+  rpc ReindexOrganization(ReindexOrganizationRequest) returns (stream ReindexOrganizationResponse);
+  rpc SuggestOrganization(SuggestOrganizationRequest) returns (stream SuggestOrganizationResponse);
 }

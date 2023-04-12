@@ -275,6 +275,109 @@ func (x *Person) GetJobCategory() []string {
 	return nil
 }
 
+type Organization struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	DateCreated *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_created,json=dateCreated,proto3" json:"date_created,omitempty"`
+	DateUpdated *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_updated,json=dateUpdated,proto3" json:"date_updated,omitempty"`
+	Type        string                 `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty"`
+	NameDut     string                 `protobuf:"bytes,5,opt,name=name_dut,json=nameDut,proto3" json:"name_dut,omitempty"`
+	NameEng     string                 `protobuf:"bytes,6,opt,name=name_eng,json=nameEng,proto3" json:"name_eng,omitempty"`
+	ParentId    string                 `protobuf:"bytes,7,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	OtherId     []*IdRef               `protobuf:"bytes,8,rep,name=other_id,json=otherId,proto3" json:"other_id,omitempty"`
+}
+
+func (x *Organization) Reset() {
+	*x = Organization{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Organization) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Organization) ProtoMessage() {}
+
+func (x *Organization) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Organization.ProtoReflect.Descriptor instead.
+func (*Organization) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Organization) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Organization) GetDateCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DateCreated
+	}
+	return nil
+}
+
+func (x *Organization) GetDateUpdated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DateUpdated
+	}
+	return nil
+}
+
+func (x *Organization) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *Organization) GetNameDut() string {
+	if x != nil {
+		return x.NameDut
+	}
+	return ""
+}
+
+func (x *Organization) GetNameEng() string {
+	if x != nil {
+		return x.NameEng
+	}
+	return ""
+}
+
+func (x *Organization) GetParentId() string {
+	if x != nil {
+		return x.ParentId
+	}
+	return ""
+}
+
+func (x *Organization) GetOtherId() []*IdRef {
+	if x != nil {
+		return x.OtherId
+	}
+	return nil
+}
+
 type GetPersonRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -286,7 +389,7 @@ type GetPersonRequest struct {
 func (x *GetPersonRequest) Reset() {
 	*x = GetPersonRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_person_proto_msgTypes[2]
+		mi := &file_person_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -299,7 +402,7 @@ func (x *GetPersonRequest) String() string {
 func (*GetPersonRequest) ProtoMessage() {}
 
 func (x *GetPersonRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_person_proto_msgTypes[2]
+	mi := &file_person_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -312,7 +415,7 @@ func (x *GetPersonRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPersonRequest.ProtoReflect.Descriptor instead.
 func (*GetPersonRequest) Descriptor() ([]byte, []int) {
-	return file_person_proto_rawDescGZIP(), []int{2}
+	return file_person_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetPersonRequest) GetId() string {
@@ -337,7 +440,7 @@ type GetPersonResponse struct {
 func (x *GetPersonResponse) Reset() {
 	*x = GetPersonResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_person_proto_msgTypes[3]
+		mi := &file_person_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -350,7 +453,7 @@ func (x *GetPersonResponse) String() string {
 func (*GetPersonResponse) ProtoMessage() {}
 
 func (x *GetPersonResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_person_proto_msgTypes[3]
+	mi := &file_person_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -363,7 +466,7 @@ func (x *GetPersonResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPersonResponse.ProtoReflect.Descriptor instead.
 func (*GetPersonResponse) Descriptor() ([]byte, []int) {
-	return file_person_proto_rawDescGZIP(), []int{3}
+	return file_person_proto_rawDescGZIP(), []int{4}
 }
 
 func (m *GetPersonResponse) GetResponse() isGetPersonResponse_Response {
@@ -412,7 +515,7 @@ type GetAllPersonRequest struct {
 func (x *GetAllPersonRequest) Reset() {
 	*x = GetAllPersonRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_person_proto_msgTypes[4]
+		mi := &file_person_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -425,7 +528,7 @@ func (x *GetAllPersonRequest) String() string {
 func (*GetAllPersonRequest) ProtoMessage() {}
 
 func (x *GetAllPersonRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_person_proto_msgTypes[4]
+	mi := &file_person_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -438,7 +541,7 @@ func (x *GetAllPersonRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllPersonRequest.ProtoReflect.Descriptor instead.
 func (*GetAllPersonRequest) Descriptor() ([]byte, []int) {
-	return file_person_proto_rawDescGZIP(), []int{4}
+	return file_person_proto_rawDescGZIP(), []int{5}
 }
 
 type GetAllPersonResponse struct {
@@ -452,7 +555,7 @@ type GetAllPersonResponse struct {
 func (x *GetAllPersonResponse) Reset() {
 	*x = GetAllPersonResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_person_proto_msgTypes[5]
+		mi := &file_person_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -465,7 +568,7 @@ func (x *GetAllPersonResponse) String() string {
 func (*GetAllPersonResponse) ProtoMessage() {}
 
 func (x *GetAllPersonResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_person_proto_msgTypes[5]
+	mi := &file_person_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -478,7 +581,7 @@ func (x *GetAllPersonResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllPersonResponse.ProtoReflect.Descriptor instead.
 func (*GetAllPersonResponse) Descriptor() ([]byte, []int) {
-	return file_person_proto_rawDescGZIP(), []int{5}
+	return file_person_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetAllPersonResponse) GetPerson() *Person {
@@ -497,7 +600,7 @@ type ReindexPersonRequest struct {
 func (x *ReindexPersonRequest) Reset() {
 	*x = ReindexPersonRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_person_proto_msgTypes[6]
+		mi := &file_person_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -510,7 +613,7 @@ func (x *ReindexPersonRequest) String() string {
 func (*ReindexPersonRequest) ProtoMessage() {}
 
 func (x *ReindexPersonRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_person_proto_msgTypes[6]
+	mi := &file_person_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -523,7 +626,7 @@ func (x *ReindexPersonRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReindexPersonRequest.ProtoReflect.Descriptor instead.
 func (*ReindexPersonRequest) Descriptor() ([]byte, []int) {
-	return file_person_proto_rawDescGZIP(), []int{6}
+	return file_person_proto_rawDescGZIP(), []int{7}
 }
 
 type ReindexPersonResponse struct {
@@ -541,7 +644,7 @@ type ReindexPersonResponse struct {
 func (x *ReindexPersonResponse) Reset() {
 	*x = ReindexPersonResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_person_proto_msgTypes[7]
+		mi := &file_person_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -554,7 +657,7 @@ func (x *ReindexPersonResponse) String() string {
 func (*ReindexPersonResponse) ProtoMessage() {}
 
 func (x *ReindexPersonResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_person_proto_msgTypes[7]
+	mi := &file_person_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -567,7 +670,7 @@ func (x *ReindexPersonResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReindexPersonResponse.ProtoReflect.Descriptor instead.
 func (*ReindexPersonResponse) Descriptor() ([]byte, []int) {
-	return file_person_proto_rawDescGZIP(), []int{7}
+	return file_person_proto_rawDescGZIP(), []int{8}
 }
 
 func (m *ReindexPersonResponse) GetResponse() isReindexPersonResponse_Response {
@@ -618,7 +721,7 @@ type SuggestPersonRequest struct {
 func (x *SuggestPersonRequest) Reset() {
 	*x = SuggestPersonRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_person_proto_msgTypes[8]
+		mi := &file_person_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -631,7 +734,7 @@ func (x *SuggestPersonRequest) String() string {
 func (*SuggestPersonRequest) ProtoMessage() {}
 
 func (x *SuggestPersonRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_person_proto_msgTypes[8]
+	mi := &file_person_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -644,7 +747,7 @@ func (x *SuggestPersonRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuggestPersonRequest.ProtoReflect.Descriptor instead.
 func (*SuggestPersonRequest) Descriptor() ([]byte, []int) {
-	return file_person_proto_rawDescGZIP(), []int{8}
+	return file_person_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SuggestPersonRequest) GetQuery() string {
@@ -665,7 +768,7 @@ type SuggestPersonResponse struct {
 func (x *SuggestPersonResponse) Reset() {
 	*x = SuggestPersonResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_person_proto_msgTypes[9]
+		mi := &file_person_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -678,7 +781,7 @@ func (x *SuggestPersonResponse) String() string {
 func (*SuggestPersonResponse) ProtoMessage() {}
 
 func (x *SuggestPersonResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_person_proto_msgTypes[9]
+	mi := &file_person_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -691,12 +794,438 @@ func (x *SuggestPersonResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SuggestPersonResponse.ProtoReflect.Descriptor instead.
 func (*SuggestPersonResponse) Descriptor() ([]byte, []int) {
-	return file_person_proto_rawDescGZIP(), []int{9}
+	return file_person_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SuggestPersonResponse) GetPerson() *Person {
 	if x != nil {
 		return x.Person
+	}
+	return nil
+}
+
+type GetOrganizationRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *GetOrganizationRequest) Reset() {
+	*x = GetOrganizationRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetOrganizationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOrganizationRequest) ProtoMessage() {}
+
+func (x *GetOrganizationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOrganizationRequest.ProtoReflect.Descriptor instead.
+func (*GetOrganizationRequest) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetOrganizationRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type GetOrganizationResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Response:
+	//
+	//	*GetOrganizationResponse_Organization
+	//	*GetOrganizationResponse_Error
+	Response isGetOrganizationResponse_Response `protobuf_oneof:"response"`
+}
+
+func (x *GetOrganizationResponse) Reset() {
+	*x = GetOrganizationResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetOrganizationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOrganizationResponse) ProtoMessage() {}
+
+func (x *GetOrganizationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOrganizationResponse.ProtoReflect.Descriptor instead.
+func (*GetOrganizationResponse) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{12}
+}
+
+func (m *GetOrganizationResponse) GetResponse() isGetOrganizationResponse_Response {
+	if m != nil {
+		return m.Response
+	}
+	return nil
+}
+
+func (x *GetOrganizationResponse) GetOrganization() *Organization {
+	if x, ok := x.GetResponse().(*GetOrganizationResponse_Organization); ok {
+		return x.Organization
+	}
+	return nil
+}
+
+func (x *GetOrganizationResponse) GetError() *status.Status {
+	if x, ok := x.GetResponse().(*GetOrganizationResponse_Error); ok {
+		return x.Error
+	}
+	return nil
+}
+
+type isGetOrganizationResponse_Response interface {
+	isGetOrganizationResponse_Response()
+}
+
+type GetOrganizationResponse_Organization struct {
+	Organization *Organization `protobuf:"bytes,1,opt,name=organization,proto3,oneof"`
+}
+
+type GetOrganizationResponse_Error struct {
+	Error *status.Status `protobuf:"bytes,2,opt,name=error,proto3,oneof"`
+}
+
+func (*GetOrganizationResponse_Organization) isGetOrganizationResponse_Response() {}
+
+func (*GetOrganizationResponse_Error) isGetOrganizationResponse_Response() {}
+
+type GetAllOrganizationRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *GetAllOrganizationRequest) Reset() {
+	*x = GetAllOrganizationRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetAllOrganizationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllOrganizationRequest) ProtoMessage() {}
+
+func (x *GetAllOrganizationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllOrganizationRequest.ProtoReflect.Descriptor instead.
+func (*GetAllOrganizationRequest) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{13}
+}
+
+type GetAllOrganizationResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Organization *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
+}
+
+func (x *GetAllOrganizationResponse) Reset() {
+	*x = GetAllOrganizationResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetAllOrganizationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllOrganizationResponse) ProtoMessage() {}
+
+func (x *GetAllOrganizationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllOrganizationResponse.ProtoReflect.Descriptor instead.
+func (*GetAllOrganizationResponse) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetAllOrganizationResponse) GetOrganization() *Organization {
+	if x != nil {
+		return x.Organization
+	}
+	return nil
+}
+
+type ReindexOrganizationRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ReindexOrganizationRequest) Reset() {
+	*x = ReindexOrganizationRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ReindexOrganizationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReindexOrganizationRequest) ProtoMessage() {}
+
+func (x *ReindexOrganizationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReindexOrganizationRequest.ProtoReflect.Descriptor instead.
+func (*ReindexOrganizationRequest) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{15}
+}
+
+type ReindexOrganizationResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Response:
+	//
+	//	*ReindexOrganizationResponse_Message
+	//	*ReindexOrganizationResponse_Error
+	Response isReindexOrganizationResponse_Response `protobuf_oneof:"response"`
+}
+
+func (x *ReindexOrganizationResponse) Reset() {
+	*x = ReindexOrganizationResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ReindexOrganizationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReindexOrganizationResponse) ProtoMessage() {}
+
+func (x *ReindexOrganizationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReindexOrganizationResponse.ProtoReflect.Descriptor instead.
+func (*ReindexOrganizationResponse) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{16}
+}
+
+func (m *ReindexOrganizationResponse) GetResponse() isReindexOrganizationResponse_Response {
+	if m != nil {
+		return m.Response
+	}
+	return nil
+}
+
+func (x *ReindexOrganizationResponse) GetMessage() string {
+	if x, ok := x.GetResponse().(*ReindexOrganizationResponse_Message); ok {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ReindexOrganizationResponse) GetError() *status.Status {
+	if x, ok := x.GetResponse().(*ReindexOrganizationResponse_Error); ok {
+		return x.Error
+	}
+	return nil
+}
+
+type isReindexOrganizationResponse_Response interface {
+	isReindexOrganizationResponse_Response()
+}
+
+type ReindexOrganizationResponse_Message struct {
+	Message string `protobuf:"bytes,1,opt,name=message,proto3,oneof"`
+}
+
+type ReindexOrganizationResponse_Error struct {
+	Error *status.Status `protobuf:"bytes,2,opt,name=error,proto3,oneof"`
+}
+
+func (*ReindexOrganizationResponse_Message) isReindexOrganizationResponse_Response() {}
+
+func (*ReindexOrganizationResponse_Error) isReindexOrganizationResponse_Response() {}
+
+type SuggestOrganizationRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Query string `protobuf:"bytes,1,opt,name=query,proto3" json:"query,omitempty"`
+}
+
+func (x *SuggestOrganizationRequest) Reset() {
+	*x = SuggestOrganizationRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SuggestOrganizationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SuggestOrganizationRequest) ProtoMessage() {}
+
+func (x *SuggestOrganizationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SuggestOrganizationRequest.ProtoReflect.Descriptor instead.
+func (*SuggestOrganizationRequest) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *SuggestOrganizationRequest) GetQuery() string {
+	if x != nil {
+		return x.Query
+	}
+	return ""
+}
+
+type SuggestOrganizationResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Organization *Organization `protobuf:"bytes,1,opt,name=organization,proto3" json:"organization,omitempty"`
+}
+
+func (x *SuggestOrganizationResponse) Reset() {
+	*x = SuggestOrganizationResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SuggestOrganizationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SuggestOrganizationResponse) ProtoMessage() {}
+
+func (x *SuggestOrganizationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SuggestOrganizationResponse.ProtoReflect.Descriptor instead.
+func (*SuggestOrganizationResponse) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *SuggestOrganizationResponse) GetOrganization() *Organization {
+	if x != nil {
+		return x.Organization
 	}
 	return nil
 }
@@ -750,7 +1279,26 @@ var file_person_proto_rawDesc = []byte{
 	0x6f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x64, 0x12, 0x21,
 	0x0a, 0x0c, 0x6a, 0x6f, 0x62, 0x5f, 0x63, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x18, 0x11,
 	0x20, 0x03, 0x28, 0x09, 0x52, 0x0b, 0x6a, 0x6f, 0x62, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72,
-	0x79, 0x22, 0x22, 0x0a, 0x10, 0x47, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65,
+	0x79, 0x22, 0xad, 0x02, 0x0a, 0x0c, 0x4f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02,
+	0x69, 0x64, 0x12, 0x3d, 0x0a, 0x0c, 0x64, 0x61, 0x74, 0x65, 0x5f, 0x63, 0x72, 0x65, 0x61, 0x74,
+	0x65, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c,
+	0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73,
+	0x74, 0x61, 0x6d, 0x70, 0x52, 0x0b, 0x64, 0x61, 0x74, 0x65, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65,
+	0x64, 0x12, 0x3d, 0x0a, 0x0c, 0x64, 0x61, 0x74, 0x65, 0x5f, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65,
+	0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65,
+	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74,
+	0x61, 0x6d, 0x70, 0x52, 0x0b, 0x64, 0x61, 0x74, 0x65, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64,
+	0x12, 0x12, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04,
+	0x74, 0x79, 0x70, 0x65, 0x12, 0x19, 0x0a, 0x08, 0x6e, 0x61, 0x6d, 0x65, 0x5f, 0x64, 0x75, 0x74,
+	0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6e, 0x61, 0x6d, 0x65, 0x44, 0x75, 0x74, 0x12,
+	0x19, 0x0a, 0x08, 0x6e, 0x61, 0x6d, 0x65, 0x5f, 0x65, 0x6e, 0x67, 0x18, 0x06, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x07, 0x6e, 0x61, 0x6d, 0x65, 0x45, 0x6e, 0x67, 0x12, 0x1b, 0x0a, 0x09, 0x70, 0x61,
+	0x72, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x07, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70,
+	0x61, 0x72, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x12, 0x28, 0x0a, 0x08, 0x6f, 0x74, 0x68, 0x65, 0x72,
+	0x5f, 0x69, 0x64, 0x18, 0x08, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0d, 0x2e, 0x61, 0x70, 0x69, 0x2e,
+	0x76, 0x31, 0x2e, 0x49, 0x64, 0x52, 0x65, 0x66, 0x52, 0x07, 0x6f, 0x74, 0x68, 0x65, 0x72, 0x49,
+	0x64, 0x22, 0x22, 0x0a, 0x10, 0x47, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65,
 	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x09, 0x52, 0x02, 0x69, 0x64, 0x22, 0x75, 0x0a, 0x11, 0x47, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73,
 	0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x28, 0x0a, 0x06, 0x70, 0x65,
@@ -780,30 +1328,90 @@ var file_person_proto_rawDesc = []byte{
 	0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
 	0x26, 0x0a, 0x06, 0x70, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
 	0x0e, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52,
-	0x06, 0x70, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x32, 0xb7, 0x02, 0x0a, 0x06, 0x50, 0x65, 0x6f, 0x70,
-	0x6c, 0x65, 0x12, 0x40, 0x0a, 0x09, 0x47, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x12,
-	0x18, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73,
-	0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x61, 0x70, 0x69, 0x2e,
-	0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4b, 0x0a, 0x0c, 0x47, 0x65, 0x74, 0x41, 0x6c, 0x6c, 0x50, 0x65,
-	0x72, 0x73, 0x6f, 0x6e, 0x12, 0x1b, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65,
-	0x74, 0x41, 0x6c, 0x6c, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x1a, 0x1c, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x6c,
-	0x6c, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30,
-	0x01, 0x12, 0x4e, 0x0a, 0x0d, 0x52, 0x65, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x50, 0x65, 0x72, 0x73,
-	0x6f, 0x6e, 0x12, 0x1c, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x52, 0x65, 0x69, 0x6e,
-	0x64, 0x65, 0x78, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x1d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x52, 0x65, 0x69, 0x6e, 0x64, 0x65,
-	0x78, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30,
-	0x01, 0x12, 0x4e, 0x0a, 0x0d, 0x53, 0x75, 0x67, 0x67, 0x65, 0x73, 0x74, 0x50, 0x65, 0x72, 0x73,
-	0x6f, 0x6e, 0x12, 0x1c, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x75, 0x67, 0x67,
-	0x65, 0x73, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x1d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x75, 0x67, 0x67, 0x65, 0x73,
-	0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30,
-	0x01, 0x42, 0x28, 0x5a, 0x26, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
-	0x75, 0x67, 0x65, 0x6e, 0x74, 0x2d, 0x6c, 0x69, 0x62, 0x72, 0x61, 0x72, 0x79, 0x2f, 0x70, 0x65,
-	0x6f, 0x70, 0x6c, 0x65, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x33,
+	0x06, 0x70, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x22, 0x28, 0x0a, 0x16, 0x47, 0x65, 0x74, 0x4f, 0x72,
+	0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69,
+	0x64, 0x22, 0x8d, 0x01, 0x0a, 0x17, 0x47, 0x65, 0x74, 0x4f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3a, 0x0a,
+	0x0c, 0x6f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x14, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x4f, 0x72, 0x67,
+	0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x48, 0x00, 0x52, 0x0c, 0x6f, 0x72, 0x67,
+	0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x2a, 0x0a, 0x05, 0x65, 0x72, 0x72,
+	0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c,
+	0x65, 0x2e, 0x72, 0x70, 0x63, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x48, 0x00, 0x52, 0x05,
+	0x65, 0x72, 0x72, 0x6f, 0x72, 0x42, 0x0a, 0x0a, 0x08, 0x72, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x1b, 0x0a, 0x19, 0x47, 0x65, 0x74, 0x41, 0x6c, 0x6c, 0x4f, 0x72, 0x67, 0x61, 0x6e,
+	0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x56,
+	0x0a, 0x1a, 0x47, 0x65, 0x74, 0x41, 0x6c, 0x6c, 0x4f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x38, 0x0a, 0x0c,
+	0x6f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x14, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x4f, 0x72, 0x67, 0x61,
+	0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x0c, 0x6f, 0x72, 0x67, 0x61, 0x6e, 0x69,
+	0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x1c, 0x0a, 0x1a, 0x52, 0x65, 0x69, 0x6e, 0x64, 0x65,
+	0x78, 0x4f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x22, 0x71, 0x0a, 0x1b, 0x52, 0x65, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x4f,
+	0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x1a, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12,
+	0x2a, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x12,
+	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x72, 0x70, 0x63, 0x2e, 0x53, 0x74, 0x61, 0x74,
+	0x75, 0x73, 0x48, 0x00, 0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x42, 0x0a, 0x0a, 0x08, 0x72,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x32, 0x0a, 0x1a, 0x53, 0x75, 0x67, 0x67, 0x65,
+	0x73, 0x74, 0x4f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x71, 0x75, 0x65, 0x72, 0x79, 0x22, 0x57, 0x0a, 0x1b, 0x53,
+	0x75, 0x67, 0x67, 0x65, 0x73, 0x74, 0x4f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x38, 0x0a, 0x0c, 0x6f, 0x72,
+	0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x14, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x4f, 0x72, 0x67, 0x61, 0x6e, 0x69,
+	0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x0c, 0x6f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x32, 0xae, 0x05, 0x0a, 0x06, 0x50, 0x65, 0x6f, 0x70, 0x6c, 0x65, 0x12,
+	0x40, 0x0a, 0x09, 0x47, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x12, 0x18, 0x2e, 0x61,
+	0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e,
+	0x47, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x4b, 0x0a, 0x0c, 0x47, 0x65, 0x74, 0x41, 0x6c, 0x6c, 0x50, 0x65, 0x72, 0x73, 0x6f,
+	0x6e, 0x12, 0x1b, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x6c,
+	0x6c, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c,
+	0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x6c, 0x6c, 0x50, 0x65,
+	0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30, 0x01, 0x12, 0x4e,
+	0x0a, 0x0d, 0x52, 0x65, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x12,
+	0x1c, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x52, 0x65, 0x69, 0x6e, 0x64, 0x65, 0x78,
+	0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e,
+	0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x52, 0x65, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x50, 0x65,
+	0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30, 0x01, 0x12, 0x4e,
+	0x0a, 0x0d, 0x53, 0x75, 0x67, 0x67, 0x65, 0x73, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x12,
+	0x1c, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x75, 0x67, 0x67, 0x65, 0x73, 0x74,
+	0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e,
+	0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x75, 0x67, 0x67, 0x65, 0x73, 0x74, 0x50, 0x65,
+	0x72, 0x73, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30, 0x01, 0x12, 0x52,
+	0x0a, 0x0f, 0x47, 0x65, 0x74, 0x4f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x12, 0x1e, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x4f, 0x72,
+	0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x1f, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x4f, 0x72,
+	0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x5d, 0x0a, 0x12, 0x47, 0x65, 0x74, 0x41, 0x6c, 0x6c, 0x4f, 0x72, 0x67, 0x61,
+	0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x21, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76,
+	0x31, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x6c, 0x6c, 0x4f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x61, 0x70,
+	0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x6c, 0x6c, 0x4f, 0x72, 0x67, 0x61, 0x6e,
+	0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30,
+	0x01, 0x12, 0x60, 0x0a, 0x13, 0x52, 0x65, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x4f, 0x72, 0x67, 0x61,
+	0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x22, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76,
+	0x31, 0x2e, 0x52, 0x65, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x4f, 0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x23, 0x2e, 0x61,
+	0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x52, 0x65, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x4f, 0x72, 0x67,
+	0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x30, 0x01, 0x12, 0x60, 0x0a, 0x13, 0x53, 0x75, 0x67, 0x67, 0x65, 0x73, 0x74, 0x4f, 0x72,
+	0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x22, 0x2e, 0x61, 0x70, 0x69,
+	0x2e, 0x76, 0x31, 0x2e, 0x53, 0x75, 0x67, 0x67, 0x65, 0x73, 0x74, 0x4f, 0x72, 0x67, 0x61, 0x6e,
+	0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x23,
+	0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x75, 0x67, 0x67, 0x65, 0x73, 0x74, 0x4f,
+	0x72, 0x67, 0x61, 0x6e, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x30, 0x01, 0x42, 0x28, 0x5a, 0x26, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
+	0x63, 0x6f, 0x6d, 0x2f, 0x75, 0x67, 0x65, 0x6e, 0x74, 0x2d, 0x6c, 0x69, 0x62, 0x72, 0x61, 0x72,
+	0x79, 0x2f, 0x70, 0x65, 0x6f, 0x70, 0x6c, 0x65, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x76, 0x31, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -818,43 +1426,68 @@ func file_person_proto_rawDescGZIP() []byte {
 	return file_person_proto_rawDescData
 }
 
-var file_person_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_person_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_person_proto_goTypes = []interface{}{
-	(*IdRef)(nil),                 // 0: api.v1.IdRef
-	(*Person)(nil),                // 1: api.v1.Person
-	(*GetPersonRequest)(nil),      // 2: api.v1.GetPersonRequest
-	(*GetPersonResponse)(nil),     // 3: api.v1.GetPersonResponse
-	(*GetAllPersonRequest)(nil),   // 4: api.v1.GetAllPersonRequest
-	(*GetAllPersonResponse)(nil),  // 5: api.v1.GetAllPersonResponse
-	(*ReindexPersonRequest)(nil),  // 6: api.v1.ReindexPersonRequest
-	(*ReindexPersonResponse)(nil), // 7: api.v1.ReindexPersonResponse
-	(*SuggestPersonRequest)(nil),  // 8: api.v1.SuggestPersonRequest
-	(*SuggestPersonResponse)(nil), // 9: api.v1.SuggestPersonResponse
-	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
-	(*status.Status)(nil),         // 11: google.rpc.Status
+	(*IdRef)(nil),                       // 0: api.v1.IdRef
+	(*Person)(nil),                      // 1: api.v1.Person
+	(*Organization)(nil),                // 2: api.v1.Organization
+	(*GetPersonRequest)(nil),            // 3: api.v1.GetPersonRequest
+	(*GetPersonResponse)(nil),           // 4: api.v1.GetPersonResponse
+	(*GetAllPersonRequest)(nil),         // 5: api.v1.GetAllPersonRequest
+	(*GetAllPersonResponse)(nil),        // 6: api.v1.GetAllPersonResponse
+	(*ReindexPersonRequest)(nil),        // 7: api.v1.ReindexPersonRequest
+	(*ReindexPersonResponse)(nil),       // 8: api.v1.ReindexPersonResponse
+	(*SuggestPersonRequest)(nil),        // 9: api.v1.SuggestPersonRequest
+	(*SuggestPersonResponse)(nil),       // 10: api.v1.SuggestPersonResponse
+	(*GetOrganizationRequest)(nil),      // 11: api.v1.GetOrganizationRequest
+	(*GetOrganizationResponse)(nil),     // 12: api.v1.GetOrganizationResponse
+	(*GetAllOrganizationRequest)(nil),   // 13: api.v1.GetAllOrganizationRequest
+	(*GetAllOrganizationResponse)(nil),  // 14: api.v1.GetAllOrganizationResponse
+	(*ReindexOrganizationRequest)(nil),  // 15: api.v1.ReindexOrganizationRequest
+	(*ReindexOrganizationResponse)(nil), // 16: api.v1.ReindexOrganizationResponse
+	(*SuggestOrganizationRequest)(nil),  // 17: api.v1.SuggestOrganizationRequest
+	(*SuggestOrganizationResponse)(nil), // 18: api.v1.SuggestOrganizationResponse
+	(*timestamppb.Timestamp)(nil),       // 19: google.protobuf.Timestamp
+	(*status.Status)(nil),               // 20: google.rpc.Status
 }
 var file_person_proto_depIdxs = []int32{
-	10, // 0: api.v1.Person.date_created:type_name -> google.protobuf.Timestamp
-	10, // 1: api.v1.Person.date_updated:type_name -> google.protobuf.Timestamp
+	19, // 0: api.v1.Person.date_created:type_name -> google.protobuf.Timestamp
+	19, // 1: api.v1.Person.date_updated:type_name -> google.protobuf.Timestamp
 	0,  // 2: api.v1.Person.other_id:type_name -> api.v1.IdRef
-	1,  // 3: api.v1.GetPersonResponse.person:type_name -> api.v1.Person
-	11, // 4: api.v1.GetPersonResponse.error:type_name -> google.rpc.Status
-	1,  // 5: api.v1.GetAllPersonResponse.person:type_name -> api.v1.Person
-	11, // 6: api.v1.ReindexPersonResponse.error:type_name -> google.rpc.Status
-	1,  // 7: api.v1.SuggestPersonResponse.person:type_name -> api.v1.Person
-	2,  // 8: api.v1.People.GetPerson:input_type -> api.v1.GetPersonRequest
-	4,  // 9: api.v1.People.GetAllPerson:input_type -> api.v1.GetAllPersonRequest
-	6,  // 10: api.v1.People.ReindexPerson:input_type -> api.v1.ReindexPersonRequest
-	8,  // 11: api.v1.People.SuggestPerson:input_type -> api.v1.SuggestPersonRequest
-	3,  // 12: api.v1.People.GetPerson:output_type -> api.v1.GetPersonResponse
-	5,  // 13: api.v1.People.GetAllPerson:output_type -> api.v1.GetAllPersonResponse
-	7,  // 14: api.v1.People.ReindexPerson:output_type -> api.v1.ReindexPersonResponse
-	9,  // 15: api.v1.People.SuggestPerson:output_type -> api.v1.SuggestPersonResponse
-	12, // [12:16] is the sub-list for method output_type
-	8,  // [8:12] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	19, // 3: api.v1.Organization.date_created:type_name -> google.protobuf.Timestamp
+	19, // 4: api.v1.Organization.date_updated:type_name -> google.protobuf.Timestamp
+	0,  // 5: api.v1.Organization.other_id:type_name -> api.v1.IdRef
+	1,  // 6: api.v1.GetPersonResponse.person:type_name -> api.v1.Person
+	20, // 7: api.v1.GetPersonResponse.error:type_name -> google.rpc.Status
+	1,  // 8: api.v1.GetAllPersonResponse.person:type_name -> api.v1.Person
+	20, // 9: api.v1.ReindexPersonResponse.error:type_name -> google.rpc.Status
+	1,  // 10: api.v1.SuggestPersonResponse.person:type_name -> api.v1.Person
+	2,  // 11: api.v1.GetOrganizationResponse.organization:type_name -> api.v1.Organization
+	20, // 12: api.v1.GetOrganizationResponse.error:type_name -> google.rpc.Status
+	2,  // 13: api.v1.GetAllOrganizationResponse.organization:type_name -> api.v1.Organization
+	20, // 14: api.v1.ReindexOrganizationResponse.error:type_name -> google.rpc.Status
+	2,  // 15: api.v1.SuggestOrganizationResponse.organization:type_name -> api.v1.Organization
+	3,  // 16: api.v1.People.GetPerson:input_type -> api.v1.GetPersonRequest
+	5,  // 17: api.v1.People.GetAllPerson:input_type -> api.v1.GetAllPersonRequest
+	7,  // 18: api.v1.People.ReindexPerson:input_type -> api.v1.ReindexPersonRequest
+	9,  // 19: api.v1.People.SuggestPerson:input_type -> api.v1.SuggestPersonRequest
+	11, // 20: api.v1.People.GetOrganization:input_type -> api.v1.GetOrganizationRequest
+	13, // 21: api.v1.People.GetAllOrganization:input_type -> api.v1.GetAllOrganizationRequest
+	15, // 22: api.v1.People.ReindexOrganization:input_type -> api.v1.ReindexOrganizationRequest
+	17, // 23: api.v1.People.SuggestOrganization:input_type -> api.v1.SuggestOrganizationRequest
+	4,  // 24: api.v1.People.GetPerson:output_type -> api.v1.GetPersonResponse
+	6,  // 25: api.v1.People.GetAllPerson:output_type -> api.v1.GetAllPersonResponse
+	8,  // 26: api.v1.People.ReindexPerson:output_type -> api.v1.ReindexPersonResponse
+	10, // 27: api.v1.People.SuggestPerson:output_type -> api.v1.SuggestPersonResponse
+	12, // 28: api.v1.People.GetOrganization:output_type -> api.v1.GetOrganizationResponse
+	14, // 29: api.v1.People.GetAllOrganization:output_type -> api.v1.GetAllOrganizationResponse
+	16, // 30: api.v1.People.ReindexOrganization:output_type -> api.v1.ReindexOrganizationResponse
+	18, // 31: api.v1.People.SuggestOrganization:output_type -> api.v1.SuggestOrganizationResponse
+	24, // [24:32] is the sub-list for method output_type
+	16, // [16:24] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_person_proto_init() }
@@ -888,7 +1521,7 @@ func file_person_proto_init() {
 			}
 		}
 		file_person_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetPersonRequest); i {
+			switch v := v.(*Organization); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -900,7 +1533,7 @@ func file_person_proto_init() {
 			}
 		}
 		file_person_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetPersonResponse); i {
+			switch v := v.(*GetPersonRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -912,7 +1545,7 @@ func file_person_proto_init() {
 			}
 		}
 		file_person_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetAllPersonRequest); i {
+			switch v := v.(*GetPersonResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -924,7 +1557,7 @@ func file_person_proto_init() {
 			}
 		}
 		file_person_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetAllPersonResponse); i {
+			switch v := v.(*GetAllPersonRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -936,7 +1569,7 @@ func file_person_proto_init() {
 			}
 		}
 		file_person_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ReindexPersonRequest); i {
+			switch v := v.(*GetAllPersonResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -948,7 +1581,7 @@ func file_person_proto_init() {
 			}
 		}
 		file_person_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ReindexPersonResponse); i {
+			switch v := v.(*ReindexPersonRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -960,7 +1593,7 @@ func file_person_proto_init() {
 			}
 		}
 		file_person_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SuggestPersonRequest); i {
+			switch v := v.(*ReindexPersonResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -972,6 +1605,18 @@ func file_person_proto_init() {
 			}
 		}
 		file_person_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SuggestPersonRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_person_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*SuggestPersonResponse); i {
 			case 0:
 				return &v.state
@@ -983,14 +1628,118 @@ func file_person_proto_init() {
 				return nil
 			}
 		}
+		file_person_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetOrganizationRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_person_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetOrganizationResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_person_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetAllOrganizationRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_person_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetAllOrganizationResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_person_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ReindexOrganizationRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_person_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ReindexOrganizationResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_person_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SuggestOrganizationRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_person_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SuggestOrganizationResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
-	file_person_proto_msgTypes[3].OneofWrappers = []interface{}{
+	file_person_proto_msgTypes[4].OneofWrappers = []interface{}{
 		(*GetPersonResponse_Person)(nil),
 		(*GetPersonResponse_Error)(nil),
 	}
-	file_person_proto_msgTypes[7].OneofWrappers = []interface{}{
+	file_person_proto_msgTypes[8].OneofWrappers = []interface{}{
 		(*ReindexPersonResponse_Message)(nil),
 		(*ReindexPersonResponse_Error)(nil),
+	}
+	file_person_proto_msgTypes[12].OneofWrappers = []interface{}{
+		(*GetOrganizationResponse_Organization)(nil),
+		(*GetOrganizationResponse_Error)(nil),
+	}
+	file_person_proto_msgTypes[16].OneofWrappers = []interface{}{
+		(*ReindexOrganizationResponse_Message)(nil),
+		(*ReindexOrganizationResponse_Error)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -998,7 +1747,7 @@ func file_person_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_person_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

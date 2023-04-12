@@ -20,21 +20,25 @@ import (
 )
 
 type ServerConfig struct {
-	Logger              *zap.SugaredLogger
-	TlsEnabled          bool
-	TlsServerCert       string
-	TlsServerKey        string
-	Username            string
-	Password            string
-	PersonService       models.PersonService
-	PersonSearchService models.PersonSearchService
+	Logger                    *zap.SugaredLogger
+	TlsEnabled                bool
+	TlsServerCert             string
+	TlsServerKey              string
+	Username                  string
+	Password                  string
+	PersonService             models.PersonService
+	PersonSearchService       models.PersonSearchService
+	OrganizationService       models.OrganizationService
+	OrganizationSearchService models.OrganizationSearchService
 }
 
 type server struct {
 	v1.UnimplementedPeopleServer
-	personService       models.PersonService
-	personSearchService models.PersonSearchService
-	logger              *zap.SugaredLogger
+	personService             models.PersonService
+	personSearchService       models.PersonSearchService
+	organizationService       models.OrganizationService
+	organizationSearchService models.OrganizationSearchService
+	logger                    *zap.SugaredLogger
 }
 
 func NewServer(serverConfig *ServerConfig) *grpc.Server {
@@ -90,9 +94,11 @@ func NewServer(serverConfig *ServerConfig) *grpc.Server {
 	reflection.Register(gsrv)
 
 	srv := &server{
-		personService:       serverConfig.PersonService,
-		personSearchService: serverConfig.PersonSearchService,
-		logger:              serverConfig.Logger,
+		personService:             serverConfig.PersonService,
+		personSearchService:       serverConfig.PersonSearchService,
+		organizationService:       serverConfig.OrganizationService,
+		organizationSearchService: serverConfig.OrganizationSearchService,
+		logger:                    serverConfig.Logger,
 	}
 
 	v1.RegisterPeopleServer(gsrv, srv)
@@ -101,7 +107,7 @@ func NewServer(serverConfig *ServerConfig) *grpc.Server {
 }
 
 func (srv *server) GetPerson(ctx context.Context, req *v1.GetPersonRequest) (*v1.GetPersonResponse, error) {
-	person, err := srv.personService.Get(ctx, req.Id)
+	person, err := srv.personService.GetPerson(ctx, req.Id)
 
 	if err != nil && err == models.ErrNotFound {
 		grpcErr := status.New(codes.InvalidArgument, fmt.Errorf("could not find person with id %s", req.Id).Error())
@@ -123,7 +129,7 @@ func (srv *server) GetPerson(ctx context.Context, req *v1.GetPersonRequest) (*v1
 
 func (srv *server) GetAllPerson(req *v1.GetAllPersonRequest, stream v1.People_GetAllPersonServer) error {
 
-	return srv.personService.Each(context.Background(), func(p *models.Person) bool {
+	return srv.personService.EachPerson(context.Background(), func(p *models.Person) bool {
 		streamErr := stream.Send(&v1.GetAllPersonResponse{
 			Person: &p.Person,
 		})
@@ -166,7 +172,7 @@ func (srv *server) ReindexPerson(req *v1.ReindexPersonRequest, stream v1.People_
 	}
 
 	numIndexed := 0
-	srv.personService.Each(ctx, func(person *models.Person) bool {
+	srv.personService.EachPerson(ctx, func(person *models.Person) bool {
 		if err := idxSwitcher.Index(ctx, person); err != nil {
 			grpcErr := status.New(codes.Internal, fmt.Errorf("es6 index error for record %s: %w", person.Id, err).Error())
 			if err := stream.Send(&v1.ReindexPersonResponse{
@@ -210,6 +216,124 @@ func (srv *server) SuggestPerson(req *v1.SuggestPersonRequest, stream v1.People_
 	for _, person := range persons {
 		if err := stream.Send(&v1.SuggestPersonResponse{
 			Person: &person.Person,
+		}); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	return nil
+}
+
+func (srv *server) GetOrganization(ctx context.Context, req *v1.GetOrganizationRequest) (*v1.GetOrganizationResponse, error) {
+	org, err := srv.organizationService.GetOrganization(ctx, req.Id)
+
+	if err != nil && err == models.ErrNotFound {
+		grpcErr := status.New(codes.InvalidArgument, fmt.Errorf("could not find organization with id %s", req.Id).Error())
+		return &v1.GetOrganizationResponse{
+			Response: &v1.GetOrganizationResponse_Error{
+				Error: grpcErr.Proto(),
+			},
+		}, nil
+	} else if err != nil {
+		return nil, status.Errorf(codes.Internal, "unable to retrieve organization with id '%s': %s", req.Id, err.Error())
+	}
+
+	return &v1.GetOrganizationResponse{
+		Response: &v1.GetOrganizationResponse_Organization{
+			Organization: &org.Organization,
+		},
+	}, nil
+}
+
+func (srv *server) GetAllOrganization(req *v1.GetAllOrganizationRequest, stream v1.People_GetAllOrganizationServer) error {
+
+	err := srv.organizationService.EachOrganization(stream.Context(), func(o *models.Organization) bool {
+		stream.Send(&v1.GetAllOrganizationResponse{
+			Organization: &o.Organization,
+		})
+		return true
+	})
+
+	if err != nil {
+		return fmt.Errorf("unable to retrieve all organizations from the database: %w", err)
+	}
+
+	return nil
+}
+
+func (srv *server) ReindexOrganization(req *v1.ReindexOrganizationRequest, stream v1.People_ReindexOrganizationServer) error {
+
+	ctx := stream.Context()
+	idxSwitcher, err := srv.organizationSearchService.NewIndexSwitcher(models.BulkIndexerConfig{
+		OnError: func(err error) {
+			grpcErr := status.New(codes.Internal, fmt.Errorf("es6 index error: %w").Error())
+			if err := stream.Send(&v1.ReindexOrganizationResponse{
+				Response: &v1.ReindexOrganizationResponse_Error{
+					Error: grpcErr.Proto(),
+				},
+			}); err != nil {
+				log.Fatal(err)
+			}
+		},
+		OnIndexError: func(id string, err error) {
+			grpcErr := status.New(codes.Internal, fmt.Errorf("es6 index error for %s: %w", id, err).Error())
+			if err := stream.Send(&v1.ReindexOrganizationResponse{
+				Response: &v1.ReindexOrganizationResponse_Error{
+					Error: grpcErr.Proto(),
+				},
+			}); err != nil {
+				log.Fatal(err)
+			}
+		},
+	})
+	if err != nil {
+		log.Fatal("unable to initialize index switcher: %s", err.Error())
+	}
+
+	numIndexed := 0
+	srv.organizationService.EachOrganization(ctx, func(org *models.Organization) bool {
+		if err := idxSwitcher.Index(ctx, org); err != nil {
+			grpcErr := status.New(codes.Internal, fmt.Errorf("es6 index error for record %s: %w", org.Id, err).Error())
+			if err := stream.Send(&v1.ReindexOrganizationResponse{
+				Response: &v1.ReindexOrganizationResponse_Error{
+					Error: grpcErr.Proto(),
+				},
+			}); err != nil {
+				log.Fatal(err)
+			}
+			return false
+		}
+		numIndexed++
+		return true
+	})
+
+	if err := idxSwitcher.Switch(ctx); err != nil {
+		grpcErr := status.New(codes.Internal, fmt.Errorf("es6 index error: %s", err).Error())
+		if err := stream.Send(&v1.ReindexOrganizationResponse{
+			Response: &v1.ReindexOrganizationResponse_Error{
+				Error: grpcErr.Proto(),
+			},
+		}); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	if err := stream.Send(&v1.ReindexOrganizationResponse{
+		Response: &v1.ReindexOrganizationResponse_Message{
+			Message: fmt.Sprintf("%d records reindexed", numIndexed),
+		},
+	}); err != nil {
+		log.Fatal(err)
+	}
+	return nil
+}
+
+func (srv *server) SuggestOrganization(req *v1.SuggestOrganizationRequest, stream v1.People_SuggestOrganizationServer) error {
+	organizations, _ := srv.organizationSearchService.Suggest(req.Query)
+
+	for _, org := range organizations {
+		if err := stream.Send(&v1.SuggestOrganizationResponse{
+			Organization: &org.Organization,
 		}); err != nil {
 			log.Fatal(err)
 		}

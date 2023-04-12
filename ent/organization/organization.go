@@ -17,10 +17,22 @@ const (
 	FieldDateUpdated = "date_updated"
 	// FieldPublicID holds the string denoting the public_id field in the database.
 	FieldPublicID = "public_id"
-	// FieldName holds the string denoting the name field in the database.
-	FieldName = "name"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
+	// FieldNameDut holds the string denoting the name_dut field in the database.
+	FieldNameDut = "name_dut"
+	// FieldNameEng holds the string denoting the name_eng field in the database.
+	FieldNameEng = "name_eng"
+	// FieldOtherID holds the string denoting the other_id field in the database.
+	FieldOtherID = "other_id"
+	// FieldParentID holds the string denoting the parent_id field in the database.
+	FieldParentID = "parent_id"
 	// EdgePeople holds the string denoting the people edge name in mutations.
 	EdgePeople = "people"
+	// EdgeParent holds the string denoting the parent edge name in mutations.
+	EdgeParent = "parent"
+	// EdgeChildren holds the string denoting the children edge name in mutations.
+	EdgeChildren = "children"
 	// EdgeOrganizationPerson holds the string denoting the organization_person edge name in mutations.
 	EdgeOrganizationPerson = "organization_person"
 	// Table holds the table name of the organization in the database.
@@ -30,6 +42,14 @@ const (
 	// PeopleInverseTable is the table name for the Person entity.
 	// It exists in this package in order to avoid circular dependency with the "person" package.
 	PeopleInverseTable = "person"
+	// ParentTable is the table that holds the parent relation/edge.
+	ParentTable = "organization"
+	// ParentColumn is the table column denoting the parent relation/edge.
+	ParentColumn = "parent_id"
+	// ChildrenTable is the table that holds the children relation/edge.
+	ChildrenTable = "organization"
+	// ChildrenColumn is the table column denoting the children relation/edge.
+	ChildrenColumn = "parent_id"
 	// OrganizationPersonTable is the table that holds the organization_person relation/edge.
 	OrganizationPersonTable = "organization_person"
 	// OrganizationPersonInverseTable is the table name for the OrganizationPerson entity.
@@ -45,7 +65,11 @@ var Columns = []string{
 	FieldDateCreated,
 	FieldDateUpdated,
 	FieldPublicID,
-	FieldName,
+	FieldType,
+	FieldNameDut,
+	FieldNameEng,
+	FieldOtherID,
+	FieldParentID,
 }
 
 var (
@@ -71,4 +95,6 @@ var (
 	DefaultDateUpdated func() time.Time
 	// UpdateDefaultDateUpdated holds the default value on update for the "date_updated" field.
 	UpdateDefaultDateUpdated func() time.Time
+	// DefaultType holds the default value on creation for the "type" field.
+	DefaultType string
 )

@@ -31,7 +31,7 @@ func (person *Person) Validate() validation.Errors {
 				Pointer: fmt.Sprintf("/other_id/%d/type", i),
 				Code:    "other_id.type.required",
 			})
-		} else if !validation.InArray(schema.IdRefTypes, otherId.Type) {
+		} else if !validation.InArray(schema.PersonIdTypes, otherId.Type) {
 			errs = append(errs, &validation.Error{
 				Pointer: fmt.Sprintf("/other_id/%d/type", i),
 				Code:    "other_id.type.invalid",
@@ -72,7 +72,7 @@ func (p *Person) Dup() *Person {
 		np.DateUpdated = &t
 	}
 	np.OtherId = make([]*v1.IdRef, 0, len(p.OtherId))
-	for _, oldIdRef := range p.GetOtherId() {
+	for _, oldIdRef := range p.OtherId {
 		np.OtherId = append(np.OtherId, &v1.IdRef{
 			Id:   oldIdRef.Id,
 			Type: oldIdRef.Type,

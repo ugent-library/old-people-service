@@ -166,7 +166,7 @@ var inboxListenCmd = &cobra.Command{
 				return
 			}
 
-			person, err := personService.Get(context.Background(), iMsg.Message.ID)
+			person, err := personService.GetPerson(context.Background(), iMsg.Message.ID)
 
 			if err != nil && err == models.ErrNotFound {
 				person = &models.Person{}
@@ -201,16 +201,19 @@ var inboxListenCmd = &cobra.Command{
 			}
 
 			var updateErr error
+			var updatedPerson *models.Person
 			if person.IsStored() {
-				person, updateErr = personService.Update(context.Background(), person)
+				updatedPerson, updateErr = personService.UpdatePerson(context.Background(), person)
 			} else {
-				person, updateErr = personService.Create(context.Background(), person)
+				updatedPerson, updateErr = personService.CreatePerson(context.Background(), person)
 			}
 
 			// create/update failed: stop processing records
 			if updateErr != nil {
 				logger.Fatal(fmt.Errorf("unable to store person %s: %w", person.Id, updateErr))
 			}
+
+			person = updatedPerson
 
 			// index
 			if err := personSearchService.Index(person); err != nil {

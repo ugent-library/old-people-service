@@ -41,10 +41,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	People_GetPerson_FullMethodName     = "/api.v1.People/GetPerson"
-	People_GetAllPerson_FullMethodName  = "/api.v1.People/GetAllPerson"
-	People_ReindexPerson_FullMethodName = "/api.v1.People/ReindexPerson"
-	People_SuggestPerson_FullMethodName = "/api.v1.People/SuggestPerson"
+	People_GetPerson_FullMethodName           = "/api.v1.People/GetPerson"
+	People_GetAllPerson_FullMethodName        = "/api.v1.People/GetAllPerson"
+	People_ReindexPerson_FullMethodName       = "/api.v1.People/ReindexPerson"
+	People_SuggestPerson_FullMethodName       = "/api.v1.People/SuggestPerson"
+	People_GetOrganization_FullMethodName     = "/api.v1.People/GetOrganization"
+	People_GetAllOrganization_FullMethodName  = "/api.v1.People/GetAllOrganization"
+	People_ReindexOrganization_FullMethodName = "/api.v1.People/ReindexOrganization"
+	People_SuggestOrganization_FullMethodName = "/api.v1.People/SuggestOrganization"
 )
 
 // PeopleClient is the client API for People service.
@@ -55,6 +59,10 @@ type PeopleClient interface {
 	GetAllPerson(ctx context.Context, in *GetAllPersonRequest, opts ...grpc.CallOption) (People_GetAllPersonClient, error)
 	ReindexPerson(ctx context.Context, in *ReindexPersonRequest, opts ...grpc.CallOption) (People_ReindexPersonClient, error)
 	SuggestPerson(ctx context.Context, in *SuggestPersonRequest, opts ...grpc.CallOption) (People_SuggestPersonClient, error)
+	GetOrganization(ctx context.Context, in *GetOrganizationRequest, opts ...grpc.CallOption) (*GetOrganizationResponse, error)
+	GetAllOrganization(ctx context.Context, in *GetAllOrganizationRequest, opts ...grpc.CallOption) (People_GetAllOrganizationClient, error)
+	ReindexOrganization(ctx context.Context, in *ReindexOrganizationRequest, opts ...grpc.CallOption) (People_ReindexOrganizationClient, error)
+	SuggestOrganization(ctx context.Context, in *SuggestOrganizationRequest, opts ...grpc.CallOption) (People_SuggestOrganizationClient, error)
 }
 
 type peopleClient struct {
@@ -170,6 +178,111 @@ func (x *peopleSuggestPersonClient) Recv() (*SuggestPersonResponse, error) {
 	return m, nil
 }
 
+func (c *peopleClient) GetOrganization(ctx context.Context, in *GetOrganizationRequest, opts ...grpc.CallOption) (*GetOrganizationResponse, error) {
+	out := new(GetOrganizationResponse)
+	err := c.cc.Invoke(ctx, People_GetOrganization_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *peopleClient) GetAllOrganization(ctx context.Context, in *GetAllOrganizationRequest, opts ...grpc.CallOption) (People_GetAllOrganizationClient, error) {
+	stream, err := c.cc.NewStream(ctx, &People_ServiceDesc.Streams[3], People_GetAllOrganization_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &peopleGetAllOrganizationClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type People_GetAllOrganizationClient interface {
+	Recv() (*GetAllOrganizationResponse, error)
+	grpc.ClientStream
+}
+
+type peopleGetAllOrganizationClient struct {
+	grpc.ClientStream
+}
+
+func (x *peopleGetAllOrganizationClient) Recv() (*GetAllOrganizationResponse, error) {
+	m := new(GetAllOrganizationResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *peopleClient) ReindexOrganization(ctx context.Context, in *ReindexOrganizationRequest, opts ...grpc.CallOption) (People_ReindexOrganizationClient, error) {
+	stream, err := c.cc.NewStream(ctx, &People_ServiceDesc.Streams[4], People_ReindexOrganization_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &peopleReindexOrganizationClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type People_ReindexOrganizationClient interface {
+	Recv() (*ReindexOrganizationResponse, error)
+	grpc.ClientStream
+}
+
+type peopleReindexOrganizationClient struct {
+	grpc.ClientStream
+}
+
+func (x *peopleReindexOrganizationClient) Recv() (*ReindexOrganizationResponse, error) {
+	m := new(ReindexOrganizationResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *peopleClient) SuggestOrganization(ctx context.Context, in *SuggestOrganizationRequest, opts ...grpc.CallOption) (People_SuggestOrganizationClient, error) {
+	stream, err := c.cc.NewStream(ctx, &People_ServiceDesc.Streams[5], People_SuggestOrganization_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &peopleSuggestOrganizationClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type People_SuggestOrganizationClient interface {
+	Recv() (*SuggestOrganizationResponse, error)
+	grpc.ClientStream
+}
+
+type peopleSuggestOrganizationClient struct {
+	grpc.ClientStream
+}
+
+func (x *peopleSuggestOrganizationClient) Recv() (*SuggestOrganizationResponse, error) {
+	m := new(SuggestOrganizationResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // PeopleServer is the server API for People service.
 // All implementations must embed UnimplementedPeopleServer
 // for forward compatibility
@@ -178,6 +291,10 @@ type PeopleServer interface {
 	GetAllPerson(*GetAllPersonRequest, People_GetAllPersonServer) error
 	ReindexPerson(*ReindexPersonRequest, People_ReindexPersonServer) error
 	SuggestPerson(*SuggestPersonRequest, People_SuggestPersonServer) error
+	GetOrganization(context.Context, *GetOrganizationRequest) (*GetOrganizationResponse, error)
+	GetAllOrganization(*GetAllOrganizationRequest, People_GetAllOrganizationServer) error
+	ReindexOrganization(*ReindexOrganizationRequest, People_ReindexOrganizationServer) error
+	SuggestOrganization(*SuggestOrganizationRequest, People_SuggestOrganizationServer) error
 	mustEmbedUnimplementedPeopleServer()
 }
 
@@ -196,6 +313,18 @@ func (UnimplementedPeopleServer) ReindexPerson(*ReindexPersonRequest, People_Rei
 }
 func (UnimplementedPeopleServer) SuggestPerson(*SuggestPersonRequest, People_SuggestPersonServer) error {
 	return status.Errorf(codes.Unimplemented, "method SuggestPerson not implemented")
+}
+func (UnimplementedPeopleServer) GetOrganization(context.Context, *GetOrganizationRequest) (*GetOrganizationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrganization not implemented")
+}
+func (UnimplementedPeopleServer) GetAllOrganization(*GetAllOrganizationRequest, People_GetAllOrganizationServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetAllOrganization not implemented")
+}
+func (UnimplementedPeopleServer) ReindexOrganization(*ReindexOrganizationRequest, People_ReindexOrganizationServer) error {
+	return status.Errorf(codes.Unimplemented, "method ReindexOrganization not implemented")
+}
+func (UnimplementedPeopleServer) SuggestOrganization(*SuggestOrganizationRequest, People_SuggestOrganizationServer) error {
+	return status.Errorf(codes.Unimplemented, "method SuggestOrganization not implemented")
 }
 func (UnimplementedPeopleServer) mustEmbedUnimplementedPeopleServer() {}
 
@@ -291,6 +420,87 @@ func (x *peopleSuggestPersonServer) Send(m *SuggestPersonResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _People_GetOrganization_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrganizationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PeopleServer).GetOrganization(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: People_GetOrganization_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PeopleServer).GetOrganization(ctx, req.(*GetOrganizationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _People_GetAllOrganization_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetAllOrganizationRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(PeopleServer).GetAllOrganization(m, &peopleGetAllOrganizationServer{stream})
+}
+
+type People_GetAllOrganizationServer interface {
+	Send(*GetAllOrganizationResponse) error
+	grpc.ServerStream
+}
+
+type peopleGetAllOrganizationServer struct {
+	grpc.ServerStream
+}
+
+func (x *peopleGetAllOrganizationServer) Send(m *GetAllOrganizationResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _People_ReindexOrganization_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ReindexOrganizationRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(PeopleServer).ReindexOrganization(m, &peopleReindexOrganizationServer{stream})
+}
+
+type People_ReindexOrganizationServer interface {
+	Send(*ReindexOrganizationResponse) error
+	grpc.ServerStream
+}
+
+type peopleReindexOrganizationServer struct {
+	grpc.ServerStream
+}
+
+func (x *peopleReindexOrganizationServer) Send(m *ReindexOrganizationResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _People_SuggestOrganization_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SuggestOrganizationRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(PeopleServer).SuggestOrganization(m, &peopleSuggestOrganizationServer{stream})
+}
+
+type People_SuggestOrganizationServer interface {
+	Send(*SuggestOrganizationResponse) error
+	grpc.ServerStream
+}
+
+type peopleSuggestOrganizationServer struct {
+	grpc.ServerStream
+}
+
+func (x *peopleSuggestOrganizationServer) Send(m *SuggestOrganizationResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // People_ServiceDesc is the grpc.ServiceDesc for People service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -301,6 +511,10 @@ var People_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPerson",
 			Handler:    _People_GetPerson_Handler,
+		},
+		{
+			MethodName: "GetOrganization",
+			Handler:    _People_GetOrganization_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
@@ -317,6 +531,21 @@ var People_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "SuggestPerson",
 			Handler:       _People_SuggestPerson_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "GetAllOrganization",
+			Handler:       _People_GetAllOrganization_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ReindexOrganization",
+			Handler:       _People_ReindexOrganization_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "SuggestOrganization",
+			Handler:       _People_SuggestOrganization_Handler,
 			ServerStreams: true,
 		},
 	},

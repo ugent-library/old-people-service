@@ -30,6 +30,10 @@ func init() {
 	organization.DefaultDateUpdated = organizationDescDateUpdated.Default.(func() time.Time)
 	// organization.UpdateDefaultDateUpdated holds the default value on update for the date_updated field.
 	organization.UpdateDefaultDateUpdated = organizationDescDateUpdated.UpdateDefault.(func() time.Time)
+	// organizationDescType is the schema descriptor for type field.
+	organizationDescType := organizationFields[1].Descriptor()
+	// organization.DefaultType holds the default value on creation for the type field.
+	organization.DefaultType = organizationDescType.Default.(string)
 	organizationpersonMixin := schema.OrganizationPerson{}.Mixin()
 	organizationpersonMixinFields0 := organizationpersonMixin[0].Fields()
 	_ = organizationpersonMixinFields0

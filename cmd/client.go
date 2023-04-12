@@ -16,12 +16,21 @@ import (
 )
 
 func init() {
-	getCmd.Flags().String("id", "", "identifier")
-	suggestCmd.Flags().String("query", "", "query")
-	rootCmd.AddCommand(getCmd)
-	rootCmd.AddCommand(allCmd)
-	rootCmd.AddCommand(reindexPersonCmd)
-	rootCmd.AddCommand(suggestCmd)
+	getPersonCmd.Flags().String("id", "", "identifier")
+	suggestPersonCmd.Flags().String("query", "", "query")
+	suggestOrganizationCmd.Flags().String("query", "", "query")
+
+	personCmd.AddCommand(getPersonCmd)
+	personCmd.AddCommand(getAllPersonCmd)
+	personCmd.AddCommand(reindexPersonCmd)
+	personCmd.AddCommand(suggestPersonCmd)
+
+	organizationCmd.AddCommand(allOrganizationCmd)
+	organizationCmd.AddCommand(reindexOrganizationCmd)
+	organizationCmd.AddCommand(suggestOrganizationCmd)
+
+	rootCmd.AddCommand(personCmd)
+	rootCmd.AddCommand(organizationCmd)
 }
 
 func openClient(cb func(client v1.PeopleClient) error) error {
@@ -36,7 +45,11 @@ func openClient(cb func(client v1.PeopleClient) error) error {
 	return grpc_client.Open(clientConfig, cb)
 }
 
-var getCmd = &cobra.Command{
+var personCmd = &cobra.Command{
+	Use: "person",
+}
+
+var getPersonCmd = &cobra.Command{
 	Use: "get [id]",
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -82,7 +95,7 @@ var getCmd = &cobra.Command{
 	},
 }
 
-var allCmd = &cobra.Command{
+var getAllPersonCmd = &cobra.Command{
 	Use: "all",
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -175,7 +188,7 @@ var reindexPersonCmd = &cobra.Command{
 	},
 }
 
-var suggestCmd = &cobra.Command{
+var suggestPersonCmd = &cobra.Command{
 	Use: "suggest",
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -187,21 +200,206 @@ var suggestCmd = &cobra.Command{
 			log.Fatal("no query given")
 		}
 
-		persons, err := Services().PersonSearchService.Suggest(query)
+		cErr := openClient(func(c v1.PeopleClient) error {
+
+			req := v1.SuggestPersonRequest{Query: query}
+			stream, err := c.SuggestPerson(context.Background(), &req)
+
+			if err != nil {
+				return err
+			}
+
+			stream.CloseSend()
+
+			marshaller := protojson.MarshalOptions{
+				EmitUnpopulated: true,
+				// alternative to protobuf field option "json_name"
+				UseProtoNames: true,
+			}
+
+			for {
+				res, err := stream.Recv()
+				if err == io.EOF {
+					break
+				}
+
+				if err != nil {
+					if st, ok := status.FromError(err); ok {
+						return errors.New(st.Message())
+					}
+
+					return err
+				}
+
+				if p := res.GetPerson(); p != nil {
+					bytes, _ := marshaller.Marshal(p)
+					fmt.Printf("%s\n", string(bytes))
+				}
+			}
+
+			return nil
+		})
+
+		if cErr != nil {
+			log.Fatal(cErr)
+		}
+
+	},
+}
+
+var organizationCmd = &cobra.Command{
+	Use: "organization",
+}
+
+var allOrganizationCmd = &cobra.Command{
+	Use: "all",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		err := openClient(func(c v1.PeopleClient) error {
+
+			req := v1.GetAllOrganizationRequest{}
+			stream, err := c.GetAllOrganization(context.Background(), &req)
+
+			if err != nil {
+				return err
+			}
+
+			stream.CloseSend()
+
+			marshaller := protojson.MarshalOptions{
+				EmitUnpopulated: true,
+				// alternative to protobuf field option "json_name"
+				UseProtoNames: true,
+			}
+
+			for {
+				res, err := stream.Recv()
+				if err == io.EOF {
+					break
+				}
+
+				if err != nil {
+					if st, ok := status.FromError(err); ok {
+						return errors.New(st.Message())
+					}
+
+					return err
+				}
+
+				if p := res.GetOrganization(); p != nil {
+					bytes, _ := marshaller.Marshal(p)
+					fmt.Printf("%s\n", string(bytes))
+				}
+			}
+
+			return nil
+		})
+
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		marshaller := protojson.MarshalOptions{
-			EmitUnpopulated: true,
-			// alternative to protobuf field option "json_name"
-			UseProtoNames: true,
+	},
+}
+
+var reindexOrganizationCmd = &cobra.Command{
+	Use: "reindex",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		err := openClient(func(c v1.PeopleClient) error {
+
+			req := v1.ReindexOrganizationRequest{}
+			stream, err := c.ReindexOrganization(context.Background(), &req)
+
+			if err != nil {
+				return err
+			}
+
+			stream.CloseSend()
+
+			for {
+				res, err := stream.Recv()
+				if err == io.EOF {
+					break
+				}
+
+				if err != nil {
+					if st, ok := status.FromError(err); ok {
+						return errors.New(st.Message())
+					}
+
+					return err
+				}
+
+				if m := res.GetMessage(); m != "" {
+					fmt.Printf("%s\n", m)
+				}
+			}
+
+			return nil
+		})
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	},
+}
+
+var suggestOrganizationCmd = &cobra.Command{
+	Use: "suggest",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		query, err := cmd.Flags().GetString("query")
+		if err != nil {
+			log.Fatal("no query given")
+		}
+		if query == "" {
+			log.Fatal("no query given")
 		}
 
-		for _, person := range persons {
-			bytes, _ := marshaller.Marshal(person)
-			os.Stdout.Write(bytes)
-			os.Stdout.Write([]byte("\n"))
+		cErr := openClient(func(c v1.PeopleClient) error {
+
+			req := v1.SuggestOrganizationRequest{Query: query}
+			stream, err := c.SuggestOrganization(context.Background(), &req)
+
+			if err != nil {
+				return err
+			}
+
+			stream.CloseSend()
+
+			marshaller := protojson.MarshalOptions{
+				EmitUnpopulated: true,
+				// alternative to protobuf field option "json_name"
+				UseProtoNames: true,
+			}
+
+			for {
+				res, err := stream.Recv()
+				if err == io.EOF {
+					break
+				}
+
+				if err != nil {
+					if st, ok := status.FromError(err); ok {
+						return errors.New(st.Message())
+					}
+
+					return err
+				}
+
+				if p := res.GetOrganization(); p != nil {
+					bytes, _ := marshaller.Marshal(p)
+					fmt.Printf("%s\n", string(bytes))
+				}
+			}
+
+			return nil
+		})
+
+		if cErr != nil {
+			log.Fatal(cErr)
 		}
+
 	},
 }

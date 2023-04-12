@@ -15,13 +15,25 @@ var (
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "public_id", Type: field.TypeString, Unique: true},
-		{Name: "name", Type: field.TypeString},
+		{Name: "type", Type: field.TypeString, Default: "organization"},
+		{Name: "name_dut", Type: field.TypeString, Nullable: true},
+		{Name: "name_eng", Type: field.TypeString, Nullable: true},
+		{Name: "other_id", Type: field.TypeJSON, Nullable: true},
+		{Name: "parent_id", Type: field.TypeInt, Nullable: true},
 	}
 	// OrganizationTable holds the schema information for the "organization" table.
 	OrganizationTable = &schema.Table{
 		Name:       "organization",
 		Columns:    OrganizationColumns,
 		PrimaryKey: []*schema.Column{OrganizationColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "organization_organization_children",
+				Columns:    []*schema.Column{OrganizationColumns[8]},
+				RefColumns: []*schema.Column{OrganizationColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// OrganizationPersonColumns holds the columns for the "organization_person" table.
 	OrganizationPersonColumns = []*schema.Column{
@@ -130,6 +142,7 @@ var (
 )
 
 func init() {
+	OrganizationTable.ForeignKeys[0].RefTable = OrganizationTable
 	OrganizationTable.Annotation = &entsql.Annotation{
 		Table: "organization",
 	}

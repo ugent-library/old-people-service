@@ -19,20 +19,23 @@
     }
   },
   "mappings": {
-    "authority_person": {
+    "authority_organization": {
       "dynamic": "false",
       "date_detection": false,
       "numeric_detection": false,
       "properties": {
-        "id": {
-          "type": "keyword"
-        },
-        "active": {
-          "type": "boolean"
-        },
         "all": {
           "type": "text",
           "analyzer": "text_default"
+        },
+        "id": {
+          "type": "keyword"
+        },
+        "parent_id": {
+          "type": "keyword"
+        },
+        "type": {
+          "type": "keyword"
         },
         "date_created": {
           "type": "date"
@@ -40,62 +43,41 @@
         "date_updated": {
           "type": "date"
         },
-        "email": {
-          "type": "text",
-          "analyzer": "lowercase"
-        },
-        "first_name": {
+        "name_dut": {
           "type": "text",
           "analyzer": "text_default",
           "copy_to": [
             "all"
           ]
         },
-        "full_name": {
+        "name_eng": {
           "type": "text",
           "analyzer": "text_default",
           "copy_to": [
             "all"
           ]
-        },
-        "job_category": {
-          "type": "text",
-          "analyzer": "lowercase"
-        },
-        "last_name": {
-          "type": "text",
-          "analyzer": "text_default",
-          "copy_to": [
-            "all"
-          ]
-        },
-        "orcid": {
-          "type": "keyword"
-        },
-        "organization_id": {
-          "type": "keyword"
         },
         "other_id": {
           "properties": {
-            "id": {
-              "type": "keyword"
+            "ugent_id": {
+              "type": "text",
+              "analyzer": "text_default"
             },
-            "type": {
+            "biblio_id": {
+              "type": "text",
+              "analyzer": "text_default"
+            },
+            "ugent_memorialis_id": {
               "type": "keyword"
             }
           }
         },
-        "preferred_first_name": {
-          "type": "text",
-          "analyzer": "text_default"
-        },
-        "preferred_last_name": {
-          "type": "text",
-          "analyzer": "text_default"
-        },
-        "title": {
-          "type": "text",
-          "analyzer": "text_default"
+        "tree": {
+          "properties": {
+            "id": {
+              "type": "keyword"
+            }
+          }
         }
       }
     }

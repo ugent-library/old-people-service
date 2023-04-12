@@ -193,3 +193,37 @@ $ ./people inbox listen -c people.toml
 * messages that result in invalid person records are republished to subject `inbox.person.rejected`. Acknowledgment is sent to ensure progression.
 
 * on successfull update of the person record, the updated person record is republished on subject `person.updated`. Messages like this contain the full person record in JSON as payload. Acknowledgment is sent when record is stored successfully.
+
+# Commands
+
+```
+$ ./people person get --id <person-id> -c people.toml
+```
+
+```
+$ ./people person all -c people.toml
+```
+
+```
+`$ ./people person reindex -c people.toml
+```
+
+```
+$ ./people person suggest -c people.toml --query nic
+```
+
+```
+$ ./people organization get --id <org-id> -c people.toml
+```
+
+```
+$ ./people organization all -c people.toml
+```
+
+```
+`$ ./people organization reindex -c people.toml
+```
+
+```
+$ ./people organization suggest -c people.toml --query nic
+```

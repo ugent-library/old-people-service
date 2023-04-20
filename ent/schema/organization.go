@@ -44,6 +44,7 @@ func (Organization) Fields() []ent.Field {
 		field.String("name_dut").Optional(),
 		field.String("name_eng").Optional(),
 		field.JSON("other_id", []IdRef{}).Optional(),
+		field.String("other_parent_id").Optional(),
 		field.Int("parent_id").Optional(),
 	}
 }

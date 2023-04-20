@@ -21,13 +21,14 @@ import (
 type OrganizationQuery struct {
 	config
 	ctx                    *QueryContext
-	order                  []OrderFunc
+	order                  []organization.OrderOption
 	inters                 []Interceptor
 	predicates             []predicate.Organization
 	withPeople             *PersonQuery
 	withParent             *OrganizationQuery
 	withChildren           *OrganizationQuery
 	withOrganizationPerson *OrganizationPersonQuery
+	modifiers              []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -59,7 +60,7 @@ func (oq *OrganizationQuery) Unique(unique bool) *OrganizationQuery {
 }
 
 // Order specifies how the records should be ordered.
-func (oq *OrganizationQuery) Order(o ...OrderFunc) *OrganizationQuery {
+func (oq *OrganizationQuery) Order(o ...organization.OrderOption) *OrganizationQuery {
 	oq.order = append(oq.order, o...)
 	return oq
 }
@@ -341,7 +342,7 @@ func (oq *OrganizationQuery) Clone() *OrganizationQuery {
 	return &OrganizationQuery{
 		config:                 oq.config,
 		ctx:                    oq.ctx.Clone(),
-		order:                  append([]OrderFunc{}, oq.order...),
+		order:                  append([]organization.OrderOption{}, oq.order...),
 		inters:                 append([]Interceptor{}, oq.inters...),
 		predicates:             append([]predicate.Organization{}, oq.predicates...),
 		withPeople:             oq.withPeople.Clone(),
@@ -492,6 +493,9 @@ func (oq *OrganizationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(oq.modifiers) > 0 {
+		_spec.Modifiers = oq.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -634,7 +638,7 @@ func (oq *OrganizationQuery) loadChildren(ctx context.Context, query *Organizati
 		}
 	}
 	query.Where(predicate.Organization(func(s *sql.Selector) {
-		s.Where(sql.InValues(organization.ChildrenColumn, fks...))
+		s.Where(sql.InValues(s.C(organization.ChildrenColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -661,7 +665,7 @@ func (oq *OrganizationQuery) loadOrganizationPerson(ctx context.Context, query *
 		}
 	}
 	query.Where(predicate.OrganizationPerson(func(s *sql.Selector) {
-		s.Where(sql.InValues(organization.OrganizationPersonColumn, fks...))
+		s.Where(sql.InValues(s.C(organization.OrganizationPersonColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -680,6 +684,9 @@ func (oq *OrganizationQuery) loadOrganizationPerson(ctx context.Context, query *
 
 func (oq *OrganizationQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := oq.querySpec()
+	if len(oq.modifiers) > 0 {
+		_spec.Modifiers = oq.modifiers
+	}
 	_spec.Node.Columns = oq.ctx.Fields
 	if len(oq.ctx.Fields) > 0 {
 		_spec.Unique = oq.ctx.Unique != nil && *oq.ctx.Unique
@@ -702,6 +709,9 @@ func (oq *OrganizationQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != organization.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if oq.withParent != nil {
+			_spec.Node.AddColumnOnce(organization.FieldParentID)
 		}
 	}
 	if ps := oq.predicates; len(ps) > 0 {
@@ -742,6 +752,9 @@ func (oq *OrganizationQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if oq.ctx.Unique != nil && *oq.ctx.Unique {
 		selector.Distinct()
 	}
+	for _, m := range oq.modifiers {
+		m(selector)
+	}
 	for _, p := range oq.predicates {
 		p(selector)
 	}
@@ -757,6 +770,12 @@ func (oq *OrganizationQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (oq *OrganizationQuery) Modify(modifiers ...func(s *sql.Selector)) *OrganizationSelect {
+	oq.modifiers = append(oq.modifiers, modifiers...)
+	return oq.Select()
 }
 
 // OrganizationGroupBy is the group-by builder for Organization entities.
@@ -847,4 +866,10 @@ func (os *OrganizationSelect) sqlScan(ctx context.Context, root *OrganizationQue
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (os *OrganizationSelect) Modify(modifiers ...func(s *sql.Selector)) *OrganizationSelect {
+	os.modifiers = append(os.modifiers, modifiers...)
+	return os
 }

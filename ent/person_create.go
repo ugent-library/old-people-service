@@ -105,6 +105,12 @@ func (pc *PersonCreate) SetOtherID(sr []schema.IdRef) *PersonCreate {
 	return pc
 }
 
+// SetOtherOrganizationID sets the "other_organization_id" field.
+func (pc *PersonCreate) SetOtherOrganizationID(s []string) *PersonCreate {
+	pc.mutation.SetOtherOrganizationID(s)
+	return pc
+}
+
 // SetFirstName sets the "first_name" field.
 func (pc *PersonCreate) SetFirstName(s string) *PersonCreate {
 	pc.mutation.SetFirstName(s)
@@ -370,6 +376,10 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 		_spec.SetField(person.FieldOtherID, field.TypeJSON, value)
 		_node.OtherID = value
 	}
+	if value, ok := pc.mutation.OtherOrganizationID(); ok {
+		_spec.SetField(person.FieldOtherOrganizationID, field.TypeJSON, value)
+		_node.OtherOrganizationID = value
+	}
 	if value, ok := pc.mutation.FirstName(); ok {
 		_spec.SetField(person.FieldFirstName, field.TypeString, value)
 		_node.FirstName = value
@@ -414,10 +424,7 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 			Columns: person.OrganizationsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -437,10 +444,7 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 			Columns: []string{person.OrganizationPersonColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organizationperson.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -475,8 +479,8 @@ func (pcb *PersonCreateBulk) Save(ctx context.Context) ([]*Person, error) {
 					return nil, err
 				}
 				builder.mutation = mutation
-				nodes[i], specs[i] = builder.createSpec()
 				var err error
+				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, pcb.builders[i+1].mutation)
 				} else {

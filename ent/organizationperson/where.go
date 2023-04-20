@@ -209,11 +209,7 @@ func HasPeople() predicate.OrganizationPerson {
 // HasPeopleWith applies the HasEdge predicate on the "people" edge with a given conditions (other predicates).
 func HasPeopleWith(preds ...predicate.Person) predicate.OrganizationPerson {
 	return predicate.OrganizationPerson(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(PeopleInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, PeopleTable, PeopleColumn),
-		)
+		step := newPeopleStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -236,11 +232,7 @@ func HasOrganizations() predicate.OrganizationPerson {
 // HasOrganizationsWith applies the HasEdge predicate on the "organizations" edge with a given conditions (other predicates).
 func HasOrganizationsWith(preds ...predicate.Organization) predicate.OrganizationPerson {
 	return predicate.OrganizationPerson(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(OrganizationsInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, OrganizationsTable, OrganizationsColumn),
-		)
+		step := newOrganizationsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

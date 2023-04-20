@@ -10,6 +10,7 @@ import (
 
 type Organization struct {
 	v1.Organization
+	OtherParentId string `json:"-"`
 }
 
 func (org *Organization) IsStored() bool {

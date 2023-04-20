@@ -3,7 +3,7 @@ module github.com/ugent-library/people
 go 1.20
 
 require (
-	entgo.io/ent v0.11.9
+	entgo.io/ent v0.12.1
 	github.com/elastic/go-elasticsearch/v6 v6.8.10
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2
@@ -11,7 +11,7 @@ require (
 	github.com/nats-io/nats.go v1.24.0
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/cobra v1.6.1
+	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.2
 	go.uber.org/zap v1.21.0
@@ -21,7 +21,7 @@ require (
 )
 
 require (
-	ariga.io/atlas v0.9.1 // indirect
+	ariga.io/atlas v0.10.0 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

@@ -105,6 +105,20 @@ func (oc *OrganizationCreate) SetOtherID(sr []schema.IdRef) *OrganizationCreate 
 	return oc
 }
 
+// SetOtherParentID sets the "other_parent_id" field.
+func (oc *OrganizationCreate) SetOtherParentID(s string) *OrganizationCreate {
+	oc.mutation.SetOtherParentID(s)
+	return oc
+}
+
+// SetNillableOtherParentID sets the "other_parent_id" field if the given value is not nil.
+func (oc *OrganizationCreate) SetNillableOtherParentID(s *string) *OrganizationCreate {
+	if s != nil {
+		oc.SetOtherParentID(*s)
+	}
+	return oc
+}
+
 // SetParentID sets the "parent_id" field.
 func (oc *OrganizationCreate) SetParentID(i int) *OrganizationCreate {
 	oc.mutation.SetParentID(i)
@@ -286,6 +300,10 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 		_spec.SetField(organization.FieldOtherID, field.TypeJSON, value)
 		_node.OtherID = value
 	}
+	if value, ok := oc.mutation.OtherParentID(); ok {
+		_spec.SetField(organization.FieldOtherParentID, field.TypeString, value)
+		_node.OtherParentID = value
+	}
 	if nodes := oc.mutation.PeopleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -294,10 +312,7 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 			Columns: organization.PeoplePrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: person.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -317,10 +332,7 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 			Columns: []string{organization.ParentColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -337,10 +349,7 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 			Columns: []string{organization.ChildrenColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -356,10 +365,7 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 			Columns: []string{organization.OrganizationPersonColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organizationperson.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -394,8 +400,8 @@ func (ocb *OrganizationCreateBulk) Save(ctx context.Context) ([]*Organization, e
 					return nil, err
 				}
 				builder.mutation = mutation
-				nodes[i], specs[i] = builder.createSpec()
 				var err error
+				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, ocb.builders[i+1].mutation)
 				} else {

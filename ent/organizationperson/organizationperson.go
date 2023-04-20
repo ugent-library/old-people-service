@@ -4,6 +4,9 @@ package organizationperson
 
 import (
 	"time"
+
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -68,3 +71,59 @@ var (
 	// UpdateDefaultDateUpdated holds the default value on update for the "date_updated" field.
 	UpdateDefaultDateUpdated func() time.Time
 )
+
+// OrderOption defines the ordering options for the OrganizationPerson queries.
+type OrderOption func(*sql.Selector)
+
+// ByID orders the results by the id field.
+func ByID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByDateCreated orders the results by the date_created field.
+func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
+}
+
+// ByDateUpdated orders the results by the date_updated field.
+func ByDateUpdated(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateUpdated, opts...).ToFunc()
+}
+
+// ByOrganizationID orders the results by the organization_id field.
+func ByOrganizationID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOrganizationID, opts...).ToFunc()
+}
+
+// ByPersonID orders the results by the person_id field.
+func ByPersonID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPersonID, opts...).ToFunc()
+}
+
+// ByPeopleField orders the results by people field.
+func ByPeopleField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPeopleStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByOrganizationsField orders the results by organizations field.
+func ByOrganizationsField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOrganizationsStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newPeopleStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PeopleInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, false, PeopleTable, PeopleColumn),
+	)
+}
+func newOrganizationsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(OrganizationsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, false, OrganizationsTable, OrganizationsColumn),
+	)
+}

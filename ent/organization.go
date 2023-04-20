@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/ugent-library/people/ent/organization"
 	"github.com/ugent-library/people/ent/schema"
@@ -32,11 +33,14 @@ type Organization struct {
 	NameEng string `json:"name_eng,omitempty"`
 	// OtherID holds the value of the "other_id" field.
 	OtherID []schema.IdRef `json:"other_id,omitempty"`
+	// OtherParentID holds the value of the "other_parent_id" field.
+	OtherParentID string `json:"other_parent_id,omitempty"`
 	// ParentID holds the value of the "parent_id" field.
 	ParentID int `json:"parent_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the OrganizationQuery when eager-loading is set.
-	Edges OrganizationEdges `json:"edges"`
+	Edges        OrganizationEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // OrganizationEdges holds the relations/edges for other nodes in the graph.
@@ -103,12 +107,12 @@ func (*Organization) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case organization.FieldID, organization.FieldParentID:
 			values[i] = new(sql.NullInt64)
-		case organization.FieldPublicID, organization.FieldType, organization.FieldNameDut, organization.FieldNameEng:
+		case organization.FieldPublicID, organization.FieldType, organization.FieldNameDut, organization.FieldNameEng, organization.FieldOtherParentID:
 			values[i] = new(sql.NullString)
 		case organization.FieldDateCreated, organization.FieldDateUpdated:
 			values[i] = new(sql.NullTime)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Organization", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -172,15 +176,29 @@ func (o *Organization) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field other_id: %w", err)
 				}
 			}
+		case organization.FieldOtherParentID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field other_parent_id", values[i])
+			} else if value.Valid {
+				o.OtherParentID = value.String
+			}
 		case organization.FieldParentID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field parent_id", values[i])
 			} else if value.Valid {
 				o.ParentID = int(value.Int64)
 			}
+		default:
+			o.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
+}
+
+// Value returns the ent.Value that was dynamically selected and assigned to the Organization.
+// This includes values selected through modifiers, order, etc.
+func (o *Organization) Value(name string) (ent.Value, error) {
+	return o.selectValues.Get(name)
 }
 
 // QueryPeople queries the "people" edge of the Organization entity.
@@ -246,6 +264,9 @@ func (o *Organization) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("other_id=")
 	builder.WriteString(fmt.Sprintf("%v", o.OtherID))
+	builder.WriteString(", ")
+	builder.WriteString("other_parent_id=")
+	builder.WriteString(o.OtherParentID)
 	builder.WriteString(", ")
 	builder.WriteString("parent_id=")
 	builder.WriteString(fmt.Sprintf("%v", o.ParentID))

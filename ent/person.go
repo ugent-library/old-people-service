@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/schema"
@@ -32,6 +33,8 @@ type Person struct {
 	Email string `json:"email,omitempty"`
 	// OtherID holds the value of the "other_id" field.
 	OtherID []schema.IdRef `json:"other_id,omitempty"`
+	// OtherOrganizationID holds the value of the "other_organization_id" field.
+	OtherOrganizationID []string `json:"other_organization_id,omitempty"`
 	// FirstName holds the value of the "first_name" field.
 	FirstName string `json:"first_name,omitempty"`
 	// FullName holds the value of the "full_name" field.
@@ -52,7 +55,8 @@ type Person struct {
 	Title string `json:"title,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PersonQuery when eager-loading is set.
-	Edges PersonEdges `json:"edges"`
+	Edges        PersonEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // PersonEdges holds the relations/edges for other nodes in the graph.
@@ -89,7 +93,7 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case person.FieldOtherID, person.FieldJobCategory:
+		case person.FieldOtherID, person.FieldOtherOrganizationID, person.FieldJobCategory:
 			values[i] = new([]byte)
 		case person.FieldActive:
 			values[i] = new(sql.NullBool)
@@ -100,7 +104,7 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 		case person.FieldDateCreated, person.FieldDateUpdated:
 			values[i] = new(sql.NullTime)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Person", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -164,6 +168,14 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field other_id: %w", err)
 				}
 			}
+		case person.FieldOtherOrganizationID:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field other_organization_id", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pe.OtherOrganizationID); err != nil {
+					return fmt.Errorf("unmarshal field other_organization_id: %w", err)
+				}
+			}
 		case person.FieldFirstName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field first_name", values[i])
@@ -220,9 +232,17 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pe.Title = value.String
 			}
+		default:
+			pe.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
+}
+
+// Value returns the ent.Value that was dynamically selected and assigned to the Person.
+// This includes values selected through modifiers, order, etc.
+func (pe *Person) Value(name string) (ent.Value, error) {
+	return pe.selectValues.Get(name)
 }
 
 // QueryOrganizations queries the "organizations" edge of the Person entity.
@@ -278,6 +298,9 @@ func (pe *Person) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("other_id=")
 	builder.WriteString(fmt.Sprintf("%v", pe.OtherID))
+	builder.WriteString(", ")
+	builder.WriteString("other_organization_id=")
+	builder.WriteString(fmt.Sprintf("%v", pe.OtherOrganizationID))
 	builder.WriteString(", ")
 	builder.WriteString("first_name=")
 	builder.WriteString(pe.FirstName)

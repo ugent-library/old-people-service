@@ -85,6 +85,11 @@ func NameEng(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldEQ(FieldNameEng, v))
 }
 
+// OtherParentID applies equality check predicate on the "other_parent_id" field. It's identical to OtherParentIDEQ.
+func OtherParentID(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldOtherParentID, v))
+}
+
 // ParentID applies equality check predicate on the "parent_id" field. It's identical to ParentIDEQ.
 func ParentID(v int) predicate.Organization {
 	return predicate.Organization(sql.FieldEQ(FieldParentID, v))
@@ -460,6 +465,81 @@ func OtherIDNotNil() predicate.Organization {
 	return predicate.Organization(sql.FieldNotNull(FieldOtherID))
 }
 
+// OtherParentIDEQ applies the EQ predicate on the "other_parent_id" field.
+func OtherParentIDEQ(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldOtherParentID, v))
+}
+
+// OtherParentIDNEQ applies the NEQ predicate on the "other_parent_id" field.
+func OtherParentIDNEQ(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldNEQ(FieldOtherParentID, v))
+}
+
+// OtherParentIDIn applies the In predicate on the "other_parent_id" field.
+func OtherParentIDIn(vs ...string) predicate.Organization {
+	return predicate.Organization(sql.FieldIn(FieldOtherParentID, vs...))
+}
+
+// OtherParentIDNotIn applies the NotIn predicate on the "other_parent_id" field.
+func OtherParentIDNotIn(vs ...string) predicate.Organization {
+	return predicate.Organization(sql.FieldNotIn(FieldOtherParentID, vs...))
+}
+
+// OtherParentIDGT applies the GT predicate on the "other_parent_id" field.
+func OtherParentIDGT(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldGT(FieldOtherParentID, v))
+}
+
+// OtherParentIDGTE applies the GTE predicate on the "other_parent_id" field.
+func OtherParentIDGTE(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldGTE(FieldOtherParentID, v))
+}
+
+// OtherParentIDLT applies the LT predicate on the "other_parent_id" field.
+func OtherParentIDLT(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldLT(FieldOtherParentID, v))
+}
+
+// OtherParentIDLTE applies the LTE predicate on the "other_parent_id" field.
+func OtherParentIDLTE(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldLTE(FieldOtherParentID, v))
+}
+
+// OtherParentIDContains applies the Contains predicate on the "other_parent_id" field.
+func OtherParentIDContains(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldContains(FieldOtherParentID, v))
+}
+
+// OtherParentIDHasPrefix applies the HasPrefix predicate on the "other_parent_id" field.
+func OtherParentIDHasPrefix(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldHasPrefix(FieldOtherParentID, v))
+}
+
+// OtherParentIDHasSuffix applies the HasSuffix predicate on the "other_parent_id" field.
+func OtherParentIDHasSuffix(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldHasSuffix(FieldOtherParentID, v))
+}
+
+// OtherParentIDIsNil applies the IsNil predicate on the "other_parent_id" field.
+func OtherParentIDIsNil() predicate.Organization {
+	return predicate.Organization(sql.FieldIsNull(FieldOtherParentID))
+}
+
+// OtherParentIDNotNil applies the NotNil predicate on the "other_parent_id" field.
+func OtherParentIDNotNil() predicate.Organization {
+	return predicate.Organization(sql.FieldNotNull(FieldOtherParentID))
+}
+
+// OtherParentIDEqualFold applies the EqualFold predicate on the "other_parent_id" field.
+func OtherParentIDEqualFold(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEqualFold(FieldOtherParentID, v))
+}
+
+// OtherParentIDContainsFold applies the ContainsFold predicate on the "other_parent_id" field.
+func OtherParentIDContainsFold(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldContainsFold(FieldOtherParentID, v))
+}
+
 // ParentIDEQ applies the EQ predicate on the "parent_id" field.
 func ParentIDEQ(v int) predicate.Organization {
 	return predicate.Organization(sql.FieldEQ(FieldParentID, v))
@@ -504,11 +584,7 @@ func HasPeople() predicate.Organization {
 // HasPeopleWith applies the HasEdge predicate on the "people" edge with a given conditions (other predicates).
 func HasPeopleWith(preds ...predicate.Person) predicate.Organization {
 	return predicate.Organization(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(PeopleInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, PeopleTable, PeoplePrimaryKey...),
-		)
+		step := newPeopleStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -531,11 +607,7 @@ func HasParent() predicate.Organization {
 // HasParentWith applies the HasEdge predicate on the "parent" edge with a given conditions (other predicates).
 func HasParentWith(preds ...predicate.Organization) predicate.Organization {
 	return predicate.Organization(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ParentTable, ParentColumn),
-		)
+		step := newParentStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -558,11 +630,7 @@ func HasChildren() predicate.Organization {
 // HasChildrenWith applies the HasEdge predicate on the "children" edge with a given conditions (other predicates).
 func HasChildrenWith(preds ...predicate.Organization) predicate.Organization {
 	return predicate.Organization(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ChildrenTable, ChildrenColumn),
-		)
+		step := newChildrenStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -585,11 +653,7 @@ func HasOrganizationPerson() predicate.Organization {
 // HasOrganizationPersonWith applies the HasEdge predicate on the "organization_person" edge with a given conditions (other predicates).
 func HasOrganizationPersonWith(preds ...predicate.OrganizationPerson) predicate.Organization {
 	return predicate.Organization(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(OrganizationPersonInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, OrganizationPersonTable, OrganizationPersonColumn),
-		)
+		step := newOrganizationPersonStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

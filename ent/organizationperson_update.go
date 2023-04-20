@@ -20,8 +20,9 @@ import (
 // OrganizationPersonUpdate is the builder for updating OrganizationPerson entities.
 type OrganizationPersonUpdate struct {
 	config
-	hooks    []Hook
-	mutation *OrganizationPersonMutation
+	hooks     []Hook
+	mutation  *OrganizationPersonMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the OrganizationPersonUpdate builder.
@@ -134,6 +135,12 @@ func (opu *OrganizationPersonUpdate) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (opu *OrganizationPersonUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *OrganizationPersonUpdate {
+	opu.modifiers = append(opu.modifiers, modifiers...)
+	return opu
+}
+
 func (opu *OrganizationPersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := opu.check(); err != nil {
 		return n, err
@@ -157,10 +164,7 @@ func (opu *OrganizationPersonUpdate) sqlSave(ctx context.Context) (n int, err er
 			Columns: []string{organizationperson.PeopleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: person.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -173,10 +177,7 @@ func (opu *OrganizationPersonUpdate) sqlSave(ctx context.Context) (n int, err er
 			Columns: []string{organizationperson.PeopleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: person.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -192,10 +193,7 @@ func (opu *OrganizationPersonUpdate) sqlSave(ctx context.Context) (n int, err er
 			Columns: []string{organizationperson.OrganizationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -208,10 +206,7 @@ func (opu *OrganizationPersonUpdate) sqlSave(ctx context.Context) (n int, err er
 			Columns: []string{organizationperson.OrganizationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -219,6 +214,7 @@ func (opu *OrganizationPersonUpdate) sqlSave(ctx context.Context) (n int, err er
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	_spec.AddModifiers(opu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, opu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{organizationperson.Label}
@@ -234,9 +230,10 @@ func (opu *OrganizationPersonUpdate) sqlSave(ctx context.Context) (n int, err er
 // OrganizationPersonUpdateOne is the builder for updating a single OrganizationPerson entity.
 type OrganizationPersonUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *OrganizationPersonMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *OrganizationPersonMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetDateUpdated sets the "date_updated" field.
@@ -356,6 +353,12 @@ func (opuo *OrganizationPersonUpdateOne) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (opuo *OrganizationPersonUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *OrganizationPersonUpdateOne {
+	opuo.modifiers = append(opuo.modifiers, modifiers...)
+	return opuo
+}
+
 func (opuo *OrganizationPersonUpdateOne) sqlSave(ctx context.Context) (_node *OrganizationPerson, err error) {
 	if err := opuo.check(); err != nil {
 		return _node, err
@@ -396,10 +399,7 @@ func (opuo *OrganizationPersonUpdateOne) sqlSave(ctx context.Context) (_node *Or
 			Columns: []string{organizationperson.PeopleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: person.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -412,10 +412,7 @@ func (opuo *OrganizationPersonUpdateOne) sqlSave(ctx context.Context) (_node *Or
 			Columns: []string{organizationperson.PeopleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: person.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -431,10 +428,7 @@ func (opuo *OrganizationPersonUpdateOne) sqlSave(ctx context.Context) (_node *Or
 			Columns: []string{organizationperson.OrganizationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -447,10 +441,7 @@ func (opuo *OrganizationPersonUpdateOne) sqlSave(ctx context.Context) (_node *Or
 			Columns: []string{organizationperson.OrganizationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -458,6 +449,7 @@ func (opuo *OrganizationPersonUpdateOne) sqlSave(ctx context.Context) (_node *Or
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	_spec.AddModifiers(opuo.modifiers...)
 	_node = &OrganizationPerson{config: opuo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

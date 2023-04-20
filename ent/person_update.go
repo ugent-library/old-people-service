@@ -22,8 +22,9 @@ import (
 // PersonUpdate is the builder for updating Person entities.
 type PersonUpdate struct {
 	config
-	hooks    []Hook
-	mutation *PersonMutation
+	hooks     []Hook
+	mutation  *PersonMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the PersonUpdate builder.
@@ -107,6 +108,24 @@ func (pu *PersonUpdate) AppendOtherID(sr []schema.IdRef) *PersonUpdate {
 // ClearOtherID clears the value of the "other_id" field.
 func (pu *PersonUpdate) ClearOtherID() *PersonUpdate {
 	pu.mutation.ClearOtherID()
+	return pu
+}
+
+// SetOtherOrganizationID sets the "other_organization_id" field.
+func (pu *PersonUpdate) SetOtherOrganizationID(s []string) *PersonUpdate {
+	pu.mutation.SetOtherOrganizationID(s)
+	return pu
+}
+
+// AppendOtherOrganizationID appends s to the "other_organization_id" field.
+func (pu *PersonUpdate) AppendOtherOrganizationID(s []string) *PersonUpdate {
+	pu.mutation.AppendOtherOrganizationID(s)
+	return pu
+}
+
+// ClearOtherOrganizationID clears the value of the "other_organization_id" field.
+func (pu *PersonUpdate) ClearOtherOrganizationID() *PersonUpdate {
+	pu.mutation.ClearOtherOrganizationID()
 	return pu
 }
 
@@ -401,6 +420,12 @@ func (pu *PersonUpdate) defaults() {
 	}
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (pu *PersonUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *PersonUpdate {
+	pu.modifiers = append(pu.modifiers, modifiers...)
+	return pu
+}
+
 func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(person.Table, person.Columns, sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt))
 	if ps := pu.mutation.predicates; len(ps) > 0 {
@@ -438,6 +463,17 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.OtherIDCleared() {
 		_spec.ClearField(person.FieldOtherID, field.TypeJSON)
+	}
+	if value, ok := pu.mutation.OtherOrganizationID(); ok {
+		_spec.SetField(person.FieldOtherOrganizationID, field.TypeJSON, value)
+	}
+	if value, ok := pu.mutation.AppendedOtherOrganizationID(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldOtherOrganizationID, value)
+		})
+	}
+	if pu.mutation.OtherOrganizationIDCleared() {
+		_spec.ClearField(person.FieldOtherOrganizationID, field.TypeJSON)
 	}
 	if value, ok := pu.mutation.FirstName(); ok {
 		_spec.SetField(person.FieldFirstName, field.TypeString, value)
@@ -506,10 +542,7 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: person.OrganizationsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		createE := &OrganizationPersonCreate{config: pu.config, mutation: newOrganizationPersonMutation(pu.config, OpCreate)}
@@ -526,10 +559,7 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: person.OrganizationsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -549,10 +579,7 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: person.OrganizationsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -572,10 +599,7 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{person.OrganizationPersonColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organizationperson.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -588,10 +612,7 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{person.OrganizationPersonColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organizationperson.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -607,10 +628,7 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{person.OrganizationPersonColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organizationperson.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -618,6 +636,7 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	_spec.AddModifiers(pu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{person.Label}
@@ -633,9 +652,10 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 // PersonUpdateOne is the builder for updating a single Person entity.
 type PersonUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *PersonMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *PersonMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetDateUpdated sets the "date_updated" field.
@@ -713,6 +733,24 @@ func (puo *PersonUpdateOne) AppendOtherID(sr []schema.IdRef) *PersonUpdateOne {
 // ClearOtherID clears the value of the "other_id" field.
 func (puo *PersonUpdateOne) ClearOtherID() *PersonUpdateOne {
 	puo.mutation.ClearOtherID()
+	return puo
+}
+
+// SetOtherOrganizationID sets the "other_organization_id" field.
+func (puo *PersonUpdateOne) SetOtherOrganizationID(s []string) *PersonUpdateOne {
+	puo.mutation.SetOtherOrganizationID(s)
+	return puo
+}
+
+// AppendOtherOrganizationID appends s to the "other_organization_id" field.
+func (puo *PersonUpdateOne) AppendOtherOrganizationID(s []string) *PersonUpdateOne {
+	puo.mutation.AppendOtherOrganizationID(s)
+	return puo
+}
+
+// ClearOtherOrganizationID clears the value of the "other_organization_id" field.
+func (puo *PersonUpdateOne) ClearOtherOrganizationID() *PersonUpdateOne {
+	puo.mutation.ClearOtherOrganizationID()
 	return puo
 }
 
@@ -1020,6 +1058,12 @@ func (puo *PersonUpdateOne) defaults() {
 	}
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (puo *PersonUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *PersonUpdateOne {
+	puo.modifiers = append(puo.modifiers, modifiers...)
+	return puo
+}
+
 func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err error) {
 	_spec := sqlgraph.NewUpdateSpec(person.Table, person.Columns, sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt))
 	id, ok := puo.mutation.ID()
@@ -1074,6 +1118,17 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	}
 	if puo.mutation.OtherIDCleared() {
 		_spec.ClearField(person.FieldOtherID, field.TypeJSON)
+	}
+	if value, ok := puo.mutation.OtherOrganizationID(); ok {
+		_spec.SetField(person.FieldOtherOrganizationID, field.TypeJSON, value)
+	}
+	if value, ok := puo.mutation.AppendedOtherOrganizationID(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldOtherOrganizationID, value)
+		})
+	}
+	if puo.mutation.OtherOrganizationIDCleared() {
+		_spec.ClearField(person.FieldOtherOrganizationID, field.TypeJSON)
 	}
 	if value, ok := puo.mutation.FirstName(); ok {
 		_spec.SetField(person.FieldFirstName, field.TypeString, value)
@@ -1142,10 +1197,7 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 			Columns: person.OrganizationsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		createE := &OrganizationPersonCreate{config: puo.config, mutation: newOrganizationPersonMutation(puo.config, OpCreate)}
@@ -1162,10 +1214,7 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 			Columns: person.OrganizationsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1185,10 +1234,7 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 			Columns: person.OrganizationsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1208,10 +1254,7 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 			Columns: []string{person.OrganizationPersonColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organizationperson.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1224,10 +1267,7 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 			Columns: []string{person.OrganizationPersonColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organizationperson.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1243,10 +1283,7 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 			Columns: []string{person.OrganizationPersonColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organizationperson.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1254,6 +1291,7 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	_spec.AddModifiers(puo.modifiers...)
 	_node = &Person{config: puo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

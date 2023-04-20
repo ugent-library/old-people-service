@@ -8,10 +8,12 @@ import (
 
 	entdialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqljson"
 	v1 "github.com/ugent-library/people/api/v1"
 	"github.com/ugent-library/people/ent"
 	entmigrate "github.com/ugent-library/people/ent/migrate"
 	"github.com/ugent-library/people/ent/organization"
+	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/schema"
 	"github.com/ugent-library/people/models"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -46,8 +48,8 @@ func NewOrganizationService(cfg *OrganizationConfig) (models.OrganizationService
 	}, nil
 }
 
-func (os *organizationService) GetOrganization(ctx context.Context, id string) (*models.Organization, error) {
-	row, err := os.db.Organization.Query().WithParent().Where(organization.PublicIDEQ(id)).First(ctx)
+func (orgSvc *organizationService) GetOrganization(ctx context.Context, id string) (*models.Organization, error) {
+	row, err := orgSvc.db.Organization.Query().WithParent().Where(organization.PublicIDEQ(id)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -58,9 +60,9 @@ func (os *organizationService) GetOrganization(ctx context.Context, id string) (
 	return orgUnwrap(row), nil
 }
 
-func (os *organizationService) CreateOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
+func (orgSvc *organizationService) CreateOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
 	// date fields filled by schema
-	tx, txErr := os.db.Tx(ctx)
+	tx, txErr := orgSvc.db.Tx(ctx)
 	if txErr != nil {
 		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
 	}
@@ -86,15 +88,7 @@ func (os *organizationService) CreateOrganization(ctx context.Context, org *mode
 		if err != nil {
 			var e *ent.NotFoundError
 			if errors.As(err, &e) {
-				pt := tx.Organization.Create()
-				pt.SetPublicID(org.ParentId)
-				pt.SetNameDut(org.ParentId)
-				pt.SetNameEng(org.ParentId)
-				parentOrg, err := pt.Save(ctx)
-				if err != nil {
-					return nil, fmt.Errorf("unable to save parent organization: %w", err)
-				}
-				t.SetParent(parentOrg)
+				t.SetOtherParentID(org.ParentId)
 			} else {
 				return nil, fmt.Errorf("unable to query organizations: %w", err)
 			}
@@ -104,6 +98,50 @@ func (os *organizationService) CreateOrganization(ctx context.Context, org *mode
 	row, err := t.Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("unable to save organization: %w", err)
+	}
+
+	// check if other_parent_id is using this new organization (upgrade)
+	childOrgUpdate := tx.Organization.Update().
+		Where(organization.OtherParentIDEQ(org.Id)).
+		SetOtherParentID("").
+		SetParent(row)
+	if _, err := childOrgUpdate.Save(ctx); err != nil {
+		return nil, fmt.Errorf("unable to update child organizations: %w", err)
+	}
+
+	// move organization id from person.other_organization_id into real relation
+	// TODO: also do this "migration" in UpdateOrganization?
+
+	// create relations for person records that are referring to that new org
+	_, sqlResErr := tx.OrganizationPerson.ExecContext(ctx, fmt.Sprintf(`
+		INSERT INTO organization_person(person_id, organization_id, date_created, date_updated)
+		SELECT id person_id, %d organization_id, now() date_created, now() date_updated
+		FROM person WHERE person.other_organization_id @> '"%s"'
+	`, row.ID, org.Id))
+
+	if sqlResErr != nil {
+		return nil, fmt.Errorf("unable to insert into table organization_person: %w", sqlResErr)
+	}
+
+	/*
+		Remove value from person.other_organization_id:
+
+		sql:
+			update person set other_organization_id = other_organization_id - 'CA20' where other_organization_id @> '"CA20"';
+	*/
+	personUpdateErr := tx.Person.Update().Where(func(s *entsql.Selector) {
+		s.Where(sqljson.ValueContains("other_organization_id", org.Id))
+	}).Modify(func(u *entsql.UpdateBuilder) {
+		u.Set(
+			person.FieldOtherOrganizationID,
+			entsql.ExprFunc(func(b *entsql.Builder) {
+				b.Ident(person.FieldOtherOrganizationID).WriteOp(entsql.OpSub).Arg(org.Id)
+			}),
+		)
+	}).Exec(ctx)
+
+	if personUpdateErr != nil {
+		return nil, fmt.Errorf("unable to update person.other_organization_id: %w", personUpdateErr)
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -117,8 +155,8 @@ func (os *organizationService) CreateOrganization(ctx context.Context, org *mode
 	return org, nil
 }
 
-func (os *organizationService) UpdateOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
-	tx, txErr := os.db.Tx(ctx)
+func (orgSvc *organizationService) UpdateOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
+	tx, txErr := orgSvc.db.Tx(ctx)
 	if txErr != nil {
 		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
 	}
@@ -138,50 +176,63 @@ func (os *organizationService) UpdateOrganization(ctx context.Context, org *mode
 	}
 	t.SetOtherID(schemaOtherIds)
 
+	t.ClearParent()
+	t.SetOtherParentID("")
 	if org.ParentId != "" {
-		_, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentId)).First(ctx)
+		parentOrg, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentId)).First(ctx)
 		if err != nil {
 			var e *ent.NotFoundError
 			if errors.As(err, &e) {
-				pt := tx.Organization.Create()
-				pt.SetPublicID(org.ParentId)
-				pt.SetNameDut(org.ParentId)
-				pt.SetNameEng(org.ParentId)
-				parentOrg, err := pt.Save(ctx)
-				if err != nil {
-					return nil, fmt.Errorf("unable to save parent organization: %w", err)
-				}
-				t.SetParent(parentOrg)
+				t.SetOtherParentID(org.ParentId)
 			} else {
 				return nil, fmt.Errorf("unable to query organizations: %w", err)
 			}
+		} else {
+			t.SetParent(parentOrg)
 		}
 	}
 
-	_, err := t.Save(ctx)
+	nAffected, err := t.Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("unable to save organization: %w", err)
+	}
+
+	// load new row (must be found)
+	row, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.Id)).First(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unable to query organizations: %w", err)
+	}
+
+	// check if other_parent_id is using this new organization (upgrade)
+	if nAffected > 0 {
+		childOrgUpdate := tx.Organization.Update().
+			Where(organization.OtherParentIDEQ(org.Id)).
+			SetOtherParentID("").
+			SetParent(row)
+		if _, err := childOrgUpdate.Save(ctx); err != nil {
+			return nil, fmt.Errorf("unable to update child organizations: %w", err)
+		}
 	}
 
 	if err := tx.Commit(); err != nil {
 		return nil, fmt.Errorf("unable to commit transaction: %w", err)
 	}
 
-	return os.GetOrganization(ctx, org.Id)
+	return orgUnwrap(row), nil
 }
 
-func (os *organizationService) DeleteOrganization(ctx context.Context, id string) error {
-	_, err := os.db.Organization.Delete().Where(organization.PublicIDEQ(id)).Exec(ctx)
+func (orgSvc *organizationService) DeleteOrganization(ctx context.Context, id string) error {
+	_, err := orgSvc.db.Organization.Delete().Where(organization.PublicIDEQ(id)).Exec(ctx)
 	return err
 }
 
-func (os *organizationService) EachOrganization(ctx context.Context, cb func(*models.Organization) bool) error {
+func (orgSvc *organizationService) EachOrganization(ctx context.Context, cb func(*models.Organization) bool) error {
 
 	// TODO: find a better way to do this (no cursors possible)
 	var offset int = 0
 	var limit int = 500
 	for {
-		rows, err := os.db.Organization.Query().WithParent().Offset(offset).Limit(limit).Order(ent.Asc(organization.FieldDateCreated)).All(ctx)
+		rows, err := orgSvc.db.Organization.Query().WithParent().Offset(offset).Limit(limit).Order(ent.Asc(organization.FieldDateCreated)).All(ctx)
 		if err != nil {
 			return err
 		}
@@ -218,6 +269,7 @@ func orgUnwrap(e *ent.Organization) *models.Organization {
 			NameEng:     e.NameEng,
 			OtherId:     otherIds,
 		},
+		OtherParentId: e.OtherParentID,
 	}
 	if parentOrg := e.Edges.Parent; parentOrg != nil {
 		org.ParentId = parentOrg.PublicID

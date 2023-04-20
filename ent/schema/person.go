@@ -43,6 +43,7 @@ func (Person) Fields() []ent.Field {
 		field.String("birth_date").Optional(),
 		field.String("email").Optional(),
 		field.JSON("other_id", []IdRef{}).Optional(),
+		field.Strings("other_organization_id").Optional(),
 		field.String("first_name").Optional(),
 		field.String("full_name").Optional(),
 		field.String("last_name").Optional(),

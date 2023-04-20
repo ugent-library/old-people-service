@@ -19,6 +19,7 @@ var (
 		{Name: "name_dut", Type: field.TypeString, Nullable: true},
 		{Name: "name_eng", Type: field.TypeString, Nullable: true},
 		{Name: "other_id", Type: field.TypeJSON, Nullable: true},
+		{Name: "other_parent_id", Type: field.TypeString, Nullable: true},
 		{Name: "parent_id", Type: field.TypeInt, Nullable: true},
 	}
 	// OrganizationTable holds the schema information for the "organization" table.
@@ -29,7 +30,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "organization_organization_children",
-				Columns:    []*schema.Column{OrganizationColumns[8]},
+				Columns:    []*schema.Column{OrganizationColumns[9]},
 				RefColumns: []*schema.Column{OrganizationColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -80,6 +81,7 @@ var (
 		{Name: "birth_date", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString, Nullable: true},
 		{Name: "other_id", Type: field.TypeJSON, Nullable: true},
+		{Name: "other_organization_id", Type: field.TypeJSON, Nullable: true},
 		{Name: "first_name", Type: field.TypeString, Nullable: true},
 		{Name: "full_name", Type: field.TypeString, Nullable: true},
 		{Name: "last_name", Type: field.TypeString, Nullable: true},
@@ -109,7 +111,7 @@ var (
 			{
 				Name:    "person_orcid",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[12]},
+				Columns: []*schema.Column{PersonColumns[13]},
 			},
 			{
 				Name:    "person_email",
@@ -119,17 +121,17 @@ var (
 			{
 				Name:    "person_first_name",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[8]},
+				Columns: []*schema.Column{PersonColumns[9]},
 			},
 			{
 				Name:    "person_last_name",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[10]},
+				Columns: []*schema.Column{PersonColumns[11]},
 			},
 			{
 				Name:    "person_full_name",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[9]},
+				Columns: []*schema.Column{PersonColumns[10]},
 			},
 		},
 	}

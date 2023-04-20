@@ -21,11 +21,12 @@ import (
 type PersonQuery struct {
 	config
 	ctx                    *QueryContext
-	order                  []OrderFunc
+	order                  []person.OrderOption
 	inters                 []Interceptor
 	predicates             []predicate.Person
 	withOrganizations      *OrganizationQuery
 	withOrganizationPerson *OrganizationPersonQuery
+	modifiers              []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,7 +58,7 @@ func (pq *PersonQuery) Unique(unique bool) *PersonQuery {
 }
 
 // Order specifies how the records should be ordered.
-func (pq *PersonQuery) Order(o ...OrderFunc) *PersonQuery {
+func (pq *PersonQuery) Order(o ...person.OrderOption) *PersonQuery {
 	pq.order = append(pq.order, o...)
 	return pq
 }
@@ -295,7 +296,7 @@ func (pq *PersonQuery) Clone() *PersonQuery {
 	return &PersonQuery{
 		config:                 pq.config,
 		ctx:                    pq.ctx.Clone(),
-		order:                  append([]OrderFunc{}, pq.order...),
+		order:                  append([]person.OrderOption{}, pq.order...),
 		inters:                 append([]Interceptor{}, pq.inters...),
 		predicates:             append([]predicate.Person{}, pq.predicates...),
 		withOrganizations:      pq.withOrganizations.Clone(),
@@ -420,6 +421,9 @@ func (pq *PersonQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Perso
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(pq.modifiers) > 0 {
+		_spec.Modifiers = pq.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -520,7 +524,7 @@ func (pq *PersonQuery) loadOrganizationPerson(ctx context.Context, query *Organi
 		}
 	}
 	query.Where(predicate.OrganizationPerson(func(s *sql.Selector) {
-		s.Where(sql.InValues(person.OrganizationPersonColumn, fks...))
+		s.Where(sql.InValues(s.C(person.OrganizationPersonColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
@@ -539,6 +543,9 @@ func (pq *PersonQuery) loadOrganizationPerson(ctx context.Context, query *Organi
 
 func (pq *PersonQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := pq.querySpec()
+	if len(pq.modifiers) > 0 {
+		_spec.Modifiers = pq.modifiers
+	}
 	_spec.Node.Columns = pq.ctx.Fields
 	if len(pq.ctx.Fields) > 0 {
 		_spec.Unique = pq.ctx.Unique != nil && *pq.ctx.Unique
@@ -601,6 +608,9 @@ func (pq *PersonQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if pq.ctx.Unique != nil && *pq.ctx.Unique {
 		selector.Distinct()
 	}
+	for _, m := range pq.modifiers {
+		m(selector)
+	}
 	for _, p := range pq.predicates {
 		p(selector)
 	}
@@ -616,6 +626,12 @@ func (pq *PersonQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (pq *PersonQuery) Modify(modifiers ...func(s *sql.Selector)) *PersonSelect {
+	pq.modifiers = append(pq.modifiers, modifiers...)
+	return pq.Select()
 }
 
 // PersonGroupBy is the group-by builder for Person entities.
@@ -706,4 +722,10 @@ func (ps *PersonSelect) sqlScan(ctx context.Context, root *PersonQuery, v any) e
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (ps *PersonSelect) Modify(modifiers ...func(s *sql.Selector)) *PersonSelect {
+	ps.modifiers = append(ps.modifiers, modifiers...)
+	return ps
 }

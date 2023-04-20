@@ -191,10 +191,7 @@ func (opc *OrganizationPersonCreate) createSpec() (*OrganizationPerson, *sqlgrap
 			Columns: []string{organizationperson.PeopleColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: person.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -211,10 +208,7 @@ func (opc *OrganizationPersonCreate) createSpec() (*OrganizationPerson, *sqlgrap
 			Columns: []string{organizationperson.OrganizationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: organization.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -250,8 +244,8 @@ func (opcb *OrganizationPersonCreateBulk) Save(ctx context.Context) ([]*Organiza
 					return nil, err
 				}
 				builder.mutation = mutation
-				nodes[i], specs[i] = builder.createSpec()
 				var err error
+				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, opcb.builders[i+1].mutation)
 				} else {

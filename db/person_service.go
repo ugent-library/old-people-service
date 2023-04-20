@@ -82,14 +82,14 @@ func (ps *personService) CreatePerson(ctx context.Context, p *models.Person) (*m
 	t.SetPreferredFirstName(p.PreferredFirstName)
 	t.SetPreferredLastName(p.PreferredLastName)
 
-	// TODO: test
 	if p.OrganizationId != nil && len(p.OrganizationId) > 0 {
 		// TODO: crashes with segmentation violation error when org does not exist
 		orgs, err := tx.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("unable to query organizations: %w", err)
 		}
-		// add missing organizations
+		// add unconfirmed organization id's to other_organization_id
+		otherOrganizationIds := []string{}
 		for _, orgId := range p.OrganizationId {
 			found := false
 			for _, org := range orgs {
@@ -99,17 +99,10 @@ func (ps *personService) CreatePerson(ctx context.Context, p *models.Person) (*m
 				}
 			}
 			if !found {
-				oc := tx.Organization.Create()
-				oc.SetPublicID(orgId)
-				oc.SetNameDut(orgId)
-				oc.SetNameEng(orgId)
-				newOrg, err := oc.Save(ctx)
-				if err != nil {
-					return nil, fmt.Errorf("unable to save new organization: %w", err)
-				}
-				orgs = append(orgs, newOrg)
+				otherOrganizationIds = append(otherOrganizationIds, orgId)
 			}
 		}
+		t.SetOtherOrganizationID(otherOrganizationIds)
 		t.AddOrganizations(orgs...)
 	}
 
@@ -161,13 +154,15 @@ func (ps *personService) UpdatePerson(ctx context.Context, p *models.Person) (*m
 	t.SetPreferredLastName(p.PreferredLastName)
 
 	t.ClearOrganizations()
+	t.ClearOtherOrganizationID()
 	if p.OrganizationId != nil && len(p.OrganizationId) > 0 {
 		// TODO: crashes with segmentation violation error when org does not exist
 		orgs, err := tx.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
 		if err != nil {
 			return nil, err
 		}
-		// add missing organizations
+		// move unconfirmed organizations to other_organization_id
+		otherOrganizationIds := []string{}
 		for _, orgId := range p.OrganizationId {
 			found := false
 			for _, org := range orgs {
@@ -177,17 +172,10 @@ func (ps *personService) UpdatePerson(ctx context.Context, p *models.Person) (*m
 				}
 			}
 			if !found {
-				oc := tx.Organization.Create()
-				oc.SetPublicID(orgId)
-				oc.SetNameDut(orgId)
-				oc.SetNameEng(orgId)
-				newOrg, err := oc.Save(ctx)
-				if err != nil {
-					return nil, err
-				}
-				orgs = append(orgs, newOrg)
+				otherOrganizationIds = append(otherOrganizationIds, orgId)
 			}
 		}
+		t.SetOtherOrganizationID(otherOrganizationIds)
 		t.AddOrganizations(orgs...)
 	}
 

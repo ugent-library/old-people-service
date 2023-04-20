@@ -20,11 +20,12 @@ import (
 type OrganizationPersonQuery struct {
 	config
 	ctx               *QueryContext
-	order             []OrderFunc
+	order             []organizationperson.OrderOption
 	inters            []Interceptor
 	predicates        []predicate.OrganizationPerson
 	withPeople        *PersonQuery
 	withOrganizations *OrganizationQuery
+	modifiers         []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -56,7 +57,7 @@ func (opq *OrganizationPersonQuery) Unique(unique bool) *OrganizationPersonQuery
 }
 
 // Order specifies how the records should be ordered.
-func (opq *OrganizationPersonQuery) Order(o ...OrderFunc) *OrganizationPersonQuery {
+func (opq *OrganizationPersonQuery) Order(o ...organizationperson.OrderOption) *OrganizationPersonQuery {
 	opq.order = append(opq.order, o...)
 	return opq
 }
@@ -294,7 +295,7 @@ func (opq *OrganizationPersonQuery) Clone() *OrganizationPersonQuery {
 	return &OrganizationPersonQuery{
 		config:            opq.config,
 		ctx:               opq.ctx.Clone(),
-		order:             append([]OrderFunc{}, opq.order...),
+		order:             append([]organizationperson.OrderOption{}, opq.order...),
 		inters:            append([]Interceptor{}, opq.inters...),
 		predicates:        append([]predicate.OrganizationPerson{}, opq.predicates...),
 		withPeople:        opq.withPeople.Clone(),
@@ -419,6 +420,9 @@ func (opq *OrganizationPersonQuery) sqlAll(ctx context.Context, hooks ...queryHo
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(opq.modifiers) > 0 {
+		_spec.Modifiers = opq.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -504,6 +508,9 @@ func (opq *OrganizationPersonQuery) loadOrganizations(ctx context.Context, query
 
 func (opq *OrganizationPersonQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := opq.querySpec()
+	if len(opq.modifiers) > 0 {
+		_spec.Modifiers = opq.modifiers
+	}
 	_spec.Node.Columns = opq.ctx.Fields
 	if len(opq.ctx.Fields) > 0 {
 		_spec.Unique = opq.ctx.Unique != nil && *opq.ctx.Unique
@@ -526,6 +533,12 @@ func (opq *OrganizationPersonQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != organizationperson.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if opq.withPeople != nil {
+			_spec.Node.AddColumnOnce(organizationperson.FieldPersonID)
+		}
+		if opq.withOrganizations != nil {
+			_spec.Node.AddColumnOnce(organizationperson.FieldOrganizationID)
 		}
 	}
 	if ps := opq.predicates; len(ps) > 0 {
@@ -566,6 +579,9 @@ func (opq *OrganizationPersonQuery) sqlQuery(ctx context.Context) *sql.Selector 
 	if opq.ctx.Unique != nil && *opq.ctx.Unique {
 		selector.Distinct()
 	}
+	for _, m := range opq.modifiers {
+		m(selector)
+	}
 	for _, p := range opq.predicates {
 		p(selector)
 	}
@@ -581,6 +597,12 @@ func (opq *OrganizationPersonQuery) sqlQuery(ctx context.Context) *sql.Selector 
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (opq *OrganizationPersonQuery) Modify(modifiers ...func(s *sql.Selector)) *OrganizationPersonSelect {
+	opq.modifiers = append(opq.modifiers, modifiers...)
+	return opq.Select()
 }
 
 // OrganizationPersonGroupBy is the group-by builder for OrganizationPerson entities.
@@ -671,4 +693,10 @@ func (ops *OrganizationPersonSelect) sqlScan(ctx context.Context, root *Organiza
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (ops *OrganizationPersonSelect) Modify(modifiers ...func(s *sql.Selector)) *OrganizationPersonSelect {
+	ops.modifiers = append(ops.modifiers, modifiers...)
+	return ops
 }

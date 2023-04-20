@@ -4,6 +4,9 @@ package organization
 
 import (
 	"time"
+
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -25,6 +28,8 @@ const (
 	FieldNameEng = "name_eng"
 	// FieldOtherID holds the string denoting the other_id field in the database.
 	FieldOtherID = "other_id"
+	// FieldOtherParentID holds the string denoting the other_parent_id field in the database.
+	FieldOtherParentID = "other_parent_id"
 	// FieldParentID holds the string denoting the parent_id field in the database.
 	FieldParentID = "parent_id"
 	// EdgePeople holds the string denoting the people edge name in mutations.
@@ -69,6 +74,7 @@ var Columns = []string{
 	FieldNameDut,
 	FieldNameEng,
 	FieldOtherID,
+	FieldOtherParentID,
 	FieldParentID,
 }
 
@@ -98,3 +104,128 @@ var (
 	// DefaultType holds the default value on creation for the "type" field.
 	DefaultType string
 )
+
+// OrderOption defines the ordering options for the Organization queries.
+type OrderOption func(*sql.Selector)
+
+// ByID orders the results by the id field.
+func ByID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByDateCreated orders the results by the date_created field.
+func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
+}
+
+// ByDateUpdated orders the results by the date_updated field.
+func ByDateUpdated(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateUpdated, opts...).ToFunc()
+}
+
+// ByPublicID orders the results by the public_id field.
+func ByPublicID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublicID, opts...).ToFunc()
+}
+
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
+}
+
+// ByNameDut orders the results by the name_dut field.
+func ByNameDut(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNameDut, opts...).ToFunc()
+}
+
+// ByNameEng orders the results by the name_eng field.
+func ByNameEng(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNameEng, opts...).ToFunc()
+}
+
+// ByOtherParentID orders the results by the other_parent_id field.
+func ByOtherParentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOtherParentID, opts...).ToFunc()
+}
+
+// ByParentID orders the results by the parent_id field.
+func ByParentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldParentID, opts...).ToFunc()
+}
+
+// ByPeopleCount orders the results by people count.
+func ByPeopleCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPeopleStep(), opts...)
+	}
+}
+
+// ByPeople orders the results by people terms.
+func ByPeople(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPeopleStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByParentField orders the results by parent field.
+func ByParentField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newParentStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByChildrenCount orders the results by children count.
+func ByChildrenCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newChildrenStep(), opts...)
+	}
+}
+
+// ByChildren orders the results by children terms.
+func ByChildren(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newChildrenStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByOrganizationPersonCount orders the results by organization_person count.
+func ByOrganizationPersonCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newOrganizationPersonStep(), opts...)
+	}
+}
+
+// ByOrganizationPerson orders the results by organization_person terms.
+func ByOrganizationPerson(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOrganizationPersonStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newPeopleStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PeopleInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, PeopleTable, PeoplePrimaryKey...),
+	)
+}
+func newParentStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(Table, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ParentTable, ParentColumn),
+	)
+}
+func newChildrenStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(Table, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ChildrenTable, ChildrenColumn),
+	)
+}
+func newOrganizationPersonStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(OrganizationPersonInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, OrganizationPersonTable, OrganizationPersonColumn),
+	)
+}

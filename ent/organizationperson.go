@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/ugent-library/people/ent/organization"
 	"github.com/ugent-library/people/ent/organizationperson"
@@ -28,7 +29,8 @@ type OrganizationPerson struct {
 	PersonID int `json:"person_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the OrganizationPersonQuery when eager-loading is set.
-	Edges OrganizationPersonEdges `json:"edges"`
+	Edges        OrganizationPersonEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // OrganizationPersonEdges holds the relations/edges for other nodes in the graph.
@@ -78,7 +80,7 @@ func (*OrganizationPerson) scanValues(columns []string) ([]any, error) {
 		case organizationperson.FieldDateCreated, organizationperson.FieldDateUpdated:
 			values[i] = new(sql.NullTime)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type OrganizationPerson", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -122,9 +124,17 @@ func (op *OrganizationPerson) assignValues(columns []string, values []any) error
 			} else if value.Valid {
 				op.PersonID = int(value.Int64)
 			}
+		default:
+			op.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
+}
+
+// Value returns the ent.Value that was dynamically selected and assigned to the OrganizationPerson.
+// This includes values selected through modifiers, order, etc.
+func (op *OrganizationPerson) Value(name string) (ent.Value, error) {
+	return op.selectValues.Get(name)
 }
 
 // QueryPeople queries the "people" edge of the OrganizationPerson entity.

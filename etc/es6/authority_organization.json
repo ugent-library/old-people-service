@@ -29,7 +29,8 @@
           "analyzer": "text_default"
         },
         "id": {
-          "type": "keyword"
+          "type": "keyword",
+          "copy_to": ["all"]
         },
         "parent_id": {
           "type": "keyword"
@@ -61,14 +62,17 @@
           "properties": {
             "ugent_id": {
               "type": "text",
-              "analyzer": "text_default"
+              "analyzer": "text_default",
+              "copy_to": ["all"]
             },
             "biblio_id": {
               "type": "text",
-              "analyzer": "text_default"
+              "analyzer": "text_default",
+              "copy_to": ["all"]
             },
             "ugent_memorialis_id": {
-              "type": "keyword"
+              "type": "keyword",
+              "copy_to": ["all"]
             }
           }
         },

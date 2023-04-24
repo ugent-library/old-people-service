@@ -154,7 +154,7 @@ func (ps *personService) UpdatePerson(ctx context.Context, p *models.Person) (*m
 	t.SetPreferredLastName(p.PreferredLastName)
 
 	t.ClearOrganizations()
-	t.ClearOtherOrganizationID()
+	otherOrganizationIds := make([]string, 0)
 	if p.OrganizationId != nil && len(p.OrganizationId) > 0 {
 		// TODO: crashes with segmentation violation error when org does not exist
 		orgs, err := tx.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
@@ -162,7 +162,6 @@ func (ps *personService) UpdatePerson(ctx context.Context, p *models.Person) (*m
 			return nil, err
 		}
 		// move unconfirmed organizations to other_organization_id
-		otherOrganizationIds := []string{}
 		for _, orgId := range p.OrganizationId {
 			found := false
 			for _, org := range orgs {
@@ -175,9 +174,10 @@ func (ps *personService) UpdatePerson(ctx context.Context, p *models.Person) (*m
 				otherOrganizationIds = append(otherOrganizationIds, orgId)
 			}
 		}
-		t.SetOtherOrganizationID(otherOrganizationIds)
+
 		t.AddOrganizations(orgs...)
 	}
+	t.SetOtherOrganizationID(otherOrganizationIds)
 
 	_, err := t.Save(ctx)
 	if err != nil {

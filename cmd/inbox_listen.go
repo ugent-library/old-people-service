@@ -34,15 +34,6 @@ var inboxAllStreamSubjects = []string{
 /*
 TODO: on delete of organizations push all related people to person.updated?
 */
-var outboxStreamName = "PEOPLE_SERVICE"
-var outboxStreamSubjects = []string{
-	"person.updated",
-	"organization.updated",
-	"organization.deleted",
-	"inbox.rejected",
-	"inbox.person.rejected",
-	"inbox.organization.rejected",
-}
 
 func initInboxStream(js nats.JetStreamContext) error {
 
@@ -52,24 +43,6 @@ func initInboxStream(js nats.JetStreamContext) error {
 		_, err := js.AddStream(&nats.StreamConfig{
 			Name:     inboxStreamName,
 			Subjects: inboxAllStreamSubjects,
-			Storage:  nats.FileStorage,
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func initOutboxStream(js nats.JetStreamContext) error {
-
-	stream, _ := js.StreamInfo(outboxStreamName)
-
-	if stream == nil {
-		_, err := js.AddStream(&nats.StreamConfig{
-			Name:     outboxStreamName,
-			Subjects: outboxStreamSubjects,
 			Storage:  nats.FileStorage,
 		})
 		if err != nil {
@@ -102,6 +75,7 @@ func initPersonInboxConsumer(js nats.JetStreamContext) error {
 			when they need to be redelivered
 		*/
 		MaxAckPending: 1,
+		FilterSubject: "person.*",
 	}
 
 	if consumerInfo == nil {
@@ -136,6 +110,7 @@ func initOrganizationInboxConsumer(js nats.JetStreamContext) error {
 			when they need to be redelivered
 		*/
 		MaxAckPending: 1,
+		FilterSubject: "organization.*",
 	}
 
 	if consumerInfo == nil {
@@ -175,10 +150,6 @@ var inboxListenCmd = &cobra.Command{
 
 		js, _ := nc.JetStream()
 
-		if err := initOutboxStream(js); err != nil {
-			logger.Fatal(fmt.Errorf("unable to create nats outbox stream: %w", err))
-		}
-
 		if err := initPersonInboxConsumer(js); err != nil {
 			logger.Fatal(fmt.Errorf("unable to create nats consumer for person: %w", err))
 		}
@@ -192,6 +163,7 @@ var inboxListenCmd = &cobra.Command{
 
 			// remove message on invalid subject
 			if !validation.InArray(inboxPersonStreamSubjects, iMsg.Subject) {
+				logger.Errorf("subscriber person: removed message with invalid subject %s", iMsg.Subject)
 				ensureAck(msg)
 				return
 			}
@@ -207,14 +179,7 @@ var inboxListenCmd = &cobra.Command{
 			// remove malformed message
 			// push validation errors to subject inbox.rejected
 			if vErrs := iMsg.Validate(); vErrs != nil {
-				iErrMsg := &inbox.InboxErrorMessage{
-					InboxMessage: iMsg,
-					Errors:       vErrs,
-				}
-				outboxBytes, _ := json.Marshal(iErrMsg)
-				if err := nc.Publish("inbox.rejected", outboxBytes); err != nil {
-					logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", "inbox.rejected", err))
-				}
+				logger.Errorf("unable to validate message with id %s: %s", iMsg.Message.ID, vErrs.Error())
 				ensureAck(msg)
 				return
 			}
@@ -228,8 +193,6 @@ var inboxListenCmd = &cobra.Command{
 				log.Fatal(fmt.Errorf("unable to fetch person record '%s': %w", iMsg.Message.ID, err))
 			}
 
-			oldPerson := person.Dup()
-
 			// TODO update attributes during a delete?
 			if iMsg.Subject == "person.update" {
 				iMsg.UpdatePersonAttr(person)
@@ -240,15 +203,7 @@ var inboxListenCmd = &cobra.Command{
 
 			// report invalid changes to subject inbox.person.rejected
 			if vErrs := person.Validate(); vErrs != nil {
-				pChangeErr := &inbox.PersonChangeError{
-					OldPerson: oldPerson,
-					NewPerson: person,
-					Errors:    vErrs,
-				}
-				outboxBytes, _ := json.Marshal(pChangeErr)
-				if err := nc.Publish("inbox.person.rejected", outboxBytes); err != nil {
-					logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", "inbox.person.rejected", err))
-				}
+				logger.Errorf("message with %s lead to invalid person record: %s", iMsg.Message.ID, vErrs)
 				ensureAck(msg)
 				return
 			}
@@ -273,19 +228,9 @@ var inboxListenCmd = &cobra.Command{
 				logger.Errorf("unable to index person %s: %s", person.Id, err)
 			}
 
-			// outbox subject
-			outboxSubject := "person.updated"
+			logger.Infof("updated person %s", person.Id)
 
-			// republish updated record to subject person.update
-			logger.Infof("updated person %s via subject %s", person.Id, outboxSubject)
-			outboxBytes, _ := json.Marshal(person)
-
-			// failed to contact nats: stop processing records
-			if err := nc.Publish(outboxSubject, outboxBytes); err != nil {
-				logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", outboxSubject, err))
-			}
-
-			logger.Infof("published person %s to subject %s", person.Id, outboxSubject)
+			// TODO: post serialized model.Person back to subject person.updated
 
 			// acknowledge msg or die
 			ensureAck(msg)
@@ -320,6 +265,7 @@ var inboxListenCmd = &cobra.Command{
 
 			// remove message on invalid subject
 			if !validation.InArray(inboxOrganizationStreamSubjects, iMsg.Subject) {
+				logger.Errorf("subscriber org:removed message with invalid subject %s", iMsg.Subject)
 				ensureAck(msg)
 				return
 			}
@@ -335,14 +281,7 @@ var inboxListenCmd = &cobra.Command{
 			// remove malformed message
 			// push validation errors to subject inbox.rejected
 			if vErrs := iMsg.Validate(); vErrs != nil {
-				iErrMsg := &inbox.InboxErrorMessage{
-					InboxMessage: iMsg,
-					Errors:       vErrs,
-				}
-				outboxBytes, _ := json.Marshal(iErrMsg)
-				if err := nc.Publish("inbox.rejected", outboxBytes); err != nil {
-					logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", "inbox.rejected", err))
-				}
+				logger.Errorf("unable to validate message with id %s: %s", iMsg.Message.ID, vErrs.Error())
 				ensureAck(msg)
 				return
 			}
@@ -359,21 +298,11 @@ var inboxListenCmd = &cobra.Command{
 			// TODO update attributes during a delete?
 			if iMsg.Subject == "organization.update" {
 
-				oldOrg := org.Dup()
-
 				iMsg.UpdateOrganizationAttr(org)
 
 				// report invalid changes to subject inbox.organization.rejected
 				if vErrs := org.Validate(); vErrs != nil {
-					pChangeErr := &inbox.OrganizationChangeError{
-						OldOrganization: oldOrg,
-						NewOrganization: org,
-						Errors:          vErrs,
-					}
-					outboxBytes, _ := json.Marshal(pChangeErr)
-					if err := nc.Publish("inbox.organization.rejected", outboxBytes); err != nil {
-						logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", "inbox.organization.rejected", err))
-					}
+					logger.Errorf("message with %s lead to invalid organization record: %s", iMsg.Message.ID, vErrs)
 					ensureAck(msg)
 					return
 				}
@@ -411,22 +340,8 @@ var inboxListenCmd = &cobra.Command{
 
 			}
 
-			// outbox subject
-			outboxSubject := "organization.updated"
-			if msg.Subject == "organization.delete" {
-				outboxSubject = "organization.deleted"
-			}
-
-			// republish updated record to subject organization.updated
-			logger.Infof("updated organization %s via subject %s", org.Id, outboxSubject)
-			outboxBytes, _ := json.Marshal(org)
-
-			// failed to contact nats: stop processing records
-			if err := nc.Publish(outboxSubject, outboxBytes); err != nil {
-				logger.Fatal(fmt.Errorf("unable to publish message to subject %s: %w", outboxSubject, err))
-			}
-
-			logger.Infof("published organization %s to subject %s", org.Id, outboxSubject)
+			logger.Infof("updated organization %s from message %s", org.Id, iMsg.Message.ID)
+			// TODO: republish updated record to subject organization.updated/organization.deleted
 
 			// acknowledge msg or die
 			ensureAck(msg)

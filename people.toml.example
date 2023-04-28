@@ -7,13 +7,18 @@ password = "people"
 port = 3999
 host = "127.0.0.1"
 
+[api_proxy]
+
+port = 4002
+host = "127.0.0.1"
+
 [api_client]
 
 insecure = true
 
 [db]
 
-url = "postgres://biblio:biblio@localhost:5432/authority?sslmode=disable"
+url = "postgres://people:people@localhost:5432/authority?sslmode=disable"
 
 [nats]
 

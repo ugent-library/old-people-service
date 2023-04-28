@@ -1,0 +1,22 @@
+# build stage
+FROM golang:alpine AS build
+
+WORKDIR /opt/people
+
+COPY . .
+
+RUN go get -d -v ./...
+RUN go build -o people -v
+
+# final stage
+FROM alpine:latest
+
+WORKDIR /opt/people
+
+COPY --from=build /opt/people/people .
+COPY docker/people.toml .
+COPY etc etc
+
+EXPOSE 3001
+
+CMD cd /opt/people && ./people api proxy start -c docker.people.toml

@@ -34,11 +34,11 @@ func init() {
 }
 
 func openClient(cb func(client v1.PeopleClient) error) error {
-	clientConfig := grpc_client.Config{
-		Username: config.Api.Username,
-		Password: config.Api.Password,
-		Host:     config.Api.Host,
-		Port:     config.Api.Port,
+	clientConfig := grpc_client.ClientConfig{
+		Username: config.ApiClient.Username,
+		Password: config.ApiClient.Password,
+		Host:     config.ApiClient.Host,
+		Port:     config.ApiClient.Port,
 		Insecure: config.ApiClient.Insecure,
 		CaCert:   config.ApiClient.CaCert,
 	}

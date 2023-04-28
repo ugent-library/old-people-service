@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func Open(config Config, cb func(c v1.PeopleClient) error) error {
+func Open(config ClientConfig, cb func(c v1.PeopleClient) error) error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()

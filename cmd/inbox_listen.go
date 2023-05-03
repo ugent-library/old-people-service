@@ -135,9 +135,9 @@ var inboxListenCmd = &cobra.Command{
 
 		services := Services()
 		personService := services.PersonService
-		personSearchService := services.PersonSearchService
+		//personSearchService := services.PersonSearchService
 		organizationService := services.OrganizationService
-		organizationSearchService := services.OrganizationSearchService
+		//organizationSearchService := services.OrganizationSearchService
 
 		nc, err := nats.Connect(config.Nats.Url)
 
@@ -222,11 +222,6 @@ var inboxListenCmd = &cobra.Command{
 			}
 
 			person = updatedPerson
-
-			// index
-			if err := personSearchService.Index(person); err != nil {
-				logger.Errorf("unable to index person %s: %s", person.Id, err)
-			}
 
 			logger.Infof("updated person %s", person.Id)
 
@@ -322,19 +317,11 @@ var inboxListenCmd = &cobra.Command{
 
 				org = updatedOrg
 
-				// index
-				if err := organizationSearchService.Index(org); err != nil {
-					logger.Errorf("unable to index organization %s: %s", org.Id, err)
-				}
-
 			} else if iMsg.Subject == "organization.delete" {
 
 				if org.IsStored() {
 					if err := organizationService.DeleteOrganization(ctx, org.Id); err != nil {
 						logger.Fatalf("unable to delete organization %s: %w", org.Id, err)
-					}
-					if err := organizationSearchService.Delete(org.Id); err != nil {
-						logger.Fatalf("unable to delete organization %s from index: %w", org.Id, err)
 					}
 				}
 

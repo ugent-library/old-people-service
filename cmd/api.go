@@ -32,16 +32,16 @@ var apiStartCmd = &cobra.Command{
 
 		services := Services()
 		srv := grpc_server.NewServer(&grpc_server.ServerConfig{
-			Logger:                    logger,
-			PersonService:             services.PersonService,
-			PersonSearchService:       services.PersonSearchService,
-			OrganizationService:       services.OrganizationService,
-			OrganizationSearchService: services.OrganizationSearchService,
-			Username:                  viper.GetString("api.username"),
-			Password:                  viper.GetString("api.password"),
-			TlsEnabled:                viper.GetBool("api.tls_enabled"),
-			TlsServerCert:             viper.GetString("api.tls_server_crt"),
-			TlsServerKey:              viper.GetString("api.tls_server_key"),
+			Logger:                     logger,
+			PersonService:              services.PersonService,
+			PersonSuggestService:       services.PersonSuggestService,
+			OrganizationService:        services.OrganizationService,
+			OrganizationSuggestService: services.OrganizationSuggestService,
+			Username:                   viper.GetString("api.username"),
+			Password:                   viper.GetString("api.password"),
+			TlsEnabled:                 viper.GetBool("api.tls_enabled"),
+			TlsServerCert:              viper.GetString("api.tls_server_crt"),
+			TlsServerKey:               viper.GetString("api.tls_server_key"),
 		})
 
 		addr := fmt.Sprintf("%s:%d", viper.GetString("api.host"), viper.GetInt("api.port"))

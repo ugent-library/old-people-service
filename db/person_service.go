@@ -28,7 +28,7 @@ type personService struct {
 	db *ent.Client
 }
 
-func NewPersonService(cfg *PersonConfig) (models.PersonService, error) {
+func NewPersonService(cfg *PersonConfig) (*personService, error) {
 	db, err := sql.Open("pgx", cfg.DB)
 	if err != nil {
 		return nil, err
@@ -231,6 +231,26 @@ func (ps *personService) EachPerson(ctx context.Context, cb func(*models.Person)
 	}
 
 	return nil
+}
+
+func (ps *personService) SuggestPerson(ctx context.Context, query string) ([]*models.Person, error) {
+
+	rows, err := ps.db.Person.Query().Where(func(s *entsql.Selector) {
+		s.Where(
+			toTSQuery("ts", query),
+		)
+	}).Limit(10).All(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	persons := make([]*models.Person, 0, len(rows))
+	for _, row := range rows {
+		persons = append(persons, personUnwrap(row))
+	}
+
+	return persons, nil
 }
 
 func personUnwrap(e *ent.Person) *models.Person {

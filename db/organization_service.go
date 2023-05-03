@@ -27,7 +27,7 @@ type organizationService struct {
 	db *ent.Client
 }
 
-func NewOrganizationService(cfg *OrganizationConfig) (models.OrganizationService, error) {
+func NewOrganizationService(cfg *OrganizationConfig) (*organizationService, error) {
 	db, err := sql.Open("pgx", cfg.DB)
 	if err != nil {
 		return nil, err
@@ -249,6 +249,25 @@ func (orgSvc *organizationService) EachOrganization(ctx context.Context, cb func
 	}
 
 	return nil
+}
+
+func (orgSvc *organizationService) SuggestOrganization(ctx context.Context, query string) ([]*models.Organization, error) {
+	rows, err := orgSvc.db.Organization.Query().Where(func(s *entsql.Selector) {
+		s.Where(
+			toTSQuery("ts", query),
+		)
+	}).Limit(10).All(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	orgs := make([]*models.Organization, 0, len(rows))
+	for _, row := range rows {
+		orgs = append(orgs, orgUnwrap(row))
+	}
+
+	return orgs, nil
 }
 
 func orgUnwrap(e *ent.Organization) *models.Organization {

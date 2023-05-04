@@ -22,11 +22,9 @@ func init() {
 
 	personCmd.AddCommand(getPersonCmd)
 	personCmd.AddCommand(getAllPersonCmd)
-	personCmd.AddCommand(reindexPersonCmd)
 	personCmd.AddCommand(suggestPersonCmd)
 
 	organizationCmd.AddCommand(allOrganizationCmd)
-	organizationCmd.AddCommand(reindexOrganizationCmd)
 	organizationCmd.AddCommand(suggestOrganizationCmd)
 
 	rootCmd.AddCommand(personCmd)
@@ -133,49 +131,6 @@ var getAllPersonCmd = &cobra.Command{
 				if p := res.GetPerson(); p != nil {
 					bytes, _ := marshaller.Marshal(p)
 					fmt.Printf("%s\n", string(bytes))
-				}
-			}
-
-			return nil
-		})
-
-		if err != nil {
-			log.Fatal(err)
-		}
-	},
-}
-
-var reindexPersonCmd = &cobra.Command{
-	Use: "reindex",
-	Run: func(cmd *cobra.Command, args []string) {
-
-		err := openClient(func(c v1.PeopleClient) error {
-
-			req := v1.ReindexPersonRequest{}
-			stream, err := c.ReindexPerson(context.Background(), &req)
-
-			if err != nil {
-				return err
-			}
-
-			stream.CloseSend()
-
-			for {
-				res, err := stream.Recv()
-				if err == io.EOF {
-					break
-				}
-
-				if err != nil {
-					if st, ok := status.FromError(err); ok {
-						return errors.New(st.Message())
-					}
-
-					return err
-				}
-
-				if m := res.GetMessage(); m != "" {
-					fmt.Printf("%s\n", m)
 				}
 			}
 
@@ -299,49 +254,6 @@ var allOrganizationCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-	},
-}
-
-var reindexOrganizationCmd = &cobra.Command{
-	Use: "reindex",
-	Run: func(cmd *cobra.Command, args []string) {
-
-		err := openClient(func(c v1.PeopleClient) error {
-
-			req := v1.ReindexOrganizationRequest{}
-			stream, err := c.ReindexOrganization(context.Background(), &req)
-
-			if err != nil {
-				return err
-			}
-
-			stream.CloseSend()
-
-			for {
-				res, err := stream.Recv()
-				if err == io.EOF {
-					break
-				}
-
-				if err != nil {
-					if st, ok := status.FromError(err); ok {
-						return errors.New(st.Message())
-					}
-
-					return err
-				}
-
-				if m := res.GetMessage(); m != "" {
-					fmt.Printf("%s\n", m)
-				}
-			}
-
-			return nil
-		})
-
-		if err != nil {
-			log.Fatal(err)
-		}
 	},
 }
 

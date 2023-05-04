@@ -90,31 +90,6 @@ func request_People_GetAllPerson_0(ctx context.Context, marshaler runtime.Marsha
 
 }
 
-func request_People_ReindexPerson_0(ctx context.Context, marshaler runtime.Marshaler, client PeopleClient, req *http.Request, pathParams map[string]string) (People_ReindexPersonClient, runtime.ServerMetadata, error) {
-	var protoReq ReindexPersonRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	stream, err := client.ReindexPerson(ctx, &protoReq)
-	if err != nil {
-		return nil, metadata, err
-	}
-	header, err := stream.Header()
-	if err != nil {
-		return nil, metadata, err
-	}
-	metadata.HeaderMD = header
-	return stream, metadata, nil
-
-}
-
 func request_People_SuggestPerson_0(ctx context.Context, marshaler runtime.Marshaler, client PeopleClient, req *http.Request, pathParams map[string]string) (People_SuggestPersonClient, runtime.ServerMetadata, error) {
 	var protoReq SuggestPersonRequest
 	var metadata runtime.ServerMetadata
@@ -199,31 +174,6 @@ func request_People_GetAllOrganization_0(ctx context.Context, marshaler runtime.
 
 }
 
-func request_People_ReindexOrganization_0(ctx context.Context, marshaler runtime.Marshaler, client PeopleClient, req *http.Request, pathParams map[string]string) (People_ReindexOrganizationClient, runtime.ServerMetadata, error) {
-	var protoReq ReindexOrganizationRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	stream, err := client.ReindexOrganization(ctx, &protoReq)
-	if err != nil {
-		return nil, metadata, err
-	}
-	header, err := stream.Header()
-	if err != nil {
-		return nil, metadata, err
-	}
-	metadata.HeaderMD = header
-	return stream, metadata, nil
-
-}
-
 func request_People_SuggestOrganization_0(ctx context.Context, marshaler runtime.Marshaler, client PeopleClient, req *http.Request, pathParams map[string]string) (People_SuggestOrganizationClient, runtime.ServerMetadata, error) {
 	var protoReq SuggestOrganizationRequest
 	var metadata runtime.ServerMetadata
@@ -287,13 +237,6 @@ func RegisterPeopleHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		return
 	})
 
-	mux.Handle("POST", pattern_People_ReindexPerson_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
-		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-		return
-	})
-
 	mux.Handle("POST", pattern_People_SuggestPerson_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -327,13 +270,6 @@ func RegisterPeopleHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 	})
 
 	mux.Handle("POST", pattern_People_GetAllOrganization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
-		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-		return
-	})
-
-	mux.Handle("POST", pattern_People_ReindexOrganization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -432,28 +368,6 @@ func RegisterPeopleHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 
 	})
 
-	mux.Handle("POST", pattern_People_ReindexPerson_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/api.v1.People/ReindexPerson", runtime.WithHTTPPathPattern("/api.v1.People/ReindexPerson"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_People_ReindexPerson_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_People_ReindexPerson_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
-
-	})
-
 	mux.Handle("POST", pattern_People_SuggestPerson_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -520,28 +434,6 @@ func RegisterPeopleHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 
 	})
 
-	mux.Handle("POST", pattern_People_ReindexOrganization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/api.v1.People/ReindexOrganization", runtime.WithHTTPPathPattern("/api.v1.People/ReindexOrganization"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_People_ReindexOrganization_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_People_ReindexOrganization_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
-
-	})
-
 	mux.Handle("POST", pattern_People_SuggestOrganization_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -572,15 +464,11 @@ var (
 
 	pattern_People_GetAllPerson_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.People", "GetAllPerson"}, ""))
 
-	pattern_People_ReindexPerson_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.People", "ReindexPerson"}, ""))
-
 	pattern_People_SuggestPerson_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.People", "SuggestPerson"}, ""))
 
 	pattern_People_GetOrganization_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.People", "GetOrganization"}, ""))
 
 	pattern_People_GetAllOrganization_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.People", "GetAllOrganization"}, ""))
-
-	pattern_People_ReindexOrganization_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.People", "ReindexOrganization"}, ""))
 
 	pattern_People_SuggestOrganization_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api.v1.People", "SuggestOrganization"}, ""))
 )
@@ -590,15 +478,11 @@ var (
 
 	forward_People_GetAllPerson_0 = runtime.ForwardResponseStream
 
-	forward_People_ReindexPerson_0 = runtime.ForwardResponseStream
-
 	forward_People_SuggestPerson_0 = runtime.ForwardResponseStream
 
 	forward_People_GetOrganization_0 = runtime.ForwardResponseMessage
 
 	forward_People_GetAllOrganization_0 = runtime.ForwardResponseStream
-
-	forward_People_ReindexOrganization_0 = runtime.ForwardResponseStream
 
 	forward_People_SuggestOrganization_0 = runtime.ForwardResponseStream
 )

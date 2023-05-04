@@ -88,15 +88,6 @@ message GetAllPersonResponse{
   Person person = 1;
 }
 
-message ReindexPersonRequest{}
-
-message ReindexPersonResponse{
-  oneof response {
-    string message = 1;
-    google.rpc.Status error = 2;
-  }
-}
-
 message SuggestPersonRequest{
   string query = 1;
 }
@@ -119,14 +110,6 @@ message GetAllOrganizationResponse {
   Organization organization = 1;
 }
 
-message ReindexOrganizationRequest{}
-message ReindexOrganizationResponse{
-  oneof response {
-    string message = 1;
-    google.rpc.Status error = 2;
-  }
-}
-
 message SuggestOrganizationRequest{
   string query = 1;
 }
@@ -137,10 +120,8 @@ message SuggestOrganizationResponse{
 service People {
   rpc GetPerson(GetPersonRequest) returns (GetPersonResponse);
   rpc GetAllPerson(GetAllPersonRequest) returns (stream GetAllPersonResponse);
-  rpc ReindexPerson(ReindexPersonRequest) returns (stream ReindexPersonResponse);
   rpc SuggestPerson(SuggestPersonRequest) returns (stream SuggestPersonResponse);
   rpc GetOrganization(GetOrganizationRequest) returns (GetOrganizationResponse);
   rpc GetAllOrganization(GetAllOrganizationRequest) returns (stream GetAllOrganizationResponse);
-  rpc ReindexOrganization(ReindexOrganizationRequest) returns (stream ReindexOrganizationResponse);
   rpc SuggestOrganization(SuggestOrganizationRequest) returns (stream SuggestOrganizationResponse);
 }

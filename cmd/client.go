@@ -68,7 +68,13 @@ var getPersonCmd = &cobra.Command{
 			res, err := c.GetPerson(context.Background(), &req)
 
 			if err != nil {
-				return err
+				if err != nil {
+					if st, ok := status.FromError(err); ok {
+						return errors.New(st.Message())
+					}
+				}
+			} else if ge := res.GetError(); ge != nil {
+				return status.FromProto(ge).Err()
 			}
 
 			person := res.GetPerson()
@@ -105,7 +111,11 @@ var getAllPersonCmd = &cobra.Command{
 			stream, err := c.GetAllPerson(context.Background(), &req)
 
 			if err != nil {
-				return err
+				if err != nil {
+					if st, ok := status.FromError(err); ok {
+						return errors.New(st.Message())
+					}
+				}
 			}
 
 			stream.CloseSend()
@@ -163,7 +173,11 @@ var suggestPersonCmd = &cobra.Command{
 			stream, err := c.SuggestPerson(context.Background(), &req)
 
 			if err != nil {
-				return err
+				if err != nil {
+					if st, ok := status.FromError(err); ok {
+						return errors.New(st.Message())
+					}
+				}
 			}
 
 			stream.CloseSend()
@@ -227,7 +241,13 @@ var getOrganizationCmd = &cobra.Command{
 			res, err := c.GetOrganization(context.Background(), &req)
 
 			if err != nil {
-				return err
+				if err != nil {
+					if st, ok := status.FromError(err); ok {
+						return errors.New(st.Message())
+					}
+				}
+			} else if ge := res.GetError(); ge != nil {
+				return status.FromProto(ge).Err()
 			}
 
 			org := res.GetOrganization()
@@ -264,7 +284,11 @@ var allOrganizationCmd = &cobra.Command{
 			stream, err := c.GetAllOrganization(context.Background(), &req)
 
 			if err != nil {
-				return err
+				if err != nil {
+					if st, ok := status.FromError(err); ok {
+						return errors.New(st.Message())
+					}
+				}
 			}
 
 			stream.CloseSend()
@@ -323,7 +347,11 @@ var suggestOrganizationCmd = &cobra.Command{
 			stream, err := c.SuggestOrganization(context.Background(), &req)
 
 			if err != nil {
-				return err
+				if err != nil {
+					if st, ok := status.FromError(err); ok {
+						return errors.New(st.Message())
+					}
+				}
 			}
 
 			stream.CloseSend()

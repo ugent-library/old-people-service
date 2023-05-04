@@ -43,6 +43,24 @@ func NewOrganizationService(cfg *OrganizationConfig) (*organizationService, erro
 		return nil, err
 	}
 
+	execQueries := []string{
+		`ALTER TABLE organization 
+		ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS 
+		(
+			to_tsvector('simple', jsonb_path_query_array(other_id, '$[*].id')) || 
+			to_tsvector('simple', public_id) || 
+			to_tsvector('simple',name_dut) || 
+			to_tsvector('simple', name_eng)
+		) STORED;
+	`,
+		`CREATE INDEX IF NOT EXISTS ts_idx ON organization USING GIN(ts)`,
+	}
+	for _, execQuery := range execQueries {
+		if _, err := db.Exec(execQuery); err != nil {
+			return nil, err
+		}
+	}
+
 	return &organizationService{
 		db: client,
 	}, nil

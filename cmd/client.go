@@ -18,12 +18,14 @@ import (
 func init() {
 	getPersonCmd.Flags().String("id", "", "identifier")
 	suggestPersonCmd.Flags().String("query", "", "query")
+	getOrganizationCmd.Flags().String("id", "", "identifier")
 	suggestOrganizationCmd.Flags().String("query", "", "query")
 
 	personCmd.AddCommand(getPersonCmd)
 	personCmd.AddCommand(getAllPersonCmd)
 	personCmd.AddCommand(suggestPersonCmd)
 
+	organizationCmd.AddCommand(getOrganizationCmd)
 	organizationCmd.AddCommand(allOrganizationCmd)
 	organizationCmd.AddCommand(suggestOrganizationCmd)
 
@@ -204,6 +206,52 @@ var suggestPersonCmd = &cobra.Command{
 
 var organizationCmd = &cobra.Command{
 	Use: "organization",
+}
+
+var getOrganizationCmd = &cobra.Command{
+	Use: "get [id]",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		id, iErr := cmd.Flags().GetString("id")
+
+		if iErr != nil {
+			log.Fatal("no id given")
+		}
+		if id == "" {
+			log.Fatal("no id given")
+		}
+
+		err := openClient(func(c v1.PeopleClient) error {
+
+			req := v1.GetOrganizationRequest{Id: id}
+			res, err := c.GetOrganization(context.Background(), &req)
+
+			if err != nil {
+				return err
+			}
+
+			org := res.GetOrganization()
+
+			marshaller := protojson.MarshalOptions{
+				EmitUnpopulated: true,
+				UseProtoNames:   true,
+			}
+
+			bytes, err := marshaller.Marshal(org)
+
+			if err != nil {
+				return err
+			}
+
+			os.Stdout.Write(bytes)
+
+			return nil
+		})
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	},
 }
 
 var allOrganizationCmd = &cobra.Command{

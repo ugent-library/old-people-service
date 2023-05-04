@@ -252,7 +252,7 @@ func (orgSvc *organizationService) EachOrganization(ctx context.Context, cb func
 }
 
 func (orgSvc *organizationService) SuggestOrganization(ctx context.Context, query string) ([]*models.Organization, error) {
-	rows, err := orgSvc.db.Organization.Query().Where(func(s *entsql.Selector) {
+	rows, err := orgSvc.db.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
 		s.Where(
 			toTSQuery("ts", query),
 		)

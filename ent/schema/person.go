@@ -53,8 +53,18 @@ func (Person) Fields() []ent.Field {
 		field.String("preferred_first_name").Optional(),
 		field.String("preferred_last_name").Optional(),
 		field.String("title").Optional(),
+
+		// TODO: add generated field "ts"
+		// TODO: add working GIN index on "ts"
 	}
 }
+
+/*
+alter table person add column ts tsvector generated always as (to_tsvector('simple',full_name)) stored;
+
+alter table organization add column ts tsvector generated always as (to_tsvector('simple', jsonb_path_query_array(other_id, '$[*].id'))) stored;
+
+*/
 
 func (Person) Mixin() []ent.Mixin {
 	return []ent.Mixin{

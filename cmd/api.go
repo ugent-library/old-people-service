@@ -76,7 +76,11 @@ var apiProxyCmd = &cobra.Command{
 			addr := fmt.Sprintf("%s:%d", config.ApiProxy.Host, config.ApiProxy.Port)
 
 			// Start HTTP server (and proxy calls to gRPC server endpoint)
-			return http.ListenAndServe(addr, mux)
+			logger.Infof("Listening at %s", addr)
+			if err := http.ListenAndServe(addr, mux); err != nil {
+				return err
+			}
+			return nil
 		})
 	},
 }

@@ -7,127 +7,128 @@ People service
 go build
 ```
 
-# Prepare configuration
+# Prepare environment variables
 
-`cp people.toml.example people.toml`
+Declare the following environment variables,
 
-## Options
+or store them in file `.env` in the root of your folder (important: exclude `export` statement)
+(see .env.example):
 
-**production**
+* `PEOPLE_PRODUCTION`:
 
-type: `bool`
+  type: `bool`
 
-default: `false`
+  default: `false`
 
-**api.username**
+* `PEOPLE_API_USERNAME`
 
-type: `string`
+  type: `string`
 
-default: `people`
+  default: `people`
 
-description: username for basic authentication. Used in authentication for GPRC api
+  description: username for basic authentication. Used in authentication for GPRC api
 
-**api.password**
+* `PEOPLE_API_PASSWORD`
 
-type: `string`
+  type: `string`
 
-default: `people`
+  default: `people`
 
-description: password for basic authentication. Used in authentication for GPRC api
+  description: password for basic authentication. Used in authentication for GPRC api
 
-**api.port**
+* `PEOPLE_API_PORT`
 
-type: `int`
+  type: `int`
 
-default: `3999`
+  default: `3999`
 
-description: port address for GRPC api
+  description: port address for GRPC api
 
-**api.host**
+* `PEOPLE_API_HOST`
 
-type : `string`
+  type : `string`
 
-default: `127.0.0.1`
+  default: `127.0.0.1`
 
-description: host address for GRPC api
+  description: host address for GRPC api
 
-**api.tls_enabled**
+* `PEOPLE_API_TLS_ENABLED`
 
-type: `bool`
+  type: `bool`
 
-default: `false`
+  default: `false`
 
-description: start GRPC server with TLS support. Requires options `api.tls_server_cert` and `api.tl_server_key`.
+  description: start GRPC server with TLS support. Requires options `api.tls_server_cert` and `api.tl_server_key`.
 
-**api.tls_server_cert**
+* `PEOPLE_API_TLS_SERVER_CERT`
 
-type: `string`
+  type: `string`
 
-description: file location of server certificate
+  description: file location of server certificate
 
-**api.tls_server_key**
+* `PEOPLE_API_TLS_SERVER_KEY`
 
-type: `string`
+  type: `string`
 
-description: file location of server private key
+  description: file location of server private key
 
-**api_client.insecure**
+* `PEOPLE_API_CLIENT_INSECURE`
 
-type: `bool`
+  type: `bool`
 
-default: `false`
+  default: `false`
 
-description: set to false when your GRPC is running without TLS support
+  description: set to false when your GRPC is running without TLS support
 
-**api_client.cacert**
+* `PEOPLE_API_CLIENT_CACERT`
 
-type: `string`
+  type: `string`
 
-description: file location to root certificate. Only needed when GRPC is running with TLS support
+  description: file location to root certificate. Only needed when GRPC is running with TLS support
 
-**api_proxy.host**
+* `PEOPLE_API_PROXY_HOST`
 
-type: `string`
+  type: `string`
 
-description: host address for api proxy
+  description: host address for api proxy
 
-default: `localhost`
+  default: `localhost`
 
-**api_proxy.port**
+* `PEOPLE_API_PROXY_PORT`
 
-type: `int`
+  type: `int`
 
-description: proxy address for api proxy
+  description: proxy address for api proxy
 
-default: `4001`
+  default: `4001`
 
-**db.url**
+* `PEOPLE_DB_URL`
 
-type: `string`
+  type: `string`
 
-default: `postgres://biblio:biblio@localhost:5432/authority?sslmode=disable`
+  default: `postgres://people:people@localhost:5432/authority?sslmode=disable`
 
-description: postgres database connection url
+  description: postgres database connection url
 
-**nats.url**
+* `PEOPLE_NATS_URL`
 
-type: `string`
+  type: `string`
 
-default: `nats://127.0.0.1:4222`
+  default: `nats://127.0.0.1:4222`
 
-description: NATS connection url
+  description: NATS connection url
 
 # Start GRPC api
 
 ```
-$ ./people api start -c people.toml
+$ ./people api start
 ```
 
 # Start GRPC gateway
 
 
 ```
-$ ./people api proxy -c people.toml
+$ ./people api proxy
 ```
 
 Starts a JSON api at address `localhost:4001` with the following routes:
@@ -143,7 +144,7 @@ Expected is a JSON request body. In this case JSON with attribute "id"
 # Start NATS consumer
 
 ```
-$ ./people inbox listen -c people.toml
+$ ./people inbox listen
 ```
 
 * creates NATS stream `PEOPLE` with subjects `person.update`. If already present, does not try to change it. Expections are:
@@ -197,33 +198,25 @@ $ ./people inbox listen -c people.toml
 # Commands
 
 ```
-$ ./people person get --id <person-id> -c people.toml
+$ ./people person get --id <person-id>
 ```
 
 ```
-$ ./people person all -c people.toml
+$ ./people person all
 ```
 
 ```
-`$ ./people person reindex -c people.toml
+$ ./people person suggest --query nic
 ```
 
 ```
-$ ./people person suggest -c people.toml --query nic
+$ ./people organization get --id <org-id>
 ```
 
 ```
-$ ./people organization get --id <org-id> -c people.toml
+$ ./people organization all
 ```
 
 ```
-$ ./people organization all -c people.toml
-```
-
-```
-`$ ./people organization reindex -c people.toml
-```
-
-```
-$ ./people organization suggest -c people.toml --query nic
+$ ./people organization suggest --query nic
 ```

@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nats-io/nats.go"
+	"github.com/caarlos0/env/v8"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	// load .env file if present
+	_ "github.com/joho/godotenv/autoload"
 )
 
 var (
-	configFile string
-	config     Config
+	config Config
 )
 
 var logger *zap.SugaredLogger
@@ -22,27 +23,16 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	viper.SetDefault("nats.url", nats.DefaultURL)
-	viper.SetDefault("db.url", "postgres://biblio:biblio@localhost:5432/authority?sslmode=disable")
-	viper.SetDefault("api.host", "localhost")
-	viper.SetDefault("api.port", 3999)
-	viper.SetDefault("api_proxy.host", "localhost")
-	viper.SetDefault("api_proxy.port", 4001)
-
 	cobra.OnInitialize(initConfig, initLogger)
 	cobra.OnFinalize(func() {
 		logger.Sync()
 	})
-
-	rootCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "", "config file")
 }
 
 func initConfig() {
-	if configFile != "" {
-		viper.SetConfigFile(configFile)
-		cobra.CheckErr(viper.ReadInConfig())
-	}
-	cobra.CheckErr(viper.Unmarshal(&config))
+	cobra.CheckErr(env.ParseWithOptions(&config, env.Options{
+		Prefix: "PEOPLE_",
+	}))
 }
 
 func initLogger() {

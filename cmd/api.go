@@ -9,7 +9,6 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	v1 "github.com/ugent-library/people/api/v1"
 	"github.com/ugent-library/people/grpc_server"
 )
@@ -37,14 +36,14 @@ var apiStartCmd = &cobra.Command{
 			PersonSuggestService:       services.PersonSuggestService,
 			OrganizationService:        services.OrganizationService,
 			OrganizationSuggestService: services.OrganizationSuggestService,
-			Username:                   viper.GetString("api.username"),
-			Password:                   viper.GetString("api.password"),
-			TlsEnabled:                 viper.GetBool("api.tls_enabled"),
-			TlsServerCert:              viper.GetString("api.tls_server_crt"),
-			TlsServerKey:               viper.GetString("api.tls_server_key"),
+			Username:                   config.Api.Username,
+			Password:                   config.Api.Password,
+			TlsEnabled:                 config.Api.TlsEnabled,
+			TlsServerCert:              config.Api.TlsServerCert,
+			TlsServerKey:               config.Api.TlsServerKey,
 		})
 
-		addr := fmt.Sprintf("%s:%d", viper.GetString("api.host"), viper.GetInt("api.port"))
+		addr := fmt.Sprintf("%s:%d", config.Api.Host, config.Api.Port)
 		logger.Infof("Listening at %s", addr)
 		listener, err := net.Listen("tcp", addr)
 		if err != nil {

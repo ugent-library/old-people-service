@@ -44,19 +44,17 @@ func NewPersonService(cfg *PersonConfig) (*personService, error) {
 		return nil, err
 	}
 
-	execQueries := []string{
-		`ALTER TABLE person 
+	execQuery := `
+	BEGIN;
+	ALTER TABLE person 
 		ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS (
 			to_tsvector('simple',full_name)
 		) STORED;
-	`,
-		`CREATE INDEX IF NOT EXISTS ts_idx ON person USING GIN(ts)`,
-	}
+	CREATE INDEX IF NOT EXISTS ts_idx ON person USING GIN(ts);
+	COMMIT`
 
-	for _, execQuery := range execQueries {
-		if _, err := db.Exec(execQuery); err != nil {
-			return nil, err
-		}
+	if _, err := db.Exec(execQuery); err != nil {
+		return nil, err
 	}
 
 	return &personService{

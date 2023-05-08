@@ -195,28 +195,56 @@ $ ./people inbox listen
 
 * on successfull update of the person record, the updated person record is republished on subject `person.updated`. Messages like this contain the full person record in JSON as payload. Acknowledgment is sent when record is stored successfully.
 
-# Commands
+# Commands with grpcurl
+
+Install grpc client like [grpcurl](https://github.com/fullstorydev/grpcurl)
+
+Initialize common information:
 
 ```
-$ ./people person get --id <person-id>
+username=people
+password=people
+h="Authorization: Basic "$(echo -n "$u:$p" | base64)
 ```
 
-```
-$ ./people person all
-```
+List all GRPC methods
 
 ```
-$ ./people person suggest --query nic
+$ grpcurl -H "$h" -plaintext localhost:3999 list api.v1.People
 ```
 
-```
-$ ./people organization get --id <org-id>
-```
+List of people
 
 ```
-$ ./people organization all
+$ grpcurl -H "$h" -plaintext localhost:3999 api.v1.People.GetAllPerson
 ```
 
+Get one person
+
 ```
-$ ./people organization suggest --query nic
+grpcurl -H "$h" -plaintext -d '{"id": "0DCE4DB4-F0EE-11E1-A9DE-61C894A0A6B4"}' localhost:3999 api.v1.People.GetPerson
+```
+
+Suggest people
+
+```
+$ grpcurl -H "$h" -plaintext -d '{"query": "nicol fra"}' localhost:3999 api.v1.People.SuggestPerson
+```
+
+Get organization
+
+```
+$ grpcurl -H "$h" -plaintext -d '{"id": "CA20"}' localhost:3999 api.v1.People.GetOrganization
+```
+
+Get all organizations
+
+```
+$ grpcurl -H "$h" -plaintext localhost:3999 api.v1.People.GetAllOrganization
+```
+
+Suggest organizations
+
+```
+$ grpcurl -H "$h" -plaintext -d '{"query": "Academic He"}' localhost:3999 api.v1.People.SuggestOrganization
 ```

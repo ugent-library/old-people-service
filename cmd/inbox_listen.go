@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"runtime"
-	"time"
 
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
@@ -15,119 +14,9 @@ import (
 	"github.com/ugent-library/people/validation"
 )
 
-var inboxStreamName = "PEOPLE"
-var inboxPersonStreamSubjects = []string{"person.update", "person.delete"}
-var inboxPersonConsumerName = "inboxPerson"
-var inboxPersonDeliverSubject = "inboxPersonDeliverSubject"
-
-var inboxOrganizationStreamSubjects = []string{"organization.update", "organization.delete"}
-var inboxOrganizationConsumerName = "inboxOrganization"
-var inboxOrganizationDeliverSubject = "inboxOrganizationDeliverSubject"
-
-var inboxAllStreamSubjects = []string{
-	"person.update",
-	"person.delete",
-	"organization.update",
-	"organization.delete",
-}
-
 /*
 TODO: on delete of organizations push all related people to person.updated?
 */
-
-func initInboxStream(js nats.JetStreamContext) error {
-
-	stream, _ := js.StreamInfo(inboxStreamName)
-
-	if stream == nil {
-		_, err := js.AddStream(&nats.StreamConfig{
-			Name:     inboxStreamName,
-			Subjects: inboxAllStreamSubjects,
-			Storage:  nats.FileStorage,
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func initPersonInboxConsumer(js nats.JetStreamContext) error {
-
-	if err := initInboxStream(js); err != nil {
-		return err
-	}
-
-	consumerInfo, _ := js.ConsumerInfo(
-		inboxStreamName, inboxPersonConsumerName,
-	)
-	consumerConfig := &nats.ConsumerConfig{
-		AckPolicy: nats.AckExplicitPolicy,
-		Durable:   inboxPersonConsumerName,
-		//DeliverSubject makes it a push based consumer
-		//this must be different per consumer
-		//reason: messages are republished by consumer using this subject
-		DeliverSubject: inboxPersonDeliverSubject, // makes it is a push based consumer
-		AckWait:        time.Second * 10,
-		/*
-			when more than 1, messages can be delivered out of order
-			when they need to be redelivered
-		*/
-		MaxAckPending: 1,
-		FilterSubject: "person.*",
-	}
-
-	if consumerInfo == nil {
-		_, err := js.AddConsumer(inboxStreamName, consumerConfig)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func initOrganizationInboxConsumer(js nats.JetStreamContext) error {
-
-	if err := initInboxStream(js); err != nil {
-		return err
-	}
-
-	consumerInfo, _ := js.ConsumerInfo(
-		inboxStreamName, inboxOrganizationConsumerName,
-	)
-	consumerConfig := &nats.ConsumerConfig{
-		AckPolicy: nats.AckExplicitPolicy,
-		Durable:   inboxOrganizationConsumerName,
-		//DeliverSubject makes it a push based consumer
-		//this must be different per consumer
-		//reason: messages are republished by consumer using this subject
-		DeliverSubject: inboxOrganizationDeliverSubject, // makes it is a push based consumer
-		AckWait:        time.Second * 10,
-		/*
-			when more than 1, messages can be delivered out of order
-			when they need to be redelivered
-		*/
-		MaxAckPending: 1,
-		FilterSubject: "organization.*",
-	}
-
-	if consumerInfo == nil {
-		_, err := js.AddConsumer(inboxStreamName, consumerConfig)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func ensureAck(msg *nats.Msg) {
-	if err := msg.Ack(); err != nil {
-		logger.Fatal(fmt.Errorf("unable to acknowledge nats message: %w", err))
-	}
-}
 
 var inboxListenCmd = &cobra.Command{
 	Use: "listen",
@@ -135,9 +24,7 @@ var inboxListenCmd = &cobra.Command{
 
 		services := Services()
 		personService := services.PersonService
-		//personSearchService := services.PersonSearchService
 		organizationService := services.OrganizationService
-		//organizationSearchService := services.OrganizationSearchService
 
 		nc, err := nats.Connect(config.Nats.Url)
 
@@ -150,7 +37,7 @@ var inboxListenCmd = &cobra.Command{
 
 		js, _ := nc.JetStream()
 
-		if err := initPersonInboxConsumer(js); err != nil {
+		if err := initConsumer(js, natsStreamConfig.Name, &natsPersonConsumerConfig); err != nil {
 			logger.Fatal(fmt.Errorf("unable to create nats consumer for person: %w", err))
 		}
 
@@ -232,7 +119,7 @@ var inboxListenCmd = &cobra.Command{
 
 		},
 			// second and next subscription will fail when using Bind
-			nats.Bind(inboxStreamName, inboxPersonConsumerName),
+			nats.Bind(natsStreamConfig.Name, natsPersonConsumerConfig.Durable),
 			nats.AckExplicit(),
 			nats.MaxAckPending(1),
 			// subscription specific option
@@ -246,7 +133,7 @@ var inboxListenCmd = &cobra.Command{
 
 		logger.Info("started to listen to messages at subject person.*")
 
-		if err := initOrganizationInboxConsumer(js); err != nil {
+		if err := initConsumer(js, natsStreamConfig.Name, &natsOrganizationConsumerConfig); err != nil {
 			logger.Fatal(fmt.Errorf("unable to create nats consumer for organization: %w", err))
 		}
 
@@ -335,7 +222,7 @@ var inboxListenCmd = &cobra.Command{
 
 		},
 			// second and next subscription will fail when using Bind
-			nats.Bind(inboxStreamName, inboxOrganizationConsumerName),
+			nats.Bind(natsStreamConfig.Name, natsOrganizationConsumerConfig.Durable),
 			nats.AckExplicit(),
 			nats.MaxAckPending(1),
 			// subscription specific option

@@ -2,16 +2,13 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 
-	entdialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqljson"
 	v1 "github.com/ugent-library/people/api/v1"
 	"github.com/ugent-library/people/ent"
-	entmigrate "github.com/ugent-library/people/ent/migrate"
 	"github.com/ugent-library/people/ent/organization"
 	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/schema"
@@ -19,29 +16,11 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type OrganizationConfig struct {
-	DB string
-}
-
 type organizationService struct {
-	db *ent.Client
+	client *ent.Client
 }
 
-func NewOrganizationService(cfg *OrganizationConfig) (*organizationService, error) {
-	db, err := sql.Open("pgx", cfg.DB)
-	if err != nil {
-		return nil, err
-	}
-
-	driver := entsql.OpenDB(entdialect.Postgres, db)
-	client := ent.NewClient(ent.Driver(driver))
-
-	err = client.Schema.Create(context.Background(),
-		entmigrate.WithDropIndex(true),
-	)
-	if err != nil {
-		return nil, err
-	}
+func NewOrganizationService(client *ent.Client) (*organizationService, error) {
 
 	execQuery := `
 	BEGIN;
@@ -56,17 +35,18 @@ func NewOrganizationService(cfg *OrganizationConfig) (*organizationService, erro
 	CREATE INDEX IF NOT EXISTS ts_idx ON organization USING GIN(ts);
 	COMMIT;
 	`
-	if _, err := db.Exec(execQuery); err != nil {
+
+	if _, err := client.ExecContext(context.Background(), execQuery); err != nil {
 		return nil, err
 	}
 
 	return &organizationService{
-		db: client,
+		client: client,
 	}, nil
 }
 
 func (orgSvc *organizationService) GetOrganization(ctx context.Context, id string) (*models.Organization, error) {
-	row, err := orgSvc.db.Organization.Query().WithParent().Where(organization.PublicIDEQ(id)).First(ctx)
+	row, err := orgSvc.client.Organization.Query().WithParent().Where(organization.PublicIDEQ(id)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -79,7 +59,7 @@ func (orgSvc *organizationService) GetOrganization(ctx context.Context, id strin
 
 func (orgSvc *organizationService) CreateOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
 	// date fields filled by schema
-	tx, txErr := orgSvc.db.Tx(ctx)
+	tx, txErr := orgSvc.client.Tx(ctx)
 	if txErr != nil {
 		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
 	}
@@ -173,7 +153,7 @@ func (orgSvc *organizationService) CreateOrganization(ctx context.Context, org *
 }
 
 func (orgSvc *organizationService) UpdateOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
-	tx, txErr := orgSvc.db.Tx(ctx)
+	tx, txErr := orgSvc.client.Tx(ctx)
 	if txErr != nil {
 		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
 	}
@@ -239,7 +219,7 @@ func (orgSvc *organizationService) UpdateOrganization(ctx context.Context, org *
 }
 
 func (orgSvc *organizationService) DeleteOrganization(ctx context.Context, id string) error {
-	_, err := orgSvc.db.Organization.Delete().Where(organization.PublicIDEQ(id)).Exec(ctx)
+	_, err := orgSvc.client.Organization.Delete().Where(organization.PublicIDEQ(id)).Exec(ctx)
 	return err
 }
 
@@ -249,7 +229,7 @@ func (orgSvc *organizationService) EachOrganization(ctx context.Context, cb func
 	var offset int = 0
 	var limit int = 500
 	for {
-		rows, err := orgSvc.db.Organization.Query().WithParent().Offset(offset).Limit(limit).Order(ent.Asc(organization.FieldDateCreated)).All(ctx)
+		rows, err := orgSvc.client.Organization.Query().WithParent().Offset(offset).Limit(limit).Order(ent.Asc(organization.FieldDateCreated)).All(ctx)
 		if err != nil {
 			return err
 		}
@@ -269,7 +249,7 @@ func (orgSvc *organizationService) EachOrganization(ctx context.Context, cb func
 }
 
 func (orgSvc *organizationService) SuggestOrganization(ctx context.Context, query string) ([]*models.Organization, error) {
-	rows, err := orgSvc.db.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
+	rows, err := orgSvc.client.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
 		s.Where(
 			toTSQuery("ts", query),
 		)

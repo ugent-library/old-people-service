@@ -2,17 +2,14 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"sort"
 
-	entdialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	v1 "github.com/ugent-library/people/api/v1"
 	"github.com/ugent-library/people/ent"
-	entmigrate "github.com/ugent-library/people/ent/migrate"
 	"github.com/ugent-library/people/ent/organization"
 	"github.com/ugent-library/people/ent/person"
 	"github.com/ugent-library/people/ent/schema"
@@ -20,29 +17,11 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type PersonConfig struct {
-	DB string
-}
-
 type personService struct {
-	db *ent.Client
+	client *ent.Client
 }
 
-func NewPersonService(cfg *PersonConfig) (*personService, error) {
-	db, err := sql.Open("pgx", cfg.DB)
-	if err != nil {
-		return nil, err
-	}
-
-	driver := entsql.OpenDB(entdialect.Postgres, db)
-	client := ent.NewClient(ent.Driver(driver))
-
-	err = client.Schema.Create(context.Background(),
-		entmigrate.WithDropIndex(true),
-	)
-	if err != nil {
-		return nil, err
-	}
+func NewPersonService(client *ent.Client) (*personService, error) {
 
 	execQuery := `
 	BEGIN;
@@ -53,18 +32,18 @@ func NewPersonService(cfg *PersonConfig) (*personService, error) {
 	CREATE INDEX IF NOT EXISTS ts_idx ON person USING GIN(ts);
 	COMMIT`
 
-	if _, err := db.Exec(execQuery); err != nil {
+	if _, err := client.ExecContext(context.Background(), execQuery); err != nil {
 		return nil, err
 	}
 
 	return &personService{
-		db: client,
+		client: client,
 	}, nil
 }
 
 func (ps *personService) CreatePerson(ctx context.Context, p *models.Person) (*models.Person, error) {
 	// date fields filled by schema
-	tx, txErr := ps.db.Tx(ctx)
+	tx, txErr := ps.client.Tx(ctx)
 	if txErr != nil {
 		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
 	}
@@ -136,7 +115,7 @@ func (ps *personService) CreatePerson(ctx context.Context, p *models.Person) (*m
 }
 
 func (ps *personService) UpdatePerson(ctx context.Context, p *models.Person) (*models.Person, error) {
-	tx, txErr := ps.db.Tx(ctx)
+	tx, txErr := ps.client.Tx(ctx)
 	if txErr != nil {
 		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
 	}
@@ -205,7 +184,7 @@ func (ps *personService) UpdatePerson(ctx context.Context, p *models.Person) (*m
 }
 
 func (ps *personService) GetPerson(ctx context.Context, id string) (*models.Person, error) {
-	row, err := ps.db.Person.Query().WithOrganizations().Where(person.PublicIDEQ(id)).First(ctx)
+	row, err := ps.client.Person.Query().WithOrganizations().Where(person.PublicIDEQ(id)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -217,7 +196,7 @@ func (ps *personService) GetPerson(ctx context.Context, id string) (*models.Pers
 }
 
 func (ps *personService) DeletePerson(ctx context.Context, id string) error {
-	_, err := ps.db.Person.Delete().Where(person.PublicIDEQ(id)).Exec(ctx)
+	_, err := ps.client.Person.Delete().Where(person.PublicIDEQ(id)).Exec(ctx)
 	return err
 }
 
@@ -227,7 +206,7 @@ func (ps *personService) EachPerson(ctx context.Context, cb func(*models.Person)
 	var offset int = 0
 	var limit int = 500
 	for {
-		rows, err := ps.db.Person.Query().WithOrganizations().Offset(offset).Limit(limit).Order(ent.Asc(person.FieldDateCreated)).All(ctx)
+		rows, err := ps.client.Person.Query().WithOrganizations().Offset(offset).Limit(limit).Order(ent.Asc(person.FieldDateCreated)).All(ctx)
 		if err != nil {
 			return err
 		}
@@ -248,7 +227,7 @@ func (ps *personService) EachPerson(ctx context.Context, cb func(*models.Person)
 
 func (ps *personService) SuggestPerson(ctx context.Context, query string) ([]*models.Person, error) {
 
-	rows, err := ps.db.Person.Query().Where(func(s *entsql.Selector) {
+	rows, err := ps.client.Person.Query().Where(func(s *entsql.Selector) {
 		s.Where(
 			toTSQuery("ts", query),
 		)

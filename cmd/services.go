@@ -21,17 +21,18 @@ func Services() *models.Services {
 
 func newServices() *models.Services {
 
-	personService, err := db.NewPersonService(&db.PersonConfig{
-		DB: config.Db.Url,
-	})
+	dbClient, err := db.OpenClient(config.Db.Url)
+	if err != nil {
+		panic(err)
+	}
+
+	personService, err := db.NewPersonService(dbClient)
 
 	if err != nil {
 		panic(err)
 	}
 
-	organizationService, err := db.NewOrganizationService(&db.OrganizationConfig{
-		DB: config.Db.Url,
-	})
+	organizationService, err := db.NewOrganizationService(dbClient)
 
 	if err != nil {
 		panic(err)

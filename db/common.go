@@ -1,11 +1,16 @@
 package db
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"regexp"
 	"strings"
 
+	entdialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
+	"github.com/ugent-library/people/ent"
+	entmigrate "github.com/ugent-library/people/ent/migrate"
 )
 
 var regexMultipleSpaces = regexp.MustCompile(`\s+`)
@@ -43,4 +48,24 @@ func toTSQuery(column string, query string) *entsql.Predicate {
 	return entsql.ExprP(
 		tsQuery,
 		queryArgs...)
+}
+
+func OpenClient(dsn string) (*ent.Client, error) {
+
+	db, err := sql.Open("pgx", dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	driver := entsql.OpenDB(entdialect.Postgres, db)
+	client := ent.NewClient(ent.Driver(driver))
+
+	err = client.Schema.Create(context.Background(),
+		entmigrate.WithDropIndex(true),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }

@@ -14,9 +14,4 @@ FROM alpine:latest
 WORKDIR /opt/people
 
 COPY --from=build /opt/people/people .
-COPY docker/people.toml .
-COPY etc etc
-
-EXPOSE 3000
-
-CMD cd /opt/people && ./people api start -c docker.people.toml
+COPY docker/.env .

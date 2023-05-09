@@ -22,8 +22,12 @@ type organizationService struct {
 
 func NewOrganizationService(client *ent.Client) (*organizationService, error) {
 
+	/*
+		IMPORTANT: lock table in exclusive mode to prevent isolation level
+	*/
 	execQuery := `
 	BEGIN;
+	LOCK table organization IN EXCLUSIVE MODE;
 	ALTER TABLE organization 
 	ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS 
 	(
@@ -32,7 +36,7 @@ func NewOrganizationService(client *ent.Client) (*organizationService, error) {
 		to_tsvector('simple',name_dut) || 
 		to_tsvector('simple', name_eng)
 	) STORED;
-	CREATE INDEX IF NOT EXISTS ts_idx ON organization USING GIN(ts);
+	CREATE INDEX IF NOT EXISTS organization_ts_idx ON organization USING GIN(ts);
 	COMMIT;
 	`
 

@@ -10,7 +10,6 @@ import (
 	entdialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/ugent-library/people/ent"
-	entmigrate "github.com/ugent-library/people/ent/migrate"
 )
 
 var regexMultipleSpaces = regexp.MustCompile(`\s+`)
@@ -58,13 +57,44 @@ func OpenClient(dsn string) (*ent.Client, error) {
 	}
 
 	driver := entsql.OpenDB(entdialect.Postgres, db)
-	client := ent.NewClient(ent.Driver(driver))
+	client := ent.NewClient(ent.Driver(driver)).Debug()
 
-	err = client.Schema.Create(context.Background(),
-		entmigrate.WithDropIndex(true),
-	)
-	if err != nil {
-		return nil, err
+	/*
+		run database migration in a transaction
+		if two instances start, entgo might try
+		to drop certain indexes more than once,
+		depending on the number of instances,
+		of which only one may succeed
+	*/
+	var migrationErr error
+	func() {
+
+		txClient, err := client.Tx(context.Background())
+		if err != nil {
+			migrationErr = err
+			return
+		}
+		defer txClient.Rollback()
+
+		/*
+			TODO: advisory locks good choice for locking for migration?
+			lock for ent migration
+			otherwise two migrations might runs concurrently
+			returning errors (like "table already created")
+		*/
+		txClient.Client().ExecContext(context.Background(), "SELECT pg_advisory_xact_lock(12345)")
+
+		if err := txClient.Client().Schema.Create(context.Background()); err != nil {
+			migrationErr = err
+			return
+		}
+
+		txClient.Commit()
+
+	}()
+
+	if migrationErr != nil {
+		return nil, migrationErr
 	}
 
 	return client, nil

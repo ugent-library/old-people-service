@@ -23,13 +23,17 @@ type personService struct {
 
 func NewPersonService(client *ent.Client) (*personService, error) {
 
+	/*
+		IMPORTANT: lock table in exclusive mode to prevent isolation level
+	*/
 	execQuery := `
 	BEGIN;
+	LOCK table person IN EXCLUSIVE MODE;
 	ALTER TABLE person 
 		ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS (
 			to_tsvector('simple',full_name)
 		) STORED;
-	CREATE INDEX IF NOT EXISTS ts_idx ON person USING GIN(ts);
+	CREATE INDEX IF NOT EXISTS person_ts_idx ON person USING GIN(ts);
 	COMMIT`
 
 	if _, err := client.ExecContext(context.Background(), execQuery); err != nil {

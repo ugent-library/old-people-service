@@ -1,42 +1,33 @@
 version: '3.5'
 
+# requirement: run "docker build -t people_service ." in order to create image people_service
 services:
-  people_inbox:
-    container_name: people_inbox
-    build:
-      context: .
-      dockerfile: docker/Dockerfile-inbox
+  people_service_inbox:
+    image: people-service:latest
+    container_name: people_service_inbox
     depends_on:
       postgres:
+        condition: service_healthy
+      # nats docker image has no shell to check health
+      nats:
         condition: service_started
     volumes:
-      - ./docker/people.toml:/opt/people/docker.people.toml
+      - ./docker/.env:/opt/people/.env
+    command: "/bin/sh -c \"cd /opt/people && ./people inbox listen\""
 
-  people_grpc:
+  people_service_grpc:
     container_name: people_grpc
-    build:
-      context: .
-      dockerfile: docker/Dockerfile-grpc
+    image: people-service:latest
     depends_on:
       postgres:
-        condition: service_started
+        condition: service_healthy
+    expose:
+      - 3999
     ports:
-      - 3001:3000
+      - 3999:3999
     volumes:
-      - ./docker/people.toml:/opt/people/docker.people.toml
-
-  people_grpc_proxy:
-    container_name: people_grpc_proxy
-    build:
-      context: .
-      dockerfile: docker/Dockerfile-grpc-proxy
-    depends_on:
-      people_grpc:
-        condition: service_started
-    ports:
-      - 3002:3001
-    volumes:
-      - ./docker/people.toml:/opt/people/docker.people.toml
+      - ./docker/.env:/opt/people/.env
+    command: "/bin/sh -c \"cd /opt/people && ./people api start\""
 
   # connect to postgres:
   #   connect to docker container
@@ -51,6 +42,11 @@ services:
       POSTGRES_PASSWORD: people
     volumes:
       - postgres01:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/pg_isready", "-U", "people"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
 
   nats:
     container_name: nats
@@ -62,6 +58,5 @@ services:
       - 4223:4222
 
 volumes:
-  es01:
   postgres01:
   nats01:

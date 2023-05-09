@@ -248,3 +248,23 @@ Suggest organizations
 ```
 $ grpcurl -H "$h" -plaintext -d '{"query": "Academic He"}' localhost:3999 api.v1.People.SuggestOrganization
 ```
+
+# run in docker
+
+Build base docker image `people-service`:
+
+```
+$ docker build -t people-service .
+```
+
+If image `people-service` is already docker github,
+
+then you may skip that step.
+
+Start set of services using `docker compose`:
+
+```
+$ docker compose up
+```
+
+Docker compose uses that image `people-service`

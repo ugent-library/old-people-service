@@ -60,7 +60,7 @@ func OpenClient(dsn string) (*ent.Client, error) {
 	}
 
 	driver := entsql.OpenDB(entdialect.Postgres, db)
-	client := ent.NewClient(ent.Driver(driver)).Debug()
+	client := ent.NewClient(ent.Driver(driver))
 
 	/*
 		run database migration in a transaction
@@ -87,7 +87,10 @@ func OpenClient(dsn string) (*ent.Client, error) {
 		*/
 		txClient.Client().ExecContext(context.Background(), "SELECT pg_advisory_xact_lock(12345)")
 
-		if err := txClient.Client().Schema.Create(context.Background(), schema.WithApplyHook(customSchemaChanges)); err != nil {
+		if err := txClient.Client().Schema.Create(
+			context.Background(),
+			schema.WithApplyHook(customSchemaChanges),
+		); err != nil {
 			migrationErr = err
 			return
 		}

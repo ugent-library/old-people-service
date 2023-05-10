@@ -7,8 +7,11 @@ import (
 	"regexp"
 	"strings"
 
+	"ariga.io/atlas/sql/migrate"
+	"entgo.io/ent/dialect"
 	entdialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/schema"
 	"github.com/ugent-library/people/ent"
 )
 
@@ -84,7 +87,7 @@ func OpenClient(dsn string) (*ent.Client, error) {
 		*/
 		txClient.Client().ExecContext(context.Background(), "SELECT pg_advisory_xact_lock(12345)")
 
-		if err := txClient.Client().Schema.Create(context.Background()); err != nil {
+		if err := txClient.Client().Schema.Create(context.Background(), schema.WithApplyHook(customSchemaChanges)); err != nil {
 			migrationErr = err
 			return
 		}
@@ -98,4 +101,32 @@ func OpenClient(dsn string) (*ent.Client, error) {
 	}
 
 	return client, nil
+}
+
+// cf. https://entgo.io/docs/migrate/#apply-hook-example
+func customSchemaChanges(next schema.Applier) schema.Applier {
+	return schema.ApplyFunc(func(ctx context.Context, conn dialect.ExecQuerier, plan *migrate.Plan) error {
+
+		execQuery := `
+		BEGIN;
+		LOCK table organization IN EXCLUSIVE MODE;
+		ALTER TABLE organization 
+		ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS 
+		(
+			to_tsvector('simple', jsonb_path_query_array(other_id, '$[*].id')) || 
+			to_tsvector('simple', public_id) || 
+			to_tsvector('simple',name_dut) || 
+			to_tsvector('simple', name_eng)
+		) STORED;
+		CREATE INDEX IF NOT EXISTS organization_ts_idx ON organization USING GIN(ts);
+		LOCK table person IN EXCLUSIVE MODE;
+		ALTER TABLE person 
+			ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS (
+				to_tsvector('simple',full_name)
+			) STORED;
+		CREATE INDEX IF NOT EXISTS person_ts_idx ON person USING GIN(ts);
+		COMMIT;
+		`
+		return conn.Exec(context.Background(), execQuery, []any{}, nil)
+	})
 }

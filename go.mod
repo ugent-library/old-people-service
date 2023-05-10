@@ -3,6 +3,7 @@ module github.com/ugent-library/people
 go 1.20
 
 require (
+	ariga.io/atlas v0.10.0
 	entgo.io/ent v0.12.1
 	github.com/caarlos0/env/v8 v8.0.0
 	github.com/golang/protobuf v1.5.2
@@ -21,7 +22,6 @@ require (
 )
 
 require (
-	ariga.io/atlas v0.10.0 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

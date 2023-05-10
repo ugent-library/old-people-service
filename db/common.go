@@ -130,6 +130,12 @@ func customSchemaChanges(next schema.Applier) schema.Applier {
 		CREATE INDEX IF NOT EXISTS person_ts_idx ON person USING GIN(ts);
 		COMMIT;
 		`
-		return conn.Exec(context.Background(), execQuery, []any{}, nil)
+
+		plan.Changes = append(plan.Changes, &migrate.Change{
+			Cmd: execQuery,
+		})
+
+		return next.Apply(ctx, conn, plan)
+
 	})
 }

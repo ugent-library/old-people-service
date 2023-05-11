@@ -3,7 +3,7 @@ version: '3.5'
 # requirement: run "docker build -t people_service ." in order to create image people_service
 services:
   people_service_inbox:
-    image: people-service:latest
+    image: ugentlib/people-service:latest
     container_name: people_service_inbox
     depends_on:
       postgres:
@@ -17,7 +17,7 @@ services:
 
   people_service_grpc:
     container_name: people_grpc
-    image: people-service:latest
+    image: ugentlib/people-service:latest
     depends_on:
       postgres:
         condition: service_healthy

@@ -254,7 +254,8 @@ $ grpcurl -H "$h" -plaintext -d '{"query": "Academic He"}' localhost:3999 api.v1
 Build base docker image `people-service`:
 
 ```
-$ docker build -t people-service .
+$ docker build -t ugentlib/people-service .
+$ docker push ugentlib/people-service
 ```
 
 If image `people-service` is already docker github,

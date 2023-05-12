@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/nkeys"
 )
 
 var natsStreamConfig = nats.StreamConfig{
@@ -24,6 +25,7 @@ var natsPersonConsumerConfig = nats.ConsumerConfig{
 	//DeliverSubject makes it a push based consumer
 	//this must be different per consumer
 	//reason: messages are republished by consumer using this subject
+	//make sure you have subscribe permission to that subject too
 	DeliverSubject: "inboxPersonDeliverSubject", // makes it is a push based consumer
 	AckWait:        time.Second * 10,
 	/*
@@ -40,6 +42,7 @@ var natsOrganizationConsumerConfig = nats.ConsumerConfig{
 	//DeliverSubject makes it a push based consumer
 	//this must be different per consumer
 	//reason: messages are republished by consumer using this subject
+	//make sure you have subscribe permission to that subject too
 	DeliverSubject: "inboxOrganizationDeliverSubject", // makes it is a push based consumer
 	AckWait:        time.Second * 10,
 	/*
@@ -90,4 +93,24 @@ func ensureAck(msg *nats.Msg) {
 	if err := msg.Ack(); err != nil {
 		logger.Fatal(fmt.Errorf("unable to acknowledge nats message: %w", err))
 	}
+}
+
+func natsConnect(config ConfigNats) (*nats.Conn, error) {
+	options := make([]nats.Option, 0)
+
+	/*
+		IMPORTANT: error "nkeys not supported by the server" if there are no users
+		configured with nkey
+	*/
+	if config.Nkey != "" && config.NkeySeed != "" {
+		user, err := nkeys.FromSeed([]byte(config.NkeySeed))
+		if err != nil {
+			return nil, err
+		}
+		options = append(options, nats.Nkey(config.Nkey, func(nonce []byte) ([]byte, error) {
+			return user.Sign(nonce)
+		}))
+	}
+
+	return nats.Connect(config.Url, options...)
 }

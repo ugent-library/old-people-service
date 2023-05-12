@@ -26,7 +26,7 @@ var inboxListenCmd = &cobra.Command{
 		personService := services.PersonService
 		organizationService := services.OrganizationService
 
-		nc, err := nats.Connect(config.Nats.Url)
+		nc, err := natsConnect(config.Nats)
 
 		if err != nil {
 			logger.Fatal(fmt.Errorf("unable to connect to nats: %w", err))

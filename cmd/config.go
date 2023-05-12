@@ -5,7 +5,9 @@ type ConfigDb struct {
 }
 
 type ConfigNats struct {
-	Url string `json:"url,omitempty" env:"URL" envDefault:"nats://localhost:4222"`
+	Url      string `json:"url,omitempty" env:"URL" envDefault:"nats://localhost:4222"`
+	Nkey     string `json:"nkey" env:"NKEY"`
+	NkeySeed string `json:"nkey_seed" env:"NKEY_SEED"`
 }
 
 type ConfigApi struct {

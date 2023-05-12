@@ -43,7 +43,8 @@ func toTSQuery(column string, query string) *entsql.Predicate {
 
 	// $1:* & $2:*
 	tsQuery := fmt.Sprintf(
-		"ts @@ to_tsquery('simple', %s)",
+		"%s @@ to_tsquery('simple', %s)",
+		column,
 		strings.Join(queryParts, " || ' & ' || "),
 	)
 

@@ -14,4 +14,3 @@ FROM alpine:latest
 WORKDIR /opt/people
 
 COPY --from=build /opt/people/people .
-COPY docker/.env .

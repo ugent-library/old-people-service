@@ -43,7 +43,7 @@ func toTSQuery(column string, query string) *entsql.Predicate {
 
 	// $1:* & $2:*
 	tsQuery := fmt.Sprintf(
-		"%s @@ to_tsquery('simple', %s)",
+		"%s @@ to_tsquery('usimple', %s)",
 		column,
 		strings.Join(queryParts, " || ' & ' || "),
 	)
@@ -113,20 +113,32 @@ func customSchemaChanges(next schema.Applier) schema.Applier {
 
 		execQuery := `
 		BEGIN;
+
 		LOCK table organization IN EXCLUSIVE MODE;
-		ALTER TABLE organization 
-		ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS 
+
+		CREATE EXTENSION IF NOT EXISTS unaccent;
+		DO
+		$$BEGIN
+			CREATE TEXT SEARCH CONFIGURATION usimple ( COPY = simple );
+		EXCEPTION
+			WHEN unique_violation THEN
+			   NULL;
+		END;$$;
+		ALTER TEXT SEARCH CONFIGURATION usimple ALTER MAPPING FOR hword, hword_part, word WITH unaccent, simple;
+		
+		ALTER TABLE organization
+		ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS
 		(
-			to_tsvector('simple', jsonb_path_query_array(other_id, '$[*].id')) || 
-			to_tsvector('simple', public_id) || 
-			to_tsvector('simple',name_dut) || 
-			to_tsvector('simple', name_eng)
+			to_tsvector('simple', jsonb_path_query_array(other_id, '$[*].id')) ||
+			to_tsvector('simple', public_id) ||
+			to_tsvector('usimple',name_dut) ||
+			to_tsvector('usimple', name_eng)
 		) STORED;
 		CREATE INDEX IF NOT EXISTS organization_ts_idx ON organization USING GIN(ts);
 		LOCK table person IN EXCLUSIVE MODE;
-		ALTER TABLE person 
+		ALTER TABLE person
 			ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS (
-				to_tsvector('simple',full_name)
+				to_tsvector('usimple',full_name)
 			) STORED;
 		CREATE INDEX IF NOT EXISTS person_ts_idx ON person USING GIN(ts);
 		COMMIT;

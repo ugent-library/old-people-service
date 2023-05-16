@@ -1,13 +1,14 @@
 package cmd
 
 type ConfigDb struct {
-	Url string `json:"url,omitempty" env:"URL" envDefault:"postgres://people:people@localhost:5432/authority?sslmode=disable"`
+	Url    string `json:"url,omitempty" env:"URL" envDefault:"postgres://people:people@localhost:5432/authority?sslmode=disable"`
+	AesKey string `json:"-" env:"AES_KEY,notEmpty"`
 }
 
 type ConfigNats struct {
 	Url      string `json:"url,omitempty" env:"URL" envDefault:"nats://localhost:4222"`
-	Nkey     string `json:"nkey" env:"NKEY"`
-	NkeySeed string `json:"nkey_seed" env:"NKEY_SEED"`
+	Nkey     string `json:"-" env:"NKEY"`
+	NkeySeed string `json:"-" env:"NKEY_SEED"`
 }
 
 type ConfigApi struct {

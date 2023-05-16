@@ -26,13 +26,18 @@ func newServices() *models.Services {
 		panic(err)
 	}
 
-	personService, err := db.NewPersonService(dbClient)
+	dbConfig := &db.Config{
+		Client: dbClient,
+		AesKey: config.Db.AesKey,
+	}
+
+	personService, err := db.NewPersonService(dbConfig)
 
 	if err != nil {
 		panic(err)
 	}
 
-	organizationService, err := db.NewOrganizationService(dbClient)
+	organizationService, err := db.NewOrganizationService(dbConfig)
 
 	if err != nil {
 		panic(err)

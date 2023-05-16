@@ -110,6 +110,14 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
 
   description: postgres database connection url
 
+* `PEOPLE_DB_AES_KEY`
+
+  type: `string`
+
+  required: `true`
+
+  description: [AES](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard) key. This is now used to encrypt attribute `orcid_token`. Note that an AES key must be 128 bits long (or 16 characters). Generate one with command `openssl rand -hex 16`
+
 * `PEOPLE_NATS_URL`
 
   type: `string`

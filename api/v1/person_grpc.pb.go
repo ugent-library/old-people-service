@@ -24,6 +24,7 @@ type PeopleClient interface {
 	GetOrganization(ctx context.Context, in *GetOrganizationRequest, opts ...grpc.CallOption) (*GetOrganizationResponse, error)
 	GetAllOrganization(ctx context.Context, in *GetAllOrganizationRequest, opts ...grpc.CallOption) (People_GetAllOrganizationClient, error)
 	SuggestOrganization(ctx context.Context, in *SuggestOrganizationRequest, opts ...grpc.CallOption) (People_SuggestOrganizationClient, error)
+	SetPersonOrcidToken(ctx context.Context, in *SetPersonOrcidTokenRequest, opts ...grpc.CallOption) (*SetPersonOrcidTokenResponse, error)
 }
 
 type peopleClient struct {
@@ -180,6 +181,15 @@ func (x *peopleSuggestOrganizationClient) Recv() (*SuggestOrganizationResponse, 
 	return m, nil
 }
 
+func (c *peopleClient) SetPersonOrcidToken(ctx context.Context, in *SetPersonOrcidTokenRequest, opts ...grpc.CallOption) (*SetPersonOrcidTokenResponse, error) {
+	out := new(SetPersonOrcidTokenResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.People/SetPersonOrcidToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PeopleServer is the server API for People service.
 // All implementations must embed UnimplementedPeopleServer
 // for forward compatibility
@@ -190,6 +200,7 @@ type PeopleServer interface {
 	GetOrganization(context.Context, *GetOrganizationRequest) (*GetOrganizationResponse, error)
 	GetAllOrganization(*GetAllOrganizationRequest, People_GetAllOrganizationServer) error
 	SuggestOrganization(*SuggestOrganizationRequest, People_SuggestOrganizationServer) error
+	SetPersonOrcidToken(context.Context, *SetPersonOrcidTokenRequest) (*SetPersonOrcidTokenResponse, error)
 	mustEmbedUnimplementedPeopleServer()
 }
 
@@ -214,6 +225,9 @@ func (UnimplementedPeopleServer) GetAllOrganization(*GetAllOrganizationRequest, 
 }
 func (UnimplementedPeopleServer) SuggestOrganization(*SuggestOrganizationRequest, People_SuggestOrganizationServer) error {
 	return status.Errorf(codes.Unimplemented, "method SuggestOrganization not implemented")
+}
+func (UnimplementedPeopleServer) SetPersonOrcidToken(context.Context, *SetPersonOrcidTokenRequest) (*SetPersonOrcidTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetPersonOrcidToken not implemented")
 }
 func (UnimplementedPeopleServer) mustEmbedUnimplementedPeopleServer() {}
 
@@ -348,6 +362,24 @@ func (x *peopleSuggestOrganizationServer) Send(m *SuggestOrganizationResponse) e
 	return x.ServerStream.SendMsg(m)
 }
 
+func _People_SetPersonOrcidToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetPersonOrcidTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PeopleServer).SetPersonOrcidToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.People/SetPersonOrcidToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PeopleServer).SetPersonOrcidToken(ctx, req.(*SetPersonOrcidTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // People_ServiceDesc is the grpc.ServiceDesc for People service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -362,6 +394,10 @@ var People_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetOrganization",
 			Handler:    _People_GetOrganization_Handler,
+		},
+		{
+			MethodName: "SetPersonOrcidToken",
+			Handler:    _People_SetPersonOrcidToken_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

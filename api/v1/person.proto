@@ -117,6 +117,17 @@ message SuggestOrganizationResponse{
   Organization organization = 1;
 }
 
+message SetPersonOrcidTokenRequest {
+  string id = 1;
+  string orcid_token = 2;
+}
+message SetPersonOrcidTokenResponse {
+  oneof response {
+    string message = 1;
+    google.rpc.Status error = 2;
+  }
+}
+
 service People {
   rpc GetPerson(GetPersonRequest) returns (GetPersonResponse);
   rpc GetAllPerson(GetAllPersonRequest) returns (stream GetAllPersonResponse);
@@ -124,4 +135,5 @@ service People {
   rpc GetOrganization(GetOrganizationRequest) returns (GetOrganizationResponse);
   rpc GetAllOrganization(GetAllOrganizationRequest) returns (stream GetAllOrganizationResponse);
   rpc SuggestOrganization(SuggestOrganizationRequest) returns (stream SuggestOrganizationResponse);
+  rpc SetPersonOrcidToken(SetPersonOrcidTokenRequest) returns (SetPersonOrcidTokenResponse);
 }

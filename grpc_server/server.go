@@ -156,6 +156,28 @@ func (srv *server) SuggestPerson(req *v1.SuggestPersonRequest, stream v1.People_
 	return nil
 }
 
+func (srv *server) SetPersonOrcidToken(ctx context.Context, req *v1.SetPersonOrcidTokenRequest) (*v1.SetPersonOrcidTokenResponse, error) {
+
+	err := srv.personService.SetOrcidToken(ctx, req.Id, req.OrcidToken)
+
+	if err != nil && err == models.ErrNotFound {
+		grpcErr := status.New(codes.InvalidArgument, fmt.Errorf("could not find person with id %s", req.Id).Error())
+		return &v1.SetPersonOrcidTokenResponse{
+			Response: &v1.SetPersonOrcidTokenResponse_Error{
+				Error: grpcErr.Proto(),
+			},
+		}, nil
+	} else if err != nil {
+		return nil, status.Errorf(codes.Internal, "unable to retrieve person with id '%s': %s", req.Id, err.Error())
+	}
+
+	return &v1.SetPersonOrcidTokenResponse{
+		Response: &v1.SetPersonOrcidTokenResponse_Message{
+			Message: "ok",
+		},
+	}, nil
+}
+
 func (srv *server) GetOrganization(ctx context.Context, req *v1.GetOrganizationRequest) (*v1.GetOrganizationResponse, error) {
 	org, err := srv.organizationService.GetOrganization(ctx, req.Id)
 

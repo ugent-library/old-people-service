@@ -18,12 +18,14 @@ import (
 
 type organizationService struct {
 	client *ent.Client
+	secret []byte
 }
 
-func NewOrganizationService(client *ent.Client) (*organizationService, error) {
+func NewOrganizationService(config *Config) (*organizationService, error) {
 
 	return &organizationService{
-		client: client,
+		client: config.Client,
+		secret: []byte(config.AesKey),
 	}, nil
 }
 

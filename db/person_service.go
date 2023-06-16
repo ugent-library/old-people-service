@@ -325,7 +325,7 @@ func (ps *personService) personUnwrap(e *ent.Person) (*models.Person, error) {
 	}
 
 	p := &models.Person{
-		Person: v1.Person{
+		Person: &v1.Person{
 			Active:             e.Active,
 			BirthDate:          e.BirthDate,
 			DateCreated:        timestamppb.New(e.DateCreated),

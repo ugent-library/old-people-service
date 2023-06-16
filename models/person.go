@@ -6,10 +6,11 @@ import (
 	v1 "github.com/ugent-library/people/api/v1"
 	"github.com/ugent-library/people/ent/schema"
 	"github.com/ugent-library/people/validation"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Person struct {
-	v1.Person
+	*v1.Person
 	// unconfirmed organization identifiers
 	OtherOrganizationId []string `json:"-"`
 }
@@ -47,7 +48,7 @@ func (person *Person) Validate() validation.Errors {
 func (p *Person) Dup() *Person {
 	// *p copies mutex values too..
 	np := &Person{
-		Person: v1.Person{
+		Person: &v1.Person{
 			Id:                 p.Id,
 			Active:             p.Active,
 			FullName:           p.FullName,
@@ -66,12 +67,10 @@ func (p *Person) Dup() *Person {
 	}
 
 	if p.DateCreated != nil {
-		t := *p.DateCreated
-		np.DateCreated = &t
+		np.DateCreated = timestamppb.New(p.DateCreated.AsTime())
 	}
 	if p.DateUpdated != nil {
-		t := *p.DateUpdated
-		np.DateUpdated = &t
+		np.DateUpdated = timestamppb.New(p.DateUpdated.AsTime())
 	}
 	np.OtherId = make([]*v1.IdRef, 0, len(p.OtherId))
 	for _, oldIdRef := range p.OtherId {

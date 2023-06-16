@@ -260,7 +260,7 @@ func orgUnwrap(e *ent.Organization) *models.Organization {
 		})
 	}
 	org := &models.Organization{
-		Organization: v1.Organization{
+		Organization: &v1.Organization{
 			Id:          e.PublicID,
 			DateCreated: timestamppb.New(e.DateCreated),
 			DateUpdated: timestamppb.New(e.DateUpdated),

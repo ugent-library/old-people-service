@@ -122,7 +122,7 @@ func (srv *server) GetPerson(ctx context.Context, req *v1.GetPersonRequest) (*v1
 
 	return &v1.GetPersonResponse{
 		Response: &v1.GetPersonResponse_Person{
-			Person: &person.Person,
+			Person: person.Person,
 		},
 	}, nil
 }
@@ -131,7 +131,7 @@ func (srv *server) GetAllPerson(req *v1.GetAllPersonRequest, stream v1.People_Ge
 
 	return srv.personService.EachPerson(context.Background(), func(p *models.Person) bool {
 		streamErr := stream.Send(&v1.GetAllPersonResponse{
-			Person: &p.Person,
+			Person: p.Person,
 		})
 		if streamErr != nil {
 			srv.logger.Errorf("unable to send message to stream: %w", streamErr)
@@ -147,7 +147,7 @@ func (srv *server) SuggestPerson(req *v1.SuggestPersonRequest, stream v1.People_
 
 	for _, person := range persons {
 		if err := stream.Send(&v1.SuggestPersonResponse{
-			Person: &person.Person,
+			Person: person.Person,
 		}); err != nil {
 			log.Fatal(err)
 		}
@@ -194,7 +194,7 @@ func (srv *server) GetOrganization(ctx context.Context, req *v1.GetOrganizationR
 
 	return &v1.GetOrganizationResponse{
 		Response: &v1.GetOrganizationResponse_Organization{
-			Organization: &org.Organization,
+			Organization: org.Organization,
 		},
 	}, nil
 }
@@ -203,7 +203,7 @@ func (srv *server) GetAllOrganization(req *v1.GetAllOrganizationRequest, stream 
 
 	err := srv.organizationService.EachOrganization(stream.Context(), func(o *models.Organization) bool {
 		stream.Send(&v1.GetAllOrganizationResponse{
-			Organization: &o.Organization,
+			Organization: o.Organization,
 		})
 		return true
 	})
@@ -220,7 +220,7 @@ func (srv *server) SuggestOrganization(req *v1.SuggestOrganizationRequest, strea
 
 	for _, org := range organizations {
 		if err := stream.Send(&v1.SuggestOrganizationResponse{
-			Organization: &org.Organization,
+			Organization: org.Organization,
 		}); err != nil {
 			log.Fatal(err)
 		}

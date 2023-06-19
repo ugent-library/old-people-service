@@ -88,13 +88,6 @@ var inboxListenCmd = &cobra.Command{
 				person.Active = false
 			}
 
-			// report invalid changes to subject inbox.person.rejected
-			if vErrs := person.Validate(); vErrs != nil {
-				logger.Errorf("message with %s lead to invalid person record: %s", iMsg.Message.ID, vErrs)
-				ensureAck(msg)
-				return
-			}
-
 			var updateErr error
 			var updatedPerson *models.Person
 			if person.IsStored() {
@@ -181,13 +174,6 @@ var inboxListenCmd = &cobra.Command{
 			if iMsg.Subject == "organization.update" {
 
 				iMsg.UpdateOrganizationAttr(org)
-
-				// report invalid changes to subject inbox.organization.rejected
-				if vErrs := org.Validate(); vErrs != nil {
-					logger.Errorf("message with %s lead to invalid organization record: %s", iMsg.Message.ID, vErrs)
-					ensureAck(msg)
-					return
-				}
 
 				var updateErr error
 				var updatedOrg *models.Organization

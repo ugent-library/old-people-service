@@ -1,11 +1,7 @@
 package models
 
 import (
-	"fmt"
-
 	v1 "github.com/ugent-library/people/api/v1"
-	"github.com/ugent-library/people/ent/schema"
-	"github.com/ugent-library/people/validation"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -16,32 +12,6 @@ type Organization struct {
 
 func (org *Organization) IsStored() bool {
 	return org.DateCreated != nil
-}
-
-func (org *Organization) Validate() validation.Errors {
-	var errs validation.Errors
-
-	for i, otherId := range org.GetOtherId() {
-		if otherId.Id == "" {
-			errs = append(errs, &validation.Error{
-				Pointer: fmt.Sprintf("/other_id/%d/id", i),
-				Code:    "other_id.id.required",
-			})
-		}
-		if otherId.Type == "" {
-			errs = append(errs, &validation.Error{
-				Pointer: fmt.Sprintf("/other_id/%d/type", i),
-				Code:    "other_id.type.required",
-			})
-		} else if !validation.InArray(schema.OrganizationIdTypes, otherId.Type) {
-			errs = append(errs, &validation.Error{
-				Pointer: fmt.Sprintf("/other_id/%d/type", i),
-				Code:    "other_id.type.invalid",
-			})
-		}
-	}
-
-	return errs
 }
 
 func (org *Organization) Dup() *Organization {

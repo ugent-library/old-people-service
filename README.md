@@ -132,23 +132,6 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
 $ ./people api start
 ```
 
-# Start GRPC gateway
-
-
-```
-$ ./people api proxy
-```
-
-Starts a JSON api at address `localhost:4001` with the following routes:
-
-* `POST /api.v1.People/GetAllPerson`
-
-No request body is expected
-
-* `POST /api.v1.People/GetPerson`
-
-Expected is a JSON request body. In this case JSON with attribute "id"
-
 # Start NATS consumer
 
 ```

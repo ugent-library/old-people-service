@@ -3,8 +3,8 @@ package cmd
 import (
 	"sync"
 
-	"github.com/ugent-library/people/db"
 	"github.com/ugent-library/people/models"
+	"github.com/ugent-library/people/repository"
 )
 
 var (
@@ -21,23 +21,23 @@ func Services() *models.Services {
 
 func newServices() *models.Services {
 
-	dbClient, err := db.OpenClient(config.Db.Url)
+	dbClient, err := repository.OpenClient(config.Db.Url)
 	if err != nil {
 		panic(err)
 	}
 
-	dbConfig := &db.Config{
+	dbConfig := &repository.Config{
 		Client: dbClient,
 		AesKey: config.Db.AesKey,
 	}
 
-	personService, err := db.NewPersonService(dbConfig)
+	personService, err := repository.NewPersonService(dbConfig)
 
 	if err != nil {
 		panic(err)
 	}
 
-	organizationService, err := db.NewOrganizationService(dbConfig)
+	organizationService, err := repository.NewOrganizationService(dbConfig)
 
 	if err != nil {
 		panic(err)

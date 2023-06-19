@@ -1,4 +1,4 @@
-package db
+package repository
 
 import "github.com/ugent-library/people/ent"
 

@@ -9,12 +9,6 @@ import (
 	"github.com/ugent-library/people/validation"
 )
 
-type PersonChangeError struct {
-	OldPerson *models.Person      `json:"old_person,omitempty"`
-	NewPerson *models.Person      `json:"new_person,omitempty"`
-	Errors    []*validation.Error `json:"errors,omitempty"`
-}
-
 func (s *InboxMessage) UpdatePersonAttr(person *models.Person) *models.Person {
 
 	person.Id = s.Message.ID

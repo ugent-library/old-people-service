@@ -5,14 +5,7 @@ import (
 
 	v1 "github.com/ugent-library/people/api/v1"
 	"github.com/ugent-library/people/models"
-	"github.com/ugent-library/people/validation"
 )
-
-type OrganizationChangeError struct {
-	OldOrganization *models.Organization `json:"old_organization,omitempty"`
-	NewOrganization *models.Organization `json:"new_organization,omitempty"`
-	Errors          []*validation.Error  `json:"errors,omitempty"`
-}
 
 func (s *InboxMessage) UpdateOrganizationAttr(org *models.Organization) *models.Organization {
 

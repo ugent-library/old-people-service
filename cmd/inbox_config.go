@@ -96,7 +96,14 @@ func ensureAck(msg *nats.Msg) {
 }
 
 func natsConnect(config ConfigNats) (*nats.Conn, error) {
-	options := make([]nats.Option, 0)
+
+	options := nats.Options{
+		Url:                  config.Url,
+		MaxReconnect:         10,
+		RetryOnFailedConnect: true,
+		ReconnectWait:        10,
+		Timeout:              30 * time.Second,
+	}
 
 	/*
 		IMPORTANT: error "nkeys not supported by the server" if there are no users
@@ -107,10 +114,11 @@ func natsConnect(config ConfigNats) (*nats.Conn, error) {
 		if err != nil {
 			return nil, err
 		}
-		options = append(options, nats.Nkey(config.Nkey, func(nonce []byte) ([]byte, error) {
+		options.Nkey = config.Nkey
+		options.SignatureCB = func(nonce []byte) ([]byte, error) {
 			return user.Sign(nonce)
-		}))
+		}
 	}
 
-	return nats.Connect(config.Url, options...)
+	return options.Connect()
 }

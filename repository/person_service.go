@@ -2,13 +2,11 @@ package repository
 
 import (
 	"context"
-	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
-	"strings"
 
+	entsql "entgo.io/ent/dialect/sql"
 	"github.com/jackc/pgx/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	v1 "github.com/ugent-library/people/api/v1"
@@ -300,20 +298,14 @@ func (ps *personService) EachPerson(ctx context.Context, cb func(*models.Person)
 
 func (ps *personService) SuggestPerson(ctx context.Context, query string) ([]*models.Person, error) {
 
-	// TODO: update field list if ent schema changes
-	fields := []string{
-		"id", "date_created", "date_updated", "public_id", "active",
-		"birth_date", "email", "other_id", "other_organization_id",
-		"first_name", "full_name", "last_name", "job_category",
-		"orcid", "orcid_token", "preferred_first_name", "preferred_last_name",
-		"title", "role", "settings",
-	}
-
+	// fetch ids via a raw query ..
 	tsQuery, tsQueryArgs := toTSQuery(query)
-	sqlQuery := "SELECT " + strings.Join(fields, ", ")
-	sqlQuery += fmt.Sprintf(", ts_rank(ts, %s) as rank", tsQuery)
-	sqlQuery += " FROM person WHERE ts @@ " + tsQuery
-	sqlQuery += " ORDER BY rank DESC"
+	sqlQuery := fmt.Sprintf(
+		"SELECT id, ts_rank(ts, %s) as rank FROM person WHERE ts @@ %s ORDER BY rank DESC LIMIT %d",
+		tsQuery,
+		tsQuery,
+		10,
+	)
 	rows, err := ps.client.QueryContext(ctx, sqlQuery, tsQueryArgs...)
 
 	if err != nil {
@@ -322,127 +314,46 @@ func (ps *personService) SuggestPerson(ctx context.Context, query string) ([]*mo
 
 	defer rows.Close()
 
-	persons := make([]*models.Person, 0)
+	ids := make([]int, 0, 10)
 
 	for rows.Next() {
-		ep := ent.Person{}
-
-		var otherId sql.NullString
-		var otherOrganizationID sql.NullString
-		var jobCategory sql.NullString
-		var role sql.NullString
-		var settings sql.NullString
-		rank := ""
-		var active sql.NullBool
-		var orcid sql.NullString
-		var orcidToken sql.NullString
-		var birthDate sql.NullString
-		var email sql.NullString
-		var firstName sql.NullString
-		var lastName sql.NullString
-		var fullName sql.NullString
-		var preferredFirstName sql.NullString
-		var preferredLastName sql.NullString
-		var title sql.NullString
-
-		err := rows.Scan(
-			&ep.ID,
-			&ep.DateCreated,
-			&ep.DateUpdated,
-			&ep.PublicID,
-			&active,
-			&birthDate,
-			&email,
-			&otherId,
-			&otherOrganizationID,
-			&firstName,
-			&fullName,
-			&lastName,
-			&jobCategory,
-			&orcid,
-			&orcidToken,
-			&preferredFirstName,
-			&preferredLastName,
-			&title,
-			&role,
-			&settings,
-			&rank,
-		)
-
+		var id int
+		var rank float64
+		err := rows.Scan(&id, &rank)
 		if err == pgx.ErrNoRows {
-			return persons, nil
+			return []*models.Person{}, nil
 		}
-
 		if err != nil {
 			return nil, err
 		}
+		ids = append(ids, id)
+	}
 
-		if active.Valid {
-			ep.Active = active.Bool
-		}
-		if title.Valid {
-			ep.Title = title.String
-		}
-		if preferredFirstName.Valid {
-			ep.PreferredFirstName = preferredFirstName.String
-		}
-		if preferredLastName.Valid {
-			ep.PreferredLastName = preferredLastName.String
-		}
-		if firstName.Valid {
-			ep.FirstName = firstName.String
-		}
-		if lastName.Valid {
-			ep.LastName = lastName.String
-		}
-		if fullName.Valid {
-			ep.FullName = fullName.String
-		}
-		if birthDate.Valid {
-			ep.BirthDate = birthDate.String
-		}
-		if email.Valid {
-			ep.Email = email.String
-		}
-		if orcid.Valid {
-			ep.Orcid = orcid.String
-		}
-		if orcidToken.Valid {
-			ep.OrcidToken = orcidToken.String
-		}
+	// ... and then fetch the records via ent
+	// make sure order of ids is the same
+	records, err := ps.client.
+		Person.
+		Query().
+		WithOrganizations().
+		Where(person.IDIn(ids...)).
+		Order(func(s *entsql.Selector) {
+			orderStr := fmt.Sprintf("array_position($%d, id)", len(ids)+1)
+			s.OrderExpr(entsql.ExprP(orderStr, ids))
+		}).
+		All(ctx)
 
-		if len(otherId.String) == 0 {
+	if err != nil {
+		return nil, err
+	}
 
-		} else if err := json.Unmarshal([]byte(otherId.String), &ep.OtherID); err != nil {
-			return nil, fmt.Errorf("unable to decode other_id: %w", err)
-		}
-		if len(otherOrganizationID.String) == 0 {
+	persons := make([]*models.Person, 0, len(records))
 
-		} else if err := json.Unmarshal([]byte(otherOrganizationID.String), &ep.OtherOrganizationID); err != nil {
-			return nil, fmt.Errorf("unable to decode other_organization_id: %w", err)
-		}
-		if len(jobCategory.String) == 0 {
-
-		} else if err := json.Unmarshal([]byte(jobCategory.String), &ep.JobCategory); err != nil {
-			return nil, fmt.Errorf("unable to decode job_category: %w", err)
-		}
-		if len(role.String) == 0 {
-
-		} else if err := json.Unmarshal([]byte(role.String), &ep.Role); err != nil {
-			return nil, fmt.Errorf("unable to decode role: %w", err)
-		}
-		if len(settings.String) == 0 {
-
-		} else if err := json.Unmarshal([]byte(settings.String), &ep.Settings); err != nil {
-			return nil, fmt.Errorf("unable to decode settings: %w", err)
-		}
-
-		person, err := ps.personUnwrap(&ep)
-		if err != nil {
+	for _, record := range records {
+		if person, err := ps.personUnwrap(record); err != nil {
 			return nil, err
+		} else {
+			persons = append(persons, person)
 		}
-
-		persons = append(persons, person)
 	}
 
 	return persons, nil

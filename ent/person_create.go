@@ -235,6 +235,12 @@ func (pc *PersonCreate) SetRole(s []string) *PersonCreate {
 	return pc
 }
 
+// SetSettings sets the "settings" field.
+func (pc *PersonCreate) SetSettings(m map[string]string) *PersonCreate {
+	pc.mutation.SetSettings(m)
+	return pc
+}
+
 // AddOrganizationIDs adds the "organizations" edge to the Organization entity by IDs.
 func (pc *PersonCreate) AddOrganizationIDs(ids ...int) *PersonCreate {
 	pc.mutation.AddOrganizationIDs(ids...)
@@ -425,6 +431,10 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.Role(); ok {
 		_spec.SetField(person.FieldRole, field.TypeJSON, value)
 		_node.Role = value
+	}
+	if value, ok := pc.mutation.Settings(); ok {
+		_spec.SetField(person.FieldSettings, field.TypeJSON, value)
+		_node.Settings = value
 	}
 	if nodes := pc.mutation.OrganizationsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

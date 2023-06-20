@@ -50,6 +50,8 @@ const (
 	FieldTitle = "title"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
+	// FieldSettings holds the string denoting the settings field in the database.
+	FieldSettings = "settings"
 	// EdgeOrganizations holds the string denoting the organizations edge name in mutations.
 	EdgeOrganizations = "organizations"
 	// EdgeOrganizationPerson holds the string denoting the organization_person edge name in mutations.
@@ -91,6 +93,7 @@ var Columns = []string{
 	FieldPreferredLastName,
 	FieldTitle,
 	FieldRole,
+	FieldSettings,
 }
 
 var (

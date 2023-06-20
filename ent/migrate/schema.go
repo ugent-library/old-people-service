@@ -92,6 +92,7 @@ var (
 		{Name: "preferred_last_name", Type: field.TypeString, Nullable: true},
 		{Name: "title", Type: field.TypeString, Nullable: true},
 		{Name: "role", Type: field.TypeJSON, Nullable: true},
+		{Name: "settings", Type: field.TypeJSON, Nullable: true},
 	}
 	// PersonTable holds the schema information for the "person" table.
 	PersonTable = &schema.Table{

@@ -325,6 +325,18 @@ func (pu *PersonUpdate) ClearRole() *PersonUpdate {
 	return pu
 }
 
+// SetSettings sets the "settings" field.
+func (pu *PersonUpdate) SetSettings(m map[string]string) *PersonUpdate {
+	pu.mutation.SetSettings(m)
+	return pu
+}
+
+// ClearSettings clears the value of the "settings" field.
+func (pu *PersonUpdate) ClearSettings() *PersonUpdate {
+	pu.mutation.ClearSettings()
+	return pu
+}
+
 // AddOrganizationIDs adds the "organizations" edge to the Organization entity by IDs.
 func (pu *PersonUpdate) AddOrganizationIDs(ids ...int) *PersonUpdate {
 	pu.mutation.AddOrganizationIDs(ids...)
@@ -562,6 +574,12 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.RoleCleared() {
 		_spec.ClearField(person.FieldRole, field.TypeJSON)
+	}
+	if value, ok := pu.mutation.Settings(); ok {
+		_spec.SetField(person.FieldSettings, field.TypeJSON, value)
+	}
+	if pu.mutation.SettingsCleared() {
+		_spec.ClearField(person.FieldSettings, field.TypeJSON)
 	}
 	if pu.mutation.OrganizationsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -979,6 +997,18 @@ func (puo *PersonUpdateOne) ClearRole() *PersonUpdateOne {
 	return puo
 }
 
+// SetSettings sets the "settings" field.
+func (puo *PersonUpdateOne) SetSettings(m map[string]string) *PersonUpdateOne {
+	puo.mutation.SetSettings(m)
+	return puo
+}
+
+// ClearSettings clears the value of the "settings" field.
+func (puo *PersonUpdateOne) ClearSettings() *PersonUpdateOne {
+	puo.mutation.ClearSettings()
+	return puo
+}
+
 // AddOrganizationIDs adds the "organizations" edge to the Organization entity by IDs.
 func (puo *PersonUpdateOne) AddOrganizationIDs(ids ...int) *PersonUpdateOne {
 	puo.mutation.AddOrganizationIDs(ids...)
@@ -1246,6 +1276,12 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	}
 	if puo.mutation.RoleCleared() {
 		_spec.ClearField(person.FieldRole, field.TypeJSON)
+	}
+	if value, ok := puo.mutation.Settings(); ok {
+		_spec.SetField(person.FieldSettings, field.TypeJSON, value)
+	}
+	if puo.mutation.SettingsCleared() {
+		_spec.ClearField(person.FieldSettings, field.TypeJSON)
 	}
 	if puo.mutation.OrganizationsCleared() {
 		edge := &sqlgraph.EdgeSpec{

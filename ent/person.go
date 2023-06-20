@@ -55,6 +55,8 @@ type Person struct {
 	Title string `json:"title,omitempty"`
 	// Role holds the value of the "role" field.
 	Role []string `json:"role,omitempty"`
+	// Settings holds the value of the "settings" field.
+	Settings map[string]string `json:"settings,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PersonQuery when eager-loading is set.
 	Edges        PersonEdges `json:"edges"`
@@ -95,7 +97,7 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case person.FieldOtherID, person.FieldOtherOrganizationID, person.FieldJobCategory, person.FieldRole:
+		case person.FieldOtherID, person.FieldOtherOrganizationID, person.FieldJobCategory, person.FieldRole, person.FieldSettings:
 			values[i] = new([]byte)
 		case person.FieldActive:
 			values[i] = new(sql.NullBool)
@@ -242,6 +244,14 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field role: %w", err)
 				}
 			}
+		case person.FieldSettings:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field settings", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pe.Settings); err != nil {
+					return fmt.Errorf("unmarshal field settings: %w", err)
+				}
+			}
 		default:
 			pe.selectValues.Set(columns[i], values[i])
 		}
@@ -341,6 +351,9 @@ func (pe *Person) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("role=")
 	builder.WriteString(fmt.Sprintf("%v", pe.Role))
+	builder.WriteString(", ")
+	builder.WriteString("settings=")
+	builder.WriteString(fmt.Sprintf("%v", pe.Settings))
 	builder.WriteByte(')')
 	return builder.String()
 }

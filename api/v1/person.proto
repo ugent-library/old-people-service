@@ -46,6 +46,7 @@ message Person {
   repeated string organization_id = 16;
   repeated string job_category = 17;
   repeated string role = 18;
+  map<string,string> settings = 19;
 }
 
 message Organization {

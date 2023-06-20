@@ -1070,6 +1070,16 @@ func RoleNotNil() predicate.Person {
 	return predicate.Person(sql.FieldNotNull(FieldRole))
 }
 
+// SettingsIsNil applies the IsNil predicate on the "settings" field.
+func SettingsIsNil() predicate.Person {
+	return predicate.Person(sql.FieldIsNull(FieldSettings))
+}
+
+// SettingsNotNil applies the NotNil predicate on the "settings" field.
+func SettingsNotNil() predicate.Person {
+	return predicate.Person(sql.FieldNotNull(FieldSettings))
+}
+
 // HasOrganizations applies the HasEdge predicate on the "organizations" edge.
 func HasOrganizations() predicate.Person {
 	return predicate.Person(func(s *sql.Selector) {

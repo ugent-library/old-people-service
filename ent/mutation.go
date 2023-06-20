@@ -1855,6 +1855,7 @@ type PersonMutation struct {
 	title                       *string
 	role                        *[]string
 	appendrole                  []string
+	settings                    *map[string]string
 	clearedFields               map[string]struct{}
 	organizations               map[int]struct{}
 	removedorganizations        map[int]struct{}
@@ -2859,6 +2860,55 @@ func (m *PersonMutation) ResetRole() {
 	delete(m.clearedFields, person.FieldRole)
 }
 
+// SetSettings sets the "settings" field.
+func (m *PersonMutation) SetSettings(value map[string]string) {
+	m.settings = &value
+}
+
+// Settings returns the value of the "settings" field in the mutation.
+func (m *PersonMutation) Settings() (r map[string]string, exists bool) {
+	v := m.settings
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSettings returns the old "settings" field's value of the Person entity.
+// If the Person object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PersonMutation) OldSettings(ctx context.Context) (v map[string]string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSettings is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSettings requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSettings: %w", err)
+	}
+	return oldValue.Settings, nil
+}
+
+// ClearSettings clears the value of the "settings" field.
+func (m *PersonMutation) ClearSettings() {
+	m.settings = nil
+	m.clearedFields[person.FieldSettings] = struct{}{}
+}
+
+// SettingsCleared returns if the "settings" field was cleared in this mutation.
+func (m *PersonMutation) SettingsCleared() bool {
+	_, ok := m.clearedFields[person.FieldSettings]
+	return ok
+}
+
+// ResetSettings resets all changes to the "settings" field.
+func (m *PersonMutation) ResetSettings() {
+	m.settings = nil
+	delete(m.clearedFields, person.FieldSettings)
+}
+
 // AddOrganizationIDs adds the "organizations" edge to the Organization entity by ids.
 func (m *PersonMutation) AddOrganizationIDs(ids ...int) {
 	if m.organizations == nil {
@@ -3001,7 +3051,7 @@ func (m *PersonMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PersonMutation) Fields() []string {
-	fields := make([]string, 0, 18)
+	fields := make([]string, 0, 19)
 	if m.date_created != nil {
 		fields = append(fields, person.FieldDateCreated)
 	}
@@ -3056,6 +3106,9 @@ func (m *PersonMutation) Fields() []string {
 	if m.role != nil {
 		fields = append(fields, person.FieldRole)
 	}
+	if m.settings != nil {
+		fields = append(fields, person.FieldSettings)
+	}
 	return fields
 }
 
@@ -3100,6 +3153,8 @@ func (m *PersonMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case person.FieldRole:
 		return m.Role()
+	case person.FieldSettings:
+		return m.Settings()
 	}
 	return nil, false
 }
@@ -3145,6 +3200,8 @@ func (m *PersonMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldTitle(ctx)
 	case person.FieldRole:
 		return m.OldRole(ctx)
+	case person.FieldSettings:
+		return m.OldSettings(ctx)
 	}
 	return nil, fmt.Errorf("unknown Person field %s", name)
 }
@@ -3280,6 +3337,13 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRole(v)
 		return nil
+	case person.FieldSettings:
+		v, ok := value.(map[string]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSettings(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Person field %s", name)
 }
@@ -3352,6 +3416,9 @@ func (m *PersonMutation) ClearedFields() []string {
 	if m.FieldCleared(person.FieldRole) {
 		fields = append(fields, person.FieldRole)
 	}
+	if m.FieldCleared(person.FieldSettings) {
+		fields = append(fields, person.FieldSettings)
+	}
 	return fields
 }
 
@@ -3407,6 +3474,9 @@ func (m *PersonMutation) ClearField(name string) error {
 		return nil
 	case person.FieldRole:
 		m.ClearRole()
+		return nil
+	case person.FieldSettings:
+		m.ClearSettings()
 		return nil
 	}
 	return fmt.Errorf("unknown Person nullable field %s", name)
@@ -3469,6 +3539,9 @@ func (m *PersonMutation) ResetField(name string) error {
 		return nil
 	case person.FieldRole:
 		m.ResetRole()
+		return nil
+	case person.FieldSettings:
+		m.ResetSettings()
 		return nil
 	}
 	return fmt.Errorf("unknown Person field %s", name)

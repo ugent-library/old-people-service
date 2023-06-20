@@ -249,3 +249,45 @@ func (srv *server) SetPersonOrcid(ctx context.Context, req *v1.SetPersonOrcidReq
 		},
 	}, nil
 }
+
+func (srv *server) SetPersonRole(ctx context.Context, req *v1.SetPersonRoleRequest) (*v1.SetPersonRoleResponse, error) {
+	err := srv.personService.SetRole(ctx, req.Id, req.Role)
+
+	if err != nil && err == models.ErrNotFound {
+		grpcErr := status.New(codes.InvalidArgument, fmt.Errorf("could not find person with id %s", req.Id).Error())
+		return &v1.SetPersonRoleResponse{
+			Response: &v1.SetPersonRoleResponse_Error{
+				Error: grpcErr.Proto(),
+			},
+		}, nil
+	} else if err != nil {
+		return nil, status.Errorf(codes.Internal, "unable to retrieve person with id '%s': %s", req.Id, err.Error())
+	}
+
+	return &v1.SetPersonRoleResponse{
+		Response: &v1.SetPersonRoleResponse_Message{
+			Message: "ok",
+		},
+	}, nil
+}
+
+func (srv *server) SetPersonSettings(ctx context.Context, req *v1.SetPersonSettingsRequest) (*v1.SetPersonSettingsResponse, error) {
+	err := srv.personService.SetSettings(ctx, req.Id, req.Settings)
+
+	if err != nil && err == models.ErrNotFound {
+		grpcErr := status.New(codes.InvalidArgument, fmt.Errorf("could not find person with id %s", req.Id).Error())
+		return &v1.SetPersonSettingsResponse{
+			Response: &v1.SetPersonSettingsResponse_Error{
+				Error: grpcErr.Proto(),
+			},
+		}, nil
+	} else if err != nil {
+		return nil, status.Errorf(codes.Internal, "unable to retrieve person with id '%s': %s", req.Id, err.Error())
+	}
+
+	return &v1.SetPersonSettingsResponse{
+		Response: &v1.SetPersonSettingsResponse_Message{
+			Message: "ok",
+		},
+	}, nil
+}

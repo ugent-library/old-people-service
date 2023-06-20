@@ -128,6 +128,28 @@ message SetPersonOrcidResponse {
   }
 }
 
+message SetPersonRoleRequest {
+  string id = 1;
+  repeated string role = 2;
+}
+message SetPersonRoleResponse {
+  oneof response {
+    string message = 1;
+    google.rpc.Status error = 2;
+  }
+}
+
+message SetPersonSettingsRequest {
+  string id = 1;
+  map<string,string> settings = 2;
+}
+message SetPersonSettingsResponse {
+  oneof response {
+    string message = 1;
+    google.rpc.Status error = 2;
+  }
+}
+
 service People {
   rpc GetPerson(GetPersonRequest) returns (GetPersonResponse);
   rpc GetAllPerson(GetAllPersonRequest) returns (stream GetAllPersonResponse);
@@ -137,4 +159,6 @@ service People {
   rpc SuggestOrganization(SuggestOrganizationRequest) returns (stream SuggestOrganizationResponse);
   rpc SetPersonOrcidToken(SetPersonOrcidTokenRequest) returns (SetPersonOrcidTokenResponse);
   rpc SetPersonOrcid(SetPersonOrcidRequest) returns (SetPersonOrcidResponse);
+  rpc SetPersonRole(SetPersonRoleRequest) returns (SetPersonRoleResponse);
+  rpc SetPersonSettings(SetPersonSettingsRequest) returns (SetPersonSettingsResponse);
 }

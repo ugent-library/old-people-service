@@ -372,3 +372,41 @@ func (ps *personService) personUnwrap(e *ent.Person) (*models.Person, error) {
 	}
 	return p, nil
 }
+
+func (ps *personService) SetRole(ctx context.Context, id string, roles []string) error {
+	nUpdated, updateErr := ps.client.
+		Person.
+		Update().
+		Where(person.PublicIDEQ(id)).
+		SetRole(roles).
+		Save(ctx)
+
+	if updateErr != nil {
+		return updateErr
+	}
+
+	if nUpdated == 0 {
+		return models.ErrNotFound
+	}
+
+	return nil
+}
+
+func (ps *personService) SetSettings(ctx context.Context, id string, settings map[string]string) error {
+	nUpdated, updateErr := ps.client.
+		Person.
+		Update().
+		Where(person.PublicIDEQ(id)).
+		SetSettings(settings).
+		Save(ctx)
+
+	if updateErr != nil {
+		return updateErr
+	}
+
+	if nUpdated == 0 {
+		return models.ErrNotFound
+	}
+
+	return nil
+}

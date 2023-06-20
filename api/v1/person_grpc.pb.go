@@ -26,6 +26,8 @@ type PeopleClient interface {
 	SuggestOrganization(ctx context.Context, in *SuggestOrganizationRequest, opts ...grpc.CallOption) (People_SuggestOrganizationClient, error)
 	SetPersonOrcidToken(ctx context.Context, in *SetPersonOrcidTokenRequest, opts ...grpc.CallOption) (*SetPersonOrcidTokenResponse, error)
 	SetPersonOrcid(ctx context.Context, in *SetPersonOrcidRequest, opts ...grpc.CallOption) (*SetPersonOrcidResponse, error)
+	SetPersonRole(ctx context.Context, in *SetPersonRoleRequest, opts ...grpc.CallOption) (*SetPersonRoleResponse, error)
+	SetPersonSettings(ctx context.Context, in *SetPersonSettingsRequest, opts ...grpc.CallOption) (*SetPersonSettingsResponse, error)
 }
 
 type peopleClient struct {
@@ -200,6 +202,24 @@ func (c *peopleClient) SetPersonOrcid(ctx context.Context, in *SetPersonOrcidReq
 	return out, nil
 }
 
+func (c *peopleClient) SetPersonRole(ctx context.Context, in *SetPersonRoleRequest, opts ...grpc.CallOption) (*SetPersonRoleResponse, error) {
+	out := new(SetPersonRoleResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.People/SetPersonRole", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *peopleClient) SetPersonSettings(ctx context.Context, in *SetPersonSettingsRequest, opts ...grpc.CallOption) (*SetPersonSettingsResponse, error) {
+	out := new(SetPersonSettingsResponse)
+	err := c.cc.Invoke(ctx, "/api.v1.People/SetPersonSettings", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PeopleServer is the server API for People service.
 // All implementations must embed UnimplementedPeopleServer
 // for forward compatibility
@@ -212,6 +232,8 @@ type PeopleServer interface {
 	SuggestOrganization(*SuggestOrganizationRequest, People_SuggestOrganizationServer) error
 	SetPersonOrcidToken(context.Context, *SetPersonOrcidTokenRequest) (*SetPersonOrcidTokenResponse, error)
 	SetPersonOrcid(context.Context, *SetPersonOrcidRequest) (*SetPersonOrcidResponse, error)
+	SetPersonRole(context.Context, *SetPersonRoleRequest) (*SetPersonRoleResponse, error)
+	SetPersonSettings(context.Context, *SetPersonSettingsRequest) (*SetPersonSettingsResponse, error)
 	mustEmbedUnimplementedPeopleServer()
 }
 
@@ -242,6 +264,12 @@ func (UnimplementedPeopleServer) SetPersonOrcidToken(context.Context, *SetPerson
 }
 func (UnimplementedPeopleServer) SetPersonOrcid(context.Context, *SetPersonOrcidRequest) (*SetPersonOrcidResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetPersonOrcid not implemented")
+}
+func (UnimplementedPeopleServer) SetPersonRole(context.Context, *SetPersonRoleRequest) (*SetPersonRoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetPersonRole not implemented")
+}
+func (UnimplementedPeopleServer) SetPersonSettings(context.Context, *SetPersonSettingsRequest) (*SetPersonSettingsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetPersonSettings not implemented")
 }
 func (UnimplementedPeopleServer) mustEmbedUnimplementedPeopleServer() {}
 
@@ -412,6 +440,42 @@ func _People_SetPersonOrcid_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _People_SetPersonRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetPersonRoleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PeopleServer).SetPersonRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.People/SetPersonRole",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PeopleServer).SetPersonRole(ctx, req.(*SetPersonRoleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _People_SetPersonSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetPersonSettingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PeopleServer).SetPersonSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.People/SetPersonSettings",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PeopleServer).SetPersonSettings(ctx, req.(*SetPersonSettingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // People_ServiceDesc is the grpc.ServiceDesc for People service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -434,6 +498,14 @@ var People_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetPersonOrcid",
 			Handler:    _People_SetPersonOrcid_Handler,
+		},
+		{
+			MethodName: "SetPersonRole",
+			Handler:    _People_SetPersonRole_Handler,
+		},
+		{
+			MethodName: "SetPersonSettings",
+			Handler:    _People_SetPersonSettings_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

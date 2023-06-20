@@ -1272,6 +1272,278 @@ func (*SetPersonOrcidResponse_Message) isSetPersonOrcidResponse_Response() {}
 
 func (*SetPersonOrcidResponse_Error) isSetPersonOrcidResponse_Response() {}
 
+type SetPersonRoleRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Role []string `protobuf:"bytes,2,rep,name=role,proto3" json:"role,omitempty"`
+}
+
+func (x *SetPersonRoleRequest) Reset() {
+	*x = SetPersonRoleRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetPersonRoleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetPersonRoleRequest) ProtoMessage() {}
+
+func (x *SetPersonRoleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetPersonRoleRequest.ProtoReflect.Descriptor instead.
+func (*SetPersonRoleRequest) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *SetPersonRoleRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SetPersonRoleRequest) GetRole() []string {
+	if x != nil {
+		return x.Role
+	}
+	return nil
+}
+
+type SetPersonRoleResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Response:
+	//
+	//	*SetPersonRoleResponse_Message
+	//	*SetPersonRoleResponse_Error
+	Response isSetPersonRoleResponse_Response `protobuf_oneof:"response"`
+}
+
+func (x *SetPersonRoleResponse) Reset() {
+	*x = SetPersonRoleResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[20]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetPersonRoleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetPersonRoleResponse) ProtoMessage() {}
+
+func (x *SetPersonRoleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[20]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetPersonRoleResponse.ProtoReflect.Descriptor instead.
+func (*SetPersonRoleResponse) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{20}
+}
+
+func (m *SetPersonRoleResponse) GetResponse() isSetPersonRoleResponse_Response {
+	if m != nil {
+		return m.Response
+	}
+	return nil
+}
+
+func (x *SetPersonRoleResponse) GetMessage() string {
+	if x, ok := x.GetResponse().(*SetPersonRoleResponse_Message); ok {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *SetPersonRoleResponse) GetError() *status.Status {
+	if x, ok := x.GetResponse().(*SetPersonRoleResponse_Error); ok {
+		return x.Error
+	}
+	return nil
+}
+
+type isSetPersonRoleResponse_Response interface {
+	isSetPersonRoleResponse_Response()
+}
+
+type SetPersonRoleResponse_Message struct {
+	Message string `protobuf:"bytes,1,opt,name=message,proto3,oneof"`
+}
+
+type SetPersonRoleResponse_Error struct {
+	Error *status.Status `protobuf:"bytes,2,opt,name=error,proto3,oneof"`
+}
+
+func (*SetPersonRoleResponse_Message) isSetPersonRoleResponse_Response() {}
+
+func (*SetPersonRoleResponse_Error) isSetPersonRoleResponse_Response() {}
+
+type SetPersonSettingsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id       string            `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Settings map[string]string `protobuf:"bytes,2,rep,name=settings,proto3" json:"settings,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+}
+
+func (x *SetPersonSettingsRequest) Reset() {
+	*x = SetPersonSettingsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[21]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetPersonSettingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetPersonSettingsRequest) ProtoMessage() {}
+
+func (x *SetPersonSettingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[21]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetPersonSettingsRequest.ProtoReflect.Descriptor instead.
+func (*SetPersonSettingsRequest) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *SetPersonSettingsRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SetPersonSettingsRequest) GetSettings() map[string]string {
+	if x != nil {
+		return x.Settings
+	}
+	return nil
+}
+
+type SetPersonSettingsResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Response:
+	//
+	//	*SetPersonSettingsResponse_Message
+	//	*SetPersonSettingsResponse_Error
+	Response isSetPersonSettingsResponse_Response `protobuf_oneof:"response"`
+}
+
+func (x *SetPersonSettingsResponse) Reset() {
+	*x = SetPersonSettingsResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_person_proto_msgTypes[22]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SetPersonSettingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetPersonSettingsResponse) ProtoMessage() {}
+
+func (x *SetPersonSettingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_person_proto_msgTypes[22]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetPersonSettingsResponse.ProtoReflect.Descriptor instead.
+func (*SetPersonSettingsResponse) Descriptor() ([]byte, []int) {
+	return file_person_proto_rawDescGZIP(), []int{22}
+}
+
+func (m *SetPersonSettingsResponse) GetResponse() isSetPersonSettingsResponse_Response {
+	if m != nil {
+		return m.Response
+	}
+	return nil
+}
+
+func (x *SetPersonSettingsResponse) GetMessage() string {
+	if x, ok := x.GetResponse().(*SetPersonSettingsResponse_Message); ok {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *SetPersonSettingsResponse) GetError() *status.Status {
+	if x, ok := x.GetResponse().(*SetPersonSettingsResponse_Error); ok {
+		return x.Error
+	}
+	return nil
+}
+
+type isSetPersonSettingsResponse_Response interface {
+	isSetPersonSettingsResponse_Response()
+}
+
+type SetPersonSettingsResponse_Message struct {
+	Message string `protobuf:"bytes,1,opt,name=message,proto3,oneof"`
+}
+
+type SetPersonSettingsResponse_Error struct {
+	Error *status.Status `protobuf:"bytes,2,opt,name=error,proto3,oneof"`
+}
+
+func (*SetPersonSettingsResponse_Message) isSetPersonSettingsResponse_Response() {}
+
+func (*SetPersonSettingsResponse_Error) isSetPersonSettingsResponse_Response() {}
+
 var File_person_proto protoreflect.FileDescriptor
 
 var file_person_proto_rawDesc = []byte{
@@ -1421,7 +1693,36 @@ var file_person_proto_rawDesc = []byte{
 	0x12, 0x2a, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32,
 	0x12, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x72, 0x70, 0x63, 0x2e, 0x53, 0x74, 0x61,
 	0x74, 0x75, 0x73, 0x48, 0x00, 0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x42, 0x0a, 0x0a, 0x08,
-	0x72, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xad, 0x05, 0x0a, 0x06, 0x50, 0x65, 0x6f,
+	0x72, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x3a, 0x0a, 0x14, 0x53, 0x65, 0x74, 0x50,
+	0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x6f, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64,
+	0x12, 0x12, 0x0a, 0x04, 0x72, 0x6f, 0x6c, 0x65, 0x18, 0x02, 0x20, 0x03, 0x28, 0x09, 0x52, 0x04,
+	0x72, 0x6f, 0x6c, 0x65, 0x22, 0x6b, 0x0a, 0x15, 0x53, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f,
+	0x6e, 0x52, 0x6f, 0x6c, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1a, 0x0a,
+	0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00,
+	0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x2a, 0x0a, 0x05, 0x65, 0x72, 0x72,
+	0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x12, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c,
+	0x65, 0x2e, 0x72, 0x70, 0x63, 0x2e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x48, 0x00, 0x52, 0x05,
+	0x65, 0x72, 0x72, 0x6f, 0x72, 0x42, 0x0a, 0x0a, 0x08, 0x72, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0xb3, 0x01, 0x0a, 0x18, 0x53, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x53,
+	0x65, 0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e,
+	0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x4a,
+	0x0a, 0x08, 0x73, 0x65, 0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b,
+	0x32, 0x2e, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x50, 0x65, 0x72,
+	0x73, 0x6f, 0x6e, 0x53, 0x65, 0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x2e, 0x53, 0x65, 0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x45, 0x6e, 0x74, 0x72, 0x79,
+	0x52, 0x08, 0x73, 0x65, 0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x1a, 0x3b, 0x0a, 0x0d, 0x53, 0x65,
+	0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b,
+	0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a,
+	0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61,
+	0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0x6f, 0x0a, 0x19, 0x53, 0x65, 0x74, 0x50, 0x65,
+	0x72, 0x73, 0x6f, 0x6e, 0x53, 0x65, 0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1a, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x12, 0x2a, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x12, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x72, 0x70, 0x63, 0x2e, 0x53, 0x74, 0x61,
+	0x74, 0x75, 0x73, 0x48, 0x00, 0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x42, 0x0a, 0x0a, 0x08,
+	0x72, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xd5, 0x06, 0x0a, 0x06, 0x50, 0x65, 0x6f,
 	0x70, 0x6c, 0x65, 0x12, 0x40, 0x0a, 0x09, 0x47, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e,
 	0x12, 0x18, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x50, 0x65, 0x72,
 	0x73, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x61, 0x70, 0x69,
@@ -1464,10 +1765,21 @@ var file_person_proto_rawDesc = []byte{
 	0x76, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x4f, 0x72, 0x63, 0x69,
 	0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76,
 	0x31, 0x2e, 0x53, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x4f, 0x72, 0x63, 0x69, 0x64,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x28, 0x5a, 0x26, 0x67, 0x69, 0x74, 0x68,
-	0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x75, 0x67, 0x65, 0x6e, 0x74, 0x2d, 0x6c, 0x69, 0x62,
-	0x72, 0x61, 0x72, 0x79, 0x2f, 0x70, 0x65, 0x6f, 0x70, 0x6c, 0x65, 0x2f, 0x61, 0x70, 0x69, 0x2f,
-	0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4c, 0x0a, 0x0d, 0x53, 0x65, 0x74, 0x50,
+	0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x6f, 0x6c, 0x65, 0x12, 0x1c, 0x2e, 0x61, 0x70, 0x69, 0x2e,
+	0x76, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x6f, 0x6c, 0x65,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x76, 0x31,
+	0x2e, 0x53, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x52, 0x6f, 0x6c, 0x65, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x58, 0x0a, 0x11, 0x53, 0x65, 0x74, 0x50, 0x65, 0x72,
+	0x73, 0x6f, 0x6e, 0x53, 0x65, 0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x12, 0x20, 0x2e, 0x61, 0x70,
+	0x69, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e, 0x53, 0x65,
+	0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e,
+	0x61, 0x70, 0x69, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x65, 0x74, 0x50, 0x65, 0x72, 0x73, 0x6f, 0x6e,
+	0x53, 0x65, 0x74, 0x74, 0x69, 0x6e, 0x67, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x42, 0x28, 0x5a, 0x26, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x75,
+	0x67, 0x65, 0x6e, 0x74, 0x2d, 0x6c, 0x69, 0x62, 0x72, 0x61, 0x72, 0x79, 0x2f, 0x70, 0x65, 0x6f,
+	0x70, 0x6c, 0x65, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -1482,7 +1794,7 @@ func file_person_proto_rawDescGZIP() []byte {
 	return file_person_proto_rawDescData
 }
 
-var file_person_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_person_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_person_proto_goTypes = []interface{}{
 	(*IdRef)(nil),                       // 0: api.v1.IdRef
 	(*Person)(nil),                      // 1: api.v1.Person
@@ -1503,49 +1815,61 @@ var file_person_proto_goTypes = []interface{}{
 	(*SetPersonOrcidTokenResponse)(nil), // 16: api.v1.SetPersonOrcidTokenResponse
 	(*SetPersonOrcidRequest)(nil),       // 17: api.v1.SetPersonOrcidRequest
 	(*SetPersonOrcidResponse)(nil),      // 18: api.v1.SetPersonOrcidResponse
-	nil,                                 // 19: api.v1.Person.SettingsEntry
-	(*timestamppb.Timestamp)(nil),       // 20: google.protobuf.Timestamp
-	(*status.Status)(nil),               // 21: google.rpc.Status
+	(*SetPersonRoleRequest)(nil),        // 19: api.v1.SetPersonRoleRequest
+	(*SetPersonRoleResponse)(nil),       // 20: api.v1.SetPersonRoleResponse
+	(*SetPersonSettingsRequest)(nil),    // 21: api.v1.SetPersonSettingsRequest
+	(*SetPersonSettingsResponse)(nil),   // 22: api.v1.SetPersonSettingsResponse
+	nil,                                 // 23: api.v1.Person.SettingsEntry
+	nil,                                 // 24: api.v1.SetPersonSettingsRequest.SettingsEntry
+	(*timestamppb.Timestamp)(nil),       // 25: google.protobuf.Timestamp
+	(*status.Status)(nil),               // 26: google.rpc.Status
 }
 var file_person_proto_depIdxs = []int32{
-	20, // 0: api.v1.Person.date_created:type_name -> google.protobuf.Timestamp
-	20, // 1: api.v1.Person.date_updated:type_name -> google.protobuf.Timestamp
+	25, // 0: api.v1.Person.date_created:type_name -> google.protobuf.Timestamp
+	25, // 1: api.v1.Person.date_updated:type_name -> google.protobuf.Timestamp
 	0,  // 2: api.v1.Person.other_id:type_name -> api.v1.IdRef
-	19, // 3: api.v1.Person.settings:type_name -> api.v1.Person.SettingsEntry
-	20, // 4: api.v1.Organization.date_created:type_name -> google.protobuf.Timestamp
-	20, // 5: api.v1.Organization.date_updated:type_name -> google.protobuf.Timestamp
+	23, // 3: api.v1.Person.settings:type_name -> api.v1.Person.SettingsEntry
+	25, // 4: api.v1.Organization.date_created:type_name -> google.protobuf.Timestamp
+	25, // 5: api.v1.Organization.date_updated:type_name -> google.protobuf.Timestamp
 	0,  // 6: api.v1.Organization.other_id:type_name -> api.v1.IdRef
 	1,  // 7: api.v1.GetPersonResponse.person:type_name -> api.v1.Person
-	21, // 8: api.v1.GetPersonResponse.error:type_name -> google.rpc.Status
+	26, // 8: api.v1.GetPersonResponse.error:type_name -> google.rpc.Status
 	1,  // 9: api.v1.GetAllPersonResponse.person:type_name -> api.v1.Person
 	1,  // 10: api.v1.SuggestPersonResponse.person:type_name -> api.v1.Person
 	2,  // 11: api.v1.GetOrganizationResponse.organization:type_name -> api.v1.Organization
-	21, // 12: api.v1.GetOrganizationResponse.error:type_name -> google.rpc.Status
+	26, // 12: api.v1.GetOrganizationResponse.error:type_name -> google.rpc.Status
 	2,  // 13: api.v1.GetAllOrganizationResponse.organization:type_name -> api.v1.Organization
 	2,  // 14: api.v1.SuggestOrganizationResponse.organization:type_name -> api.v1.Organization
-	21, // 15: api.v1.SetPersonOrcidTokenResponse.error:type_name -> google.rpc.Status
-	21, // 16: api.v1.SetPersonOrcidResponse.error:type_name -> google.rpc.Status
-	3,  // 17: api.v1.People.GetPerson:input_type -> api.v1.GetPersonRequest
-	5,  // 18: api.v1.People.GetAllPerson:input_type -> api.v1.GetAllPersonRequest
-	7,  // 19: api.v1.People.SuggestPerson:input_type -> api.v1.SuggestPersonRequest
-	9,  // 20: api.v1.People.GetOrganization:input_type -> api.v1.GetOrganizationRequest
-	11, // 21: api.v1.People.GetAllOrganization:input_type -> api.v1.GetAllOrganizationRequest
-	13, // 22: api.v1.People.SuggestOrganization:input_type -> api.v1.SuggestOrganizationRequest
-	15, // 23: api.v1.People.SetPersonOrcidToken:input_type -> api.v1.SetPersonOrcidTokenRequest
-	17, // 24: api.v1.People.SetPersonOrcid:input_type -> api.v1.SetPersonOrcidRequest
-	4,  // 25: api.v1.People.GetPerson:output_type -> api.v1.GetPersonResponse
-	6,  // 26: api.v1.People.GetAllPerson:output_type -> api.v1.GetAllPersonResponse
-	8,  // 27: api.v1.People.SuggestPerson:output_type -> api.v1.SuggestPersonResponse
-	10, // 28: api.v1.People.GetOrganization:output_type -> api.v1.GetOrganizationResponse
-	12, // 29: api.v1.People.GetAllOrganization:output_type -> api.v1.GetAllOrganizationResponse
-	14, // 30: api.v1.People.SuggestOrganization:output_type -> api.v1.SuggestOrganizationResponse
-	16, // 31: api.v1.People.SetPersonOrcidToken:output_type -> api.v1.SetPersonOrcidTokenResponse
-	18, // 32: api.v1.People.SetPersonOrcid:output_type -> api.v1.SetPersonOrcidResponse
-	25, // [25:33] is the sub-list for method output_type
-	17, // [17:25] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	26, // 15: api.v1.SetPersonOrcidTokenResponse.error:type_name -> google.rpc.Status
+	26, // 16: api.v1.SetPersonOrcidResponse.error:type_name -> google.rpc.Status
+	26, // 17: api.v1.SetPersonRoleResponse.error:type_name -> google.rpc.Status
+	24, // 18: api.v1.SetPersonSettingsRequest.settings:type_name -> api.v1.SetPersonSettingsRequest.SettingsEntry
+	26, // 19: api.v1.SetPersonSettingsResponse.error:type_name -> google.rpc.Status
+	3,  // 20: api.v1.People.GetPerson:input_type -> api.v1.GetPersonRequest
+	5,  // 21: api.v1.People.GetAllPerson:input_type -> api.v1.GetAllPersonRequest
+	7,  // 22: api.v1.People.SuggestPerson:input_type -> api.v1.SuggestPersonRequest
+	9,  // 23: api.v1.People.GetOrganization:input_type -> api.v1.GetOrganizationRequest
+	11, // 24: api.v1.People.GetAllOrganization:input_type -> api.v1.GetAllOrganizationRequest
+	13, // 25: api.v1.People.SuggestOrganization:input_type -> api.v1.SuggestOrganizationRequest
+	15, // 26: api.v1.People.SetPersonOrcidToken:input_type -> api.v1.SetPersonOrcidTokenRequest
+	17, // 27: api.v1.People.SetPersonOrcid:input_type -> api.v1.SetPersonOrcidRequest
+	19, // 28: api.v1.People.SetPersonRole:input_type -> api.v1.SetPersonRoleRequest
+	21, // 29: api.v1.People.SetPersonSettings:input_type -> api.v1.SetPersonSettingsRequest
+	4,  // 30: api.v1.People.GetPerson:output_type -> api.v1.GetPersonResponse
+	6,  // 31: api.v1.People.GetAllPerson:output_type -> api.v1.GetAllPersonResponse
+	8,  // 32: api.v1.People.SuggestPerson:output_type -> api.v1.SuggestPersonResponse
+	10, // 33: api.v1.People.GetOrganization:output_type -> api.v1.GetOrganizationResponse
+	12, // 34: api.v1.People.GetAllOrganization:output_type -> api.v1.GetAllOrganizationResponse
+	14, // 35: api.v1.People.SuggestOrganization:output_type -> api.v1.SuggestOrganizationResponse
+	16, // 36: api.v1.People.SetPersonOrcidToken:output_type -> api.v1.SetPersonOrcidTokenResponse
+	18, // 37: api.v1.People.SetPersonOrcid:output_type -> api.v1.SetPersonOrcidResponse
+	20, // 38: api.v1.People.SetPersonRole:output_type -> api.v1.SetPersonRoleResponse
+	22, // 39: api.v1.People.SetPersonSettings:output_type -> api.v1.SetPersonSettingsResponse
+	30, // [30:40] is the sub-list for method output_type
+	20, // [20:30] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_person_proto_init() }
@@ -1782,6 +2106,54 @@ func file_person_proto_init() {
 				return nil
 			}
 		}
+		file_person_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetPersonRoleRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_person_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetPersonRoleResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_person_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetPersonSettingsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_person_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SetPersonSettingsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	file_person_proto_msgTypes[4].OneofWrappers = []interface{}{
 		(*GetPersonResponse_Person)(nil),
@@ -1799,13 +2171,21 @@ func file_person_proto_init() {
 		(*SetPersonOrcidResponse_Message)(nil),
 		(*SetPersonOrcidResponse_Error)(nil),
 	}
+	file_person_proto_msgTypes[20].OneofWrappers = []interface{}{
+		(*SetPersonRoleResponse_Message)(nil),
+		(*SetPersonRoleResponse_Error)(nil),
+	}
+	file_person_proto_msgTypes[22].OneofWrappers = []interface{}{
+		(*SetPersonSettingsResponse_Message)(nil),
+		(*SetPersonSettingsResponse_Error)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_person_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

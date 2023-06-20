@@ -15,4 +15,6 @@ type PersonService interface {
 	EachPerson(context.Context, func(*Person) bool) error
 	SetOrcidToken(context.Context, string, string) error
 	SetOrcid(context.Context, string, string) error
+	SetRole(context.Context, string, []string) error
+	SetSettings(context.Context, string, map[string]string) error
 }

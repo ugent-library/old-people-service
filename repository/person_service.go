@@ -113,6 +113,25 @@ func (ps *personService) CreatePerson(ctx context.Context, p *models.Person) (*m
 	return p, nil
 }
 
+func (ps *personService) SetOrcid(ctx context.Context, id string, orcid string) error {
+	nUpdated, updateErr := ps.client.
+		Person.
+		Update().
+		Where(person.PublicIDEQ(id)).
+		SetOrcid(orcid).
+		Save(ctx)
+
+	if updateErr != nil {
+		return updateErr
+	}
+
+	if nUpdated == 0 {
+		return models.ErrNotFound
+	}
+
+	return nil
+}
+
 func (ps *personService) SetOrcidToken(ctx context.Context, id string, orcidToken string) error {
 
 	var uToken string

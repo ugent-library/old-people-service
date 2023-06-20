@@ -14,4 +14,5 @@ type PersonService interface {
 	DeletePerson(context.Context, string) error
 	EachPerson(context.Context, func(*Person) bool) error
 	SetOrcidToken(context.Context, string, string) error
+	SetOrcid(context.Context, string, string) error
 }

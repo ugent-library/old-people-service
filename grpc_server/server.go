@@ -228,3 +228,24 @@ func (srv *server) SuggestOrganization(req *v1.SuggestOrganizationRequest, strea
 
 	return nil
 }
+
+func (srv *server) SetPersonOrcid(ctx context.Context, req *v1.SetPersonOrcidRequest) (*v1.SetPersonOrcidResponse, error) {
+	err := srv.personService.SetOrcid(ctx, req.Id, req.Orcid)
+
+	if err != nil && err == models.ErrNotFound {
+		grpcErr := status.New(codes.InvalidArgument, fmt.Errorf("could not find person with id %s", req.Id).Error())
+		return &v1.SetPersonOrcidResponse{
+			Response: &v1.SetPersonOrcidResponse_Error{
+				Error: grpcErr.Proto(),
+			},
+		}, nil
+	} else if err != nil {
+		return nil, status.Errorf(codes.Internal, "unable to retrieve person with id '%s': %s", req.Id, err.Error())
+	}
+
+	return &v1.SetPersonOrcidResponse{
+		Response: &v1.SetPersonOrcidResponse_Message{
+			Message: "ok",
+		},
+	}, nil
+}

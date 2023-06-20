@@ -23,8 +23,7 @@ import (
 var regexMultipleSpaces = regexp.MustCompile(`\s+`)
 var regexNoBrackets = regexp.MustCompile(`[\[\]()\{\}]`)
 
-func toTSQuery(column string, query string) *entsql.Predicate {
-
+func toTSQuery(query string) (string, []any) {
 	// remove duplicate spaces
 	query = regexMultipleSpaces.ReplaceAllString(query, " ")
 	// trim
@@ -48,14 +47,11 @@ func toTSQuery(column string, query string) *entsql.Predicate {
 
 	// $1:* & $2:*
 	tsQuery := fmt.Sprintf(
-		"%s @@ to_tsquery('usimple', %s)",
-		column,
+		"to_tsquery('usimple', %s)",
 		strings.Join(queryParts, " || ' & ' || "),
 	)
 
-	return entsql.ExprP(
-		tsQuery,
-		queryArgs...)
+	return tsQuery, queryArgs
 }
 
 func OpenClient(dsn string) (*ent.Client, error) {

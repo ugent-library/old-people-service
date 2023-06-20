@@ -233,9 +233,11 @@ func (orgSvc *organizationService) EachOrganization(ctx context.Context, cb func
 }
 
 func (orgSvc *organizationService) SuggestOrganization(ctx context.Context, query string) ([]*models.Organization, error) {
+	tsQuery, tsQueryArgs := toTSQuery(query)
+	tsQuery = "ts @@ " + tsQuery
 	rows, err := orgSvc.client.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
 		s.Where(
-			toTSQuery("ts", query),
+			entsql.ExprP(tsQuery, tsQueryArgs...),
 		)
 	}).Limit(10).All(ctx)
 

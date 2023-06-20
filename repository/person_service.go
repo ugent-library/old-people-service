@@ -51,6 +51,7 @@ func (ps *personService) CreatePerson(ctx context.Context, p *models.Person) (*m
 	t.SetTitle(p.Title)
 	t.SetLastName(p.LastName)
 	t.SetOrcid(p.Orcid)
+	t.SetRole(p.Role)
 
 	if p.OrcidToken == "" {
 		t.SetOrcidToken("")
@@ -184,6 +185,7 @@ func (ps *personService) UpdatePerson(ctx context.Context, p *models.Person) (*m
 	t.SetTitle(p.Title)
 	t.SetLastName(p.LastName)
 	t.SetOrcid(p.Orcid)
+	t.SetRole(p.Role)
 
 	if p.OrcidToken == "" {
 		t.SetOrcidToken("")
@@ -362,6 +364,7 @@ func (ps *personService) personUnwrap(e *ent.Person) (*models.Person, error) {
 			PreferredLastName:  e.PreferredLastName,
 			PreferredFirstName: e.PreferredFirstName,
 			Title:              e.Title,
+			Role:               e.Role,
 		},
 	}
 	return p, nil

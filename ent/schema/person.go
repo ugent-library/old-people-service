@@ -53,7 +53,7 @@ func (Person) Fields() []ent.Field {
 		field.String("preferred_first_name").Optional(),
 		field.String("preferred_last_name").Optional(),
 		field.String("title").Optional(),
-
+		field.Strings("role").Optional(),
 		// TODO: add generated field "ts"
 		// TODO: add working GIN index on "ts"
 	}

@@ -45,6 +45,7 @@ message Person {
   repeated IdRef other_id = 15;
   repeated string organization_id = 16;
   repeated string job_category = 17;
+  repeated string role = 18;
 }
 
 message Organization {

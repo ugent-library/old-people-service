@@ -53,6 +53,8 @@ type Person struct {
 	PreferredLastName string `json:"preferred_last_name,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
+	// Role holds the value of the "role" field.
+	Role []string `json:"role,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PersonQuery when eager-loading is set.
 	Edges        PersonEdges `json:"edges"`
@@ -93,7 +95,7 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case person.FieldOtherID, person.FieldOtherOrganizationID, person.FieldJobCategory:
+		case person.FieldOtherID, person.FieldOtherOrganizationID, person.FieldJobCategory, person.FieldRole:
 			values[i] = new([]byte)
 		case person.FieldActive:
 			values[i] = new(sql.NullBool)
@@ -232,6 +234,14 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pe.Title = value.String
 			}
+		case person.FieldRole:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field role", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pe.Role); err != nil {
+					return fmt.Errorf("unmarshal field role: %w", err)
+				}
+			}
 		default:
 			pe.selectValues.Set(columns[i], values[i])
 		}
@@ -328,6 +338,9 @@ func (pe *Person) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("title=")
 	builder.WriteString(pe.Title)
+	builder.WriteString(", ")
+	builder.WriteString("role=")
+	builder.WriteString(fmt.Sprintf("%v", pe.Role))
 	builder.WriteByte(')')
 	return builder.String()
 }

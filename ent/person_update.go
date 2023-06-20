@@ -307,6 +307,24 @@ func (pu *PersonUpdate) ClearTitle() *PersonUpdate {
 	return pu
 }
 
+// SetRole sets the "role" field.
+func (pu *PersonUpdate) SetRole(s []string) *PersonUpdate {
+	pu.mutation.SetRole(s)
+	return pu
+}
+
+// AppendRole appends s to the "role" field.
+func (pu *PersonUpdate) AppendRole(s []string) *PersonUpdate {
+	pu.mutation.AppendRole(s)
+	return pu
+}
+
+// ClearRole clears the value of the "role" field.
+func (pu *PersonUpdate) ClearRole() *PersonUpdate {
+	pu.mutation.ClearRole()
+	return pu
+}
+
 // AddOrganizationIDs adds the "organizations" edge to the Organization entity by IDs.
 func (pu *PersonUpdate) AddOrganizationIDs(ids ...int) *PersonUpdate {
 	pu.mutation.AddOrganizationIDs(ids...)
@@ -533,6 +551,17 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.TitleCleared() {
 		_spec.ClearField(person.FieldTitle, field.TypeString)
+	}
+	if value, ok := pu.mutation.Role(); ok {
+		_spec.SetField(person.FieldRole, field.TypeJSON, value)
+	}
+	if value, ok := pu.mutation.AppendedRole(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldRole, value)
+		})
+	}
+	if pu.mutation.RoleCleared() {
+		_spec.ClearField(person.FieldRole, field.TypeJSON)
 	}
 	if pu.mutation.OrganizationsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -932,6 +961,24 @@ func (puo *PersonUpdateOne) ClearTitle() *PersonUpdateOne {
 	return puo
 }
 
+// SetRole sets the "role" field.
+func (puo *PersonUpdateOne) SetRole(s []string) *PersonUpdateOne {
+	puo.mutation.SetRole(s)
+	return puo
+}
+
+// AppendRole appends s to the "role" field.
+func (puo *PersonUpdateOne) AppendRole(s []string) *PersonUpdateOne {
+	puo.mutation.AppendRole(s)
+	return puo
+}
+
+// ClearRole clears the value of the "role" field.
+func (puo *PersonUpdateOne) ClearRole() *PersonUpdateOne {
+	puo.mutation.ClearRole()
+	return puo
+}
+
 // AddOrganizationIDs adds the "organizations" edge to the Organization entity by IDs.
 func (puo *PersonUpdateOne) AddOrganizationIDs(ids ...int) *PersonUpdateOne {
 	puo.mutation.AddOrganizationIDs(ids...)
@@ -1188,6 +1235,17 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	}
 	if puo.mutation.TitleCleared() {
 		_spec.ClearField(person.FieldTitle, field.TypeString)
+	}
+	if value, ok := puo.mutation.Role(); ok {
+		_spec.SetField(person.FieldRole, field.TypeJSON, value)
+	}
+	if value, ok := puo.mutation.AppendedRole(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldRole, value)
+		})
+	}
+	if puo.mutation.RoleCleared() {
+		_spec.ClearField(person.FieldRole, field.TypeJSON)
 	}
 	if puo.mutation.OrganizationsCleared() {
 		edge := &sqlgraph.EdgeSpec{

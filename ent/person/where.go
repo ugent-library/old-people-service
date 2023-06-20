@@ -1060,6 +1060,16 @@ func TitleContainsFold(v string) predicate.Person {
 	return predicate.Person(sql.FieldContainsFold(FieldTitle, v))
 }
 
+// RoleIsNil applies the IsNil predicate on the "role" field.
+func RoleIsNil() predicate.Person {
+	return predicate.Person(sql.FieldIsNull(FieldRole))
+}
+
+// RoleNotNil applies the NotNil predicate on the "role" field.
+func RoleNotNil() predicate.Person {
+	return predicate.Person(sql.FieldNotNull(FieldRole))
+}
+
 // HasOrganizations applies the HasEdge predicate on the "organizations" edge.
 func HasOrganizations() predicate.Person {
 	return predicate.Person(func(s *sql.Selector) {

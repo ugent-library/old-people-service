@@ -1,4 +1,4 @@
-version: '3.5' 
+version: '3.5'
 
 # requirement: run "docker build -t person-service ." in order to create image person-service
 services:

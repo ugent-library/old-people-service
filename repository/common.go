@@ -156,47 +156,64 @@ func customSchemaChanges(next schema.Applier) schema.Applier {
 
 func encryptMessage(key []byte, message string) (string, error) {
 
-	byteMsg := []byte(message)
+	// Create a new AES cipher block from the secret key.
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", fmt.Errorf("could not create new cipher: %v", err)
+		return "", err
 	}
 
-	cipherText := make([]byte, aes.BlockSize+len(byteMsg))
-	iv := cipherText[:aes.BlockSize]
-	if _, err = io.ReadFull(rand.Reader, iv); err != nil {
-		return "", fmt.Errorf("could not encrypt: %v", err)
+	// Wrap the cipher block in Galois Counter Mode.
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
 	}
 
-	stream := cipher.NewCFBEncrypter(block, iv)
-	stream.XORKeyStream(cipherText[aes.BlockSize:], byteMsg)
+	// Create a unique nonce containing 12 random bytes.
+	nonce := make([]byte, gcm.NonceSize())
+	_, err = io.ReadFull(rand.Reader, nonce)
+	if err != nil {
+		return "", err
+	}
 
-	return base64.StdEncoding.EncodeToString(cipherText), nil
+	// Encrypt the data using aesGCM.Seal(). By passing the nonce as the first
+	// parameter, the encrypted message will be appended to the nonce so
+	// that the encrypted message will be in the format
+	// "{nonce}{encrypted message}".
+	cryptedMsg := gcm.Seal(nonce, nonce, []byte(message), nil)
+
+	// Encode as a url safe base64 string.
+	return base64.URLEncoding.EncodeToString(cryptedMsg), nil
 
 }
 
 func decryptMessage(key []byte, message string) (string, error) {
 
-	cipherText, err := base64.StdEncoding.DecodeString(message)
+	// Decode base64.
+	cryptedMsg, err := base64.URLEncoding.DecodeString(message)
 	if err != nil {
-		return "", fmt.Errorf("could not base64 decode: %v", err)
+		return "", err
 	}
 
+	// Create a new AES cipher block from the secret key.
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", fmt.Errorf("could not create new cipher: %v", err)
+		return "", err
 	}
 
-	if len(cipherText) < aes.BlockSize {
-		return "", fmt.Errorf("invalid ciphertext block size")
+	// Wrap the cipher block in Galois Counter Mode.
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
 	}
 
-	iv := cipherText[:aes.BlockSize]
-	cipherText = cipherText[aes.BlockSize:]
+	nonceSize := gcm.NonceSize()
 
-	stream := cipher.NewCFBDecrypter(block, iv)
-	stream.XORKeyStream(cipherText, cipherText)
+	// Split cryptedMsg in nonce and encrypted message and use gcm.Open() to
+	// decrypt and authenticate the data.
+	msg, err := gcm.Open(nil, cryptedMsg[:nonceSize], cryptedMsg[nonceSize:], nil)
+	if err != nil {
+		return "", err
+	}
 
-	return string(cipherText), nil
-
+	return string(msg), nil
 }

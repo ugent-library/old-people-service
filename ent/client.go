@@ -8,15 +8,15 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ugent-library/people/ent/migrate"
+	"github.com/ugent-library/person-service/ent/migrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/ugent-library/people/ent/organization"
-	"github.com/ugent-library/people/ent/organizationperson"
-	"github.com/ugent-library/people/ent/person"
+	"github.com/ugent-library/person-service/ent/organization"
+	"github.com/ugent-library/person-service/ent/organizationperson"
+	"github.com/ugent-library/person-service/ent/person"
 
 	stdsql "database/sql"
 )

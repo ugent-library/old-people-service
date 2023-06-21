@@ -4,9 +4,9 @@ import (
 	"strings"
 	"time"
 
-	v1 "github.com/ugent-library/people/api/v1"
-	"github.com/ugent-library/people/models"
-	"github.com/ugent-library/people/validation"
+	v1 "github.com/ugent-library/person-service/api/v1"
+	"github.com/ugent-library/person-service/models"
+	"github.com/ugent-library/person-service/validation"
 )
 
 func (s *InboxMessage) UpdatePersonAttr(person *models.Person) *models.Person {

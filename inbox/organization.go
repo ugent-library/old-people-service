@@ -3,8 +3,8 @@ package inbox
 import (
 	"time"
 
-	v1 "github.com/ugent-library/people/api/v1"
-	"github.com/ugent-library/people/models"
+	v1 "github.com/ugent-library/person-service/api/v1"
+	"github.com/ugent-library/person-service/models"
 )
 
 func (s *InboxMessage) UpdateOrganizationAttr(org *models.Organization) *models.Organization {

@@ -14,45 +14,45 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// PeopleClient is the client API for People service.
+// PersonServiceClient is the client API for PersonService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type PeopleClient interface {
+type PersonServiceClient interface {
 	GetPerson(ctx context.Context, in *GetPersonRequest, opts ...grpc.CallOption) (*GetPersonResponse, error)
-	GetAllPerson(ctx context.Context, in *GetAllPersonRequest, opts ...grpc.CallOption) (People_GetAllPersonClient, error)
-	SuggestPerson(ctx context.Context, in *SuggestPersonRequest, opts ...grpc.CallOption) (People_SuggestPersonClient, error)
+	GetAllPerson(ctx context.Context, in *GetAllPersonRequest, opts ...grpc.CallOption) (PersonService_GetAllPersonClient, error)
+	SuggestPerson(ctx context.Context, in *SuggestPersonRequest, opts ...grpc.CallOption) (PersonService_SuggestPersonClient, error)
 	GetOrganization(ctx context.Context, in *GetOrganizationRequest, opts ...grpc.CallOption) (*GetOrganizationResponse, error)
-	GetAllOrganization(ctx context.Context, in *GetAllOrganizationRequest, opts ...grpc.CallOption) (People_GetAllOrganizationClient, error)
-	SuggestOrganization(ctx context.Context, in *SuggestOrganizationRequest, opts ...grpc.CallOption) (People_SuggestOrganizationClient, error)
+	GetAllOrganization(ctx context.Context, in *GetAllOrganizationRequest, opts ...grpc.CallOption) (PersonService_GetAllOrganizationClient, error)
+	SuggestOrganization(ctx context.Context, in *SuggestOrganizationRequest, opts ...grpc.CallOption) (PersonService_SuggestOrganizationClient, error)
 	SetPersonOrcidToken(ctx context.Context, in *SetPersonOrcidTokenRequest, opts ...grpc.CallOption) (*SetPersonOrcidTokenResponse, error)
 	SetPersonOrcid(ctx context.Context, in *SetPersonOrcidRequest, opts ...grpc.CallOption) (*SetPersonOrcidResponse, error)
 	SetPersonRole(ctx context.Context, in *SetPersonRoleRequest, opts ...grpc.CallOption) (*SetPersonRoleResponse, error)
 	SetPersonSettings(ctx context.Context, in *SetPersonSettingsRequest, opts ...grpc.CallOption) (*SetPersonSettingsResponse, error)
 }
 
-type peopleClient struct {
+type personServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewPeopleClient(cc grpc.ClientConnInterface) PeopleClient {
-	return &peopleClient{cc}
+func NewPersonServiceClient(cc grpc.ClientConnInterface) PersonServiceClient {
+	return &personServiceClient{cc}
 }
 
-func (c *peopleClient) GetPerson(ctx context.Context, in *GetPersonRequest, opts ...grpc.CallOption) (*GetPersonResponse, error) {
+func (c *personServiceClient) GetPerson(ctx context.Context, in *GetPersonRequest, opts ...grpc.CallOption) (*GetPersonResponse, error) {
 	out := new(GetPersonResponse)
-	err := c.cc.Invoke(ctx, "/api.v1.People/GetPerson", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.v1.PersonService/GetPerson", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peopleClient) GetAllPerson(ctx context.Context, in *GetAllPersonRequest, opts ...grpc.CallOption) (People_GetAllPersonClient, error) {
-	stream, err := c.cc.NewStream(ctx, &People_ServiceDesc.Streams[0], "/api.v1.People/GetAllPerson", opts...)
+func (c *personServiceClient) GetAllPerson(ctx context.Context, in *GetAllPersonRequest, opts ...grpc.CallOption) (PersonService_GetAllPersonClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PersonService_ServiceDesc.Streams[0], "/api.v1.PersonService/GetAllPerson", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &peopleGetAllPersonClient{stream}
+	x := &personServiceGetAllPersonClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -62,16 +62,16 @@ func (c *peopleClient) GetAllPerson(ctx context.Context, in *GetAllPersonRequest
 	return x, nil
 }
 
-type People_GetAllPersonClient interface {
+type PersonService_GetAllPersonClient interface {
 	Recv() (*GetAllPersonResponse, error)
 	grpc.ClientStream
 }
 
-type peopleGetAllPersonClient struct {
+type personServiceGetAllPersonClient struct {
 	grpc.ClientStream
 }
 
-func (x *peopleGetAllPersonClient) Recv() (*GetAllPersonResponse, error) {
+func (x *personServiceGetAllPersonClient) Recv() (*GetAllPersonResponse, error) {
 	m := new(GetAllPersonResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -79,12 +79,12 @@ func (x *peopleGetAllPersonClient) Recv() (*GetAllPersonResponse, error) {
 	return m, nil
 }
 
-func (c *peopleClient) SuggestPerson(ctx context.Context, in *SuggestPersonRequest, opts ...grpc.CallOption) (People_SuggestPersonClient, error) {
-	stream, err := c.cc.NewStream(ctx, &People_ServiceDesc.Streams[1], "/api.v1.People/SuggestPerson", opts...)
+func (c *personServiceClient) SuggestPerson(ctx context.Context, in *SuggestPersonRequest, opts ...grpc.CallOption) (PersonService_SuggestPersonClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PersonService_ServiceDesc.Streams[1], "/api.v1.PersonService/SuggestPerson", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &peopleSuggestPersonClient{stream}
+	x := &personServiceSuggestPersonClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -94,16 +94,16 @@ func (c *peopleClient) SuggestPerson(ctx context.Context, in *SuggestPersonReque
 	return x, nil
 }
 
-type People_SuggestPersonClient interface {
+type PersonService_SuggestPersonClient interface {
 	Recv() (*SuggestPersonResponse, error)
 	grpc.ClientStream
 }
 
-type peopleSuggestPersonClient struct {
+type personServiceSuggestPersonClient struct {
 	grpc.ClientStream
 }
 
-func (x *peopleSuggestPersonClient) Recv() (*SuggestPersonResponse, error) {
+func (x *personServiceSuggestPersonClient) Recv() (*SuggestPersonResponse, error) {
 	m := new(SuggestPersonResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -111,21 +111,21 @@ func (x *peopleSuggestPersonClient) Recv() (*SuggestPersonResponse, error) {
 	return m, nil
 }
 
-func (c *peopleClient) GetOrganization(ctx context.Context, in *GetOrganizationRequest, opts ...grpc.CallOption) (*GetOrganizationResponse, error) {
+func (c *personServiceClient) GetOrganization(ctx context.Context, in *GetOrganizationRequest, opts ...grpc.CallOption) (*GetOrganizationResponse, error) {
 	out := new(GetOrganizationResponse)
-	err := c.cc.Invoke(ctx, "/api.v1.People/GetOrganization", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.v1.PersonService/GetOrganization", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peopleClient) GetAllOrganization(ctx context.Context, in *GetAllOrganizationRequest, opts ...grpc.CallOption) (People_GetAllOrganizationClient, error) {
-	stream, err := c.cc.NewStream(ctx, &People_ServiceDesc.Streams[2], "/api.v1.People/GetAllOrganization", opts...)
+func (c *personServiceClient) GetAllOrganization(ctx context.Context, in *GetAllOrganizationRequest, opts ...grpc.CallOption) (PersonService_GetAllOrganizationClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PersonService_ServiceDesc.Streams[2], "/api.v1.PersonService/GetAllOrganization", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &peopleGetAllOrganizationClient{stream}
+	x := &personServiceGetAllOrganizationClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -135,16 +135,16 @@ func (c *peopleClient) GetAllOrganization(ctx context.Context, in *GetAllOrganiz
 	return x, nil
 }
 
-type People_GetAllOrganizationClient interface {
+type PersonService_GetAllOrganizationClient interface {
 	Recv() (*GetAllOrganizationResponse, error)
 	grpc.ClientStream
 }
 
-type peopleGetAllOrganizationClient struct {
+type personServiceGetAllOrganizationClient struct {
 	grpc.ClientStream
 }
 
-func (x *peopleGetAllOrganizationClient) Recv() (*GetAllOrganizationResponse, error) {
+func (x *personServiceGetAllOrganizationClient) Recv() (*GetAllOrganizationResponse, error) {
 	m := new(GetAllOrganizationResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -152,12 +152,12 @@ func (x *peopleGetAllOrganizationClient) Recv() (*GetAllOrganizationResponse, er
 	return m, nil
 }
 
-func (c *peopleClient) SuggestOrganization(ctx context.Context, in *SuggestOrganizationRequest, opts ...grpc.CallOption) (People_SuggestOrganizationClient, error) {
-	stream, err := c.cc.NewStream(ctx, &People_ServiceDesc.Streams[3], "/api.v1.People/SuggestOrganization", opts...)
+func (c *personServiceClient) SuggestOrganization(ctx context.Context, in *SuggestOrganizationRequest, opts ...grpc.CallOption) (PersonService_SuggestOrganizationClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PersonService_ServiceDesc.Streams[3], "/api.v1.PersonService/SuggestOrganization", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &peopleSuggestOrganizationClient{stream}
+	x := &personServiceSuggestOrganizationClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -167,16 +167,16 @@ func (c *peopleClient) SuggestOrganization(ctx context.Context, in *SuggestOrgan
 	return x, nil
 }
 
-type People_SuggestOrganizationClient interface {
+type PersonService_SuggestOrganizationClient interface {
 	Recv() (*SuggestOrganizationResponse, error)
 	grpc.ClientStream
 }
 
-type peopleSuggestOrganizationClient struct {
+type personServiceSuggestOrganizationClient struct {
 	grpc.ClientStream
 }
 
-func (x *peopleSuggestOrganizationClient) Recv() (*SuggestOrganizationResponse, error) {
+func (x *personServiceSuggestOrganizationClient) Recv() (*SuggestOrganizationResponse, error) {
 	m := new(SuggestOrganizationResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -184,349 +184,349 @@ func (x *peopleSuggestOrganizationClient) Recv() (*SuggestOrganizationResponse, 
 	return m, nil
 }
 
-func (c *peopleClient) SetPersonOrcidToken(ctx context.Context, in *SetPersonOrcidTokenRequest, opts ...grpc.CallOption) (*SetPersonOrcidTokenResponse, error) {
+func (c *personServiceClient) SetPersonOrcidToken(ctx context.Context, in *SetPersonOrcidTokenRequest, opts ...grpc.CallOption) (*SetPersonOrcidTokenResponse, error) {
 	out := new(SetPersonOrcidTokenResponse)
-	err := c.cc.Invoke(ctx, "/api.v1.People/SetPersonOrcidToken", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.v1.PersonService/SetPersonOrcidToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peopleClient) SetPersonOrcid(ctx context.Context, in *SetPersonOrcidRequest, opts ...grpc.CallOption) (*SetPersonOrcidResponse, error) {
+func (c *personServiceClient) SetPersonOrcid(ctx context.Context, in *SetPersonOrcidRequest, opts ...grpc.CallOption) (*SetPersonOrcidResponse, error) {
 	out := new(SetPersonOrcidResponse)
-	err := c.cc.Invoke(ctx, "/api.v1.People/SetPersonOrcid", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.v1.PersonService/SetPersonOrcid", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peopleClient) SetPersonRole(ctx context.Context, in *SetPersonRoleRequest, opts ...grpc.CallOption) (*SetPersonRoleResponse, error) {
+func (c *personServiceClient) SetPersonRole(ctx context.Context, in *SetPersonRoleRequest, opts ...grpc.CallOption) (*SetPersonRoleResponse, error) {
 	out := new(SetPersonRoleResponse)
-	err := c.cc.Invoke(ctx, "/api.v1.People/SetPersonRole", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.v1.PersonService/SetPersonRole", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *peopleClient) SetPersonSettings(ctx context.Context, in *SetPersonSettingsRequest, opts ...grpc.CallOption) (*SetPersonSettingsResponse, error) {
+func (c *personServiceClient) SetPersonSettings(ctx context.Context, in *SetPersonSettingsRequest, opts ...grpc.CallOption) (*SetPersonSettingsResponse, error) {
 	out := new(SetPersonSettingsResponse)
-	err := c.cc.Invoke(ctx, "/api.v1.People/SetPersonSettings", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.v1.PersonService/SetPersonSettings", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// PeopleServer is the server API for People service.
-// All implementations must embed UnimplementedPeopleServer
+// PersonServiceServer is the server API for PersonService service.
+// All implementations must embed UnimplementedPersonServiceServer
 // for forward compatibility
-type PeopleServer interface {
+type PersonServiceServer interface {
 	GetPerson(context.Context, *GetPersonRequest) (*GetPersonResponse, error)
-	GetAllPerson(*GetAllPersonRequest, People_GetAllPersonServer) error
-	SuggestPerson(*SuggestPersonRequest, People_SuggestPersonServer) error
+	GetAllPerson(*GetAllPersonRequest, PersonService_GetAllPersonServer) error
+	SuggestPerson(*SuggestPersonRequest, PersonService_SuggestPersonServer) error
 	GetOrganization(context.Context, *GetOrganizationRequest) (*GetOrganizationResponse, error)
-	GetAllOrganization(*GetAllOrganizationRequest, People_GetAllOrganizationServer) error
-	SuggestOrganization(*SuggestOrganizationRequest, People_SuggestOrganizationServer) error
+	GetAllOrganization(*GetAllOrganizationRequest, PersonService_GetAllOrganizationServer) error
+	SuggestOrganization(*SuggestOrganizationRequest, PersonService_SuggestOrganizationServer) error
 	SetPersonOrcidToken(context.Context, *SetPersonOrcidTokenRequest) (*SetPersonOrcidTokenResponse, error)
 	SetPersonOrcid(context.Context, *SetPersonOrcidRequest) (*SetPersonOrcidResponse, error)
 	SetPersonRole(context.Context, *SetPersonRoleRequest) (*SetPersonRoleResponse, error)
 	SetPersonSettings(context.Context, *SetPersonSettingsRequest) (*SetPersonSettingsResponse, error)
-	mustEmbedUnimplementedPeopleServer()
+	mustEmbedUnimplementedPersonServiceServer()
 }
 
-// UnimplementedPeopleServer must be embedded to have forward compatible implementations.
-type UnimplementedPeopleServer struct {
+// UnimplementedPersonServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedPersonServiceServer struct {
 }
 
-func (UnimplementedPeopleServer) GetPerson(context.Context, *GetPersonRequest) (*GetPersonResponse, error) {
+func (UnimplementedPersonServiceServer) GetPerson(context.Context, *GetPersonRequest) (*GetPersonResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPerson not implemented")
 }
-func (UnimplementedPeopleServer) GetAllPerson(*GetAllPersonRequest, People_GetAllPersonServer) error {
+func (UnimplementedPersonServiceServer) GetAllPerson(*GetAllPersonRequest, PersonService_GetAllPersonServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAllPerson not implemented")
 }
-func (UnimplementedPeopleServer) SuggestPerson(*SuggestPersonRequest, People_SuggestPersonServer) error {
+func (UnimplementedPersonServiceServer) SuggestPerson(*SuggestPersonRequest, PersonService_SuggestPersonServer) error {
 	return status.Errorf(codes.Unimplemented, "method SuggestPerson not implemented")
 }
-func (UnimplementedPeopleServer) GetOrganization(context.Context, *GetOrganizationRequest) (*GetOrganizationResponse, error) {
+func (UnimplementedPersonServiceServer) GetOrganization(context.Context, *GetOrganizationRequest) (*GetOrganizationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrganization not implemented")
 }
-func (UnimplementedPeopleServer) GetAllOrganization(*GetAllOrganizationRequest, People_GetAllOrganizationServer) error {
+func (UnimplementedPersonServiceServer) GetAllOrganization(*GetAllOrganizationRequest, PersonService_GetAllOrganizationServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetAllOrganization not implemented")
 }
-func (UnimplementedPeopleServer) SuggestOrganization(*SuggestOrganizationRequest, People_SuggestOrganizationServer) error {
+func (UnimplementedPersonServiceServer) SuggestOrganization(*SuggestOrganizationRequest, PersonService_SuggestOrganizationServer) error {
 	return status.Errorf(codes.Unimplemented, "method SuggestOrganization not implemented")
 }
-func (UnimplementedPeopleServer) SetPersonOrcidToken(context.Context, *SetPersonOrcidTokenRequest) (*SetPersonOrcidTokenResponse, error) {
+func (UnimplementedPersonServiceServer) SetPersonOrcidToken(context.Context, *SetPersonOrcidTokenRequest) (*SetPersonOrcidTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetPersonOrcidToken not implemented")
 }
-func (UnimplementedPeopleServer) SetPersonOrcid(context.Context, *SetPersonOrcidRequest) (*SetPersonOrcidResponse, error) {
+func (UnimplementedPersonServiceServer) SetPersonOrcid(context.Context, *SetPersonOrcidRequest) (*SetPersonOrcidResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetPersonOrcid not implemented")
 }
-func (UnimplementedPeopleServer) SetPersonRole(context.Context, *SetPersonRoleRequest) (*SetPersonRoleResponse, error) {
+func (UnimplementedPersonServiceServer) SetPersonRole(context.Context, *SetPersonRoleRequest) (*SetPersonRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetPersonRole not implemented")
 }
-func (UnimplementedPeopleServer) SetPersonSettings(context.Context, *SetPersonSettingsRequest) (*SetPersonSettingsResponse, error) {
+func (UnimplementedPersonServiceServer) SetPersonSettings(context.Context, *SetPersonSettingsRequest) (*SetPersonSettingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetPersonSettings not implemented")
 }
-func (UnimplementedPeopleServer) mustEmbedUnimplementedPeopleServer() {}
+func (UnimplementedPersonServiceServer) mustEmbedUnimplementedPersonServiceServer() {}
 
-// UnsafePeopleServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to PeopleServer will
+// UnsafePersonServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PersonServiceServer will
 // result in compilation errors.
-type UnsafePeopleServer interface {
-	mustEmbedUnimplementedPeopleServer()
+type UnsafePersonServiceServer interface {
+	mustEmbedUnimplementedPersonServiceServer()
 }
 
-func RegisterPeopleServer(s grpc.ServiceRegistrar, srv PeopleServer) {
-	s.RegisterService(&People_ServiceDesc, srv)
+func RegisterPersonServiceServer(s grpc.ServiceRegistrar, srv PersonServiceServer) {
+	s.RegisterService(&PersonService_ServiceDesc, srv)
 }
 
-func _People_GetPerson_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PersonService_GetPerson_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPersonRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeopleServer).GetPerson(ctx, in)
+		return srv.(PersonServiceServer).GetPerson(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.v1.People/GetPerson",
+		FullMethod: "/api.v1.PersonService/GetPerson",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeopleServer).GetPerson(ctx, req.(*GetPersonRequest))
+		return srv.(PersonServiceServer).GetPerson(ctx, req.(*GetPersonRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _People_GetAllPerson_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _PersonService_GetAllPerson_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(GetAllPersonRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(PeopleServer).GetAllPerson(m, &peopleGetAllPersonServer{stream})
+	return srv.(PersonServiceServer).GetAllPerson(m, &personServiceGetAllPersonServer{stream})
 }
 
-type People_GetAllPersonServer interface {
+type PersonService_GetAllPersonServer interface {
 	Send(*GetAllPersonResponse) error
 	grpc.ServerStream
 }
 
-type peopleGetAllPersonServer struct {
+type personServiceGetAllPersonServer struct {
 	grpc.ServerStream
 }
 
-func (x *peopleGetAllPersonServer) Send(m *GetAllPersonResponse) error {
+func (x *personServiceGetAllPersonServer) Send(m *GetAllPersonResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _People_SuggestPerson_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _PersonService_SuggestPerson_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(SuggestPersonRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(PeopleServer).SuggestPerson(m, &peopleSuggestPersonServer{stream})
+	return srv.(PersonServiceServer).SuggestPerson(m, &personServiceSuggestPersonServer{stream})
 }
 
-type People_SuggestPersonServer interface {
+type PersonService_SuggestPersonServer interface {
 	Send(*SuggestPersonResponse) error
 	grpc.ServerStream
 }
 
-type peopleSuggestPersonServer struct {
+type personServiceSuggestPersonServer struct {
 	grpc.ServerStream
 }
 
-func (x *peopleSuggestPersonServer) Send(m *SuggestPersonResponse) error {
+func (x *personServiceSuggestPersonServer) Send(m *SuggestPersonResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _People_GetOrganization_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PersonService_GetOrganization_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetOrganizationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeopleServer).GetOrganization(ctx, in)
+		return srv.(PersonServiceServer).GetOrganization(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.v1.People/GetOrganization",
+		FullMethod: "/api.v1.PersonService/GetOrganization",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeopleServer).GetOrganization(ctx, req.(*GetOrganizationRequest))
+		return srv.(PersonServiceServer).GetOrganization(ctx, req.(*GetOrganizationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _People_GetAllOrganization_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _PersonService_GetAllOrganization_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(GetAllOrganizationRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(PeopleServer).GetAllOrganization(m, &peopleGetAllOrganizationServer{stream})
+	return srv.(PersonServiceServer).GetAllOrganization(m, &personServiceGetAllOrganizationServer{stream})
 }
 
-type People_GetAllOrganizationServer interface {
+type PersonService_GetAllOrganizationServer interface {
 	Send(*GetAllOrganizationResponse) error
 	grpc.ServerStream
 }
 
-type peopleGetAllOrganizationServer struct {
+type personServiceGetAllOrganizationServer struct {
 	grpc.ServerStream
 }
 
-func (x *peopleGetAllOrganizationServer) Send(m *GetAllOrganizationResponse) error {
+func (x *personServiceGetAllOrganizationServer) Send(m *GetAllOrganizationResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _People_SuggestOrganization_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _PersonService_SuggestOrganization_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(SuggestOrganizationRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(PeopleServer).SuggestOrganization(m, &peopleSuggestOrganizationServer{stream})
+	return srv.(PersonServiceServer).SuggestOrganization(m, &personServiceSuggestOrganizationServer{stream})
 }
 
-type People_SuggestOrganizationServer interface {
+type PersonService_SuggestOrganizationServer interface {
 	Send(*SuggestOrganizationResponse) error
 	grpc.ServerStream
 }
 
-type peopleSuggestOrganizationServer struct {
+type personServiceSuggestOrganizationServer struct {
 	grpc.ServerStream
 }
 
-func (x *peopleSuggestOrganizationServer) Send(m *SuggestOrganizationResponse) error {
+func (x *personServiceSuggestOrganizationServer) Send(m *SuggestOrganizationResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _People_SetPersonOrcidToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PersonService_SetPersonOrcidToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetPersonOrcidTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeopleServer).SetPersonOrcidToken(ctx, in)
+		return srv.(PersonServiceServer).SetPersonOrcidToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.v1.People/SetPersonOrcidToken",
+		FullMethod: "/api.v1.PersonService/SetPersonOrcidToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeopleServer).SetPersonOrcidToken(ctx, req.(*SetPersonOrcidTokenRequest))
+		return srv.(PersonServiceServer).SetPersonOrcidToken(ctx, req.(*SetPersonOrcidTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _People_SetPersonOrcid_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PersonService_SetPersonOrcid_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetPersonOrcidRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeopleServer).SetPersonOrcid(ctx, in)
+		return srv.(PersonServiceServer).SetPersonOrcid(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.v1.People/SetPersonOrcid",
+		FullMethod: "/api.v1.PersonService/SetPersonOrcid",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeopleServer).SetPersonOrcid(ctx, req.(*SetPersonOrcidRequest))
+		return srv.(PersonServiceServer).SetPersonOrcid(ctx, req.(*SetPersonOrcidRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _People_SetPersonRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PersonService_SetPersonRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetPersonRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeopleServer).SetPersonRole(ctx, in)
+		return srv.(PersonServiceServer).SetPersonRole(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.v1.People/SetPersonRole",
+		FullMethod: "/api.v1.PersonService/SetPersonRole",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeopleServer).SetPersonRole(ctx, req.(*SetPersonRoleRequest))
+		return srv.(PersonServiceServer).SetPersonRole(ctx, req.(*SetPersonRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _People_SetPersonSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PersonService_SetPersonSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetPersonSettingsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PeopleServer).SetPersonSettings(ctx, in)
+		return srv.(PersonServiceServer).SetPersonSettings(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.v1.People/SetPersonSettings",
+		FullMethod: "/api.v1.PersonService/SetPersonSettings",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeopleServer).SetPersonSettings(ctx, req.(*SetPersonSettingsRequest))
+		return srv.(PersonServiceServer).SetPersonSettings(ctx, req.(*SetPersonSettingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// People_ServiceDesc is the grpc.ServiceDesc for People service.
+// PersonService_ServiceDesc is the grpc.ServiceDesc for PersonService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var People_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.v1.People",
-	HandlerType: (*PeopleServer)(nil),
+var PersonService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "api.v1.PersonService",
+	HandlerType: (*PersonServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetPerson",
-			Handler:    _People_GetPerson_Handler,
+			Handler:    _PersonService_GetPerson_Handler,
 		},
 		{
 			MethodName: "GetOrganization",
-			Handler:    _People_GetOrganization_Handler,
+			Handler:    _PersonService_GetOrganization_Handler,
 		},
 		{
 			MethodName: "SetPersonOrcidToken",
-			Handler:    _People_SetPersonOrcidToken_Handler,
+			Handler:    _PersonService_SetPersonOrcidToken_Handler,
 		},
 		{
 			MethodName: "SetPersonOrcid",
-			Handler:    _People_SetPersonOrcid_Handler,
+			Handler:    _PersonService_SetPersonOrcid_Handler,
 		},
 		{
 			MethodName: "SetPersonRole",
-			Handler:    _People_SetPersonRole_Handler,
+			Handler:    _PersonService_SetPersonRole_Handler,
 		},
 		{
 			MethodName: "SetPersonSettings",
-			Handler:    _People_SetPersonSettings_Handler,
+			Handler:    _PersonService_SetPersonSettings_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "GetAllPerson",
-			Handler:       _People_GetAllPerson_Handler,
+			Handler:       _PersonService_GetAllPerson_Handler,
 			ServerStreams: true,
 		},
 		{
 			StreamName:    "SuggestPerson",
-			Handler:       _People_SuggestPerson_Handler,
+			Handler:       _PersonService_SuggestPerson_Handler,
 			ServerStreams: true,
 		},
 		{
 			StreamName:    "GetAllOrganization",
-			Handler:       _People_GetAllOrganization_Handler,
+			Handler:       _PersonService_GetAllOrganization_Handler,
 			ServerStreams: true,
 		},
 		{
 			StreamName:    "SuggestOrganization",
-			Handler:       _People_SuggestOrganization_Handler,
+			Handler:       _PersonService_SuggestOrganization_Handler,
 			ServerStreams: true,
 		},
 	},

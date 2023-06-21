@@ -11,7 +11,7 @@ syntax="proto3";
 
 package api.v1;
 
-option go_package = "github.com/ugent-library/people/api/v1";
+option go_package = "github.com/ugent-library/person-service/api/v1";
 
 import "google/protobuf/timestamp.proto";
 import "google/rpc/status.proto";
@@ -150,7 +150,7 @@ message SetPersonSettingsResponse {
   }
 }
 
-service People {
+service PersonService {
   rpc GetPerson(GetPersonRequest) returns (GetPersonResponse);
   rpc GetAllPerson(GetAllPersonRequest) returns (stream GetAllPersonResponse);
   rpc SuggestPerson(SuggestPersonRequest) returns (stream SuggestPersonResponse);

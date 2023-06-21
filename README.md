@@ -1,5 +1,5 @@
-# people
-People service
+# person-service
+Person service
 
 # Build process
 
@@ -129,13 +129,13 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
 # Start GRPC api
 
 ```
-$ ./people api start
+$ ./person-service api start
 ```
 
 # Start NATS consumer
 
 ```
-$ ./people inbox listen
+$ ./person-service inbox listen
 ```
 
 * creates NATS stream `PEOPLE` with subjects `person.update`. If already present, does not try to change it. Expections are:
@@ -242,14 +242,14 @@ $ grpcurl -H "$h" -plaintext -d '{"query": "Academic He"}' localhost:3999 api.v1
 
 # run in docker
 
-Build base docker image `people-service`:
+Build base docker image `person-service`:
 
 ```
-$ docker build -t ugentlib/people-service .
-$ docker push ugentlib/people-service
+$ docker build -t ugentlib/person-service .
+$ docker push ugentlib/person-service
 ```
 
-If image `people-service` is already docker github,
+If image `person-service` is already docker github,
 
 then you may skip that step.
 
@@ -259,4 +259,4 @@ Start set of services using `docker compose`:
 $ docker compose up
 ```
 
-Docker compose uses that image `people-service`
+Docker compose uses that image `person-service`

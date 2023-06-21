@@ -11,10 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ugent-library/people/ent/organization"
-	"github.com/ugent-library/people/ent/organizationperson"
-	"github.com/ugent-library/people/ent/person"
-	"github.com/ugent-library/people/ent/predicate"
+	"github.com/ugent-library/person-service/ent/organization"
+	"github.com/ugent-library/person-service/ent/organizationperson"
+	"github.com/ugent-library/person-service/ent/person"
+	"github.com/ugent-library/person-service/ent/predicate"
 )
 
 // OrganizationPersonUpdate is the builder for updating OrganizationPerson entities.

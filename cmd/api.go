@@ -6,7 +6,7 @@ import (
 	"net"
 
 	"github.com/spf13/cobra"
-	"github.com/ugent-library/people/grpc_server"
+	"github.com/ugent-library/person-service/grpc_server"
 )
 
 func init() {

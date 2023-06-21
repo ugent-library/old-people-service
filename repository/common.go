@@ -14,10 +14,9 @@ import (
 
 	"ariga.io/atlas/sql/migrate"
 	"entgo.io/ent/dialect"
-	entdialect "entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/ugent-library/people/ent"
+	"github.com/ugent-library/person-service/ent"
 )
 
 var regexMultipleSpaces = regexp.MustCompile(`\s+`)
@@ -61,7 +60,7 @@ func OpenClient(dsn string) (*ent.Client, error) {
 		return nil, err
 	}
 
-	driver := entsql.OpenDB(entdialect.Postgres, db)
+	driver := entsql.OpenDB(dialect.Postgres, db)
 	client := ent.NewClient(ent.Driver(driver))
 
 	/*

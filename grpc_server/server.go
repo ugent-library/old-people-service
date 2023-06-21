@@ -9,8 +9,8 @@ import (
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	v1 "github.com/ugent-library/people/api/v1"
-	"github.com/ugent-library/people/models"
+	v1 "github.com/ugent-library/person-service/api/v1"
+	"github.com/ugent-library/person-service/models"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
@@ -33,7 +33,7 @@ type ServerConfig struct {
 }
 
 type server struct {
-	v1.UnimplementedPeopleServer
+	v1.UnimplementedPersonServiceServer
 	personService              models.PersonService
 	personSuggestService       models.PersonSuggestService
 	organizationService        models.OrganizationService
@@ -101,7 +101,7 @@ func NewServer(serverConfig *ServerConfig) *grpc.Server {
 		logger:                     serverConfig.Logger,
 	}
 
-	v1.RegisterPeopleServer(gsrv, srv)
+	v1.RegisterPersonServiceServer(gsrv, srv)
 
 	return gsrv
 }
@@ -127,7 +127,7 @@ func (srv *server) GetPerson(ctx context.Context, req *v1.GetPersonRequest) (*v1
 	}, nil
 }
 
-func (srv *server) GetAllPerson(req *v1.GetAllPersonRequest, stream v1.People_GetAllPersonServer) error {
+func (srv *server) GetAllPerson(req *v1.GetAllPersonRequest, stream v1.PersonService_GetAllPersonServer) error {
 
 	return srv.personService.EachPerson(context.Background(), func(p *models.Person) bool {
 		streamErr := stream.Send(&v1.GetAllPersonResponse{
@@ -142,7 +142,7 @@ func (srv *server) GetAllPerson(req *v1.GetAllPersonRequest, stream v1.People_Ge
 
 }
 
-func (srv *server) SuggestPerson(req *v1.SuggestPersonRequest, stream v1.People_SuggestPersonServer) error {
+func (srv *server) SuggestPerson(req *v1.SuggestPersonRequest, stream v1.PersonService_SuggestPersonServer) error {
 	persons, _ := srv.personSuggestService.SuggestPerson(stream.Context(), req.Query)
 
 	for _, person := range persons {
@@ -199,7 +199,7 @@ func (srv *server) GetOrganization(ctx context.Context, req *v1.GetOrganizationR
 	}, nil
 }
 
-func (srv *server) GetAllOrganization(req *v1.GetAllOrganizationRequest, stream v1.People_GetAllOrganizationServer) error {
+func (srv *server) GetAllOrganization(req *v1.GetAllOrganizationRequest, stream v1.PersonService_GetAllOrganizationServer) error {
 
 	err := srv.organizationService.EachOrganization(stream.Context(), func(o *models.Organization) bool {
 		stream.Send(&v1.GetAllOrganizationResponse{
@@ -215,7 +215,7 @@ func (srv *server) GetAllOrganization(req *v1.GetAllOrganizationRequest, stream 
 	return nil
 }
 
-func (srv *server) SuggestOrganization(req *v1.SuggestOrganizationRequest, stream v1.People_SuggestOrganizationServer) error {
+func (srv *server) SuggestOrganization(req *v1.SuggestOrganizationRequest, stream v1.PersonService_SuggestOrganizationServer) error {
 	organizations, _ := srv.organizationSuggestService.SuggestOrganization(stream.Context(), req.Query)
 
 	for _, org := range organizations {

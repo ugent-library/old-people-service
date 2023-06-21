@@ -1,10 +1,10 @@
 version: '3.5'
 
-# requirement: run "docker build -t people_service ." in order to create image people_service
+# requirement: run "docker build -t person-service ." in order to create image person-service
 services:
-  people_service_inbox:
-    image: ugentlib/people-service:latest
-    container_name: people_service_inbox
+  person_service_inbox:
+    image: ugentlib/person-service:latest
+    container_name: person_service_inbox
     depends_on:
       postgres:
         condition: service_healthy
@@ -12,12 +12,12 @@ services:
       nats:
         condition: service_started
     volumes:
-      - ./docker/.env:/opt/people/.env
-    command: "/bin/sh -c \"cd /opt/people && ./people inbox listen\""
+      - ./docker/.env:/opt/person-service/.env
+    command: "/bin/sh -c \"cd /opt/person-service && ./person-service inbox listen\""
 
-  people_service_grpc:
-    container_name: people_grpc
-    image: ugentlib/people-service:latest
+  person_service_grpc:
+    container_name: person_service_grpc
+    image: ugentlib/person-service:latest
     depends_on:
       postgres:
         condition: service_healthy
@@ -26,8 +26,8 @@ services:
     ports:
       - 3999:3999
     volumes:
-      - ./docker/.env:/opt/people/.env
-    command: "/bin/sh -c \"cd /opt/people && ./people api start\""
+      - ./docker/.env:/opt/person-service/.env
+    command: "/bin/sh -c \"cd /opt/person-service && ./person-service api start\""
 
   # connect to postgres:
   #   connect to docker container

@@ -9,9 +9,9 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
-	"github.com/ugent-library/people/inbox"
-	"github.com/ugent-library/people/models"
-	"github.com/ugent-library/people/validation"
+	"github.com/ugent-library/person-service/inbox"
+	"github.com/ugent-library/person-service/models"
+	"github.com/ugent-library/person-service/validation"
 )
 
 /*

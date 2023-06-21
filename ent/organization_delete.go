@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ugent-library/people/ent/organization"
-	"github.com/ugent-library/people/ent/predicate"
+	"github.com/ugent-library/person-service/ent/organization"
+	"github.com/ugent-library/person-service/ent/predicate"
 )
 
 // OrganizationDelete is the builder for deleting a Organization entity.

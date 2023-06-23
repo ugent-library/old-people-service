@@ -1,14 +1,9 @@
 package subscribers
 
 import (
-	"errors"
-
 	"github.com/nats-io/nats.go"
 	"github.com/ugent-library/person-service/inbox"
 )
-
-var ErrFatal = errors.New("fatal error")
-var ErrNonFatal = errors.New("non fatal error")
 
 type Subcriber interface {
 	Subject() string

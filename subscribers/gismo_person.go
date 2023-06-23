@@ -30,7 +30,7 @@ func (ps *GismoPersonSubscriber) Listen(msg *nats.Msg) (*inbox.Message, error) {
 	iMsg, err := gismo.ParsePersonMessage(msg.Data)
 
 	if err != nil {
-		return nil, fmt.Errorf("%w: unable to process malformed message: %s", ErrNonFatal, err)
+		return nil, fmt.Errorf("%w: unable to process malformed message: %s", models.ErrNonFatal, err)
 	}
 
 	person, err := ps.personService.GetPerson(ctx, iMsg.ID)
@@ -38,7 +38,7 @@ func (ps *GismoPersonSubscriber) Listen(msg *nats.Msg) (*inbox.Message, error) {
 	if err != nil && err == models.ErrNotFound {
 		person = models.NewPerson()
 	} else if err != nil {
-		return iMsg, fmt.Errorf("%w: unable to fetch person record: %s", ErrFatal, err)
+		return iMsg, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)
 	}
 
 	if iMsg.Subject == "person.update" {
@@ -55,7 +55,7 @@ func (ps *GismoPersonSubscriber) Listen(msg *nats.Msg) (*inbox.Message, error) {
 	}
 
 	if err != nil {
-		return iMsg, fmt.Errorf("%w: unable to store person record: %s", ErrFatal, err)
+		return iMsg, fmt.Errorf("%w: unable to store person record: %s", models.ErrFatal, err)
 	}
 
 	return iMsg, nil

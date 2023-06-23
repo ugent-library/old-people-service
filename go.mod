@@ -7,6 +7,7 @@ require (
 	entgo.io/ent v0.12.1
 	github.com/antchfx/xmlquery v1.3.17
 	github.com/caarlos0/env/v8 v8.0.0
+	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/golang/protobuf v1.5.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/jackc/pgx/v5 v5.3.1

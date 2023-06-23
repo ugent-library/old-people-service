@@ -29,7 +29,7 @@ func (os *GismoOrganizationSubscriber) Listen(msg *nats.Msg) (*inbox.Message, er
 	iMsg, err := gismo.ParseOrganizationMessage(msg.Data)
 
 	if err != nil {
-		return nil, fmt.Errorf("%w: unable to process malformed message: %s", ErrNonFatal, err)
+		return nil, fmt.Errorf("%w: unable to process malformed message: %s", models.ErrNonFatal, err)
 	}
 
 	org, err := os.organizationService.GetOrganization(ctx, iMsg.ID)
@@ -37,7 +37,7 @@ func (os *GismoOrganizationSubscriber) Listen(msg *nats.Msg) (*inbox.Message, er
 	if err != nil && err == models.ErrNotFound {
 		org = models.NewOrganization()
 	} else if err != nil {
-		return iMsg, fmt.Errorf("%w: unable to fetch organization record: %s", ErrFatal, err)
+		return iMsg, fmt.Errorf("%w: unable to fetch organization record: %s", models.ErrFatal, err)
 	}
 
 	if iMsg.Subject == "organization.update" {
@@ -50,12 +50,12 @@ func (os *GismoOrganizationSubscriber) Listen(msg *nats.Msg) (*inbox.Message, er
 		}
 
 		if err != nil {
-			return iMsg, fmt.Errorf("%w: unable to store organization record: %s", ErrFatal, err)
+			return iMsg, fmt.Errorf("%w: unable to store organization record: %s", models.ErrFatal, err)
 		}
 	} else if iMsg.Subject == "organization.delete" {
 		if org.IsStored() {
 			if err := os.organizationService.DeleteOrganization(ctx, org.Id); err != nil {
-				return iMsg, fmt.Errorf("%w: unable to delete organization record: %s", ErrFatal, err)
+				return iMsg, fmt.Errorf("%w: unable to delete organization record: %s", models.ErrFatal, err)
 			}
 		}
 	}

@@ -6,6 +6,8 @@ import (
 )
 
 var ErrNotFound = errors.New("not found")
+var ErrFatal = errors.New("fatal error")
+var ErrNonFatal = errors.New("non fatal error")
 
 type PersonService interface {
 	CreatePerson(context.Context, *Person) (*Person, error)

@@ -94,10 +94,11 @@ func ensureAck(msg *nats.Msg) {
 func natsConnect(config ConfigNats) (*nats.Conn, error) {
 	options := nats.Options{
 		Url:                  config.Url,
-		MaxReconnect:         10,
+		MaxReconnect:         100, // try reconnect n times, and then give up
 		RetryOnFailedConnect: true,
-		ReconnectWait:        10,
-		Timeout:              30 * time.Second,
+		ReconnectWait:        10 * time.Second,
+		Timeout:              10 * time.Second, // connection timeout
+		AllowReconnect:       true,
 	}
 
 	/*
@@ -113,6 +114,16 @@ func natsConnect(config ConfigNats) (*nats.Conn, error) {
 		options.SignatureCB = func(nonce []byte) ([]byte, error) {
 			return user.Sign(nonce)
 		}
+	}
+
+	options.DisconnectedErrCB = func(c *nats.Conn, err error) {
+		logger.Errorf("Client connection to NATS closed, and was unable to reconnect (num reconnections: %d): %s", c.Reconnects, err)
+	}
+	options.ReconnectedCB = func(c *nats.Conn) {
+		logger.Infof("Client connection to NATS restored")
+	}
+	options.ClosedCB = func(c *nats.Conn) {
+		logger.Infof("Client connection to NATS closed")
 	}
 
 	return options.Connect()

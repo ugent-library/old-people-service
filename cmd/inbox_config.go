@@ -6,6 +6,8 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nkeys"
+	"github.com/ugent-library/person-service/models"
+	"github.com/ugent-library/person-service/subscribers"
 )
 
 var natsStreamConfig = nats.StreamConfig{
@@ -50,9 +52,6 @@ var natsOrganizationConsumerConfig = nats.ConsumerConfig{
 	MaxAckPending: 1,
 	FilterSubject: "gismo.organization",
 }
-
-const personSubject = "gismo.person"
-const organizationSubject = "gismo.organization"
 
 func initInboxStream(js nats.JetStreamContext) error {
 	stream, _ := js.StreamInfo(natsStreamConfig.Name)
@@ -117,4 +116,17 @@ func natsConnect(config ConfigNats) (*nats.Conn, error) {
 	}
 
 	return options.Connect()
+}
+
+func buildSubscribers(js nats.JetStreamContext, services *models.Services) ([]subscribers.Subcriber, error) {
+	if err := initConsumer(js, natsStreamConfig.Name, &natsPersonConsumerConfig); err != nil {
+		return nil, fmt.Errorf("unable to create nats consumer %s: %w", natsPersonConsumerConfig.Durable, err)
+	}
+	if err := initConsumer(js, natsStreamConfig.Name, &natsOrganizationConsumerConfig); err != nil {
+		return nil, fmt.Errorf("unable to create nats consumer %s: %w", natsOrganizationConsumerConfig.Durable, err)
+	}
+	return []subscribers.Subcriber{
+		subscribers.NewGismoOrganizationSubscriber(natsOrganizationConsumerConfig.FilterSubject, services.OrganizationService, nats.Bind(natsStreamConfig.Name, natsOrganizationConsumerConfig.Durable)),
+		subscribers.NewGismoPersonSubscriber(natsPersonConsumerConfig.FilterSubject, services.PersonService, nats.Bind(natsStreamConfig.Name, natsPersonConsumerConfig.Durable)),
+	}, nil
 }

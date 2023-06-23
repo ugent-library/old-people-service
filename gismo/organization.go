@@ -2,6 +2,7 @@ package gismo
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"time"
 
@@ -21,13 +22,13 @@ func ParseOrganizationMessage(buf []byte) (*inbox.Message, error) {
 	node := xmlquery.FindOne(doc, "//cfOrgUnit")
 
 	if node == nil {
-		return nil, ErrNonCompliantXml
+		return nil, fmt.Errorf("%w: unable to find xml node //cfOrgUnit", ErrNonCompliantXml)
 	}
 
 	idNode := xmlquery.FindOne(node, "cfOrgUnitId")
 
 	if idNode == nil {
-		return nil, ErrNonCompliantXml
+		return nil, fmt.Errorf("%w: unable to find xml node //cfOrgUnit/cfOrgUnitId", ErrNonCompliantXml)
 	}
 
 	msg := &inbox.Message{

@@ -2,6 +2,7 @@ package gismo
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"time"
 
@@ -20,19 +21,19 @@ func ParsePersonMessage(buf []byte) (*inbox.Message, error) {
 	node := xmlquery.FindOne(doc, "//cfPers")
 
 	if node == nil {
-		return nil, ErrNonCompliantXml
+		return nil, fmt.Errorf("%w: unable to find xml node //cfPers", ErrNonCompliantXml)
 	}
 
 	idNode := xmlquery.FindOne(node, "cfPersId")
 
 	if idNode == nil {
-		return nil, ErrNonCompliantXml
+		return nil, fmt.Errorf("%w: unable to find xml node //cfPers/cfPersId", ErrNonCompliantXml)
 	}
 
 	langNode := xmlquery.FindOne(node, "cfPers_Lang/cfLangCode")
 
 	if langNode == nil {
-		return nil, ErrNonCompliantXml
+		return nil, fmt.Errorf("%w: unable to find xml node //cfPers/cfPers_Lang/cfLangCode", ErrNonCompliantXml)
 	}
 
 	msg := &inbox.Message{

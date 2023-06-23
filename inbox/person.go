@@ -9,9 +9,8 @@ import (
 	"github.com/ugent-library/person-service/validation"
 )
 
-func (s *InboxMessage) UpdatePersonAttr(person *models.Person) *models.Person {
-
-	person.Id = s.Message.ID
+func (m *Message) UpdatePersonAttr(person *models.Person) *models.Person {
+	person.Id = m.ID
 
 	now := time.Now()
 
@@ -30,7 +29,7 @@ func (s *InboxMessage) UpdatePersonAttr(person *models.Person) *models.Person {
 	person.PreferredFirstName = ""
 	person.PreferredLastName = ""
 
-	for _, attr := range s.Message.Attributes {
+	for _, attr := range m.Attributes {
 
 		if !(attr.StartDate.Before(now) && attr.EndDate.After(now)) {
 			continue
@@ -87,6 +86,17 @@ func (s *InboxMessage) UpdatePersonAttr(person *models.Person) *models.Person {
 			person.PreferredFirstName = attr.Value
 		case "preferred_last_name":
 			person.PreferredLastName = attr.Value
+		}
+	}
+
+	// TODO: remove this when full_name is provided by soap
+	if person.FullName == "" {
+		if person.FirstName != "" && person.LastName != "" {
+			person.FullName = person.FirstName + " " + person.LastName
+		} else if person.FirstName != "" {
+			person.FullName = person.FirstName
+		} else if person.LastName != "" {
+			person.FullName = person.LastName
 		}
 	}
 

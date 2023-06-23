@@ -2,29 +2,32 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"runtime"
 
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
-	"github.com/ugent-library/person-service/inbox"
+	"github.com/ugent-library/person-service/gismo"
 	"github.com/ugent-library/person-service/models"
-	"github.com/ugent-library/person-service/validation"
 )
 
 /*
-TODO: on delete of organizations push all related people to person.updated?
+	notes:
+
+	- "nc.Drain()" not used. It introduced weird behaviour in our case (messages only sent after restart)
+	- subscribe options:
+		- Bind(streamName, consumerName) reserves connection to exactly one worker
+		- AckExplicit: true
+		- MaxAckPending: 1
+		- ManualAck: true (not sure why this is need if AckExplicit is true)
 */
 
 var inboxListenCmd = &cobra.Command{
 	Use: "listen",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		services := Services()
-		personService := services.PersonService
-		organizationService := services.OrganizationService
+		personService := Services().PersonService
+		organizationService := Services().OrganizationService
 
 		nc, err := natsConnect(config.Nats)
 
@@ -32,55 +35,32 @@ var inboxListenCmd = &cobra.Command{
 			logger.Fatal(fmt.Errorf("unable to connect to nats: %w", err))
 		}
 
-		// "drain" introduces weird behaviour (messages only sent after restart)
-		//defer nc.Drain()
-
 		js, _ := nc.JetStream()
 
 		if err := initConsumer(js, natsStreamConfig.Name, &natsPersonConsumerConfig); err != nil {
-			logger.Fatal(fmt.Errorf("unable to create nats consumer for person: %w", err))
+			logger.Fatal(fmt.Errorf("unable to create nats consumer for %s: %w", personSubject, err))
 		}
 
-		// subscribe to person.*
-		_, subPersonErr := js.Subscribe("person.*", func(msg *nats.Msg) {
+		// subscribe to gismo.person xml messages
+		// subject are translated into person.update and person.delete
+		_, subPersonErr := js.Subscribe(personSubject, func(msg *nats.Msg) {
+			ctx := context.Background()
+			iMsg, err := gismo.ParsePersonMessage(msg.Data)
 
-			iMsg := &inbox.InboxMessage{}
-			iMsg.Subject = msg.Subject
-			iMsg.Message = &inbox.Message{}
-
-			// remove message on invalid subject
-			if !validation.InArray(inboxPersonStreamSubjects, iMsg.Subject) {
-				logger.Errorf("subscriber person: removed message with invalid subject %s", iMsg.Subject)
+			if err != nil {
+				logger.Errorf("subscriber %s: unable to process malformed message: %s", personSubject, err)
 				ensureAck(msg)
 				return
 			}
 
-			// remove malformed message
-			// leave no trace
-			if err := json.Unmarshal(msg.Data, iMsg.Message); err != nil {
-				logger.Errorf("unable to decode nats message data as json: %w", err)
-				ensureAck(msg)
-				return
-			}
-
-			// remove malformed message
-			// push validation errors to subject inbox.rejected
-			if vErrs := iMsg.Validate(); vErrs != nil {
-				logger.Errorf("unable to validate message with id %s: %s", iMsg.Message.ID, vErrs.Error())
-				ensureAck(msg)
-				return
-			}
-
-			person, err := personService.GetPerson(context.Background(), iMsg.Message.ID)
+			person, err := personService.GetPerson(ctx, iMsg.ID)
 
 			if err != nil && err == models.ErrNotFound {
-				person = &models.Person{}
+				person = models.NewPerson()
 			} else if err != nil {
-				// something is seriously wrong. We should stop processing records
-				log.Fatal(fmt.Errorf("unable to fetch person record '%s': %w", iMsg.Message.ID, err))
+				log.Fatal(fmt.Errorf("subscriber %s: unable to fetch person record '%s': %w", personSubject, iMsg.ID, err))
 			}
 
-			// TODO update attributes during a delete?
 			if iMsg.Subject == "person.update" {
 				iMsg.UpdatePersonAttr(person)
 				person.Active = true
@@ -88,139 +68,93 @@ var inboxListenCmd = &cobra.Command{
 				person.Active = false
 			}
 
-			var updateErr error
-			var updatedPerson *models.Person
 			if person.IsStored() {
-				updatedPerson, updateErr = personService.UpdatePerson(context.Background(), person)
+				person, err = personService.UpdatePerson(ctx, person)
 			} else {
-				updatedPerson, updateErr = personService.CreatePerson(context.Background(), person)
+				person, err = personService.CreatePerson(ctx, person)
 			}
 
-			// create/update failed: stop processing records
-			if updateErr != nil {
-				logger.Fatal(fmt.Errorf("unable to store person %s: %w", person.Id, updateErr))
+			if err != nil {
+				logger.Fatal(fmt.Errorf("subscriber %s: unable to store person %s: %w", organizationSubject, iMsg.ID, err))
 			}
 
-			person = updatedPerson
+			logger.Infof("subscriber %s: updated person %s", organizationSubject, person.Id)
 
-			logger.Infof("updated person %s", person.Id)
-
-			// TODO: post serialized model.Person back to subject person.updated
-
-			// acknowledge msg or die
 			ensureAck(msg)
 
 		},
-			// second and next subscription will fail when using Bind
 			nats.Bind(natsStreamConfig.Name, natsPersonConsumerConfig.Durable),
 			nats.AckExplicit(),
 			nats.MaxAckPending(1),
-			// subscription specific option
-			// without this message is acknowledged automatically (see "mack" in nats.SubOpt)
-			nats.ManualAck(), // don't ask: why needed if AckExplicit is set?
+			nats.ManualAck(),
 		)
 
 		if subPersonErr != nil {
-			logger.Fatal(fmt.Errorf("unable to subscribe to nats subject person.*: %w", subPersonErr))
+			logger.Fatal(fmt.Errorf("unable to subscribe to nats subject %s: %w", personSubject, subPersonErr))
 		}
 
-		logger.Info("started to listen to messages at subject person.*")
+		logger.Infof("started to listen to messages at subject %s", personSubject)
 
 		if err := initConsumer(js, natsStreamConfig.Name, &natsOrganizationConsumerConfig); err != nil {
-			logger.Fatal(fmt.Errorf("unable to create nats consumer for organization: %w", err))
+			logger.Fatal(fmt.Errorf("unable to create nats consumer for %s: %w", organizationSubject, err))
 		}
 
-		// subscribe to organization.*
-		_, subOrgErr := js.Subscribe("organization.*", func(msg *nats.Msg) {
-
+		// subscribe to gismo.organization
+		// subject is translated into organization.update and organization.delete
+		_, subOrgErr := js.Subscribe(organizationSubject, func(msg *nats.Msg) {
 			ctx := context.Background()
-			iMsg := &inbox.InboxMessage{}
-			iMsg.Subject = msg.Subject
-			iMsg.Message = &inbox.Message{}
+			iMsg, err := gismo.ParseOrganizationMessage(msg.Data)
 
-			// remove message on invalid subject
-			if !validation.InArray(inboxOrganizationStreamSubjects, iMsg.Subject) {
-				logger.Errorf("subscriber org:removed message with invalid subject %s", iMsg.Subject)
+			if err != nil {
+				logger.Errorf("subscriber %s: unable to process malformed message: %s", organizationSubject, err)
 				ensureAck(msg)
 				return
 			}
 
-			// remove malformed message
-			// leave no trace
-			if err := json.Unmarshal(msg.Data, iMsg.Message); err != nil {
-				logger.Errorf("unable to decode nats message data as json: %w", err)
-				ensureAck(msg)
-				return
-			}
-
-			// remove malformed message
-			// push validation errors to subject inbox.rejected
-			if vErrs := iMsg.Validate(); vErrs != nil {
-				logger.Errorf("unable to validate message with id %s: %s", iMsg.Message.ID, vErrs.Error())
-				ensureAck(msg)
-				return
-			}
-
-			org, err := organizationService.GetOrganization(ctx, iMsg.Message.ID)
+			org, err := organizationService.GetOrganization(ctx, iMsg.ID)
 
 			if err != nil && err == models.ErrNotFound {
-				org = &models.Organization{}
+				org = models.NewOrganization()
 			} else if err != nil {
-				// something is seriously wrong. We should stop processing records
-				log.Fatal(fmt.Errorf("unable to fetch organization record '%s': %w", iMsg.Message.ID, err))
+				log.Fatal(fmt.Errorf("subscriber %s: unable to fetch organization record '%s': %w", organizationSubject, iMsg.ID, err))
 			}
 
-			// TODO update attributes during a delete?
 			if iMsg.Subject == "organization.update" {
-
 				iMsg.UpdateOrganizationAttr(org)
 
-				var updateErr error
-				var updatedOrg *models.Organization
 				if org.IsStored() {
-					updatedOrg, updateErr = organizationService.UpdateOrganization(ctx, org)
+					org, err = organizationService.UpdateOrganization(ctx, org)
 				} else {
-					updatedOrg, updateErr = organizationService.CreateOrganization(ctx, org)
+					org, err = organizationService.CreateOrganization(ctx, org)
 				}
 
-				// create/update failed: stop processing records
-				if updateErr != nil {
-					logger.Fatal(fmt.Errorf("unable to store organization %s: %w", org.Id, updateErr))
+				if err != nil {
+					logger.Fatal(fmt.Errorf("subscriber %s: unable to store organization %s: %w", organizationSubject, iMsg.ID, err))
 				}
-
-				org = updatedOrg
-
 			} else if iMsg.Subject == "organization.delete" {
-
 				if org.IsStored() {
 					if err := organizationService.DeleteOrganization(ctx, org.Id); err != nil {
-						logger.Fatalf("unable to delete organization %s: %w", org.Id, err)
+						logger.Fatalf("subscriber %s: unable to delete organization %s: %w", organizationSubject, org.Id, err)
 					}
 				}
-
 			}
 
-			logger.Infof("updated organization %s from message %s", org.Id, iMsg.Message.ID)
-			// TODO: republish updated record to subject organization.updated/organization.deleted
+			logger.Infof("subscriber %s: updated organization %s", organizationSubject, org.Id)
 
-			// acknowledge msg or die
 			ensureAck(msg)
 
 		},
-			// second and next subscription will fail when using Bind
 			nats.Bind(natsStreamConfig.Name, natsOrganizationConsumerConfig.Durable),
 			nats.AckExplicit(),
 			nats.MaxAckPending(1),
-			// subscription specific option
-			// without this message is acknowledged automatically (see "mack" in nats.SubOpt)
-			nats.ManualAck(), // don't ask: why needed if AckExplicit is set?
+			nats.ManualAck(),
 		)
 
 		if subOrgErr != nil {
-			logger.Fatal(fmt.Errorf("unable to subscribe to nats subject organization.*: %w", subOrgErr))
+			logger.Fatal(fmt.Errorf("unable to subscribe to nats subject %s: %w", organizationSubject, subOrgErr))
 		}
 
-		logger.Info("started to listen to messages at subject organization.*")
+		logger.Infof("started to listen to messages at subject %s", organizationSubject)
 
 		runtime.Goexit() // wait for go routine to end (never)
 

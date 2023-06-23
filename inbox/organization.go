@@ -7,9 +7,8 @@ import (
 	"github.com/ugent-library/person-service/models"
 )
 
-func (s *InboxMessage) UpdateOrganizationAttr(org *models.Organization) *models.Organization {
-
-	org.Id = s.Message.ID
+func (m *Message) UpdateOrganizationAttr(org *models.Organization) *models.Organization {
+	org.Id = m.ID
 
 	//clear previous values
 	org.NameDut = ""
@@ -20,7 +19,7 @@ func (s *InboxMessage) UpdateOrganizationAttr(org *models.Organization) *models.
 
 	now := time.Now()
 
-	for _, attr := range s.Message.Attributes {
+	for _, attr := range m.Attributes {
 
 		if !(attr.StartDate.Before(now) && attr.EndDate.After(now)) {
 			continue
@@ -52,6 +51,5 @@ func (s *InboxMessage) UpdateOrganizationAttr(org *models.Organization) *models.
 			})
 		}
 	}
-
 	return org
 }

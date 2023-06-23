@@ -9,12 +9,10 @@ import (
 )
 
 var natsStreamConfig = nats.StreamConfig{
-	Name: "PEOPLE",
+	Name: "GISMO",
 	Subjects: []string{
-		"person.update",
-		"person.delete",
-		"organization.update",
-		"organization.delete",
+		"gismo.person",
+		"gismo.organization",
 	},
 	Storage: nats.FileStorage,
 }
@@ -33,7 +31,7 @@ var natsPersonConsumerConfig = nats.ConsumerConfig{
 		when they need to be redelivered
 	*/
 	MaxAckPending: 1,
-	FilterSubject: "person.*",
+	FilterSubject: "gismo.person",
 }
 
 var natsOrganizationConsumerConfig = nats.ConsumerConfig{
@@ -50,12 +48,11 @@ var natsOrganizationConsumerConfig = nats.ConsumerConfig{
 		when they need to be redelivered
 	*/
 	MaxAckPending: 1,
-	FilterSubject: "organization.*",
+	FilterSubject: "gismo.organization",
 }
 
-var inboxPersonStreamSubjects = []string{"person.update", "person.delete"}
-
-var inboxOrganizationStreamSubjects = []string{"organization.update", "organization.delete"}
+const personSubject = "gismo.person"
+const organizationSubject = "gismo.organization"
 
 func initInboxStream(js nats.JetStreamContext) error {
 	stream, _ := js.StreamInfo(natsStreamConfig.Name)
@@ -96,7 +93,6 @@ func ensureAck(msg *nats.Msg) {
 }
 
 func natsConnect(config ConfigNats) (*nats.Conn, error) {
-
 	options := nats.Options{
 		Url:                  config.Url,
 		MaxReconnect:         10,

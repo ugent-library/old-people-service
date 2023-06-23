@@ -12,3 +12,9 @@ type Organization struct {
 func (org *Organization) IsStored() bool {
 	return org.DateCreated != nil
 }
+
+func NewOrganization() *Organization {
+	return &Organization{
+		Organization: &v1.Organization{},
+	}
+}

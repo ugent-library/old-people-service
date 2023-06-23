@@ -13,3 +13,9 @@ type Person struct {
 func (person *Person) IsStored() bool {
 	return person.DateCreated != nil
 }
+
+func NewPerson() *Person {
+	return &Person{
+		Person: &v1.Person{},
+	}
+}

@@ -22,42 +22,7 @@ type Message struct {
 	ID         string      `json:"id,omitempty"`
 	Language   string      `json:"language"`
 	Attributes []Attribute `json:"attributes"`
-}
-
-type InboxMessage struct {
-	Subject string   `json:"subject,omitempty"`
-	Message *Message `json:"person_message"`
-}
-
-type InboxErrorMessage struct {
-	InboxMessage *InboxMessage       `json:"inbox_message,omitempty"`
-	Errors       []*validation.Error `json:"errors,omitempty"`
-}
-
-func (s *InboxMessage) Validate() validation.Errors {
-	var errs validation.Errors
-
-	if s.Subject == "" {
-		errs = append(errs, &validation.Error{
-			Pointer: "/subject",
-			Code:    "subject.required",
-		})
-	}
-	if s.Message == nil {
-		errs = append(errs, &validation.Error{
-			Pointer: "/message",
-			Code:    "message.required",
-		})
-	} else if mErrs := s.Message.Validate(); mErrs != nil {
-		for _, err := range mErrs {
-			errs = append(errs, &validation.Error{
-				Pointer: "/message" + err.Pointer,
-				Code:    "message." + err.Code,
-			})
-		}
-	}
-
-	return errs
+	Subject    string      `json:"-"` // only for nats
 }
 
 func (m *Message) Validate() validation.Errors {
@@ -67,6 +32,13 @@ func (m *Message) Validate() validation.Errors {
 		errs = append(errs, &validation.Error{
 			Pointer: "/id",
 			Code:    "id.required",
+		})
+	}
+
+	if m.Subject == "" {
+		errs = append(errs, &validation.Error{
+			Pointer: "/subject",
+			Code:    "subject.required",
 		})
 	}
 

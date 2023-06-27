@@ -1,12 +1,10 @@
 /* 
-  make sure you have the protoc compiler
-  and install the go plugins with
-  go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-  go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-  then generate with:
-
-  protoc -I./api/v1 --go_out=api/v1/. --go_opt=paths=source_relative --go-grpc_out=api/v1/. --go-grpc_opt=paths=source_relative api/v1/person.proto
-  */
+  $ go install github.com/bufbuild/buf/cmd/buf@latest
+  $ go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
+  $ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+  $ go install github.com/bufbuild/connect-go/cmd/protoc-gen-connect-go@latest
+  $ buf generate
+*/
 syntax="proto3";
 
 package api.v1;
@@ -14,19 +12,12 @@ package api.v1;
 option go_package = "github.com/ugent-library/person-service/api/v1";
 
 import "google/protobuf/timestamp.proto";
-import "google/rpc/status.proto";
-
-/*
-  TODO: omitempty for boolean fields is hardcoded
-  into the code generation due to historical mistake.
-*/
 
 message IdRef {
   string id = 1;
   string type = 2;
 }
 
-// IMPORTANT: tag "json_name" only works for protojson
 message Person {
   string id = 1;
   bool active = 2;
@@ -65,10 +56,7 @@ message GetPersonRequest {
 }
 
 message GetPersonResponse {
-  oneof response {
-    Person person = 1;   
-    google.rpc.Status error = 2;
-  }
+  Person person = 1;   
 }
 
 message GetAllPersonRequest {}
@@ -88,10 +76,7 @@ message GetOrganizationRequest {
   string id = 1;
 }
 message GetOrganizationResponse {
-  oneof response {
-    Organization organization = 1;   
-    google.rpc.Status error = 2;
-  }
+  Organization organization = 1;   
 }
 
 message GetAllOrganizationRequest {}
@@ -111,10 +96,7 @@ message SetPersonOrcidTokenRequest {
   string orcid_token = 2;
 }
 message SetPersonOrcidTokenResponse {
-  oneof response {
-    string message = 1;
-    google.rpc.Status error = 2;
-  }
+  string message = 1;
 }
 
 message SetPersonOrcidRequest {
@@ -122,10 +104,7 @@ message SetPersonOrcidRequest {
   string orcid = 2;
 }
 message SetPersonOrcidResponse {
-  oneof response {
-    string message = 1;
-    google.rpc.Status error = 2;
-  }
+  string message = 1;
 }
 
 message SetPersonRoleRequest {
@@ -133,10 +112,7 @@ message SetPersonRoleRequest {
   repeated string role = 2;
 }
 message SetPersonRoleResponse {
-  oneof response {
-    string message = 1;
-    google.rpc.Status error = 2;
-  }
+  string message = 1;
 }
 
 message SetPersonSettingsRequest {
@@ -144,10 +120,7 @@ message SetPersonSettingsRequest {
   map<string,string> settings = 2;
 }
 message SetPersonSettingsResponse {
-  oneof response {
-    string message = 1;
-    google.rpc.Status error = 2;
-  }
+  string message = 1;
 }
 
 service PersonService {

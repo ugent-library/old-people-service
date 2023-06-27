@@ -40,7 +40,7 @@ func (os *GismoOrganizationSubscriber) Listen(msg *nats.Msg) (*inbox.Message, er
 		return iMsg, fmt.Errorf("%w: unable to fetch organization record: %s", models.ErrFatal, err)
 	}
 
-	if iMsg.Subject == "organization.update" {
+	if iMsg.Source == "gismo.organization.update" {
 		iMsg.UpdateOrganizationAttr(org)
 
 		if org.IsStored() {
@@ -52,7 +52,7 @@ func (os *GismoOrganizationSubscriber) Listen(msg *nats.Msg) (*inbox.Message, er
 		if err != nil {
 			return iMsg, fmt.Errorf("%w: unable to store organization record: %s", models.ErrFatal, err)
 		}
-	} else if iMsg.Subject == "organization.delete" {
+	} else if iMsg.Source == "gismo.organization.delete" {
 		if org.IsStored() {
 			if err := os.organizationService.DeleteOrganization(ctx, org.Id); err != nil {
 				return iMsg, fmt.Errorf("%w: unable to delete organization record: %s", models.ErrFatal, err)

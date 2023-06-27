@@ -41,10 +41,10 @@ func (ps *GismoPersonSubscriber) Listen(msg *nats.Msg) (*inbox.Message, error) {
 		return iMsg, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)
 	}
 
-	if iMsg.Subject == "person.update" {
+	if iMsg.Source == "gismo.person.update" {
 		iMsg.UpdatePersonAttr(person)
 		person.Active = true
-	} else if iMsg.Subject == "person.delete" {
+	} else if iMsg.Source == "gismo.person.delete" {
 		person.Active = false
 	}
 

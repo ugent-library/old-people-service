@@ -22,7 +22,7 @@ type Message struct {
 	ID         string      `json:"id,omitempty"`
 	Language   string      `json:"language"`
 	Attributes []Attribute `json:"attributes"`
-	Subject    string      `json:"-"` // only for nats
+	Source     string      `json:"-"` // filled with nats subject
 }
 
 func (m *Message) Validate() validation.Errors {
@@ -35,7 +35,7 @@ func (m *Message) Validate() validation.Errors {
 		})
 	}
 
-	if m.Subject == "" {
+	if m.Source == "" {
 		errs = append(errs, &validation.Error{
 			Pointer: "/subject",
 			Code:    "subject.required",

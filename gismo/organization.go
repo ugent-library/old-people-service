@@ -36,9 +36,9 @@ func ParseOrganizationMessage(buf []byte) (*inbox.Message, error) {
 	}
 
 	if node.SelectAttr("action") == "DELETE" {
-		msg.Subject = "gismo.organization.delete"
+		msg.Source = "gismo.organization.delete"
 	} else {
-		msg.Subject = "organization.update"
+		msg.Source = "gismo.organization.update"
 
 		for _, n := range xmlquery.Find(node, "//cfName") {
 			t1, err := time.Parse(time.RFC3339, n.SelectAttr("cfStartDate"))

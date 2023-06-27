@@ -42,9 +42,9 @@ func ParsePersonMessage(buf []byte) (*inbox.Message, error) {
 	}
 
 	if node.SelectAttr("action") == "DELETE" {
-		msg.Subject = "person.delete"
+		msg.Source = "gismo.person.delete"
 	} else {
-		msg.Subject = "person.update"
+		msg.Source = "gismo.person.update"
 
 		for _, nameNode := range cerifNodesByClassName(doc, "cfPersName_Pers", "/be.ugent/gismo/persoon/persoonsnaam/type/officiele-naam") {
 			startDate, err := time.Parse(time.RFC3339, strings.TrimSpace(xmlquery.FindOne(nameNode, "cfStartDate").InnerText()))

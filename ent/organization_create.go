@@ -57,6 +57,20 @@ func (oc *OrganizationCreate) SetPublicID(s string) *OrganizationCreate {
 	return oc
 }
 
+// SetNillablePublicID sets the "public_id" field if the given value is not nil.
+func (oc *OrganizationCreate) SetNillablePublicID(s *string) *OrganizationCreate {
+	if s != nil {
+		oc.SetPublicID(*s)
+	}
+	return oc
+}
+
+// SetGismoID sets the "gismo_id" field.
+func (oc *OrganizationCreate) SetGismoID(s string) *OrganizationCreate {
+	oc.mutation.SetGismoID(s)
+	return oc
+}
+
 // SetType sets the "type" field.
 func (oc *OrganizationCreate) SetType(s string) *OrganizationCreate {
 	oc.mutation.SetType(s)
@@ -102,20 +116,6 @@ func (oc *OrganizationCreate) SetNillableNameEng(s *string) *OrganizationCreate 
 // SetOtherID sets the "other_id" field.
 func (oc *OrganizationCreate) SetOtherID(sr []schema.IdRef) *OrganizationCreate {
 	oc.mutation.SetOtherID(sr)
-	return oc
-}
-
-// SetOtherParentID sets the "other_parent_id" field.
-func (oc *OrganizationCreate) SetOtherParentID(s string) *OrganizationCreate {
-	oc.mutation.SetOtherParentID(s)
-	return oc
-}
-
-// SetNillableOtherParentID sets the "other_parent_id" field if the given value is not nil.
-func (oc *OrganizationCreate) SetNillableOtherParentID(s *string) *OrganizationCreate {
-	if s != nil {
-		oc.SetOtherParentID(*s)
-	}
 	return oc
 }
 
@@ -226,6 +226,10 @@ func (oc *OrganizationCreate) defaults() {
 		v := organization.DefaultDateUpdated()
 		oc.mutation.SetDateUpdated(v)
 	}
+	if _, ok := oc.mutation.PublicID(); !ok {
+		v := organization.DefaultPublicID()
+		oc.mutation.SetPublicID(v)
+	}
 	if _, ok := oc.mutation.GetType(); !ok {
 		v := organization.DefaultType
 		oc.mutation.SetType(v)
@@ -242,6 +246,9 @@ func (oc *OrganizationCreate) check() error {
 	}
 	if _, ok := oc.mutation.PublicID(); !ok {
 		return &ValidationError{Name: "public_id", err: errors.New(`ent: missing required field "Organization.public_id"`)}
+	}
+	if _, ok := oc.mutation.GismoID(); !ok {
+		return &ValidationError{Name: "gismo_id", err: errors.New(`ent: missing required field "Organization.gismo_id"`)}
 	}
 	if _, ok := oc.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Organization.type"`)}
@@ -284,6 +291,10 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 		_spec.SetField(organization.FieldPublicID, field.TypeString, value)
 		_node.PublicID = value
 	}
+	if value, ok := oc.mutation.GismoID(); ok {
+		_spec.SetField(organization.FieldGismoID, field.TypeString, value)
+		_node.GismoID = &value
+	}
 	if value, ok := oc.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 		_node.Type = value
@@ -299,10 +310,6 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 	if value, ok := oc.mutation.OtherID(); ok {
 		_spec.SetField(organization.FieldOtherID, field.TypeJSON, value)
 		_node.OtherID = value
-	}
-	if value, ok := oc.mutation.OtherParentID(); ok {
-		_spec.SetField(organization.FieldOtherParentID, field.TypeString, value)
-		_node.OtherParentID = value
 	}
 	if nodes := oc.mutation.PeopleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

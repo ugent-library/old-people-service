@@ -44,13 +44,10 @@ var apiStartCmd = &cobra.Command{
 
 		services := Services()
 		grpcPath, grpcHandler := grpcserver.NewHandler(&grpcserver.ServerConfig{
-			Logger:                     logger,
-			PersonService:              services.PersonService,
-			PersonSuggestService:       services.PersonSuggestService,
-			OrganizationService:        services.OrganizationService,
-			OrganizationSuggestService: services.OrganizationSuggestService,
-			Username:                   config.Api.Username,
-			Password:                   config.Api.Password,
+			Logger:     logger,
+			Repository: services.Repository,
+			Username:   config.Api.Username,
+			Password:   config.Api.Password,
 		})
 		// important: use Mount instead of Handle. Otherwise reflection api does not work
 		mux.Mount(grpcPath, grpcHandler)
@@ -76,6 +73,5 @@ var apiStartCmd = &cobra.Command{
 			logger.Fatal(err)
 		}
 		logger.Info("gracefully stopped server")
-
 	},
 }

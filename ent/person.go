@@ -25,6 +25,8 @@ type Person struct {
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// PublicID holds the value of the "public_id" field.
 	PublicID string `json:"public_id,omitempty"`
+	// GismoID holds the value of the "gismo_id" field.
+	GismoID *string `json:"gismo_id,omitempty"`
 	// Active holds the value of the "active" field.
 	Active bool `json:"active,omitempty"`
 	// BirthDate holds the value of the "birth_date" field.
@@ -33,8 +35,6 @@ type Person struct {
 	Email string `json:"email,omitempty"`
 	// OtherID holds the value of the "other_id" field.
 	OtherID []schema.IdRef `json:"other_id,omitempty"`
-	// OtherOrganizationID holds the value of the "other_organization_id" field.
-	OtherOrganizationID []string `json:"other_organization_id,omitempty"`
 	// FirstName holds the value of the "first_name" field.
 	FirstName string `json:"first_name,omitempty"`
 	// FullName holds the value of the "full_name" field.
@@ -97,13 +97,13 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case person.FieldOtherID, person.FieldOtherOrganizationID, person.FieldJobCategory, person.FieldRole, person.FieldSettings:
+		case person.FieldOtherID, person.FieldJobCategory, person.FieldRole, person.FieldSettings:
 			values[i] = new([]byte)
 		case person.FieldActive:
 			values[i] = new(sql.NullBool)
 		case person.FieldID:
 			values[i] = new(sql.NullInt64)
-		case person.FieldPublicID, person.FieldBirthDate, person.FieldEmail, person.FieldFirstName, person.FieldFullName, person.FieldLastName, person.FieldOrcid, person.FieldOrcidToken, person.FieldPreferredFirstName, person.FieldPreferredLastName, person.FieldTitle:
+		case person.FieldPublicID, person.FieldGismoID, person.FieldBirthDate, person.FieldEmail, person.FieldFirstName, person.FieldFullName, person.FieldLastName, person.FieldOrcid, person.FieldOrcidToken, person.FieldPreferredFirstName, person.FieldPreferredLastName, person.FieldTitle:
 			values[i] = new(sql.NullString)
 		case person.FieldDateCreated, person.FieldDateUpdated:
 			values[i] = new(sql.NullTime)
@@ -146,6 +146,13 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pe.PublicID = value.String
 			}
+		case person.FieldGismoID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field gismo_id", values[i])
+			} else if value.Valid {
+				pe.GismoID = new(string)
+				*pe.GismoID = value.String
+			}
 		case person.FieldActive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field active", values[i])
@@ -170,14 +177,6 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 			} else if value != nil && len(*value) > 0 {
 				if err := json.Unmarshal(*value, &pe.OtherID); err != nil {
 					return fmt.Errorf("unmarshal field other_id: %w", err)
-				}
-			}
-		case person.FieldOtherOrganizationID:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field other_organization_id", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &pe.OtherOrganizationID); err != nil {
-					return fmt.Errorf("unmarshal field other_organization_id: %w", err)
 				}
 			}
 		case person.FieldFirstName:
@@ -307,6 +306,11 @@ func (pe *Person) String() string {
 	builder.WriteString("public_id=")
 	builder.WriteString(pe.PublicID)
 	builder.WriteString(", ")
+	if v := pe.GismoID; v != nil {
+		builder.WriteString("gismo_id=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
 	builder.WriteString("active=")
 	builder.WriteString(fmt.Sprintf("%v", pe.Active))
 	builder.WriteString(", ")
@@ -318,9 +322,6 @@ func (pe *Person) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("other_id=")
 	builder.WriteString(fmt.Sprintf("%v", pe.OtherID))
-	builder.WriteString(", ")
-	builder.WriteString("other_organization_id=")
-	builder.WriteString(fmt.Sprintf("%v", pe.OtherOrganizationID))
 	builder.WriteString(", ")
 	builder.WriteString("first_name=")
 	builder.WriteString(pe.FirstName)

@@ -11,7 +11,6 @@ import (
 )
 
 func ParseOrganizationMessage(buf []byte) (*inbox.Message, error) {
-
 	doc, err := xmlquery.Parse(bytes.NewReader(buf))
 	if err != nil {
 		return nil, err
@@ -73,6 +72,7 @@ func ParseOrganizationMessage(buf []byte) (*inbox.Message, error) {
 				EndDate:   &v.EndDate,
 			})
 		}
+		// e.g. 000006047
 		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/memorialis", "cfFedId") {
 			msg.Attributes = append(msg.Attributes, inbox.Attribute{
 				Name:      "ugent_memorialis_id",
@@ -81,6 +81,7 @@ func ParseOrganizationMessage(buf []byte) (*inbox.Message, error) {
 				EndDate:   &v.EndDate,
 			})
 		}
+		// e.g. "WE03V"
 		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/org-code", "cfFedId") {
 			msg.Attributes = append(msg.Attributes, inbox.Attribute{
 				Name:      "code",
@@ -89,6 +90,7 @@ func ParseOrganizationMessage(buf []byte) (*inbox.Message, error) {
 				EndDate:   &v.EndDate,
 			})
 		}
+		// e.g. WE03*
 		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/biblio-code", "cfFedId") {
 			msg.Attributes = append(msg.Attributes, inbox.Attribute{
 				Name:      "biblio_code",

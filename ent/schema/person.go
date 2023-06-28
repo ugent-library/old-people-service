@@ -38,12 +38,11 @@ func (Person) Annotations() []schema.Annotation {
 // Fields of the Person.
 func (Person) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("public_id").Immutable().Unique(),
+		field.String("gismo_id").Unique().Nillable(),
 		field.Bool("active").Default(false),
 		field.String("birth_date").Optional(),
 		field.String("email").Optional(),
 		field.JSON("other_id", []IdRef{}).Optional(),
-		field.Strings("other_organization_id").Optional(),
 		field.String("first_name").Optional(),
 		field.String("full_name").Optional(),
 		field.String("last_name").Optional(),
@@ -55,8 +54,6 @@ func (Person) Fields() []ent.Field {
 		field.String("title").Optional(),
 		field.Strings("role").Optional(),
 		field.JSON("settings", map[string]string{}).Optional(),
-		// TODO: add generated field "ts"
-		// TODO: add working GIN index on "ts"
 	}
 }
 
@@ -70,6 +67,7 @@ alter table organization add column ts tsvector generated always as (to_tsvector
 func (Person) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
+		PublicIdMixin{},
 	}
 }
 
@@ -84,6 +82,7 @@ func (Person) Edges() []ent.Edge {
 func (Person) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("public_id"),
+		index.Fields("gismo_id"),
 		index.Fields("active"),
 		index.Fields("orcid"),
 		index.Fields("email"),

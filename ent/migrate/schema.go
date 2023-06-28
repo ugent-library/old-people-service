@@ -15,11 +15,11 @@ var (
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "public_id", Type: field.TypeString, Unique: true},
+		{Name: "gismo_id", Type: field.TypeString, Unique: true},
 		{Name: "type", Type: field.TypeString, Default: "organization"},
 		{Name: "name_dut", Type: field.TypeString, Nullable: true},
 		{Name: "name_eng", Type: field.TypeString, Nullable: true},
 		{Name: "other_id", Type: field.TypeJSON, Nullable: true},
-		{Name: "other_parent_id", Type: field.TypeString, Nullable: true},
 		{Name: "parent_id", Type: field.TypeInt, Nullable: true},
 	}
 	// OrganizationTable holds the schema information for the "organization" table.
@@ -77,11 +77,11 @@ var (
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "public_id", Type: field.TypeString, Unique: true},
+		{Name: "gismo_id", Type: field.TypeString, Unique: true},
 		{Name: "active", Type: field.TypeBool, Default: false},
 		{Name: "birth_date", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString, Nullable: true},
 		{Name: "other_id", Type: field.TypeJSON, Nullable: true},
-		{Name: "other_organization_id", Type: field.TypeJSON, Nullable: true},
 		{Name: "first_name", Type: field.TypeString, Nullable: true},
 		{Name: "full_name", Type: field.TypeString, Nullable: true},
 		{Name: "last_name", Type: field.TypeString, Nullable: true},
@@ -106,9 +106,14 @@ var (
 				Columns: []*schema.Column{PersonColumns[3]},
 			},
 			{
-				Name:    "person_active",
+				Name:    "person_gismo_id",
 				Unique:  false,
 				Columns: []*schema.Column{PersonColumns[4]},
+			},
+			{
+				Name:    "person_active",
+				Unique:  false,
+				Columns: []*schema.Column{PersonColumns[5]},
 			},
 			{
 				Name:    "person_orcid",
@@ -118,7 +123,7 @@ var (
 			{
 				Name:    "person_email",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[6]},
+				Columns: []*schema.Column{PersonColumns[7]},
 			},
 			{
 				Name:    "person_first_name",

@@ -136,8 +136,18 @@ func buildSubscribers(js nats.JetStreamContext, services *models.Services) ([]su
 	if err := initConsumer(js, natsStreamConfig.Name, &natsOrganizationConsumerConfig); err != nil {
 		return nil, fmt.Errorf("unable to create nats consumer %s: %w", natsOrganizationConsumerConfig.Durable, err)
 	}
+	orgSConfig := subscribers.GismoOrganizationConfig{}
+	orgSConfig.Repository = services.Repository
+	orgSConfig.Subject = natsOrganizationConsumerConfig.FilterSubject
+	orgSConfig.SubOpts = []nats.SubOpt{nats.Bind(natsStreamConfig.Name, natsOrganizationConsumerConfig.Durable)}
+
+	personSConfig := subscribers.GismoPersonConfig{}
+	personSConfig.Repository = services.Repository
+	personSConfig.Subject = natsPersonConsumerConfig.FilterSubject
+	personSConfig.SubOpts = []nats.SubOpt{nats.Bind(natsStreamConfig.Name, natsPersonConsumerConfig.Durable)}
+
 	return []subscribers.Subcriber{
-		subscribers.NewGismoOrganizationSubscriber(natsOrganizationConsumerConfig.FilterSubject, services.OrganizationService, nats.Bind(natsStreamConfig.Name, natsOrganizationConsumerConfig.Durable)),
-		subscribers.NewGismoPersonSubscriber(natsPersonConsumerConfig.FilterSubject, services.PersonService, nats.Bind(natsStreamConfig.Name, natsPersonConsumerConfig.Durable)),
+		subscribers.NewGismoOrganizationSubscriber(orgSConfig),
+		subscribers.NewGismoPersonSubscriber(personSConfig),
 	}, nil
 }

@@ -39,6 +39,12 @@ func (pu *PersonUpdate) SetDateUpdated(t time.Time) *PersonUpdate {
 	return pu
 }
 
+// SetGismoID sets the "gismo_id" field.
+func (pu *PersonUpdate) SetGismoID(s string) *PersonUpdate {
+	pu.mutation.SetGismoID(s)
+	return pu
+}
+
 // SetActive sets the "active" field.
 func (pu *PersonUpdate) SetActive(b bool) *PersonUpdate {
 	pu.mutation.SetActive(b)
@@ -108,24 +114,6 @@ func (pu *PersonUpdate) AppendOtherID(sr []schema.IdRef) *PersonUpdate {
 // ClearOtherID clears the value of the "other_id" field.
 func (pu *PersonUpdate) ClearOtherID() *PersonUpdate {
 	pu.mutation.ClearOtherID()
-	return pu
-}
-
-// SetOtherOrganizationID sets the "other_organization_id" field.
-func (pu *PersonUpdate) SetOtherOrganizationID(s []string) *PersonUpdate {
-	pu.mutation.SetOtherOrganizationID(s)
-	return pu
-}
-
-// AppendOtherOrganizationID appends s to the "other_organization_id" field.
-func (pu *PersonUpdate) AppendOtherOrganizationID(s []string) *PersonUpdate {
-	pu.mutation.AppendOtherOrganizationID(s)
-	return pu
-}
-
-// ClearOtherOrganizationID clears the value of the "other_organization_id" field.
-func (pu *PersonUpdate) ClearOtherOrganizationID() *PersonUpdate {
-	pu.mutation.ClearOtherOrganizationID()
 	return pu
 }
 
@@ -468,6 +456,9 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.DateUpdated(); ok {
 		_spec.SetField(person.FieldDateUpdated, field.TypeTime, value)
 	}
+	if value, ok := pu.mutation.GismoID(); ok {
+		_spec.SetField(person.FieldGismoID, field.TypeString, value)
+	}
 	if value, ok := pu.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)
 	}
@@ -493,17 +484,6 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.OtherIDCleared() {
 		_spec.ClearField(person.FieldOtherID, field.TypeJSON)
-	}
-	if value, ok := pu.mutation.OtherOrganizationID(); ok {
-		_spec.SetField(person.FieldOtherOrganizationID, field.TypeJSON, value)
-	}
-	if value, ok := pu.mutation.AppendedOtherOrganizationID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldOtherOrganizationID, value)
-		})
-	}
-	if pu.mutation.OtherOrganizationIDCleared() {
-		_spec.ClearField(person.FieldOtherOrganizationID, field.TypeJSON)
 	}
 	if value, ok := pu.mutation.FirstName(); ok {
 		_spec.SetField(person.FieldFirstName, field.TypeString, value)
@@ -711,6 +691,12 @@ func (puo *PersonUpdateOne) SetDateUpdated(t time.Time) *PersonUpdateOne {
 	return puo
 }
 
+// SetGismoID sets the "gismo_id" field.
+func (puo *PersonUpdateOne) SetGismoID(s string) *PersonUpdateOne {
+	puo.mutation.SetGismoID(s)
+	return puo
+}
+
 // SetActive sets the "active" field.
 func (puo *PersonUpdateOne) SetActive(b bool) *PersonUpdateOne {
 	puo.mutation.SetActive(b)
@@ -780,24 +766,6 @@ func (puo *PersonUpdateOne) AppendOtherID(sr []schema.IdRef) *PersonUpdateOne {
 // ClearOtherID clears the value of the "other_id" field.
 func (puo *PersonUpdateOne) ClearOtherID() *PersonUpdateOne {
 	puo.mutation.ClearOtherID()
-	return puo
-}
-
-// SetOtherOrganizationID sets the "other_organization_id" field.
-func (puo *PersonUpdateOne) SetOtherOrganizationID(s []string) *PersonUpdateOne {
-	puo.mutation.SetOtherOrganizationID(s)
-	return puo
-}
-
-// AppendOtherOrganizationID appends s to the "other_organization_id" field.
-func (puo *PersonUpdateOne) AppendOtherOrganizationID(s []string) *PersonUpdateOne {
-	puo.mutation.AppendOtherOrganizationID(s)
-	return puo
-}
-
-// ClearOtherOrganizationID clears the value of the "other_organization_id" field.
-func (puo *PersonUpdateOne) ClearOtherOrganizationID() *PersonUpdateOne {
-	puo.mutation.ClearOtherOrganizationID()
 	return puo
 }
 
@@ -1170,6 +1138,9 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	if value, ok := puo.mutation.DateUpdated(); ok {
 		_spec.SetField(person.FieldDateUpdated, field.TypeTime, value)
 	}
+	if value, ok := puo.mutation.GismoID(); ok {
+		_spec.SetField(person.FieldGismoID, field.TypeString, value)
+	}
 	if value, ok := puo.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)
 	}
@@ -1195,17 +1166,6 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	}
 	if puo.mutation.OtherIDCleared() {
 		_spec.ClearField(person.FieldOtherID, field.TypeJSON)
-	}
-	if value, ok := puo.mutation.OtherOrganizationID(); ok {
-		_spec.SetField(person.FieldOtherOrganizationID, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedOtherOrganizationID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldOtherOrganizationID, value)
-		})
-	}
-	if puo.mutation.OtherOrganizationIDCleared() {
-		_spec.ClearField(person.FieldOtherOrganizationID, field.TypeJSON)
 	}
 	if value, ok := puo.mutation.FirstName(); ok {
 		_spec.SetField(person.FieldFirstName, field.TypeString, value)

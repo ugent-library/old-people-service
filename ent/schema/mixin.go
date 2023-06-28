@@ -24,13 +24,13 @@ func (TimeMixin) Fields() []ent.Field {
 	}
 }
 
-type UUIDMixin struct {
+type PublicIdMixin struct {
 	mixin.Schema
 }
 
-func (UUIDMixin) Fields() []ent.Field {
+func (PublicIdMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").Immutable().Unique().DefaultFunc(func() string {
+		field.String("public_id").Immutable().Unique().DefaultFunc(func() string {
 			return ulid.Make().String()
 		}),
 	}

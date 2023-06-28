@@ -38,13 +38,11 @@ func (Organization) Annotations() []schema.Annotation {
 func (Organization) Fields() []ent.Field {
 	// field "id" is implied
 	return []ent.Field{
-		// TODO: public_id is derived from what gismo attribute??
-		field.String("public_id").Immutable().Unique(),
+		field.String("gismo_id").Unique().Nillable(),
 		field.String("type").Default("organization"),
 		field.String("name_dut").Optional(),
 		field.String("name_eng").Optional(),
 		field.JSON("other_id", []IdRef{}).Optional(),
-		field.String("other_parent_id").Optional(),
 		field.Int("parent_id").Optional(),
 	}
 }
@@ -64,5 +62,6 @@ func (Organization) Edges() []ent.Edge {
 func (Organization) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
+		PublicIdMixin{},
 	}
 }

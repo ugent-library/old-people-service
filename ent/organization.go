@@ -25,6 +25,8 @@ type Organization struct {
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// PublicID holds the value of the "public_id" field.
 	PublicID string `json:"public_id,omitempty"`
+	// GismoID holds the value of the "gismo_id" field.
+	GismoID *string `json:"gismo_id,omitempty"`
 	// Type holds the value of the "type" field.
 	Type string `json:"type,omitempty"`
 	// NameDut holds the value of the "name_dut" field.
@@ -33,8 +35,6 @@ type Organization struct {
 	NameEng string `json:"name_eng,omitempty"`
 	// OtherID holds the value of the "other_id" field.
 	OtherID []schema.IdRef `json:"other_id,omitempty"`
-	// OtherParentID holds the value of the "other_parent_id" field.
-	OtherParentID string `json:"other_parent_id,omitempty"`
 	// ParentID holds the value of the "parent_id" field.
 	ParentID int `json:"parent_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -107,7 +107,7 @@ func (*Organization) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case organization.FieldID, organization.FieldParentID:
 			values[i] = new(sql.NullInt64)
-		case organization.FieldPublicID, organization.FieldType, organization.FieldNameDut, organization.FieldNameEng, organization.FieldOtherParentID:
+		case organization.FieldPublicID, organization.FieldGismoID, organization.FieldType, organization.FieldNameDut, organization.FieldNameEng:
 			values[i] = new(sql.NullString)
 		case organization.FieldDateCreated, organization.FieldDateUpdated:
 			values[i] = new(sql.NullTime)
@@ -150,6 +150,13 @@ func (o *Organization) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				o.PublicID = value.String
 			}
+		case organization.FieldGismoID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field gismo_id", values[i])
+			} else if value.Valid {
+				o.GismoID = new(string)
+				*o.GismoID = value.String
+			}
 		case organization.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
@@ -175,12 +182,6 @@ func (o *Organization) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &o.OtherID); err != nil {
 					return fmt.Errorf("unmarshal field other_id: %w", err)
 				}
-			}
-		case organization.FieldOtherParentID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field other_parent_id", values[i])
-			} else if value.Valid {
-				o.OtherParentID = value.String
 			}
 		case organization.FieldParentID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -253,6 +254,11 @@ func (o *Organization) String() string {
 	builder.WriteString("public_id=")
 	builder.WriteString(o.PublicID)
 	builder.WriteString(", ")
+	if v := o.GismoID; v != nil {
+		builder.WriteString("gismo_id=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
 	builder.WriteString("type=")
 	builder.WriteString(o.Type)
 	builder.WriteString(", ")
@@ -264,9 +270,6 @@ func (o *Organization) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("other_id=")
 	builder.WriteString(fmt.Sprintf("%v", o.OtherID))
-	builder.WriteString(", ")
-	builder.WriteString("other_parent_id=")
-	builder.WriteString(o.OtherParentID)
 	builder.WriteString(", ")
 	builder.WriteString("parent_id=")
 	builder.WriteString(fmt.Sprintf("%v", o.ParentID))

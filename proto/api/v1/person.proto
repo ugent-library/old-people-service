@@ -20,35 +20,37 @@ message IdRef {
 
 message Person {
   string id = 1;
-  bool active = 2;
-  google.protobuf.Timestamp date_created = 3;
-  google.protobuf.Timestamp date_updated = 4;
-  string full_name = 5;
-  string first_name = 6;
-  string last_name = 7;
-  string email = 8;
-  string orcid = 9;
-  string orcid_token = 10;
-  string preferred_first_name = 11;
-  string preferred_last_name = 12;
-  string birth_date = 13;
-  string title = 14;
-  repeated IdRef other_id = 15;
-  repeated string organization_id = 16;
-  repeated string job_category = 17;
-  repeated string role = 18;
-  map<string,string> settings = 19;
+  string gismo_id = 2;
+  bool active = 3;
+  google.protobuf.Timestamp date_created = 4;
+  google.protobuf.Timestamp date_updated = 5;
+  string full_name = 6;
+  string first_name = 7;
+  string last_name = 8;
+  string email = 9;
+  string orcid = 10;
+  string orcid_token = 11;
+  string preferred_first_name = 12;
+  string preferred_last_name = 13;
+  string birth_date = 14;
+  string title = 15;
+  repeated IdRef other_id = 16;
+  repeated string organization_id = 17;
+  repeated string job_category = 18;
+  repeated string role = 19;
+  map<string,string> settings = 20;
 }
 
 message Organization {
   string id = 1;
-  google.protobuf.Timestamp date_created = 2;
-  google.protobuf.Timestamp date_updated = 3;
-  string type = 4;
-  string name_dut = 5;
-  string name_eng = 6;
-  string parent_id = 7;
-  repeated IdRef other_id = 8;
+  string gismo_id = 2;
+  google.protobuf.Timestamp date_created = 3;
+  google.protobuf.Timestamp date_updated = 4;
+  string type = 5;
+  string name_dut = 6;
+  string name_eng = 7;
+  string parent_id = 8;
+  repeated IdRef other_id = 9;
 }
 
 message GetPersonRequest {
@@ -69,7 +71,7 @@ message SuggestPersonRequest{
   string query = 1;
 }
 message SuggestPersonResponse{
-  Person person = 1;
+  repeated Person person = 1;
 }
 
 message GetOrganizationRequest {
@@ -88,7 +90,7 @@ message SuggestOrganizationRequest{
   string query = 1;
 }
 message SuggestOrganizationResponse{
-  Organization organization = 1;
+  repeated Organization organization = 1;
 }
 
 message SetPersonOrcidTokenRequest {
@@ -126,10 +128,10 @@ message SetPersonSettingsResponse {
 service PersonService {
   rpc GetPerson(GetPersonRequest) returns (GetPersonResponse);
   rpc GetAllPerson(GetAllPersonRequest) returns (stream GetAllPersonResponse);
-  rpc SuggestPerson(SuggestPersonRequest) returns (stream SuggestPersonResponse);
+  rpc SuggestPerson(SuggestPersonRequest) returns (SuggestPersonResponse);
   rpc GetOrganization(GetOrganizationRequest) returns (GetOrganizationResponse);
   rpc GetAllOrganization(GetAllOrganizationRequest) returns (stream GetAllOrganizationResponse);
-  rpc SuggestOrganization(SuggestOrganizationRequest) returns (stream SuggestOrganizationResponse);
+  rpc SuggestOrganization(SuggestOrganizationRequest) returns (SuggestOrganizationResponse);
   rpc SetPersonOrcidToken(SetPersonOrcidTokenRequest) returns (SetPersonOrcidTokenResponse);
   rpc SetPersonOrcid(SetPersonOrcidRequest) returns (SetPersonOrcidResponse);
   rpc SetPersonRole(SetPersonRoleRequest) returns (SetPersonRoleResponse);

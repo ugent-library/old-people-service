@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/schema"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/ugent-library/person-service/ent"
 )
 

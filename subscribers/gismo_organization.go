@@ -3,8 +3,10 @@ package subscribers
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/nats-io/nats.go"
+	v1 "github.com/ugent-library/person-service/api/v1"
 	"github.com/ugent-library/person-service/gismo"
 	"github.com/ugent-library/person-service/inbox"
 	"github.com/ugent-library/person-service/models"
@@ -12,28 +14,35 @@ import (
 
 type GismoOrganizationSubscriber struct {
 	BaseSubscriber
-	organizationService models.OrganizationService
+	repository models.Repository
 }
 
-func NewGismoOrganizationSubscriber(subject string, organizationService models.OrganizationService, subOpts ...nats.SubOpt) *GismoOrganizationSubscriber {
+type GismoOrganizationConfig struct {
+	BaseConfig
+	Repository models.Repository
+}
+
+func NewGismoOrganizationSubscriber(config GismoOrganizationConfig) *GismoOrganizationSubscriber {
 	os := &GismoOrganizationSubscriber{
-		BaseSubscriber:      NewBaseSubscriber(subject),
-		organizationService: organizationService,
+		BaseSubscriber: NewBaseSubscriber(config.Subject),
+		repository:     config.Repository,
 	}
-	os.subOpts = append(os.subOpts, subOpts...)
+	os.subOpts = append(os.subOpts, config.SubOpts...)
 	return os
 }
 
 func (os *GismoOrganizationSubscriber) Listen(msg *nats.Msg) (*inbox.Message, error) {
 	ctx := context.Background()
-	iMsg, err := gismo.ParseOrganizationMessage(msg.Data)
+	now := time.Now()
 
+	// parse soap xml message into json inbox message
+	iMsg, err := gismo.ParseOrganizationMessage(msg.Data)
 	if err != nil {
 		return nil, fmt.Errorf("%w: unable to process malformed message: %s", models.ErrNonFatal, err)
 	}
 
-	org, err := os.organizationService.GetOrganization(ctx, iMsg.ID)
-
+	// fetch organization by gismo_id
+	org, err := os.repository.GetOrganizationByGismoId(ctx, iMsg.ID)
 	if err != nil && err == models.ErrNotFound {
 		org = models.NewOrganization()
 	} else if err != nil {
@@ -41,20 +50,66 @@ func (os *GismoOrganizationSubscriber) Listen(msg *nats.Msg) (*inbox.Message, er
 	}
 
 	if iMsg.Source == "gismo.organization.update" {
-		iMsg.UpdateOrganizationAttr(org)
+		org.NameDut = ""
+		org.NameEng = ""
+		org.OtherId = make([]*v1.IdRef, 0)
+		org.Type = "organization"
+		org.ParentId = ""
 
-		if org.IsStored() {
-			_, err = os.organizationService.UpdateOrganization(ctx, org)
-		} else {
-			_, err = os.organizationService.CreateOrganization(ctx, org)
+		// only recent values needed: name_dut, name_eng, type
+		// all values needed: ugent_memorialis_id, code, biblio_code
+		for _, attr := range iMsg.Attributes {
+			withinDateRange := attr.ValidAt(now)
+			switch attr.Name {
+			case "parent_id":
+				if withinDateRange {
+					orgParentByGismo, err := os.repository.GetOrganizationByGismoId(ctx, attr.Value)
+					if err != nil {
+						return nil, fmt.Errorf("%w: unable to find parent organization with gismo id %s", models.ErrNotFound, attr.Value)
+					}
+					org.ParentId = orgParentByGismo.Id
+				}
+			case "name_dut":
+				if withinDateRange {
+					org.NameDut = attr.Value
+				}
+			case "name_eng":
+				if withinDateRange {
+					org.NameEng = attr.Value
+				}
+			case "type":
+				if withinDateRange {
+					org.Type = attr.Value
+				}
+			case "ugent_memorialis_id":
+				org.OtherId = append(org.OtherId, &v1.IdRef{
+					Type: "ugent_memorialis_id",
+					Id:   attr.Value,
+				})
+			case "code":
+				org.OtherId = append(org.OtherId, &v1.IdRef{
+					Type: "ugent_id",
+					Id:   attr.Value,
+				})
+			case "biblio_code":
+				org.OtherId = append(org.OtherId, &v1.IdRef{
+					Type: "biblio_id",
+					Id:   attr.Value,
+				})
+			}
 		}
 
+		if org.IsStored() {
+			_, err = os.repository.UpdateOrganization(ctx, org)
+		} else {
+			_, err = os.repository.CreateOrganization(ctx, org)
+		}
 		if err != nil {
 			return iMsg, fmt.Errorf("%w: unable to store organization record: %s", models.ErrFatal, err)
 		}
 	} else if iMsg.Source == "gismo.organization.delete" {
 		if org.IsStored() {
-			if err := os.organizationService.DeleteOrganization(ctx, org.Id); err != nil {
+			if err := os.repository.DeleteOrganization(ctx, org.Id); err != nil {
 				return iMsg, fmt.Errorf("%w: unable to delete organization record: %s", models.ErrFatal, err)
 			}
 		}

@@ -6,8 +6,6 @@ import (
 
 type Person struct {
 	*v1.Person
-	// unconfirmed organization identifiers
-	OtherOrganizationId []string `json:"-"`
 }
 
 func (person *Person) IsStored() bool {

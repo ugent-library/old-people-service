@@ -16,6 +16,11 @@ type BaseSubscriber struct {
 	subOpts []nats.SubOpt
 }
 
+type BaseConfig struct {
+	Subject string
+	SubOpts []nats.SubOpt
+}
+
 func (bs *BaseSubscriber) Subject() string {
 	return bs.subject
 }

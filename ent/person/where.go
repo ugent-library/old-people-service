@@ -70,6 +70,11 @@ func PublicID(v string) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldPublicID, v))
 }
 
+// GismoID applies equality check predicate on the "gismo_id" field. It's identical to GismoIDEQ.
+func GismoID(v string) predicate.Person {
+	return predicate.Person(sql.FieldEQ(FieldGismoID, v))
+}
+
 // Active applies equality check predicate on the "active" field. It's identical to ActiveEQ.
 func Active(v bool) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldActive, v))
@@ -270,6 +275,71 @@ func PublicIDContainsFold(v string) predicate.Person {
 	return predicate.Person(sql.FieldContainsFold(FieldPublicID, v))
 }
 
+// GismoIDEQ applies the EQ predicate on the "gismo_id" field.
+func GismoIDEQ(v string) predicate.Person {
+	return predicate.Person(sql.FieldEQ(FieldGismoID, v))
+}
+
+// GismoIDNEQ applies the NEQ predicate on the "gismo_id" field.
+func GismoIDNEQ(v string) predicate.Person {
+	return predicate.Person(sql.FieldNEQ(FieldGismoID, v))
+}
+
+// GismoIDIn applies the In predicate on the "gismo_id" field.
+func GismoIDIn(vs ...string) predicate.Person {
+	return predicate.Person(sql.FieldIn(FieldGismoID, vs...))
+}
+
+// GismoIDNotIn applies the NotIn predicate on the "gismo_id" field.
+func GismoIDNotIn(vs ...string) predicate.Person {
+	return predicate.Person(sql.FieldNotIn(FieldGismoID, vs...))
+}
+
+// GismoIDGT applies the GT predicate on the "gismo_id" field.
+func GismoIDGT(v string) predicate.Person {
+	return predicate.Person(sql.FieldGT(FieldGismoID, v))
+}
+
+// GismoIDGTE applies the GTE predicate on the "gismo_id" field.
+func GismoIDGTE(v string) predicate.Person {
+	return predicate.Person(sql.FieldGTE(FieldGismoID, v))
+}
+
+// GismoIDLT applies the LT predicate on the "gismo_id" field.
+func GismoIDLT(v string) predicate.Person {
+	return predicate.Person(sql.FieldLT(FieldGismoID, v))
+}
+
+// GismoIDLTE applies the LTE predicate on the "gismo_id" field.
+func GismoIDLTE(v string) predicate.Person {
+	return predicate.Person(sql.FieldLTE(FieldGismoID, v))
+}
+
+// GismoIDContains applies the Contains predicate on the "gismo_id" field.
+func GismoIDContains(v string) predicate.Person {
+	return predicate.Person(sql.FieldContains(FieldGismoID, v))
+}
+
+// GismoIDHasPrefix applies the HasPrefix predicate on the "gismo_id" field.
+func GismoIDHasPrefix(v string) predicate.Person {
+	return predicate.Person(sql.FieldHasPrefix(FieldGismoID, v))
+}
+
+// GismoIDHasSuffix applies the HasSuffix predicate on the "gismo_id" field.
+func GismoIDHasSuffix(v string) predicate.Person {
+	return predicate.Person(sql.FieldHasSuffix(FieldGismoID, v))
+}
+
+// GismoIDEqualFold applies the EqualFold predicate on the "gismo_id" field.
+func GismoIDEqualFold(v string) predicate.Person {
+	return predicate.Person(sql.FieldEqualFold(FieldGismoID, v))
+}
+
+// GismoIDContainsFold applies the ContainsFold predicate on the "gismo_id" field.
+func GismoIDContainsFold(v string) predicate.Person {
+	return predicate.Person(sql.FieldContainsFold(FieldGismoID, v))
+}
+
 // ActiveEQ applies the EQ predicate on the "active" field.
 func ActiveEQ(v bool) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldActive, v))
@@ -438,16 +508,6 @@ func OtherIDIsNil() predicate.Person {
 // OtherIDNotNil applies the NotNil predicate on the "other_id" field.
 func OtherIDNotNil() predicate.Person {
 	return predicate.Person(sql.FieldNotNull(FieldOtherID))
-}
-
-// OtherOrganizationIDIsNil applies the IsNil predicate on the "other_organization_id" field.
-func OtherOrganizationIDIsNil() predicate.Person {
-	return predicate.Person(sql.FieldIsNull(FieldOtherOrganizationID))
-}
-
-// OtherOrganizationIDNotNil applies the NotNil predicate on the "other_organization_id" field.
-func OtherOrganizationIDNotNil() predicate.Person {
-	return predicate.Person(sql.FieldNotNull(FieldOtherOrganizationID))
 }
 
 // FirstNameEQ applies the EQ predicate on the "first_name" field.

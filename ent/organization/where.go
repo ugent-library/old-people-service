@@ -70,6 +70,11 @@ func PublicID(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldEQ(FieldPublicID, v))
 }
 
+// GismoID applies equality check predicate on the "gismo_id" field. It's identical to GismoIDEQ.
+func GismoID(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldGismoID, v))
+}
+
 // Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
 func Type(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldEQ(FieldType, v))
@@ -83,11 +88,6 @@ func NameDut(v string) predicate.Organization {
 // NameEng applies equality check predicate on the "name_eng" field. It's identical to NameEngEQ.
 func NameEng(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldEQ(FieldNameEng, v))
-}
-
-// OtherParentID applies equality check predicate on the "other_parent_id" field. It's identical to OtherParentIDEQ.
-func OtherParentID(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldEQ(FieldOtherParentID, v))
 }
 
 // ParentID applies equality check predicate on the "parent_id" field. It's identical to ParentIDEQ.
@@ -238,6 +238,71 @@ func PublicIDEqualFold(v string) predicate.Organization {
 // PublicIDContainsFold applies the ContainsFold predicate on the "public_id" field.
 func PublicIDContainsFold(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldContainsFold(FieldPublicID, v))
+}
+
+// GismoIDEQ applies the EQ predicate on the "gismo_id" field.
+func GismoIDEQ(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldGismoID, v))
+}
+
+// GismoIDNEQ applies the NEQ predicate on the "gismo_id" field.
+func GismoIDNEQ(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldNEQ(FieldGismoID, v))
+}
+
+// GismoIDIn applies the In predicate on the "gismo_id" field.
+func GismoIDIn(vs ...string) predicate.Organization {
+	return predicate.Organization(sql.FieldIn(FieldGismoID, vs...))
+}
+
+// GismoIDNotIn applies the NotIn predicate on the "gismo_id" field.
+func GismoIDNotIn(vs ...string) predicate.Organization {
+	return predicate.Organization(sql.FieldNotIn(FieldGismoID, vs...))
+}
+
+// GismoIDGT applies the GT predicate on the "gismo_id" field.
+func GismoIDGT(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldGT(FieldGismoID, v))
+}
+
+// GismoIDGTE applies the GTE predicate on the "gismo_id" field.
+func GismoIDGTE(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldGTE(FieldGismoID, v))
+}
+
+// GismoIDLT applies the LT predicate on the "gismo_id" field.
+func GismoIDLT(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldLT(FieldGismoID, v))
+}
+
+// GismoIDLTE applies the LTE predicate on the "gismo_id" field.
+func GismoIDLTE(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldLTE(FieldGismoID, v))
+}
+
+// GismoIDContains applies the Contains predicate on the "gismo_id" field.
+func GismoIDContains(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldContains(FieldGismoID, v))
+}
+
+// GismoIDHasPrefix applies the HasPrefix predicate on the "gismo_id" field.
+func GismoIDHasPrefix(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldHasPrefix(FieldGismoID, v))
+}
+
+// GismoIDHasSuffix applies the HasSuffix predicate on the "gismo_id" field.
+func GismoIDHasSuffix(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldHasSuffix(FieldGismoID, v))
+}
+
+// GismoIDEqualFold applies the EqualFold predicate on the "gismo_id" field.
+func GismoIDEqualFold(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEqualFold(FieldGismoID, v))
+}
+
+// GismoIDContainsFold applies the ContainsFold predicate on the "gismo_id" field.
+func GismoIDContainsFold(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldContainsFold(FieldGismoID, v))
 }
 
 // TypeEQ applies the EQ predicate on the "type" field.
@@ -463,81 +528,6 @@ func OtherIDIsNil() predicate.Organization {
 // OtherIDNotNil applies the NotNil predicate on the "other_id" field.
 func OtherIDNotNil() predicate.Organization {
 	return predicate.Organization(sql.FieldNotNull(FieldOtherID))
-}
-
-// OtherParentIDEQ applies the EQ predicate on the "other_parent_id" field.
-func OtherParentIDEQ(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldEQ(FieldOtherParentID, v))
-}
-
-// OtherParentIDNEQ applies the NEQ predicate on the "other_parent_id" field.
-func OtherParentIDNEQ(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldNEQ(FieldOtherParentID, v))
-}
-
-// OtherParentIDIn applies the In predicate on the "other_parent_id" field.
-func OtherParentIDIn(vs ...string) predicate.Organization {
-	return predicate.Organization(sql.FieldIn(FieldOtherParentID, vs...))
-}
-
-// OtherParentIDNotIn applies the NotIn predicate on the "other_parent_id" field.
-func OtherParentIDNotIn(vs ...string) predicate.Organization {
-	return predicate.Organization(sql.FieldNotIn(FieldOtherParentID, vs...))
-}
-
-// OtherParentIDGT applies the GT predicate on the "other_parent_id" field.
-func OtherParentIDGT(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldGT(FieldOtherParentID, v))
-}
-
-// OtherParentIDGTE applies the GTE predicate on the "other_parent_id" field.
-func OtherParentIDGTE(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldGTE(FieldOtherParentID, v))
-}
-
-// OtherParentIDLT applies the LT predicate on the "other_parent_id" field.
-func OtherParentIDLT(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldLT(FieldOtherParentID, v))
-}
-
-// OtherParentIDLTE applies the LTE predicate on the "other_parent_id" field.
-func OtherParentIDLTE(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldLTE(FieldOtherParentID, v))
-}
-
-// OtherParentIDContains applies the Contains predicate on the "other_parent_id" field.
-func OtherParentIDContains(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldContains(FieldOtherParentID, v))
-}
-
-// OtherParentIDHasPrefix applies the HasPrefix predicate on the "other_parent_id" field.
-func OtherParentIDHasPrefix(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldHasPrefix(FieldOtherParentID, v))
-}
-
-// OtherParentIDHasSuffix applies the HasSuffix predicate on the "other_parent_id" field.
-func OtherParentIDHasSuffix(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldHasSuffix(FieldOtherParentID, v))
-}
-
-// OtherParentIDIsNil applies the IsNil predicate on the "other_parent_id" field.
-func OtherParentIDIsNil() predicate.Organization {
-	return predicate.Organization(sql.FieldIsNull(FieldOtherParentID))
-}
-
-// OtherParentIDNotNil applies the NotNil predicate on the "other_parent_id" field.
-func OtherParentIDNotNil() predicate.Organization {
-	return predicate.Organization(sql.FieldNotNull(FieldOtherParentID))
-}
-
-// OtherParentIDEqualFold applies the EqualFold predicate on the "other_parent_id" field.
-func OtherParentIDEqualFold(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldEqualFold(FieldOtherParentID, v))
-}
-
-// OtherParentIDContainsFold applies the ContainsFold predicate on the "other_parent_id" field.
-func OtherParentIDContainsFold(v string) predicate.Organization {
-	return predicate.Organization(sql.FieldContainsFold(FieldOtherParentID, v))
 }
 
 // ParentIDEQ applies the EQ predicate on the "parent_id" field.

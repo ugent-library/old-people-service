@@ -20,6 +20,8 @@ const (
 	FieldDateUpdated = "date_updated"
 	// FieldPublicID holds the string denoting the public_id field in the database.
 	FieldPublicID = "public_id"
+	// FieldGismoID holds the string denoting the gismo_id field in the database.
+	FieldGismoID = "gismo_id"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
 	// FieldNameDut holds the string denoting the name_dut field in the database.
@@ -28,8 +30,6 @@ const (
 	FieldNameEng = "name_eng"
 	// FieldOtherID holds the string denoting the other_id field in the database.
 	FieldOtherID = "other_id"
-	// FieldOtherParentID holds the string denoting the other_parent_id field in the database.
-	FieldOtherParentID = "other_parent_id"
 	// FieldParentID holds the string denoting the parent_id field in the database.
 	FieldParentID = "parent_id"
 	// EdgePeople holds the string denoting the people edge name in mutations.
@@ -70,11 +70,11 @@ var Columns = []string{
 	FieldDateCreated,
 	FieldDateUpdated,
 	FieldPublicID,
+	FieldGismoID,
 	FieldType,
 	FieldNameDut,
 	FieldNameEng,
 	FieldOtherID,
-	FieldOtherParentID,
 	FieldParentID,
 }
 
@@ -101,6 +101,8 @@ var (
 	DefaultDateUpdated func() time.Time
 	// UpdateDefaultDateUpdated holds the default value on update for the "date_updated" field.
 	UpdateDefaultDateUpdated func() time.Time
+	// DefaultPublicID holds the default value on creation for the "public_id" field.
+	DefaultPublicID func() string
 	// DefaultType holds the default value on creation for the "type" field.
 	DefaultType string
 )
@@ -128,6 +130,11 @@ func ByPublicID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPublicID, opts...).ToFunc()
 }
 
+// ByGismoID orders the results by the gismo_id field.
+func ByGismoID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGismoID, opts...).ToFunc()
+}
+
 // ByType orders the results by the type field.
 func ByType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldType, opts...).ToFunc()
@@ -141,11 +148,6 @@ func ByNameDut(opts ...sql.OrderTermOption) OrderOption {
 // ByNameEng orders the results by the name_eng field.
 func ByNameEng(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNameEng, opts...).ToFunc()
-}
-
-// ByOtherParentID orders the results by the other_parent_id field.
-func ByOtherParentID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOtherParentID, opts...).ToFunc()
 }
 
 // ByParentID orders the results by the parent_id field.

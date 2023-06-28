@@ -10,6 +10,20 @@ import (
 	"github.com/ugent-library/person-service/inbox"
 )
 
+/*
+managed fields:
+- gismo_id (set as id in inbox.Message)
+- first_name
+- last_name
+- preferred_first_name
+- preferred_last_name
+- title
+- ugent_id
+- orcid
+- email
+- ugent_memorialis_id
+- organization_id
+*/
 func ParsePersonMessage(buf []byte) (*inbox.Message, error) {
 	doc, err := xmlquery.Parse(bytes.NewReader(buf))
 	if err != nil {

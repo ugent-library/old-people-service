@@ -41,12 +41,12 @@ type OrganizationMutation struct {
 	date_created               *time.Time
 	date_updated               *time.Time
 	public_id                  *string
+	gismo_id                   *string
 	_type                      *string
 	name_dut                   *string
 	name_eng                   *string
 	other_id                   *[]schema.IdRef
 	appendother_id             []schema.IdRef
-	other_parent_id            *string
 	clearedFields              map[string]struct{}
 	people                     map[int]struct{}
 	removedpeople              map[int]struct{}
@@ -270,6 +270,42 @@ func (m *OrganizationMutation) ResetPublicID() {
 	m.public_id = nil
 }
 
+// SetGismoID sets the "gismo_id" field.
+func (m *OrganizationMutation) SetGismoID(s string) {
+	m.gismo_id = &s
+}
+
+// GismoID returns the value of the "gismo_id" field in the mutation.
+func (m *OrganizationMutation) GismoID() (r string, exists bool) {
+	v := m.gismo_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGismoID returns the old "gismo_id" field's value of the Organization entity.
+// If the Organization object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrganizationMutation) OldGismoID(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGismoID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGismoID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGismoID: %w", err)
+	}
+	return oldValue.GismoID, nil
+}
+
+// ResetGismoID resets all changes to the "gismo_id" field.
+func (m *OrganizationMutation) ResetGismoID() {
+	m.gismo_id = nil
+}
+
 // SetType sets the "type" field.
 func (m *OrganizationMutation) SetType(s string) {
 	m._type = &s
@@ -467,55 +503,6 @@ func (m *OrganizationMutation) ResetOtherID() {
 	m.other_id = nil
 	m.appendother_id = nil
 	delete(m.clearedFields, organization.FieldOtherID)
-}
-
-// SetOtherParentID sets the "other_parent_id" field.
-func (m *OrganizationMutation) SetOtherParentID(s string) {
-	m.other_parent_id = &s
-}
-
-// OtherParentID returns the value of the "other_parent_id" field in the mutation.
-func (m *OrganizationMutation) OtherParentID() (r string, exists bool) {
-	v := m.other_parent_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOtherParentID returns the old "other_parent_id" field's value of the Organization entity.
-// If the Organization object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrganizationMutation) OldOtherParentID(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOtherParentID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOtherParentID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOtherParentID: %w", err)
-	}
-	return oldValue.OtherParentID, nil
-}
-
-// ClearOtherParentID clears the value of the "other_parent_id" field.
-func (m *OrganizationMutation) ClearOtherParentID() {
-	m.other_parent_id = nil
-	m.clearedFields[organization.FieldOtherParentID] = struct{}{}
-}
-
-// OtherParentIDCleared returns if the "other_parent_id" field was cleared in this mutation.
-func (m *OrganizationMutation) OtherParentIDCleared() bool {
-	_, ok := m.clearedFields[organization.FieldOtherParentID]
-	return ok
-}
-
-// ResetOtherParentID resets all changes to the "other_parent_id" field.
-func (m *OrganizationMutation) ResetOtherParentID() {
-	m.other_parent_id = nil
-	delete(m.clearedFields, organization.FieldOtherParentID)
 }
 
 // SetParentID sets the "parent_id" field.
@@ -799,6 +786,9 @@ func (m *OrganizationMutation) Fields() []string {
 	if m.public_id != nil {
 		fields = append(fields, organization.FieldPublicID)
 	}
+	if m.gismo_id != nil {
+		fields = append(fields, organization.FieldGismoID)
+	}
 	if m._type != nil {
 		fields = append(fields, organization.FieldType)
 	}
@@ -810,9 +800,6 @@ func (m *OrganizationMutation) Fields() []string {
 	}
 	if m.other_id != nil {
 		fields = append(fields, organization.FieldOtherID)
-	}
-	if m.other_parent_id != nil {
-		fields = append(fields, organization.FieldOtherParentID)
 	}
 	if m.parent != nil {
 		fields = append(fields, organization.FieldParentID)
@@ -831,6 +818,8 @@ func (m *OrganizationMutation) Field(name string) (ent.Value, bool) {
 		return m.DateUpdated()
 	case organization.FieldPublicID:
 		return m.PublicID()
+	case organization.FieldGismoID:
+		return m.GismoID()
 	case organization.FieldType:
 		return m.GetType()
 	case organization.FieldNameDut:
@@ -839,8 +828,6 @@ func (m *OrganizationMutation) Field(name string) (ent.Value, bool) {
 		return m.NameEng()
 	case organization.FieldOtherID:
 		return m.OtherID()
-	case organization.FieldOtherParentID:
-		return m.OtherParentID()
 	case organization.FieldParentID:
 		return m.ParentID()
 	}
@@ -858,6 +845,8 @@ func (m *OrganizationMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldDateUpdated(ctx)
 	case organization.FieldPublicID:
 		return m.OldPublicID(ctx)
+	case organization.FieldGismoID:
+		return m.OldGismoID(ctx)
 	case organization.FieldType:
 		return m.OldType(ctx)
 	case organization.FieldNameDut:
@@ -866,8 +855,6 @@ func (m *OrganizationMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldNameEng(ctx)
 	case organization.FieldOtherID:
 		return m.OldOtherID(ctx)
-	case organization.FieldOtherParentID:
-		return m.OldOtherParentID(ctx)
 	case organization.FieldParentID:
 		return m.OldParentID(ctx)
 	}
@@ -900,6 +887,13 @@ func (m *OrganizationMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPublicID(v)
 		return nil
+	case organization.FieldGismoID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGismoID(v)
+		return nil
 	case organization.FieldType:
 		v, ok := value.(string)
 		if !ok {
@@ -927,13 +921,6 @@ func (m *OrganizationMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetOtherID(v)
-		return nil
-	case organization.FieldOtherParentID:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOtherParentID(v)
 		return nil
 	case organization.FieldParentID:
 		v, ok := value.(int)
@@ -984,9 +971,6 @@ func (m *OrganizationMutation) ClearedFields() []string {
 	if m.FieldCleared(organization.FieldOtherID) {
 		fields = append(fields, organization.FieldOtherID)
 	}
-	if m.FieldCleared(organization.FieldOtherParentID) {
-		fields = append(fields, organization.FieldOtherParentID)
-	}
 	if m.FieldCleared(organization.FieldParentID) {
 		fields = append(fields, organization.FieldParentID)
 	}
@@ -1013,9 +997,6 @@ func (m *OrganizationMutation) ClearField(name string) error {
 	case organization.FieldOtherID:
 		m.ClearOtherID()
 		return nil
-	case organization.FieldOtherParentID:
-		m.ClearOtherParentID()
-		return nil
 	case organization.FieldParentID:
 		m.ClearParentID()
 		return nil
@@ -1036,6 +1017,9 @@ func (m *OrganizationMutation) ResetField(name string) error {
 	case organization.FieldPublicID:
 		m.ResetPublicID()
 		return nil
+	case organization.FieldGismoID:
+		m.ResetGismoID()
+		return nil
 	case organization.FieldType:
 		m.ResetType()
 		return nil
@@ -1047,9 +1031,6 @@ func (m *OrganizationMutation) ResetField(name string) error {
 		return nil
 	case organization.FieldOtherID:
 		m.ResetOtherID()
-		return nil
-	case organization.FieldOtherParentID:
-		m.ResetOtherParentID()
 		return nil
 	case organization.FieldParentID:
 		m.ResetParentID()
@@ -1830,42 +1811,41 @@ func (m *OrganizationPersonMutation) ResetEdge(name string) error {
 // PersonMutation represents an operation that mutates the Person nodes in the graph.
 type PersonMutation struct {
 	config
-	op                          Op
-	typ                         string
-	id                          *int
-	date_created                *time.Time
-	date_updated                *time.Time
-	public_id                   *string
-	active                      *bool
-	birth_date                  *string
-	email                       *string
-	other_id                    *[]schema.IdRef
-	appendother_id              []schema.IdRef
-	other_organization_id       *[]string
-	appendother_organization_id []string
-	first_name                  *string
-	full_name                   *string
-	last_name                   *string
-	job_category                *[]string
-	appendjob_category          []string
-	orcid                       *string
-	orcid_token                 *string
-	preferred_first_name        *string
-	preferred_last_name         *string
-	title                       *string
-	role                        *[]string
-	appendrole                  []string
-	settings                    *map[string]string
-	clearedFields               map[string]struct{}
-	organizations               map[int]struct{}
-	removedorganizations        map[int]struct{}
-	clearedorganizations        bool
-	organization_person         map[int]struct{}
-	removedorganization_person  map[int]struct{}
-	clearedorganization_person  bool
-	done                        bool
-	oldValue                    func(context.Context) (*Person, error)
-	predicates                  []predicate.Person
+	op                         Op
+	typ                        string
+	id                         *int
+	date_created               *time.Time
+	date_updated               *time.Time
+	public_id                  *string
+	gismo_id                   *string
+	active                     *bool
+	birth_date                 *string
+	email                      *string
+	other_id                   *[]schema.IdRef
+	appendother_id             []schema.IdRef
+	first_name                 *string
+	full_name                  *string
+	last_name                  *string
+	job_category               *[]string
+	appendjob_category         []string
+	orcid                      *string
+	orcid_token                *string
+	preferred_first_name       *string
+	preferred_last_name        *string
+	title                      *string
+	role                       *[]string
+	appendrole                 []string
+	settings                   *map[string]string
+	clearedFields              map[string]struct{}
+	organizations              map[int]struct{}
+	removedorganizations       map[int]struct{}
+	clearedorganizations       bool
+	organization_person        map[int]struct{}
+	removedorganization_person map[int]struct{}
+	clearedorganization_person bool
+	done                       bool
+	oldValue                   func(context.Context) (*Person, error)
+	predicates                 []predicate.Person
 }
 
 var _ ent.Mutation = (*PersonMutation)(nil)
@@ -2074,6 +2054,42 @@ func (m *PersonMutation) ResetPublicID() {
 	m.public_id = nil
 }
 
+// SetGismoID sets the "gismo_id" field.
+func (m *PersonMutation) SetGismoID(s string) {
+	m.gismo_id = &s
+}
+
+// GismoID returns the value of the "gismo_id" field in the mutation.
+func (m *PersonMutation) GismoID() (r string, exists bool) {
+	v := m.gismo_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGismoID returns the old "gismo_id" field's value of the Person entity.
+// If the Person object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PersonMutation) OldGismoID(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGismoID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGismoID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGismoID: %w", err)
+	}
+	return oldValue.GismoID, nil
+}
+
+// ResetGismoID resets all changes to the "gismo_id" field.
+func (m *PersonMutation) ResetGismoID() {
+	m.gismo_id = nil
+}
+
 // SetActive sets the "active" field.
 func (m *PersonMutation) SetActive(b bool) {
 	m.active = &b
@@ -2271,71 +2287,6 @@ func (m *PersonMutation) ResetOtherID() {
 	m.other_id = nil
 	m.appendother_id = nil
 	delete(m.clearedFields, person.FieldOtherID)
-}
-
-// SetOtherOrganizationID sets the "other_organization_id" field.
-func (m *PersonMutation) SetOtherOrganizationID(s []string) {
-	m.other_organization_id = &s
-	m.appendother_organization_id = nil
-}
-
-// OtherOrganizationID returns the value of the "other_organization_id" field in the mutation.
-func (m *PersonMutation) OtherOrganizationID() (r []string, exists bool) {
-	v := m.other_organization_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOtherOrganizationID returns the old "other_organization_id" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldOtherOrganizationID(ctx context.Context) (v []string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOtherOrganizationID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOtherOrganizationID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOtherOrganizationID: %w", err)
-	}
-	return oldValue.OtherOrganizationID, nil
-}
-
-// AppendOtherOrganizationID adds s to the "other_organization_id" field.
-func (m *PersonMutation) AppendOtherOrganizationID(s []string) {
-	m.appendother_organization_id = append(m.appendother_organization_id, s...)
-}
-
-// AppendedOtherOrganizationID returns the list of values that were appended to the "other_organization_id" field in this mutation.
-func (m *PersonMutation) AppendedOtherOrganizationID() ([]string, bool) {
-	if len(m.appendother_organization_id) == 0 {
-		return nil, false
-	}
-	return m.appendother_organization_id, true
-}
-
-// ClearOtherOrganizationID clears the value of the "other_organization_id" field.
-func (m *PersonMutation) ClearOtherOrganizationID() {
-	m.other_organization_id = nil
-	m.appendother_organization_id = nil
-	m.clearedFields[person.FieldOtherOrganizationID] = struct{}{}
-}
-
-// OtherOrganizationIDCleared returns if the "other_organization_id" field was cleared in this mutation.
-func (m *PersonMutation) OtherOrganizationIDCleared() bool {
-	_, ok := m.clearedFields[person.FieldOtherOrganizationID]
-	return ok
-}
-
-// ResetOtherOrganizationID resets all changes to the "other_organization_id" field.
-func (m *PersonMutation) ResetOtherOrganizationID() {
-	m.other_organization_id = nil
-	m.appendother_organization_id = nil
-	delete(m.clearedFields, person.FieldOtherOrganizationID)
 }
 
 // SetFirstName sets the "first_name" field.
@@ -3061,6 +3012,9 @@ func (m *PersonMutation) Fields() []string {
 	if m.public_id != nil {
 		fields = append(fields, person.FieldPublicID)
 	}
+	if m.gismo_id != nil {
+		fields = append(fields, person.FieldGismoID)
+	}
 	if m.active != nil {
 		fields = append(fields, person.FieldActive)
 	}
@@ -3072,9 +3026,6 @@ func (m *PersonMutation) Fields() []string {
 	}
 	if m.other_id != nil {
 		fields = append(fields, person.FieldOtherID)
-	}
-	if m.other_organization_id != nil {
-		fields = append(fields, person.FieldOtherOrganizationID)
 	}
 	if m.first_name != nil {
 		fields = append(fields, person.FieldFirstName)
@@ -3123,6 +3074,8 @@ func (m *PersonMutation) Field(name string) (ent.Value, bool) {
 		return m.DateUpdated()
 	case person.FieldPublicID:
 		return m.PublicID()
+	case person.FieldGismoID:
+		return m.GismoID()
 	case person.FieldActive:
 		return m.Active()
 	case person.FieldBirthDate:
@@ -3131,8 +3084,6 @@ func (m *PersonMutation) Field(name string) (ent.Value, bool) {
 		return m.Email()
 	case person.FieldOtherID:
 		return m.OtherID()
-	case person.FieldOtherOrganizationID:
-		return m.OtherOrganizationID()
 	case person.FieldFirstName:
 		return m.FirstName()
 	case person.FieldFullName:
@@ -3170,6 +3121,8 @@ func (m *PersonMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldDateUpdated(ctx)
 	case person.FieldPublicID:
 		return m.OldPublicID(ctx)
+	case person.FieldGismoID:
+		return m.OldGismoID(ctx)
 	case person.FieldActive:
 		return m.OldActive(ctx)
 	case person.FieldBirthDate:
@@ -3178,8 +3131,6 @@ func (m *PersonMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldEmail(ctx)
 	case person.FieldOtherID:
 		return m.OldOtherID(ctx)
-	case person.FieldOtherOrganizationID:
-		return m.OldOtherOrganizationID(ctx)
 	case person.FieldFirstName:
 		return m.OldFirstName(ctx)
 	case person.FieldFullName:
@@ -3232,6 +3183,13 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPublicID(v)
 		return nil
+	case person.FieldGismoID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGismoID(v)
+		return nil
 	case person.FieldActive:
 		v, ok := value.(bool)
 		if !ok {
@@ -3259,13 +3217,6 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetOtherID(v)
-		return nil
-	case person.FieldOtherOrganizationID:
-		v, ok := value.([]string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOtherOrganizationID(v)
 		return nil
 	case person.FieldFirstName:
 		v, ok := value.(string)
@@ -3383,9 +3334,6 @@ func (m *PersonMutation) ClearedFields() []string {
 	if m.FieldCleared(person.FieldOtherID) {
 		fields = append(fields, person.FieldOtherID)
 	}
-	if m.FieldCleared(person.FieldOtherOrganizationID) {
-		fields = append(fields, person.FieldOtherOrganizationID)
-	}
 	if m.FieldCleared(person.FieldFirstName) {
 		fields = append(fields, person.FieldFirstName)
 	}
@@ -3442,9 +3390,6 @@ func (m *PersonMutation) ClearField(name string) error {
 	case person.FieldOtherID:
 		m.ClearOtherID()
 		return nil
-	case person.FieldOtherOrganizationID:
-		m.ClearOtherOrganizationID()
-		return nil
 	case person.FieldFirstName:
 		m.ClearFirstName()
 		return nil
@@ -3495,6 +3440,9 @@ func (m *PersonMutation) ResetField(name string) error {
 	case person.FieldPublicID:
 		m.ResetPublicID()
 		return nil
+	case person.FieldGismoID:
+		m.ResetGismoID()
+		return nil
 	case person.FieldActive:
 		m.ResetActive()
 		return nil
@@ -3506,9 +3454,6 @@ func (m *PersonMutation) ResetField(name string) error {
 		return nil
 	case person.FieldOtherID:
 		m.ResetOtherID()
-		return nil
-	case person.FieldOtherOrganizationID:
-		m.ResetOtherOrganizationID()
 		return nil
 	case person.FieldFirstName:
 		m.ResetFirstName()

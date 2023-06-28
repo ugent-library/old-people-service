@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ugent-library/person-service/models"
 	"github.com/ugent-library/person-service/validation"
 )
 
@@ -61,6 +62,30 @@ func (m *Message) Validate() validation.Errors {
 	}
 
 	return errs
+}
+
+func (m *Message) GetAttributesAt(t time.Time) []Attribute {
+	attrs := make([]Attribute, 0, len(m.Attributes))
+	for _, attr := range m.Attributes {
+		if !attr.ValidAt(t) {
+			continue
+		}
+		attrs = append(attrs, attr)
+	}
+	return attrs
+}
+
+func (m *Message) GetAttributeAt(name string, t time.Time) (string, error) {
+	for _, attr := range m.GetAttributesAt(t) {
+		if attr.Name == name {
+			return attr.Value, nil
+		}
+	}
+	return "", models.ErrNotFound
+}
+
+func (attr *Attribute) ValidAt(t time.Time) bool {
+	return attr.StartDate.Before(t) && attr.EndDate.After(t)
 }
 
 func (attr *Attribute) Validate() validation.Errors {

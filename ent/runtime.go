@@ -18,6 +18,8 @@ func init() {
 	organizationMixin := schema.Organization{}.Mixin()
 	organizationMixinFields0 := organizationMixin[0].Fields()
 	_ = organizationMixinFields0
+	organizationMixinFields1 := organizationMixin[1].Fields()
+	_ = organizationMixinFields1
 	organizationFields := schema.Organization{}.Fields()
 	_ = organizationFields
 	// organizationDescDateCreated is the schema descriptor for date_created field.
@@ -30,6 +32,10 @@ func init() {
 	organization.DefaultDateUpdated = organizationDescDateUpdated.Default.(func() time.Time)
 	// organization.UpdateDefaultDateUpdated holds the default value on update for the date_updated field.
 	organization.UpdateDefaultDateUpdated = organizationDescDateUpdated.UpdateDefault.(func() time.Time)
+	// organizationDescPublicID is the schema descriptor for public_id field.
+	organizationDescPublicID := organizationMixinFields1[0].Descriptor()
+	// organization.DefaultPublicID holds the default value on creation for the public_id field.
+	organization.DefaultPublicID = organizationDescPublicID.Default.(func() string)
 	// organizationDescType is the schema descriptor for type field.
 	organizationDescType := organizationFields[1].Descriptor()
 	// organization.DefaultType holds the default value on creation for the type field.
@@ -52,6 +58,8 @@ func init() {
 	personMixin := schema.Person{}.Mixin()
 	personMixinFields0 := personMixin[0].Fields()
 	_ = personMixinFields0
+	personMixinFields1 := personMixin[1].Fields()
+	_ = personMixinFields1
 	personFields := schema.Person{}.Fields()
 	_ = personFields
 	// personDescDateCreated is the schema descriptor for date_created field.
@@ -64,6 +72,10 @@ func init() {
 	person.DefaultDateUpdated = personDescDateUpdated.Default.(func() time.Time)
 	// person.UpdateDefaultDateUpdated holds the default value on update for the date_updated field.
 	person.UpdateDefaultDateUpdated = personDescDateUpdated.UpdateDefault.(func() time.Time)
+	// personDescPublicID is the schema descriptor for public_id field.
+	personDescPublicID := personMixinFields1[0].Descriptor()
+	// person.DefaultPublicID holds the default value on creation for the public_id field.
+	person.DefaultPublicID = personDescPublicID.Default.(func() string)
 	// personDescActive is the schema descriptor for active field.
 	personDescActive := personFields[1].Descriptor()
 	// person.DefaultActive holds the default value on creation for the active field.

@@ -20,7 +20,6 @@ func Services() *models.Services {
 }
 
 func newServices() *models.Services {
-
 	dbClient, err := repository.OpenClient(config.Db.Url)
 	if err != nil {
 		panic(err)
@@ -31,22 +30,13 @@ func newServices() *models.Services {
 		AesKey: config.Db.AesKey,
 	}
 
-	personService, err := repository.NewPersonService(dbConfig)
-
-	if err != nil {
-		panic(err)
-	}
-
-	organizationService, err := repository.NewOrganizationService(dbConfig)
+	repo, err := repository.NewRepository(dbConfig)
 
 	if err != nil {
 		panic(err)
 	}
 
 	return &models.Services{
-		PersonService:              personService,
-		PersonSuggestService:       personService,
-		OrganizationService:        organizationService,
-		OrganizationSuggestService: organizationService,
+		Repository: repo,
 	}
 }

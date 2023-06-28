@@ -20,6 +20,8 @@ const (
 	FieldDateUpdated = "date_updated"
 	// FieldPublicID holds the string denoting the public_id field in the database.
 	FieldPublicID = "public_id"
+	// FieldGismoID holds the string denoting the gismo_id field in the database.
+	FieldGismoID = "gismo_id"
 	// FieldActive holds the string denoting the active field in the database.
 	FieldActive = "active"
 	// FieldBirthDate holds the string denoting the birth_date field in the database.
@@ -28,8 +30,6 @@ const (
 	FieldEmail = "email"
 	// FieldOtherID holds the string denoting the other_id field in the database.
 	FieldOtherID = "other_id"
-	// FieldOtherOrganizationID holds the string denoting the other_organization_id field in the database.
-	FieldOtherOrganizationID = "other_organization_id"
 	// FieldFirstName holds the string denoting the first_name field in the database.
 	FieldFirstName = "first_name"
 	// FieldFullName holds the string denoting the full_name field in the database.
@@ -78,11 +78,11 @@ var Columns = []string{
 	FieldDateCreated,
 	FieldDateUpdated,
 	FieldPublicID,
+	FieldGismoID,
 	FieldActive,
 	FieldBirthDate,
 	FieldEmail,
 	FieldOtherID,
-	FieldOtherOrganizationID,
 	FieldFirstName,
 	FieldFullName,
 	FieldLastName,
@@ -119,6 +119,8 @@ var (
 	DefaultDateUpdated func() time.Time
 	// UpdateDefaultDateUpdated holds the default value on update for the "date_updated" field.
 	UpdateDefaultDateUpdated func() time.Time
+	// DefaultPublicID holds the default value on creation for the "public_id" field.
+	DefaultPublicID func() string
 	// DefaultActive holds the default value on creation for the "active" field.
 	DefaultActive bool
 )
@@ -144,6 +146,11 @@ func ByDateUpdated(opts ...sql.OrderTermOption) OrderOption {
 // ByPublicID orders the results by the public_id field.
 func ByPublicID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPublicID, opts...).ToFunc()
+}
+
+// ByGismoID orders the results by the gismo_id field.
+func ByGismoID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGismoID, opts...).ToFunc()
 }
 
 // ByActive orders the results by the active field.

@@ -57,6 +57,20 @@ func (pc *PersonCreate) SetPublicID(s string) *PersonCreate {
 	return pc
 }
 
+// SetNillablePublicID sets the "public_id" field if the given value is not nil.
+func (pc *PersonCreate) SetNillablePublicID(s *string) *PersonCreate {
+	if s != nil {
+		pc.SetPublicID(*s)
+	}
+	return pc
+}
+
+// SetGismoID sets the "gismo_id" field.
+func (pc *PersonCreate) SetGismoID(s string) *PersonCreate {
+	pc.mutation.SetGismoID(s)
+	return pc
+}
+
 // SetActive sets the "active" field.
 func (pc *PersonCreate) SetActive(b bool) *PersonCreate {
 	pc.mutation.SetActive(b)
@@ -102,12 +116,6 @@ func (pc *PersonCreate) SetNillableEmail(s *string) *PersonCreate {
 // SetOtherID sets the "other_id" field.
 func (pc *PersonCreate) SetOtherID(sr []schema.IdRef) *PersonCreate {
 	pc.mutation.SetOtherID(sr)
-	return pc
-}
-
-// SetOtherOrganizationID sets the "other_organization_id" field.
-func (pc *PersonCreate) SetOtherOrganizationID(s []string) *PersonCreate {
-	pc.mutation.SetOtherOrganizationID(s)
 	return pc
 }
 
@@ -314,6 +322,10 @@ func (pc *PersonCreate) defaults() {
 		v := person.DefaultDateUpdated()
 		pc.mutation.SetDateUpdated(v)
 	}
+	if _, ok := pc.mutation.PublicID(); !ok {
+		v := person.DefaultPublicID()
+		pc.mutation.SetPublicID(v)
+	}
 	if _, ok := pc.mutation.Active(); !ok {
 		v := person.DefaultActive
 		pc.mutation.SetActive(v)
@@ -330,6 +342,9 @@ func (pc *PersonCreate) check() error {
 	}
 	if _, ok := pc.mutation.PublicID(); !ok {
 		return &ValidationError{Name: "public_id", err: errors.New(`ent: missing required field "Person.public_id"`)}
+	}
+	if _, ok := pc.mutation.GismoID(); !ok {
+		return &ValidationError{Name: "gismo_id", err: errors.New(`ent: missing required field "Person.gismo_id"`)}
 	}
 	if _, ok := pc.mutation.Active(); !ok {
 		return &ValidationError{Name: "active", err: errors.New(`ent: missing required field "Person.active"`)}
@@ -372,6 +387,10 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 		_spec.SetField(person.FieldPublicID, field.TypeString, value)
 		_node.PublicID = value
 	}
+	if value, ok := pc.mutation.GismoID(); ok {
+		_spec.SetField(person.FieldGismoID, field.TypeString, value)
+		_node.GismoID = &value
+	}
 	if value, ok := pc.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)
 		_node.Active = value
@@ -387,10 +406,6 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.OtherID(); ok {
 		_spec.SetField(person.FieldOtherID, field.TypeJSON, value)
 		_node.OtherID = value
-	}
-	if value, ok := pc.mutation.OtherOrganizationID(); ok {
-		_spec.SetField(person.FieldOtherOrganizationID, field.TypeJSON, value)
-		_node.OtherOrganizationID = value
 	}
 	if value, ok := pc.mutation.FirstName(); ok {
 		_spec.SetField(person.FieldFirstName, field.TypeString, value)

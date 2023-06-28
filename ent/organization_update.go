@@ -39,6 +39,12 @@ func (ou *OrganizationUpdate) SetDateUpdated(t time.Time) *OrganizationUpdate {
 	return ou
 }
 
+// SetGismoID sets the "gismo_id" field.
+func (ou *OrganizationUpdate) SetGismoID(s string) *OrganizationUpdate {
+	ou.mutation.SetGismoID(s)
+	return ou
+}
+
 // SetType sets the "type" field.
 func (ou *OrganizationUpdate) SetType(s string) *OrganizationUpdate {
 	ou.mutation.SetType(s)
@@ -108,26 +114,6 @@ func (ou *OrganizationUpdate) AppendOtherID(sr []schema.IdRef) *OrganizationUpda
 // ClearOtherID clears the value of the "other_id" field.
 func (ou *OrganizationUpdate) ClearOtherID() *OrganizationUpdate {
 	ou.mutation.ClearOtherID()
-	return ou
-}
-
-// SetOtherParentID sets the "other_parent_id" field.
-func (ou *OrganizationUpdate) SetOtherParentID(s string) *OrganizationUpdate {
-	ou.mutation.SetOtherParentID(s)
-	return ou
-}
-
-// SetNillableOtherParentID sets the "other_parent_id" field if the given value is not nil.
-func (ou *OrganizationUpdate) SetNillableOtherParentID(s *string) *OrganizationUpdate {
-	if s != nil {
-		ou.SetOtherParentID(*s)
-	}
-	return ou
-}
-
-// ClearOtherParentID clears the value of the "other_parent_id" field.
-func (ou *OrganizationUpdate) ClearOtherParentID() *OrganizationUpdate {
-	ou.mutation.ClearOtherParentID()
 	return ou
 }
 
@@ -329,6 +315,9 @@ func (ou *OrganizationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ou.mutation.DateUpdated(); ok {
 		_spec.SetField(organization.FieldDateUpdated, field.TypeTime, value)
 	}
+	if value, ok := ou.mutation.GismoID(); ok {
+		_spec.SetField(organization.FieldGismoID, field.TypeString, value)
+	}
 	if value, ok := ou.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 	}
@@ -354,12 +343,6 @@ func (ou *OrganizationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if ou.mutation.OtherIDCleared() {
 		_spec.ClearField(organization.FieldOtherID, field.TypeJSON)
-	}
-	if value, ok := ou.mutation.OtherParentID(); ok {
-		_spec.SetField(organization.FieldOtherParentID, field.TypeString, value)
-	}
-	if ou.mutation.OtherParentIDCleared() {
-		_spec.ClearField(organization.FieldOtherParentID, field.TypeString)
 	}
 	if ou.mutation.PeopleCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -565,6 +548,12 @@ func (ouo *OrganizationUpdateOne) SetDateUpdated(t time.Time) *OrganizationUpdat
 	return ouo
 }
 
+// SetGismoID sets the "gismo_id" field.
+func (ouo *OrganizationUpdateOne) SetGismoID(s string) *OrganizationUpdateOne {
+	ouo.mutation.SetGismoID(s)
+	return ouo
+}
+
 // SetType sets the "type" field.
 func (ouo *OrganizationUpdateOne) SetType(s string) *OrganizationUpdateOne {
 	ouo.mutation.SetType(s)
@@ -634,26 +623,6 @@ func (ouo *OrganizationUpdateOne) AppendOtherID(sr []schema.IdRef) *Organization
 // ClearOtherID clears the value of the "other_id" field.
 func (ouo *OrganizationUpdateOne) ClearOtherID() *OrganizationUpdateOne {
 	ouo.mutation.ClearOtherID()
-	return ouo
-}
-
-// SetOtherParentID sets the "other_parent_id" field.
-func (ouo *OrganizationUpdateOne) SetOtherParentID(s string) *OrganizationUpdateOne {
-	ouo.mutation.SetOtherParentID(s)
-	return ouo
-}
-
-// SetNillableOtherParentID sets the "other_parent_id" field if the given value is not nil.
-func (ouo *OrganizationUpdateOne) SetNillableOtherParentID(s *string) *OrganizationUpdateOne {
-	if s != nil {
-		ouo.SetOtherParentID(*s)
-	}
-	return ouo
-}
-
-// ClearOtherParentID clears the value of the "other_parent_id" field.
-func (ouo *OrganizationUpdateOne) ClearOtherParentID() *OrganizationUpdateOne {
-	ouo.mutation.ClearOtherParentID()
 	return ouo
 }
 
@@ -885,6 +854,9 @@ func (ouo *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizat
 	if value, ok := ouo.mutation.DateUpdated(); ok {
 		_spec.SetField(organization.FieldDateUpdated, field.TypeTime, value)
 	}
+	if value, ok := ouo.mutation.GismoID(); ok {
+		_spec.SetField(organization.FieldGismoID, field.TypeString, value)
+	}
 	if value, ok := ouo.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 	}
@@ -910,12 +882,6 @@ func (ouo *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizat
 	}
 	if ouo.mutation.OtherIDCleared() {
 		_spec.ClearField(organization.FieldOtherID, field.TypeJSON)
-	}
-	if value, ok := ouo.mutation.OtherParentID(); ok {
-		_spec.SetField(organization.FieldOtherParentID, field.TypeString, value)
-	}
-	if ouo.mutation.OtherParentIDCleared() {
-		_spec.ClearField(organization.FieldOtherParentID, field.TypeString)
 	}
 	if ouo.mutation.PeopleCleared() {
 		edge := &sqlgraph.EdgeSpec{

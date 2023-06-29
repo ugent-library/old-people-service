@@ -2,9 +2,9 @@ version: '3.5'
 
 # requirement: run "docker build -t person-service ." in order to create image person-service
 services:
-  person_service_inbox:
+  person_service_inbox_person:
     image: ugentlib/person-service:latest
-    container_name: person_service_inbox
+    container_name: person_service_inbox_person
     depends_on:
       postgres:
         condition: service_healthy
@@ -13,7 +13,20 @@ services:
         condition: service_started
     volumes:
       - ./docker/.env:/opt/person-service/.env
-    command: "/bin/sh -c \"cd /opt/person-service && ./person-service inbox listen\""
+    command: "/bin/sh -c \"cd /opt/person-service && ./person-service inbox listen person\""
+
+  person_service_inbox_organization:
+    image: ugentlib/person-service:latest
+    container_name: person_service_inbox_organization
+    depends_on:
+      postgres:
+        condition: service_healthy
+      # nats docker image has no shell to check health
+      nats:
+        condition: service_started
+    volumes:
+      - ./docker/.env:/opt/person-service/.env
+    command: "/bin/sh -c \"cd /opt/person-service && ./person-service inbox listen organization\""
 
   person_service_grpc:
     container_name: person_service_grpc

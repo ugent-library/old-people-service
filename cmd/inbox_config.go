@@ -85,12 +85,6 @@ func initConsumer(js nats.JetStreamContext, streamName string, consumerConfig *n
 	return nil
 }
 
-func ensureAck(msg *nats.Msg) {
-	if err := msg.Ack(); err != nil {
-		logger.Fatal(fmt.Errorf("unable to acknowledge nats message: %w", err))
-	}
-}
-
 func natsConnect(config ConfigNats) (*nats.Conn, error) {
 	options := nats.Options{
 		Url:                  config.Url,
@@ -129,25 +123,27 @@ func natsConnect(config ConfigNats) (*nats.Conn, error) {
 	return options.Connect()
 }
 
-func buildSubscribers(js nats.JetStreamContext, services *models.Services) ([]subscribers.Subcriber, error) {
-	if err := initConsumer(js, natsStreamConfig.Name, &natsPersonConsumerConfig); err != nil {
-		return nil, fmt.Errorf("unable to create nats consumer %s: %w", natsPersonConsumerConfig.Durable, err)
-	}
+func buildOrganizationSubscriber(js nats.JetStreamContext, services *models.Services) (subscribers.Subcriber, error) {
 	if err := initConsumer(js, natsStreamConfig.Name, &natsOrganizationConsumerConfig); err != nil {
 		return nil, fmt.Errorf("unable to create nats consumer %s: %w", natsOrganizationConsumerConfig.Durable, err)
 	}
 	orgSConfig := subscribers.GismoOrganizationConfig{}
+	orgSConfig.Logger = logger
 	orgSConfig.Repository = services.Repository
 	orgSConfig.Subject = natsOrganizationConsumerConfig.FilterSubject
 	orgSConfig.SubOpts = []nats.SubOpt{nats.Bind(natsStreamConfig.Name, natsOrganizationConsumerConfig.Durable)}
+	return subscribers.NewGismoOrganizationSubscriber(orgSConfig), nil
+}
 
+func buildPersonSubscriber(js nats.JetStreamContext, services *models.Services) (subscribers.Subcriber, error) {
+	if err := initConsumer(js, natsStreamConfig.Name, &natsPersonConsumerConfig); err != nil {
+		return nil, fmt.Errorf("unable to create nats consumer %s: %w", natsPersonConsumerConfig.Durable, err)
+	}
 	personSConfig := subscribers.GismoPersonConfig{}
+	personSConfig.Logger = logger
 	personSConfig.Repository = services.Repository
 	personSConfig.Subject = natsPersonConsumerConfig.FilterSubject
 	personSConfig.SubOpts = []nats.SubOpt{nats.Bind(natsStreamConfig.Name, natsPersonConsumerConfig.Durable)}
 
-	return []subscribers.Subcriber{
-		subscribers.NewGismoOrganizationSubscriber(orgSConfig),
-		subscribers.NewGismoPersonSubscriber(personSConfig),
-	}, nil
+	return subscribers.NewGismoPersonSubscriber(personSConfig), nil
 }

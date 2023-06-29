@@ -83,7 +83,6 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 
 	t := tx.Organization.Create()
 
-	t.SetPublicID(org.Id)
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
@@ -96,7 +95,7 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	}
 	t.SetOtherID(schemaOtherIds)
 	t.SetGismoID(org.GismoId)
-	if org.ParentId == "" {
+	if org.ParentId != "" {
 		parentOrgRow, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentId)).First(ctx)
 		if err != nil {
 			var e *ent.NotFoundError
@@ -276,7 +275,6 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetEmail(p.Email)
 	t.SetFirstName(p.FirstName)
 	t.SetFullName(p.FullName)
-	t.SetPublicID(p.Id) // TODO: nil value overriden by entgo default function?
 	t.SetTitle(p.Title)
 	t.SetLastName(p.LastName)
 	t.SetOrcid(p.Orcid)

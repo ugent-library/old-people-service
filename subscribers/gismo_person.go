@@ -2,6 +2,7 @@ package subscribers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -40,15 +41,17 @@ managed fields:
 */
 
 func NewGismoPersonSubscriber(config GismoPersonConfig) *GismoPersonSubscriber {
+	bs := NewBaseSubscriber(config.Subject)
+	bs.logger = config.Logger
 	sub := &GismoPersonSubscriber{
-		BaseSubscriber: NewBaseSubscriber(config.Subject),
+		BaseSubscriber: bs,
 		repository:     config.Repository,
 	}
 	sub.subOpts = append(sub.subOpts, config.SubOpts...)
 	return sub
 }
 
-func (ps *GismoPersonSubscriber) Listen(msg *nats.Msg) (*inbox.Message, error) {
+func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) {
 	ctx := context.Background()
 	now := time.Now()
 
@@ -57,6 +60,9 @@ func (ps *GismoPersonSubscriber) Listen(msg *nats.Msg) (*inbox.Message, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%w: unable to process malformed message: %s", models.ErrNonFatal, err)
 	}
+
+	jsonBytes, _ := json.Marshal(iMsg)
+	ps.logger.Infof("converted soap message %s into json: %s", iMsg.ID, string(jsonBytes))
 
 	// trial 1: retrieve old person by gismo-id
 	person, err := ps.repository.GetPersonByGismoId(ctx, iMsg.ID)
@@ -164,9 +170,15 @@ func (ps *GismoPersonSubscriber) Listen(msg *nats.Msg) (*inbox.Message, error) {
 	}
 
 	if person.IsStored() {
-		_, err = ps.repository.UpdatePerson(ctx, person)
+		p, err := ps.repository.UpdatePerson(ctx, person)
+		if err == nil {
+			ps.logger.Infof("updated person %s", p.Id)
+		}
 	} else {
-		_, err = ps.repository.CreatePerson(ctx, person)
+		p, err := ps.repository.CreatePerson(ctx, person)
+		if err == nil {
+			ps.logger.Infof("created person %s", p.Id)
+		}
 	}
 
 	if err != nil {

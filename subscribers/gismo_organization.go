@@ -2,6 +2,7 @@ package subscribers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -23,15 +24,17 @@ type GismoOrganizationConfig struct {
 }
 
 func NewGismoOrganizationSubscriber(config GismoOrganizationConfig) *GismoOrganizationSubscriber {
+	bs := NewBaseSubscriber(config.Subject)
+	bs.logger = config.Logger
 	os := &GismoOrganizationSubscriber{
-		BaseSubscriber: NewBaseSubscriber(config.Subject),
+		BaseSubscriber: bs,
 		repository:     config.Repository,
 	}
 	os.subOpts = append(os.subOpts, config.SubOpts...)
 	return os
 }
 
-func (os *GismoOrganizationSubscriber) Listen(msg *nats.Msg) (*inbox.Message, error) {
+func (oSub *GismoOrganizationSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) {
 	ctx := context.Background()
 	now := time.Now()
 
@@ -41,8 +44,11 @@ func (os *GismoOrganizationSubscriber) Listen(msg *nats.Msg) (*inbox.Message, er
 		return nil, fmt.Errorf("%w: unable to process malformed message: %s", models.ErrNonFatal, err)
 	}
 
+	jsonBytes, _ := json.Marshal(iMsg)
+	oSub.logger.Infof("converted soap message %s into json: %s", iMsg.ID, string(jsonBytes))
+
 	// fetch organization by gismo_id
-	org, err := os.repository.GetOrganizationByGismoId(ctx, iMsg.ID)
+	org, err := oSub.repository.GetOrganizationByGismoId(ctx, iMsg.ID)
 	if err != nil && err == models.ErrNotFound {
 		org = models.NewOrganization()
 	} else if err != nil {
@@ -55,6 +61,7 @@ func (os *GismoOrganizationSubscriber) Listen(msg *nats.Msg) (*inbox.Message, er
 		org.OtherId = make([]*v1.IdRef, 0)
 		org.Type = "organization"
 		org.ParentId = ""
+		org.GismoId = iMsg.ID
 
 		// only recent values needed: name_dut, name_eng, type
 		// all values needed: ugent_memorialis_id, code, biblio_code
@@ -63,7 +70,7 @@ func (os *GismoOrganizationSubscriber) Listen(msg *nats.Msg) (*inbox.Message, er
 			switch attr.Name {
 			case "parent_id":
 				if withinDateRange {
-					orgParentByGismo, err := os.repository.GetOrganizationByGismoId(ctx, attr.Value)
+					orgParentByGismo, err := oSub.repository.GetOrganizationByGismoId(ctx, attr.Value)
 					if err != nil {
 						return nil, fmt.Errorf("%w: unable to find parent organization with gismo id %s", models.ErrNotFound, attr.Value)
 					}
@@ -100,16 +107,22 @@ func (os *GismoOrganizationSubscriber) Listen(msg *nats.Msg) (*inbox.Message, er
 		}
 
 		if org.IsStored() {
-			_, err = os.repository.UpdateOrganization(ctx, org)
+			o, err := oSub.repository.UpdateOrganization(ctx, org)
+			if err == nil {
+				oSub.logger.Infof("updated organization %s", o.Id)
+			}
 		} else {
-			_, err = os.repository.CreateOrganization(ctx, org)
+			o, err := oSub.repository.CreateOrganization(ctx, org)
+			if err == nil {
+				oSub.logger.Infof("created organization %s", o.Id)
+			}
 		}
 		if err != nil {
 			return iMsg, fmt.Errorf("%w: unable to store organization record: %s", models.ErrFatal, err)
 		}
 	} else if iMsg.Source == "gismo.organization.delete" {
 		if org.IsStored() {
-			if err := os.repository.DeleteOrganization(ctx, org.Id); err != nil {
+			if err := oSub.repository.DeleteOrganization(ctx, org.Id); err != nil {
 				return iMsg, fmt.Errorf("%w: unable to delete organization record: %s", models.ErrFatal, err)
 			}
 		}

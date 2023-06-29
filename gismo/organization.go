@@ -39,7 +39,7 @@ func ParseOrganizationMessage(buf []byte) (*inbox.Message, error) {
 	} else {
 		msg.Source = "gismo.organization.update"
 
-		for _, n := range xmlquery.Find(node, "//cfName") {
+		for _, n := range xmlquery.Find(node, "./cfName") {
 			t1, err := time.Parse(time.RFC3339, n.SelectAttr("cfStartDate"))
 			if err != nil {
 				return nil, err

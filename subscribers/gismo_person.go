@@ -64,7 +64,11 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 	jsonBytes, _ := json.Marshal(iMsg)
 	ps.logger.Infof("converted soap message %s into json: %s", iMsg.ID, string(jsonBytes))
 
-	// TODO: ugent_id required? Without ugent_id no linking possible
+	// Without ugentId no linking possible
+	ugentId, _ := iMsg.GetAttributeAt("ugent_id", now)
+	if ugentId == "" {
+		return nil, fmt.Errorf("%w: missing ugent_id in message %s", models.ErrNonFatal, iMsg.ID)
+	}
 
 	// trial 1: retrieve old person by gismo-id
 	person, err := ps.repository.GetPersonByGismoId(ctx, iMsg.ID)
@@ -72,12 +76,9 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 	// trial 2: retrieve old person by ugent-id
 	// TODO: panic when no ugent_id is set??
 	if err != nil && err == models.ErrNotFound {
-		ugentId, err := iMsg.GetAttributeAt("ugent_id", now)
-		if err == nil {
-			person, err = ps.repository.GetPersonByUgentId(ctx, ugentId)
-			if err != nil && err != models.ErrNotFound {
-				return iMsg, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)
-			}
+		person, err = ps.repository.GetPersonByUgentId(ctx, ugentId)
+		if err != nil && err != models.ErrNotFound {
+			return iMsg, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)
 		}
 	} else if err != nil {
 		return iMsg, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)

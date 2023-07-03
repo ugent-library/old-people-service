@@ -3,6 +3,7 @@ package subscribers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -71,10 +72,13 @@ func (oSub *GismoOrganizationSubscriber) Process(msg *nats.Msg) (*inbox.Message,
 			case "parent_id":
 				if withinDateRange {
 					orgParentByGismo, err := oSub.repository.GetOrganizationByGismoId(ctx, attr.Value)
-					if err != nil {
-						return nil, fmt.Errorf("%w: unable to find parent organization with gismo id %s", models.ErrNotFound, attr.Value)
+					if errors.Is(err, models.ErrNotFound) {
+						oSub.logger.Errorf("unable to find parent organization with gismo id %s", attr.Value)
+					} else if err != nil {
+						return nil, fmt.Errorf("%w", models.ErrFatal)
+					} else {
+						org.ParentId = orgParentByGismo.Id
 					}
-					org.ParentId = orgParentByGismo.Id
 				}
 			case "name_dut":
 				if withinDateRange {
@@ -85,9 +89,7 @@ func (oSub *GismoOrganizationSubscriber) Process(msg *nats.Msg) (*inbox.Message,
 					org.NameEng = attr.Value
 				}
 			case "type":
-				if withinDateRange {
-					org.Type = attr.Value
-				}
+				org.Type = attr.Value
 			case "ugent_memorialis_id":
 				org.OtherId = append(org.OtherId, &v1.IdRef{
 					Type: "ugent_memorialis_id",
@@ -110,21 +112,26 @@ func (oSub *GismoOrganizationSubscriber) Process(msg *nats.Msg) (*inbox.Message,
 			o, err := oSub.repository.UpdateOrganization(ctx, org)
 			if err == nil {
 				oSub.logger.Infof("updated organization %s", o.Id)
+			} else {
+				return iMsg, fmt.Errorf("%w: unable to update organization record: %s", models.ErrFatal, err)
 			}
 		} else {
 			o, err := oSub.repository.CreateOrganization(ctx, org)
 			if err == nil {
 				oSub.logger.Infof("created organization %s", o.Id)
+			} else {
+				return iMsg, fmt.Errorf("%w: unable to create organization record: %s", models.ErrFatal, err)
 			}
-		}
-		if err != nil {
-			return iMsg, fmt.Errorf("%w: unable to store organization record: %s", models.ErrFatal, err)
 		}
 	} else if iMsg.Source == "gismo.organization.delete" {
 		if org.IsStored() {
 			if err := oSub.repository.DeleteOrganization(ctx, org.Id); err != nil {
 				return iMsg, fmt.Errorf("%w: unable to delete organization record: %s", models.ErrFatal, err)
+			} else {
+				oSub.logger.Infof("deleted organization %s", org.Id)
 			}
+		} else {
+			oSub.logger.Infof("organization with gismo id %s was already deleted/not found", iMsg.ID)
 		}
 	}
 

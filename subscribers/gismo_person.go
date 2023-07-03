@@ -64,6 +64,8 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 	jsonBytes, _ := json.Marshal(iMsg)
 	ps.logger.Infof("converted soap message %s into json: %s", iMsg.ID, string(jsonBytes))
 
+	// TODO: ugent_id required? Without ugent_id no linking possible
+
 	// trial 1: retrieve old person by gismo-id
 	person, err := ps.repository.GetPersonByGismoId(ctx, iMsg.ID)
 
@@ -77,11 +79,13 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 				return iMsg, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)
 			}
 		}
-		if person == nil {
-			person = models.NewPerson()
-		}
 	} else if err != nil {
 		return iMsg, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)
+	}
+
+	// trial 3: new person record
+	if person == nil {
+		person = models.NewPerson()
 	}
 
 	// clear old values
@@ -160,8 +164,9 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 		if err != nil {
 			return nil, err
 		}
+		// return fatal error when person arrives with organization that we do not know yet
 		if len(orgsByGismo) != len(gismoOrganizationId) {
-			return nil, fmt.Errorf("person.organization_id contains invalid gismo organization identifiers")
+			return nil, fmt.Errorf("%w: person.organization_id contains invalid gismo organization identifiers", models.ErrFatal)
 		}
 		for _, org := range orgsByGismo {
 			orgIds = append(orgIds, org.Id)
@@ -173,16 +178,16 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 		p, err := ps.repository.UpdatePerson(ctx, person)
 		if err == nil {
 			ps.logger.Infof("updated person %s", p.Id)
+		} else {
+			return iMsg, fmt.Errorf("%w: unable to update person record: %s", models.ErrFatal, err)
 		}
 	} else {
 		p, err := ps.repository.CreatePerson(ctx, person)
 		if err == nil {
 			ps.logger.Infof("created person %s", p.Id)
+		} else {
+			return iMsg, fmt.Errorf("%w: unable to create person record: %s", models.ErrFatal, err)
 		}
-	}
-
-	if err != nil {
-		return iMsg, fmt.Errorf("%w: unable to store person record: %s", models.ErrFatal, err)
 	}
 
 	return iMsg, nil

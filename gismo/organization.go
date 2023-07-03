@@ -30,8 +30,15 @@ func ParseOrganizationMessage(buf []byte) (*inbox.Message, error) {
 		return nil, fmt.Errorf("%w: unable to find xml node //cfOrgUnit/cfOrgUnitId", ErrNonCompliantXml)
 	}
 
+	orgNode := xmlquery.FindOne(doc, "//Body/organizations")
+
+	if orgNode == nil {
+		return nil, fmt.Errorf("%w: unabel to find node //Body/organizations", ErrNonCompliantXml)
+	}
+
 	msg := &inbox.Message{
-		ID: strings.TrimSpace(idNode.InnerText()),
+		ID:   strings.TrimSpace(idNode.InnerText()),
+		Date: orgNode.SelectAttr("date"),
 	}
 
 	if node.SelectAttr("action") == "DELETE" {

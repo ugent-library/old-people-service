@@ -21,9 +21,10 @@ type Attribute struct {
 
 type Message struct {
 	ID         string      `json:"id,omitempty"`
+	Date       string      `json:"date,omitempty"`
 	Language   string      `json:"language"`
 	Attributes []Attribute `json:"attributes"`
-	Source     string      `json:"-"` // filled with nats subject
+	Source     string      `json:"source"`
 }
 
 func (m *Message) Validate() validation.Errors {

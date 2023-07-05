@@ -301,9 +301,22 @@ func (m *OrganizationMutation) OldGismoID(ctx context.Context) (v *string, err e
 	return oldValue.GismoID, nil
 }
 
+// ClearGismoID clears the value of the "gismo_id" field.
+func (m *OrganizationMutation) ClearGismoID() {
+	m.gismo_id = nil
+	m.clearedFields[organization.FieldGismoID] = struct{}{}
+}
+
+// GismoIDCleared returns if the "gismo_id" field was cleared in this mutation.
+func (m *OrganizationMutation) GismoIDCleared() bool {
+	_, ok := m.clearedFields[organization.FieldGismoID]
+	return ok
+}
+
 // ResetGismoID resets all changes to the "gismo_id" field.
 func (m *OrganizationMutation) ResetGismoID() {
 	m.gismo_id = nil
+	delete(m.clearedFields, organization.FieldGismoID)
 }
 
 // SetType sets the "type" field.
@@ -962,6 +975,9 @@ func (m *OrganizationMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *OrganizationMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(organization.FieldGismoID) {
+		fields = append(fields, organization.FieldGismoID)
+	}
 	if m.FieldCleared(organization.FieldNameDut) {
 		fields = append(fields, organization.FieldNameDut)
 	}
@@ -988,6 +1004,9 @@ func (m *OrganizationMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *OrganizationMutation) ClearField(name string) error {
 	switch name {
+	case organization.FieldGismoID:
+		m.ClearGismoID()
+		return nil
 	case organization.FieldNameDut:
 		m.ClearNameDut()
 		return nil
@@ -1836,6 +1855,9 @@ type PersonMutation struct {
 	role                       *[]string
 	appendrole                 []string
 	settings                   *map[string]string
+	object_class               *[]string
+	appendobject_class         []string
+	expiration_date            *string
 	clearedFields              map[string]struct{}
 	organizations              map[int]struct{}
 	removedorganizations       map[int]struct{}
@@ -2085,9 +2107,22 @@ func (m *PersonMutation) OldGismoID(ctx context.Context) (v *string, err error) 
 	return oldValue.GismoID, nil
 }
 
+// ClearGismoID clears the value of the "gismo_id" field.
+func (m *PersonMutation) ClearGismoID() {
+	m.gismo_id = nil
+	m.clearedFields[person.FieldGismoID] = struct{}{}
+}
+
+// GismoIDCleared returns if the "gismo_id" field was cleared in this mutation.
+func (m *PersonMutation) GismoIDCleared() bool {
+	_, ok := m.clearedFields[person.FieldGismoID]
+	return ok
+}
+
 // ResetGismoID resets all changes to the "gismo_id" field.
 func (m *PersonMutation) ResetGismoID() {
 	m.gismo_id = nil
+	delete(m.clearedFields, person.FieldGismoID)
 }
 
 // SetActive sets the "active" field.
@@ -2860,6 +2895,120 @@ func (m *PersonMutation) ResetSettings() {
 	delete(m.clearedFields, person.FieldSettings)
 }
 
+// SetObjectClass sets the "object_class" field.
+func (m *PersonMutation) SetObjectClass(s []string) {
+	m.object_class = &s
+	m.appendobject_class = nil
+}
+
+// ObjectClass returns the value of the "object_class" field in the mutation.
+func (m *PersonMutation) ObjectClass() (r []string, exists bool) {
+	v := m.object_class
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldObjectClass returns the old "object_class" field's value of the Person entity.
+// If the Person object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PersonMutation) OldObjectClass(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldObjectClass is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldObjectClass requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldObjectClass: %w", err)
+	}
+	return oldValue.ObjectClass, nil
+}
+
+// AppendObjectClass adds s to the "object_class" field.
+func (m *PersonMutation) AppendObjectClass(s []string) {
+	m.appendobject_class = append(m.appendobject_class, s...)
+}
+
+// AppendedObjectClass returns the list of values that were appended to the "object_class" field in this mutation.
+func (m *PersonMutation) AppendedObjectClass() ([]string, bool) {
+	if len(m.appendobject_class) == 0 {
+		return nil, false
+	}
+	return m.appendobject_class, true
+}
+
+// ClearObjectClass clears the value of the "object_class" field.
+func (m *PersonMutation) ClearObjectClass() {
+	m.object_class = nil
+	m.appendobject_class = nil
+	m.clearedFields[person.FieldObjectClass] = struct{}{}
+}
+
+// ObjectClassCleared returns if the "object_class" field was cleared in this mutation.
+func (m *PersonMutation) ObjectClassCleared() bool {
+	_, ok := m.clearedFields[person.FieldObjectClass]
+	return ok
+}
+
+// ResetObjectClass resets all changes to the "object_class" field.
+func (m *PersonMutation) ResetObjectClass() {
+	m.object_class = nil
+	m.appendobject_class = nil
+	delete(m.clearedFields, person.FieldObjectClass)
+}
+
+// SetExpirationDate sets the "expiration_date" field.
+func (m *PersonMutation) SetExpirationDate(s string) {
+	m.expiration_date = &s
+}
+
+// ExpirationDate returns the value of the "expiration_date" field in the mutation.
+func (m *PersonMutation) ExpirationDate() (r string, exists bool) {
+	v := m.expiration_date
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExpirationDate returns the old "expiration_date" field's value of the Person entity.
+// If the Person object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PersonMutation) OldExpirationDate(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExpirationDate is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExpirationDate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExpirationDate: %w", err)
+	}
+	return oldValue.ExpirationDate, nil
+}
+
+// ClearExpirationDate clears the value of the "expiration_date" field.
+func (m *PersonMutation) ClearExpirationDate() {
+	m.expiration_date = nil
+	m.clearedFields[person.FieldExpirationDate] = struct{}{}
+}
+
+// ExpirationDateCleared returns if the "expiration_date" field was cleared in this mutation.
+func (m *PersonMutation) ExpirationDateCleared() bool {
+	_, ok := m.clearedFields[person.FieldExpirationDate]
+	return ok
+}
+
+// ResetExpirationDate resets all changes to the "expiration_date" field.
+func (m *PersonMutation) ResetExpirationDate() {
+	m.expiration_date = nil
+	delete(m.clearedFields, person.FieldExpirationDate)
+}
+
 // AddOrganizationIDs adds the "organizations" edge to the Organization entity by ids.
 func (m *PersonMutation) AddOrganizationIDs(ids ...int) {
 	if m.organizations == nil {
@@ -3002,7 +3151,7 @@ func (m *PersonMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PersonMutation) Fields() []string {
-	fields := make([]string, 0, 19)
+	fields := make([]string, 0, 21)
 	if m.date_created != nil {
 		fields = append(fields, person.FieldDateCreated)
 	}
@@ -3060,6 +3209,12 @@ func (m *PersonMutation) Fields() []string {
 	if m.settings != nil {
 		fields = append(fields, person.FieldSettings)
 	}
+	if m.object_class != nil {
+		fields = append(fields, person.FieldObjectClass)
+	}
+	if m.expiration_date != nil {
+		fields = append(fields, person.FieldExpirationDate)
+	}
 	return fields
 }
 
@@ -3106,6 +3261,10 @@ func (m *PersonMutation) Field(name string) (ent.Value, bool) {
 		return m.Role()
 	case person.FieldSettings:
 		return m.Settings()
+	case person.FieldObjectClass:
+		return m.ObjectClass()
+	case person.FieldExpirationDate:
+		return m.ExpirationDate()
 	}
 	return nil, false
 }
@@ -3153,6 +3312,10 @@ func (m *PersonMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldRole(ctx)
 	case person.FieldSettings:
 		return m.OldSettings(ctx)
+	case person.FieldObjectClass:
+		return m.OldObjectClass(ctx)
+	case person.FieldExpirationDate:
+		return m.OldExpirationDate(ctx)
 	}
 	return nil, fmt.Errorf("unknown Person field %s", name)
 }
@@ -3295,6 +3458,20 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSettings(v)
 		return nil
+	case person.FieldObjectClass:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetObjectClass(v)
+		return nil
+	case person.FieldExpirationDate:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExpirationDate(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Person field %s", name)
 }
@@ -3325,6 +3502,9 @@ func (m *PersonMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *PersonMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(person.FieldGismoID) {
+		fields = append(fields, person.FieldGismoID)
+	}
 	if m.FieldCleared(person.FieldBirthDate) {
 		fields = append(fields, person.FieldBirthDate)
 	}
@@ -3367,6 +3547,12 @@ func (m *PersonMutation) ClearedFields() []string {
 	if m.FieldCleared(person.FieldSettings) {
 		fields = append(fields, person.FieldSettings)
 	}
+	if m.FieldCleared(person.FieldObjectClass) {
+		fields = append(fields, person.FieldObjectClass)
+	}
+	if m.FieldCleared(person.FieldExpirationDate) {
+		fields = append(fields, person.FieldExpirationDate)
+	}
 	return fields
 }
 
@@ -3381,6 +3567,9 @@ func (m *PersonMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *PersonMutation) ClearField(name string) error {
 	switch name {
+	case person.FieldGismoID:
+		m.ClearGismoID()
+		return nil
 	case person.FieldBirthDate:
 		m.ClearBirthDate()
 		return nil
@@ -3422,6 +3611,12 @@ func (m *PersonMutation) ClearField(name string) error {
 		return nil
 	case person.FieldSettings:
 		m.ClearSettings()
+		return nil
+	case person.FieldObjectClass:
+		m.ClearObjectClass()
+		return nil
+	case person.FieldExpirationDate:
+		m.ClearExpirationDate()
 		return nil
 	}
 	return fmt.Errorf("unknown Person nullable field %s", name)
@@ -3487,6 +3682,12 @@ func (m *PersonMutation) ResetField(name string) error {
 		return nil
 	case person.FieldSettings:
 		m.ResetSettings()
+		return nil
+	case person.FieldObjectClass:
+		m.ResetObjectClass()
+		return nil
+	case person.FieldExpirationDate:
+		m.ResetExpirationDate()
 		return nil
 	}
 	return fmt.Errorf("unknown Person field %s", name)

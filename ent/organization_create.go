@@ -71,6 +71,14 @@ func (oc *OrganizationCreate) SetGismoID(s string) *OrganizationCreate {
 	return oc
 }
 
+// SetNillableGismoID sets the "gismo_id" field if the given value is not nil.
+func (oc *OrganizationCreate) SetNillableGismoID(s *string) *OrganizationCreate {
+	if s != nil {
+		oc.SetGismoID(*s)
+	}
+	return oc
+}
+
 // SetType sets the "type" field.
 func (oc *OrganizationCreate) SetType(s string) *OrganizationCreate {
 	oc.mutation.SetType(s)
@@ -234,6 +242,10 @@ func (oc *OrganizationCreate) defaults() {
 		v := organization.DefaultType
 		oc.mutation.SetType(v)
 	}
+	if _, ok := oc.mutation.OtherID(); !ok {
+		v := organization.DefaultOtherID
+		oc.mutation.SetOtherID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -246,9 +258,6 @@ func (oc *OrganizationCreate) check() error {
 	}
 	if _, ok := oc.mutation.PublicID(); !ok {
 		return &ValidationError{Name: "public_id", err: errors.New(`ent: missing required field "Organization.public_id"`)}
-	}
-	if _, ok := oc.mutation.GismoID(); !ok {
-		return &ValidationError{Name: "gismo_id", err: errors.New(`ent: missing required field "Organization.gismo_id"`)}
 	}
 	if _, ok := oc.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Organization.type"`)}

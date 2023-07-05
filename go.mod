@@ -12,6 +12,7 @@ require (
 	github.com/caarlos0/env/v8 v8.0.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/go-chi/chi/v5 v5.0.8
+	github.com/go-ldap/ldap/v3 v3.4.5
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/joho/godotenv v1.5.1
 	github.com/nats-io/nats.go v1.24.0
@@ -22,16 +23,19 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/ugent-library/zaphttp v0.0.0-20230513174723-52c27d21c5ce
 	go.uber.org/zap v1.24.0
+	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df
 	golang.org/x/net v0.11.0
 	google.golang.org/protobuf v1.31.0
 )
 
 require (
+	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/antchfx/xpath v1.2.4 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
+	github.com/go-asn1-ber/asn1-ber v1.5.4 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect

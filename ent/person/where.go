@@ -130,6 +130,11 @@ func Title(v string) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldTitle, v))
 }
 
+// ExpirationDate applies equality check predicate on the "expiration_date" field. It's identical to ExpirationDateEQ.
+func ExpirationDate(v string) predicate.Person {
+	return predicate.Person(sql.FieldEQ(FieldExpirationDate, v))
+}
+
 // DateCreatedEQ applies the EQ predicate on the "date_created" field.
 func DateCreatedEQ(v time.Time) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldDateCreated, v))
@@ -328,6 +333,16 @@ func GismoIDHasPrefix(v string) predicate.Person {
 // GismoIDHasSuffix applies the HasSuffix predicate on the "gismo_id" field.
 func GismoIDHasSuffix(v string) predicate.Person {
 	return predicate.Person(sql.FieldHasSuffix(FieldGismoID, v))
+}
+
+// GismoIDIsNil applies the IsNil predicate on the "gismo_id" field.
+func GismoIDIsNil() predicate.Person {
+	return predicate.Person(sql.FieldIsNull(FieldGismoID))
+}
+
+// GismoIDNotNil applies the NotNil predicate on the "gismo_id" field.
+func GismoIDNotNil() predicate.Person {
+	return predicate.Person(sql.FieldNotNull(FieldGismoID))
 }
 
 // GismoIDEqualFold applies the EqualFold predicate on the "gismo_id" field.
@@ -1138,6 +1153,91 @@ func SettingsIsNil() predicate.Person {
 // SettingsNotNil applies the NotNil predicate on the "settings" field.
 func SettingsNotNil() predicate.Person {
 	return predicate.Person(sql.FieldNotNull(FieldSettings))
+}
+
+// ObjectClassIsNil applies the IsNil predicate on the "object_class" field.
+func ObjectClassIsNil() predicate.Person {
+	return predicate.Person(sql.FieldIsNull(FieldObjectClass))
+}
+
+// ObjectClassNotNil applies the NotNil predicate on the "object_class" field.
+func ObjectClassNotNil() predicate.Person {
+	return predicate.Person(sql.FieldNotNull(FieldObjectClass))
+}
+
+// ExpirationDateEQ applies the EQ predicate on the "expiration_date" field.
+func ExpirationDateEQ(v string) predicate.Person {
+	return predicate.Person(sql.FieldEQ(FieldExpirationDate, v))
+}
+
+// ExpirationDateNEQ applies the NEQ predicate on the "expiration_date" field.
+func ExpirationDateNEQ(v string) predicate.Person {
+	return predicate.Person(sql.FieldNEQ(FieldExpirationDate, v))
+}
+
+// ExpirationDateIn applies the In predicate on the "expiration_date" field.
+func ExpirationDateIn(vs ...string) predicate.Person {
+	return predicate.Person(sql.FieldIn(FieldExpirationDate, vs...))
+}
+
+// ExpirationDateNotIn applies the NotIn predicate on the "expiration_date" field.
+func ExpirationDateNotIn(vs ...string) predicate.Person {
+	return predicate.Person(sql.FieldNotIn(FieldExpirationDate, vs...))
+}
+
+// ExpirationDateGT applies the GT predicate on the "expiration_date" field.
+func ExpirationDateGT(v string) predicate.Person {
+	return predicate.Person(sql.FieldGT(FieldExpirationDate, v))
+}
+
+// ExpirationDateGTE applies the GTE predicate on the "expiration_date" field.
+func ExpirationDateGTE(v string) predicate.Person {
+	return predicate.Person(sql.FieldGTE(FieldExpirationDate, v))
+}
+
+// ExpirationDateLT applies the LT predicate on the "expiration_date" field.
+func ExpirationDateLT(v string) predicate.Person {
+	return predicate.Person(sql.FieldLT(FieldExpirationDate, v))
+}
+
+// ExpirationDateLTE applies the LTE predicate on the "expiration_date" field.
+func ExpirationDateLTE(v string) predicate.Person {
+	return predicate.Person(sql.FieldLTE(FieldExpirationDate, v))
+}
+
+// ExpirationDateContains applies the Contains predicate on the "expiration_date" field.
+func ExpirationDateContains(v string) predicate.Person {
+	return predicate.Person(sql.FieldContains(FieldExpirationDate, v))
+}
+
+// ExpirationDateHasPrefix applies the HasPrefix predicate on the "expiration_date" field.
+func ExpirationDateHasPrefix(v string) predicate.Person {
+	return predicate.Person(sql.FieldHasPrefix(FieldExpirationDate, v))
+}
+
+// ExpirationDateHasSuffix applies the HasSuffix predicate on the "expiration_date" field.
+func ExpirationDateHasSuffix(v string) predicate.Person {
+	return predicate.Person(sql.FieldHasSuffix(FieldExpirationDate, v))
+}
+
+// ExpirationDateIsNil applies the IsNil predicate on the "expiration_date" field.
+func ExpirationDateIsNil() predicate.Person {
+	return predicate.Person(sql.FieldIsNull(FieldExpirationDate))
+}
+
+// ExpirationDateNotNil applies the NotNil predicate on the "expiration_date" field.
+func ExpirationDateNotNil() predicate.Person {
+	return predicate.Person(sql.FieldNotNull(FieldExpirationDate))
+}
+
+// ExpirationDateEqualFold applies the EqualFold predicate on the "expiration_date" field.
+func ExpirationDateEqualFold(v string) predicate.Person {
+	return predicate.Person(sql.FieldEqualFold(FieldExpirationDate, v))
+}
+
+// ExpirationDateContainsFold applies the ContainsFold predicate on the "expiration_date" field.
+func ExpirationDateContainsFold(v string) predicate.Person {
+	return predicate.Person(sql.FieldContainsFold(FieldExpirationDate, v))
 }
 
 // HasOrganizations applies the HasEdge predicate on the "organizations" edge.

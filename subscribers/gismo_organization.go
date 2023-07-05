@@ -42,7 +42,7 @@ func (oSub *GismoOrganizationSubscriber) Process(msg *nats.Msg) (*inbox.Message,
 	// parse soap xml message into json inbox message
 	iMsg, err := gismo.ParseOrganizationMessage(msg.Data)
 	if err != nil {
-		return nil, fmt.Errorf("%w: unable to process malformed message: %s", models.ErrNonFatal, err)
+		return nil, fmt.Errorf("%w: unable to process malformed message: %s", models.ErrSkipped, err)
 	}
 
 	jsonBytes, _ := json.Marshal(iMsg)
@@ -108,20 +108,11 @@ func (oSub *GismoOrganizationSubscriber) Process(msg *nats.Msg) (*inbox.Message,
 			}
 		}
 
-		if org.IsStored() {
-			o, err := oSub.repository.UpdateOrganization(ctx, org)
-			if err == nil {
-				oSub.logger.Infof("updated organization %s", o.Id)
-			} else {
-				return iMsg, fmt.Errorf("%w: unable to update organization record: %s", models.ErrFatal, err)
-			}
+		o, err := oSub.repository.SaveOrganization(ctx, org)
+		if err == nil {
+			oSub.logger.Infof("saved organization %s", o.Id)
 		} else {
-			o, err := oSub.repository.CreateOrganization(ctx, org)
-			if err == nil {
-				oSub.logger.Infof("created organization %s", o.Id)
-			} else {
-				return iMsg, fmt.Errorf("%w: unable to create organization record: %s", models.ErrFatal, err)
-			}
+			return iMsg, fmt.Errorf("%w: unable to save organization record: %s", models.ErrFatal, err)
 		}
 	} else if iMsg.Source == "gismo.organization.delete" {
 		if org.IsStored() {

@@ -5,11 +5,14 @@ import (
 
 	"github.com/ugent-library/person-service/models"
 	"github.com/ugent-library/person-service/repository"
+	"github.com/ugent-library/person-service/ugentldap"
 )
 
 var (
-	_services     *models.Services
-	_servicesOnce sync.Once
+	_services       *models.Services
+	_servicesOnce   sync.Once
+	_ldapClient     *ugentldap.UgentLdap
+	_ldapClientOnce sync.Once
 )
 
 func Services() *models.Services {
@@ -17,6 +20,17 @@ func Services() *models.Services {
 		_services = newServices()
 	})
 	return _services
+}
+
+func LDAPClient() *ugentldap.UgentLdap {
+	_ldapClientOnce.Do(func() {
+		_ldapClient = ugentldap.NewClient(ugentldap.Config{
+			Url:      config.Ldap.Url,
+			Username: config.Ldap.Username,
+			Password: config.Ldap.Password,
+		})
+	})
+	return _ldapClient
 }
 
 func newServices() *models.Services {

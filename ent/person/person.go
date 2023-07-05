@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/ugent-library/person-service/ent/schema"
 )
 
 const (
@@ -52,6 +53,10 @@ const (
 	FieldRole = "role"
 	// FieldSettings holds the string denoting the settings field in the database.
 	FieldSettings = "settings"
+	// FieldObjectClass holds the string denoting the object_class field in the database.
+	FieldObjectClass = "object_class"
+	// FieldExpirationDate holds the string denoting the expiration_date field in the database.
+	FieldExpirationDate = "expiration_date"
 	// EdgeOrganizations holds the string denoting the organizations edge name in mutations.
 	EdgeOrganizations = "organizations"
 	// EdgeOrganizationPerson holds the string denoting the organization_person edge name in mutations.
@@ -94,6 +99,8 @@ var Columns = []string{
 	FieldTitle,
 	FieldRole,
 	FieldSettings,
+	FieldObjectClass,
+	FieldExpirationDate,
 }
 
 var (
@@ -123,6 +130,16 @@ var (
 	DefaultPublicID func() string
 	// DefaultActive holds the default value on creation for the "active" field.
 	DefaultActive bool
+	// DefaultOtherID holds the default value on creation for the "other_id" field.
+	DefaultOtherID []schema.IdRef
+	// DefaultJobCategory holds the default value on creation for the "job_category" field.
+	DefaultJobCategory []string
+	// DefaultRole holds the default value on creation for the "role" field.
+	DefaultRole []string
+	// DefaultSettings holds the default value on creation for the "settings" field.
+	DefaultSettings map[string]string
+	// DefaultObjectClass holds the default value on creation for the "object_class" field.
+	DefaultObjectClass []string
 )
 
 // OrderOption defines the ordering options for the Person queries.
@@ -206,6 +223,11 @@ func ByPreferredLastName(opts ...sql.OrderTermOption) OrderOption {
 // ByTitle orders the results by the title field.
 func ByTitle(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTitle, opts...).ToFunc()
+}
+
+// ByExpirationDate orders the results by the expiration_date field.
+func ByExpirationDate(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldExpirationDate, opts...).ToFunc()
 }
 
 // ByOrganizationsCount orders the results by organizations count.

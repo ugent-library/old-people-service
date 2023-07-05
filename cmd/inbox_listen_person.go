@@ -57,9 +57,11 @@ func listenPersonFn() error {
 		if errors.Is(lErr, models.ErrFatal) {
 			logger.Fatal(lErr) // escape loop
 		} else if errors.Is(lErr, models.ErrNonFatal) {
-			logger.Errorf("caught non fatal error for subscriber %s: %s", sub.Subject(), lErr)
+			logger.Errorf("subject %s: caught non fatal error: %s", sub.Subject(), lErr)
+		} else if errors.Is(lErr, models.ErrSkipped) {
+			logger.Errorf("subject %s: message was skipped: %s", lErr)
 		} else if lErr != nil {
-			logger.Errorf("caught unexpected error for subscriber %s: %s", sub.Subject(), lErr)
+			logger.Errorf("subject %s: caught unexpected error: %s", sub.Subject(), lErr)
 		} else {
 			logger.Infof("subject %s: processed message %s", sub.Subject(), iMsg.ID)
 		}

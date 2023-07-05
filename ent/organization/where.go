@@ -295,6 +295,16 @@ func GismoIDHasSuffix(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldHasSuffix(FieldGismoID, v))
 }
 
+// GismoIDIsNil applies the IsNil predicate on the "gismo_id" field.
+func GismoIDIsNil() predicate.Organization {
+	return predicate.Organization(sql.FieldIsNull(FieldGismoID))
+}
+
+// GismoIDNotNil applies the NotNil predicate on the "gismo_id" field.
+func GismoIDNotNil() predicate.Organization {
+	return predicate.Organization(sql.FieldNotNull(FieldGismoID))
+}
+
 // GismoIDEqualFold applies the EqualFold predicate on the "gismo_id" field.
 func GismoIDEqualFold(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldEqualFold(FieldGismoID, v))

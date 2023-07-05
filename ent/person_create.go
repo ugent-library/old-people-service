@@ -71,6 +71,14 @@ func (pc *PersonCreate) SetGismoID(s string) *PersonCreate {
 	return pc
 }
 
+// SetNillableGismoID sets the "gismo_id" field if the given value is not nil.
+func (pc *PersonCreate) SetNillableGismoID(s *string) *PersonCreate {
+	if s != nil {
+		pc.SetGismoID(*s)
+	}
+	return pc
+}
+
 // SetActive sets the "active" field.
 func (pc *PersonCreate) SetActive(b bool) *PersonCreate {
 	pc.mutation.SetActive(b)
@@ -249,6 +257,26 @@ func (pc *PersonCreate) SetSettings(m map[string]string) *PersonCreate {
 	return pc
 }
 
+// SetObjectClass sets the "object_class" field.
+func (pc *PersonCreate) SetObjectClass(s []string) *PersonCreate {
+	pc.mutation.SetObjectClass(s)
+	return pc
+}
+
+// SetExpirationDate sets the "expiration_date" field.
+func (pc *PersonCreate) SetExpirationDate(s string) *PersonCreate {
+	pc.mutation.SetExpirationDate(s)
+	return pc
+}
+
+// SetNillableExpirationDate sets the "expiration_date" field if the given value is not nil.
+func (pc *PersonCreate) SetNillableExpirationDate(s *string) *PersonCreate {
+	if s != nil {
+		pc.SetExpirationDate(*s)
+	}
+	return pc
+}
+
 // AddOrganizationIDs adds the "organizations" edge to the Organization entity by IDs.
 func (pc *PersonCreate) AddOrganizationIDs(ids ...int) *PersonCreate {
 	pc.mutation.AddOrganizationIDs(ids...)
@@ -330,6 +358,26 @@ func (pc *PersonCreate) defaults() {
 		v := person.DefaultActive
 		pc.mutation.SetActive(v)
 	}
+	if _, ok := pc.mutation.OtherID(); !ok {
+		v := person.DefaultOtherID
+		pc.mutation.SetOtherID(v)
+	}
+	if _, ok := pc.mutation.JobCategory(); !ok {
+		v := person.DefaultJobCategory
+		pc.mutation.SetJobCategory(v)
+	}
+	if _, ok := pc.mutation.Role(); !ok {
+		v := person.DefaultRole
+		pc.mutation.SetRole(v)
+	}
+	if _, ok := pc.mutation.Settings(); !ok {
+		v := person.DefaultSettings
+		pc.mutation.SetSettings(v)
+	}
+	if _, ok := pc.mutation.ObjectClass(); !ok {
+		v := person.DefaultObjectClass
+		pc.mutation.SetObjectClass(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -342,9 +390,6 @@ func (pc *PersonCreate) check() error {
 	}
 	if _, ok := pc.mutation.PublicID(); !ok {
 		return &ValidationError{Name: "public_id", err: errors.New(`ent: missing required field "Person.public_id"`)}
-	}
-	if _, ok := pc.mutation.GismoID(); !ok {
-		return &ValidationError{Name: "gismo_id", err: errors.New(`ent: missing required field "Person.gismo_id"`)}
 	}
 	if _, ok := pc.mutation.Active(); !ok {
 		return &ValidationError{Name: "active", err: errors.New(`ent: missing required field "Person.active"`)}
@@ -450,6 +495,14 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.Settings(); ok {
 		_spec.SetField(person.FieldSettings, field.TypeJSON, value)
 		_node.Settings = value
+	}
+	if value, ok := pc.mutation.ObjectClass(); ok {
+		_spec.SetField(person.FieldObjectClass, field.TypeJSON, value)
+		_node.ObjectClass = value
+	}
+	if value, ok := pc.mutation.ExpirationDate(); ok {
+		_spec.SetField(person.FieldExpirationDate, field.TypeString, value)
+		_node.ExpirationDate = value
 	}
 	if nodes := pc.mutation.OrganizationsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

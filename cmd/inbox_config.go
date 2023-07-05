@@ -144,6 +144,7 @@ func buildPersonSubscriber(js nats.JetStreamContext, services *models.Services) 
 	personSConfig.Repository = services.Repository
 	personSConfig.Subject = natsPersonConsumerConfig.FilterSubject
 	personSConfig.SubOpts = []nats.SubOpt{nats.Bind(natsStreamConfig.Name, natsPersonConsumerConfig.Durable)}
+	personSConfig.LdapClient = LDAPClient()
 
 	return subscribers.NewGismoPersonSubscriber(personSConfig), nil
 }

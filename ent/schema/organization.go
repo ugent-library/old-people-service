@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 type Organization struct {
@@ -38,11 +39,11 @@ func (Organization) Annotations() []schema.Annotation {
 func (Organization) Fields() []ent.Field {
 	// field "id" is implied
 	return []ent.Field{
-		field.String("gismo_id").Unique().Nillable(),
+		field.String("gismo_id").Optional().Unique().Nillable(),
 		field.String("type").Default("organization"),
 		field.String("name_dut").Optional(),
 		field.String("name_eng").Optional(),
-		field.JSON("other_id", []IdRef{}).Optional(),
+		field.JSON("other_id", []IdRef{}).Optional().Default([]IdRef{}),
 		field.Int("parent_id").Optional(),
 	}
 }
@@ -63,5 +64,12 @@ func (Organization) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
 		PublicIdMixin{},
+	}
+}
+
+func (Organization) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("type"),
+		index.Fields("parent_id"),
 	}
 }

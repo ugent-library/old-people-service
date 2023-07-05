@@ -73,6 +73,28 @@ func (repo *repository) GetOrganizationsByGismoId(ctx context.Context, gismoIds 
 	return orgs, nil
 }
 
+func (repo *repository) GetOrganizationByOtherId(ctx context.Context, typ string, val string) (*models.Organization, error) {
+	row, err := repo.client.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
+		exprVal := fmt.Sprintf(`[{"id":"%s","type":"%s"}]`, val, typ)
+		s.Where(entsql.ExprP("other_id::jsonb @> $1", exprVal))
+	}).First(ctx)
+	if err != nil {
+		var e *ent.NotFoundError
+		if errors.As(err, &e) {
+			return nil, models.ErrNotFound
+		}
+		return nil, err
+	}
+	return orgUnwrap(row), nil
+}
+
+func (repo *repository) SaveOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
+	if org.IsStored() {
+		return repo.UpdateOrganization(ctx, org)
+	}
+	return repo.CreateOrganization(ctx, org)
+}
+
 func (repo *repository) CreateOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
 	// date fields filled by schema
 	tx, txErr := repo.client.Tx(ctx)
@@ -258,6 +280,13 @@ func orgUnwrap(e *ent.Organization) *models.Organization {
 	return org
 }
 
+func (repo *repository) SavePerson(ctx context.Context, p *models.Person) (*models.Person, error) {
+	if p.IsStored() {
+		return repo.UpdatePerson(ctx, p)
+	}
+	return repo.CreatePerson(ctx, p)
+}
+
 func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*models.Person, error) {
 	// date fields filled by schema
 	tx, txErr := repo.client.Tx(ctx)
@@ -280,7 +309,17 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetOrcid(p.Orcid)
 	t.SetRole(p.Role)
 	t.SetSettings(p.Settings)
-	t.SetGismoID(p.GismoId)
+	var gismoId *string = nil
+	if p.GismoId != "" {
+		gismoId = &p.GismoId
+	}
+	t.SetNillableGismoID(gismoId)
+	if len(p.ObjectClass) > 0 {
+		t.SetObjectClass(p.ObjectClass)
+	} else {
+		t.SetObjectClass(nil)
+	}
+	t.SetExpirationDate(p.ExpirationDate)
 
 	if p.OrcidToken == "" {
 		t.SetOrcidToken("")
@@ -327,6 +366,7 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 	// collect entgo managed fields
 	p.DateCreated = timestamppb.New(row.DateCreated)
 	p.DateUpdated = timestamppb.New(row.DateUpdated)
+	p.Id = row.PublicID
 
 	return p, nil
 }
@@ -403,7 +443,13 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetOrcid(p.Orcid)
 	t.SetRole(p.Role)
 	t.SetSettings(p.Settings)
-	t.SetGismoID(p.GismoId)
+	var gismoId *string = nil
+	if p.GismoId != "" {
+		gismoId = &p.GismoId
+	}
+	t.SetNillableGismoID(gismoId)
+	t.SetObjectClass(p.ObjectClass)
+	t.SetExpirationDate(p.ExpirationDate)
 
 	if p.OrcidToken == "" {
 		t.SetOrcidToken("")
@@ -462,9 +508,9 @@ func (repo *repository) GetPerson(ctx context.Context, id string) (*models.Perso
 	return repo.personUnwrap(row)
 }
 
-func (repo *repository) GetPersonByUgentId(ctx context.Context, ugentId string) (*models.Person, error) {
+func (repo *repository) GetPersonByOtherId(ctx context.Context, typ string, val string) (*models.Person, error) {
 	row, err := repo.client.Person.Query().WithOrganizations().Where(func(s *entsql.Selector) {
-		exprVal := fmt.Sprintf(`[{"id":"%s","type":"ugent_id"}]`, ugentId)
+		exprVal := fmt.Sprintf(`[{"id":"%s","type":"%s"}]`, val, typ)
 		s.Where(entsql.ExprP("other_id::jsonb @> $1", exprVal))
 	}).First(ctx)
 	if err != nil {
@@ -478,7 +524,7 @@ func (repo *repository) GetPersonByUgentId(ctx context.Context, ugentId string) 
 }
 
 func (repo *repository) GetPersonByGismoId(ctx context.Context, gismoId string) (*models.Person, error) {
-	row, err := repo.client.Person.Query().WithOrganizations().Where(person.GismoIDEQ(gismoId)).First(ctx)
+	row, err := repo.client.Person.Query().WithOrganizations().Where(person.GismoID(gismoId)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -486,7 +532,6 @@ func (repo *repository) GetPersonByGismoId(ctx context.Context, gismoId string) 
 		}
 		return nil, err
 	}
-
 	return repo.personUnwrap(row)
 }
 
@@ -639,6 +684,7 @@ func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
 			Title:              e.Title,
 			Role:               e.Role,
 			Settings:           e.Settings,
+			ObjectClass:        e.ObjectClass,
 		},
 	}
 	return p, nil

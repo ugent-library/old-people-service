@@ -45,6 +45,20 @@ func (pu *PersonUpdate) SetGismoID(s string) *PersonUpdate {
 	return pu
 }
 
+// SetNillableGismoID sets the "gismo_id" field if the given value is not nil.
+func (pu *PersonUpdate) SetNillableGismoID(s *string) *PersonUpdate {
+	if s != nil {
+		pu.SetGismoID(*s)
+	}
+	return pu
+}
+
+// ClearGismoID clears the value of the "gismo_id" field.
+func (pu *PersonUpdate) ClearGismoID() *PersonUpdate {
+	pu.mutation.ClearGismoID()
+	return pu
+}
+
 // SetActive sets the "active" field.
 func (pu *PersonUpdate) SetActive(b bool) *PersonUpdate {
 	pu.mutation.SetActive(b)
@@ -325,6 +339,44 @@ func (pu *PersonUpdate) ClearSettings() *PersonUpdate {
 	return pu
 }
 
+// SetObjectClass sets the "object_class" field.
+func (pu *PersonUpdate) SetObjectClass(s []string) *PersonUpdate {
+	pu.mutation.SetObjectClass(s)
+	return pu
+}
+
+// AppendObjectClass appends s to the "object_class" field.
+func (pu *PersonUpdate) AppendObjectClass(s []string) *PersonUpdate {
+	pu.mutation.AppendObjectClass(s)
+	return pu
+}
+
+// ClearObjectClass clears the value of the "object_class" field.
+func (pu *PersonUpdate) ClearObjectClass() *PersonUpdate {
+	pu.mutation.ClearObjectClass()
+	return pu
+}
+
+// SetExpirationDate sets the "expiration_date" field.
+func (pu *PersonUpdate) SetExpirationDate(s string) *PersonUpdate {
+	pu.mutation.SetExpirationDate(s)
+	return pu
+}
+
+// SetNillableExpirationDate sets the "expiration_date" field if the given value is not nil.
+func (pu *PersonUpdate) SetNillableExpirationDate(s *string) *PersonUpdate {
+	if s != nil {
+		pu.SetExpirationDate(*s)
+	}
+	return pu
+}
+
+// ClearExpirationDate clears the value of the "expiration_date" field.
+func (pu *PersonUpdate) ClearExpirationDate() *PersonUpdate {
+	pu.mutation.ClearExpirationDate()
+	return pu
+}
+
 // AddOrganizationIDs adds the "organizations" edge to the Organization entity by IDs.
 func (pu *PersonUpdate) AddOrganizationIDs(ids ...int) *PersonUpdate {
 	pu.mutation.AddOrganizationIDs(ids...)
@@ -459,6 +511,9 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.GismoID(); ok {
 		_spec.SetField(person.FieldGismoID, field.TypeString, value)
 	}
+	if pu.mutation.GismoIDCleared() {
+		_spec.ClearField(person.FieldGismoID, field.TypeString)
+	}
 	if value, ok := pu.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)
 	}
@@ -560,6 +615,23 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.SettingsCleared() {
 		_spec.ClearField(person.FieldSettings, field.TypeJSON)
+	}
+	if value, ok := pu.mutation.ObjectClass(); ok {
+		_spec.SetField(person.FieldObjectClass, field.TypeJSON, value)
+	}
+	if value, ok := pu.mutation.AppendedObjectClass(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldObjectClass, value)
+		})
+	}
+	if pu.mutation.ObjectClassCleared() {
+		_spec.ClearField(person.FieldObjectClass, field.TypeJSON)
+	}
+	if value, ok := pu.mutation.ExpirationDate(); ok {
+		_spec.SetField(person.FieldExpirationDate, field.TypeString, value)
+	}
+	if pu.mutation.ExpirationDateCleared() {
+		_spec.ClearField(person.FieldExpirationDate, field.TypeString)
 	}
 	if pu.mutation.OrganizationsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -694,6 +766,20 @@ func (puo *PersonUpdateOne) SetDateUpdated(t time.Time) *PersonUpdateOne {
 // SetGismoID sets the "gismo_id" field.
 func (puo *PersonUpdateOne) SetGismoID(s string) *PersonUpdateOne {
 	puo.mutation.SetGismoID(s)
+	return puo
+}
+
+// SetNillableGismoID sets the "gismo_id" field if the given value is not nil.
+func (puo *PersonUpdateOne) SetNillableGismoID(s *string) *PersonUpdateOne {
+	if s != nil {
+		puo.SetGismoID(*s)
+	}
+	return puo
+}
+
+// ClearGismoID clears the value of the "gismo_id" field.
+func (puo *PersonUpdateOne) ClearGismoID() *PersonUpdateOne {
+	puo.mutation.ClearGismoID()
 	return puo
 }
 
@@ -977,6 +1063,44 @@ func (puo *PersonUpdateOne) ClearSettings() *PersonUpdateOne {
 	return puo
 }
 
+// SetObjectClass sets the "object_class" field.
+func (puo *PersonUpdateOne) SetObjectClass(s []string) *PersonUpdateOne {
+	puo.mutation.SetObjectClass(s)
+	return puo
+}
+
+// AppendObjectClass appends s to the "object_class" field.
+func (puo *PersonUpdateOne) AppendObjectClass(s []string) *PersonUpdateOne {
+	puo.mutation.AppendObjectClass(s)
+	return puo
+}
+
+// ClearObjectClass clears the value of the "object_class" field.
+func (puo *PersonUpdateOne) ClearObjectClass() *PersonUpdateOne {
+	puo.mutation.ClearObjectClass()
+	return puo
+}
+
+// SetExpirationDate sets the "expiration_date" field.
+func (puo *PersonUpdateOne) SetExpirationDate(s string) *PersonUpdateOne {
+	puo.mutation.SetExpirationDate(s)
+	return puo
+}
+
+// SetNillableExpirationDate sets the "expiration_date" field if the given value is not nil.
+func (puo *PersonUpdateOne) SetNillableExpirationDate(s *string) *PersonUpdateOne {
+	if s != nil {
+		puo.SetExpirationDate(*s)
+	}
+	return puo
+}
+
+// ClearExpirationDate clears the value of the "expiration_date" field.
+func (puo *PersonUpdateOne) ClearExpirationDate() *PersonUpdateOne {
+	puo.mutation.ClearExpirationDate()
+	return puo
+}
+
 // AddOrganizationIDs adds the "organizations" edge to the Organization entity by IDs.
 func (puo *PersonUpdateOne) AddOrganizationIDs(ids ...int) *PersonUpdateOne {
 	puo.mutation.AddOrganizationIDs(ids...)
@@ -1141,6 +1265,9 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	if value, ok := puo.mutation.GismoID(); ok {
 		_spec.SetField(person.FieldGismoID, field.TypeString, value)
 	}
+	if puo.mutation.GismoIDCleared() {
+		_spec.ClearField(person.FieldGismoID, field.TypeString)
+	}
 	if value, ok := puo.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)
 	}
@@ -1242,6 +1369,23 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	}
 	if puo.mutation.SettingsCleared() {
 		_spec.ClearField(person.FieldSettings, field.TypeJSON)
+	}
+	if value, ok := puo.mutation.ObjectClass(); ok {
+		_spec.SetField(person.FieldObjectClass, field.TypeJSON, value)
+	}
+	if value, ok := puo.mutation.AppendedObjectClass(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldObjectClass, value)
+		})
+	}
+	if puo.mutation.ObjectClassCleared() {
+		_spec.ClearField(person.FieldObjectClass, field.TypeJSON)
+	}
+	if value, ok := puo.mutation.ExpirationDate(); ok {
+		_spec.SetField(person.FieldExpirationDate, field.TypeString, value)
+	}
+	if puo.mutation.ExpirationDateCleared() {
+		_spec.ClearField(person.FieldExpirationDate, field.TypeString)
 	}
 	if puo.mutation.OrganizationsCleared() {
 		edge := &sqlgraph.EdgeSpec{

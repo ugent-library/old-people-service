@@ -1,4 +1,4 @@
-package validation
+package arrayutil
 
 func Uniq[T comparable](values []T) []T {
 	newValues := make([]T, 0)

@@ -15,7 +15,7 @@ var (
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "public_id", Type: field.TypeString, Unique: true},
-		{Name: "gismo_id", Type: field.TypeString, Unique: true},
+		{Name: "gismo_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "type", Type: field.TypeString, Default: "organization"},
 		{Name: "name_dut", Type: field.TypeString, Nullable: true},
 		{Name: "name_eng", Type: field.TypeString, Nullable: true},
@@ -33,6 +33,18 @@ var (
 				Columns:    []*schema.Column{OrganizationColumns[9]},
 				RefColumns: []*schema.Column{OrganizationColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "organization_type",
+				Unique:  false,
+				Columns: []*schema.Column{OrganizationColumns[5]},
+			},
+			{
+				Name:    "organization_parent_id",
+				Unique:  false,
+				Columns: []*schema.Column{OrganizationColumns[9]},
 			},
 		},
 	}
@@ -77,7 +89,7 @@ var (
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "public_id", Type: field.TypeString, Unique: true},
-		{Name: "gismo_id", Type: field.TypeString, Unique: true},
+		{Name: "gismo_id", Type: field.TypeString, Unique: true, Nullable: true},
 		{Name: "active", Type: field.TypeBool, Default: false},
 		{Name: "birth_date", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString, Nullable: true},
@@ -93,6 +105,8 @@ var (
 		{Name: "title", Type: field.TypeString, Nullable: true},
 		{Name: "role", Type: field.TypeJSON, Nullable: true},
 		{Name: "settings", Type: field.TypeJSON, Nullable: true},
+		{Name: "object_class", Type: field.TypeJSON, Nullable: true},
+		{Name: "expiration_date", Type: field.TypeString, Nullable: true},
 	}
 	// PersonTable holds the schema information for the "person" table.
 	PersonTable = &schema.Table{
@@ -100,16 +114,6 @@ var (
 		Columns:    PersonColumns,
 		PrimaryKey: []*schema.Column{PersonColumns[0]},
 		Indexes: []*schema.Index{
-			{
-				Name:    "person_public_id",
-				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[3]},
-			},
-			{
-				Name:    "person_gismo_id",
-				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[4]},
-			},
 			{
 				Name:    "person_active",
 				Unique:  false,

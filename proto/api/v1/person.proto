@@ -39,6 +39,8 @@ message Person {
   repeated string job_category = 18;
   repeated string role = 19;
   map<string,string> settings = 20;
+  repeated string object_class = 21;
+  string expiration_date = 22;
 }
 
 message Organization {

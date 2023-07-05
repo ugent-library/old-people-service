@@ -57,6 +57,10 @@ type Person struct {
 	Role []string `json:"role,omitempty"`
 	// Settings holds the value of the "settings" field.
 	Settings map[string]string `json:"settings,omitempty"`
+	// ObjectClass holds the value of the "object_class" field.
+	ObjectClass []string `json:"object_class,omitempty"`
+	// ExpirationDate holds the value of the "expiration_date" field.
+	ExpirationDate string `json:"expiration_date,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PersonQuery when eager-loading is set.
 	Edges        PersonEdges `json:"edges"`
@@ -97,13 +101,13 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case person.FieldOtherID, person.FieldJobCategory, person.FieldRole, person.FieldSettings:
+		case person.FieldOtherID, person.FieldJobCategory, person.FieldRole, person.FieldSettings, person.FieldObjectClass:
 			values[i] = new([]byte)
 		case person.FieldActive:
 			values[i] = new(sql.NullBool)
 		case person.FieldID:
 			values[i] = new(sql.NullInt64)
-		case person.FieldPublicID, person.FieldGismoID, person.FieldBirthDate, person.FieldEmail, person.FieldFirstName, person.FieldFullName, person.FieldLastName, person.FieldOrcid, person.FieldOrcidToken, person.FieldPreferredFirstName, person.FieldPreferredLastName, person.FieldTitle:
+		case person.FieldPublicID, person.FieldGismoID, person.FieldBirthDate, person.FieldEmail, person.FieldFirstName, person.FieldFullName, person.FieldLastName, person.FieldOrcid, person.FieldOrcidToken, person.FieldPreferredFirstName, person.FieldPreferredLastName, person.FieldTitle, person.FieldExpirationDate:
 			values[i] = new(sql.NullString)
 		case person.FieldDateCreated, person.FieldDateUpdated:
 			values[i] = new(sql.NullTime)
@@ -251,6 +255,20 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field settings: %w", err)
 				}
 			}
+		case person.FieldObjectClass:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field object_class", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pe.ObjectClass); err != nil {
+					return fmt.Errorf("unmarshal field object_class: %w", err)
+				}
+			}
+		case person.FieldExpirationDate:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field expiration_date", values[i])
+			} else if value.Valid {
+				pe.ExpirationDate = value.String
+			}
 		default:
 			pe.selectValues.Set(columns[i], values[i])
 		}
@@ -355,6 +373,12 @@ func (pe *Person) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("settings=")
 	builder.WriteString(fmt.Sprintf("%v", pe.Settings))
+	builder.WriteString(", ")
+	builder.WriteString("object_class=")
+	builder.WriteString(fmt.Sprintf("%v", pe.ObjectClass))
+	builder.WriteString(", ")
+	builder.WriteString("expiration_date=")
+	builder.WriteString(pe.ExpirationDate)
 	builder.WriteByte(')')
 	return builder.String()
 }

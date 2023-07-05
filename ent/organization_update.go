@@ -45,6 +45,20 @@ func (ou *OrganizationUpdate) SetGismoID(s string) *OrganizationUpdate {
 	return ou
 }
 
+// SetNillableGismoID sets the "gismo_id" field if the given value is not nil.
+func (ou *OrganizationUpdate) SetNillableGismoID(s *string) *OrganizationUpdate {
+	if s != nil {
+		ou.SetGismoID(*s)
+	}
+	return ou
+}
+
+// ClearGismoID clears the value of the "gismo_id" field.
+func (ou *OrganizationUpdate) ClearGismoID() *OrganizationUpdate {
+	ou.mutation.ClearGismoID()
+	return ou
+}
+
 // SetType sets the "type" field.
 func (ou *OrganizationUpdate) SetType(s string) *OrganizationUpdate {
 	ou.mutation.SetType(s)
@@ -318,6 +332,9 @@ func (ou *OrganizationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ou.mutation.GismoID(); ok {
 		_spec.SetField(organization.FieldGismoID, field.TypeString, value)
 	}
+	if ou.mutation.GismoIDCleared() {
+		_spec.ClearField(organization.FieldGismoID, field.TypeString)
+	}
 	if value, ok := ou.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 	}
@@ -551,6 +568,20 @@ func (ouo *OrganizationUpdateOne) SetDateUpdated(t time.Time) *OrganizationUpdat
 // SetGismoID sets the "gismo_id" field.
 func (ouo *OrganizationUpdateOne) SetGismoID(s string) *OrganizationUpdateOne {
 	ouo.mutation.SetGismoID(s)
+	return ouo
+}
+
+// SetNillableGismoID sets the "gismo_id" field if the given value is not nil.
+func (ouo *OrganizationUpdateOne) SetNillableGismoID(s *string) *OrganizationUpdateOne {
+	if s != nil {
+		ouo.SetGismoID(*s)
+	}
+	return ouo
+}
+
+// ClearGismoID clears the value of the "gismo_id" field.
+func (ouo *OrganizationUpdateOne) ClearGismoID() *OrganizationUpdateOne {
+	ouo.mutation.ClearGismoID()
 	return ouo
 }
 
@@ -856,6 +887,9 @@ func (ouo *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizat
 	}
 	if value, ok := ouo.mutation.GismoID(); ok {
 		_spec.SetField(organization.FieldGismoID, field.TypeString, value)
+	}
+	if ouo.mutation.GismoIDCleared() {
+		_spec.ClearField(organization.FieldGismoID, field.TypeString)
 	}
 	if value, ok := ouo.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)

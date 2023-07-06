@@ -19,6 +19,9 @@ var natsStreamConfig = nats.StreamConfig{
 	Storage: nats.FileStorage,
 }
 
+/*
+cf. https://docs.nats.io/nats-concepts/jetstream/consumers
+*/
 var natsPersonConsumerConfig = nats.ConsumerConfig{
 	AckPolicy: nats.AckExplicitPolicy,
 	Durable:   "inboxPerson",
@@ -27,13 +30,14 @@ var natsPersonConsumerConfig = nats.ConsumerConfig{
 	//reason: messages are republished by consumer using this subject
 	//make sure you have subscribe permission to that subject too
 	DeliverSubject: "inboxPersonDeliverSubject", // makes it is a push based consumer
-	AckWait:        time.Second * 10,
+	AckWait:        time.Minute,                 // resend if ack was not received within this time
 	/*
 		when more than 1, messages can be delivered out of order
 		when they need to be redelivered
 	*/
 	MaxAckPending: 1,
 	FilterSubject: "gismo.person",
+	DeliverPolicy: nats.DeliverAllPolicy,
 }
 
 var natsOrganizationConsumerConfig = nats.ConsumerConfig{
@@ -44,13 +48,14 @@ var natsOrganizationConsumerConfig = nats.ConsumerConfig{
 	//reason: messages are republished by consumer using this subject
 	//make sure you have subscribe permission to that subject too
 	DeliverSubject: "inboxOrganizationDeliverSubject", // makes it is a push based consumer
-	AckWait:        time.Second * 10,
+	AckWait:        time.Minute,                       // resend if ack was not received within this time
 	/*
 		when more than 1, messages can be delivered out of order
 		when they need to be redelivered
 	*/
 	MaxAckPending: 1,
 	FilterSubject: "gismo.organization",
+	DeliverPolicy: nats.DeliverAllPolicy,
 }
 
 func initInboxStream(js nats.JetStreamContext) error {

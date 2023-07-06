@@ -75,6 +75,16 @@ func PersonID(v int) predicate.OrganizationPerson {
 	return predicate.OrganizationPerson(sql.FieldEQ(FieldPersonID, v))
 }
 
+// From applies equality check predicate on the "from" field. It's identical to FromEQ.
+func From(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldEQ(FieldFrom, v))
+}
+
+// Until applies equality check predicate on the "until" field. It's identical to UntilEQ.
+func Until(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldEQ(FieldUntil, v))
+}
+
 // DateCreatedEQ applies the EQ predicate on the "date_created" field.
 func DateCreatedEQ(v time.Time) predicate.OrganizationPerson {
 	return predicate.OrganizationPerson(sql.FieldEQ(FieldDateCreated, v))
@@ -193,6 +203,86 @@ func PersonIDIn(vs ...int) predicate.OrganizationPerson {
 // PersonIDNotIn applies the NotIn predicate on the "person_id" field.
 func PersonIDNotIn(vs ...int) predicate.OrganizationPerson {
 	return predicate.OrganizationPerson(sql.FieldNotIn(FieldPersonID, vs...))
+}
+
+// FromEQ applies the EQ predicate on the "from" field.
+func FromEQ(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldEQ(FieldFrom, v))
+}
+
+// FromNEQ applies the NEQ predicate on the "from" field.
+func FromNEQ(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldNEQ(FieldFrom, v))
+}
+
+// FromIn applies the In predicate on the "from" field.
+func FromIn(vs ...time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldIn(FieldFrom, vs...))
+}
+
+// FromNotIn applies the NotIn predicate on the "from" field.
+func FromNotIn(vs ...time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldNotIn(FieldFrom, vs...))
+}
+
+// FromGT applies the GT predicate on the "from" field.
+func FromGT(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldGT(FieldFrom, v))
+}
+
+// FromGTE applies the GTE predicate on the "from" field.
+func FromGTE(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldGTE(FieldFrom, v))
+}
+
+// FromLT applies the LT predicate on the "from" field.
+func FromLT(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldLT(FieldFrom, v))
+}
+
+// FromLTE applies the LTE predicate on the "from" field.
+func FromLTE(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldLTE(FieldFrom, v))
+}
+
+// UntilEQ applies the EQ predicate on the "until" field.
+func UntilEQ(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldEQ(FieldUntil, v))
+}
+
+// UntilNEQ applies the NEQ predicate on the "until" field.
+func UntilNEQ(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldNEQ(FieldUntil, v))
+}
+
+// UntilIn applies the In predicate on the "until" field.
+func UntilIn(vs ...time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldIn(FieldUntil, vs...))
+}
+
+// UntilNotIn applies the NotIn predicate on the "until" field.
+func UntilNotIn(vs ...time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldNotIn(FieldUntil, vs...))
+}
+
+// UntilGT applies the GT predicate on the "until" field.
+func UntilGT(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldGT(FieldUntil, v))
+}
+
+// UntilGTE applies the GTE predicate on the "until" field.
+func UntilGTE(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldGTE(FieldUntil, v))
+}
+
+// UntilLT applies the LT predicate on the "until" field.
+func UntilLT(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldLT(FieldUntil, v))
+}
+
+// UntilLTE applies the LTE predicate on the "until" field.
+func UntilLTE(v time.Time) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldLTE(FieldUntil, v))
 }
 
 // HasPeople applies the HasEdge predicate on the "people" edge.

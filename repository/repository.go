@@ -38,7 +38,7 @@ func (repo *repository) GetOrganization(ctx context.Context, id string) (*models
 		}
 		return nil, err
 	}
-	return orgUnwrap(row), nil
+	return repo.orgUnwrap(row), nil
 }
 
 func (repo *repository) GetOrganizationByGismoId(ctx context.Context, gismoId string) (*models.Organization, error) {
@@ -50,7 +50,7 @@ func (repo *repository) GetOrganizationByGismoId(ctx context.Context, gismoId st
 		}
 		return nil, err
 	}
-	return orgUnwrap(row), nil
+	return repo.orgUnwrap(row), nil
 }
 
 func (repo *repository) GetOrganizationsByGismoId(ctx context.Context, gismoIds ...string) ([]*models.Organization, error) {
@@ -67,7 +67,7 @@ func (repo *repository) GetOrganizationsByGismoId(ctx context.Context, gismoIds 
 
 	orgs := make([]*models.Organization, 0, len(rows))
 	for _, row := range rows {
-		orgs = append(orgs, orgUnwrap(row))
+		orgs = append(orgs, repo.orgUnwrap(row))
 	}
 
 	return orgs, nil
@@ -85,7 +85,7 @@ func (repo *repository) GetOrganizationByOtherId(ctx context.Context, typ string
 		}
 		return nil, err
 	}
-	return orgUnwrap(row), nil
+	return repo.orgUnwrap(row), nil
 }
 
 func (repo *repository) SaveOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
@@ -196,7 +196,7 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 		return nil, fmt.Errorf("unable to commit transaction: %w", err)
 	}
 
-	return orgUnwrap(row), nil
+	return repo.orgUnwrap(row), nil
 }
 
 func (repo *repository) DeleteOrganization(ctx context.Context, id string) error {
@@ -219,7 +219,7 @@ func (repo *repository) EachOrganization(ctx context.Context, cb func(*models.Or
 			break
 		}
 		for _, row := range rows {
-			if !cb(orgUnwrap(row)) {
+			if !cb(repo.orgUnwrap(row)) {
 				return nil
 			}
 		}
@@ -244,13 +244,13 @@ func (repo *repository) SuggestOrganization(ctx context.Context, query string) (
 
 	orgs := make([]*models.Organization, 0, len(rows))
 	for _, row := range rows {
-		orgs = append(orgs, orgUnwrap(row))
+		orgs = append(orgs, repo.orgUnwrap(row))
 	}
 
 	return orgs, nil
 }
 
-func orgUnwrap(e *ent.Organization) *models.Organization {
+func (repo *repository) orgUnwrap(e *ent.Organization) *models.Organization {
 	otherIds := make([]*v1.IdRef, 0, len(e.OtherID))
 	for _, schemaOtherId := range e.OtherID {
 		otherIds = append(otherIds, &v1.IdRef{
@@ -342,13 +342,17 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetPreferredFirstName(p.PreferredFirstName)
 	t.SetPreferredLastName(p.PreferredLastName)
 
-	if len(p.OrganizationId) > 0 {
+	if len(p.Organization) > 0 {
+		var organizationId []string
+		for _, orgRef := range p.Organization {
+			organizationId = append(organizationId, orgRef.Id)
+		}
 		// TODO: crashes with segmentation violation error when org does not exist
-		orgs, err := tx.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
+		orgs, err := tx.Organization.Query().Where(organization.PublicIDIn(organizationId...)).All(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("unable to query organizations: %w", err)
 		}
-		if len(p.OrganizationId) != len(orgs) {
+		if len(p.Organization) != len(orgs) {
 			return nil, fmt.Errorf("person.organization_id contains invalid organization id's")
 		}
 		t.AddOrganizations(orgs...)
@@ -472,13 +476,17 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetPreferredFirstName(p.PreferredFirstName)
 	t.SetPreferredLastName(p.PreferredLastName)
 	t.ClearOrganizations()
-	if len(p.OrganizationId) > 0 {
+	if len(p.Organization) > 0 {
+		var organizationId []string
+		for _, orgRef := range p.Organization {
+			organizationId = append(organizationId, orgRef.Id)
+		}
 		// TODO: crashes with segmentation violation error when org does not exist
-		orgs, err := tx.Organization.Query().Where(organization.PublicIDIn(p.OrganizationId...)).All(ctx)
+		orgs, err := tx.Organization.Query().Where(organization.PublicIDIn(organizationId...)).All(ctx)
 		if err != nil {
 			return nil, err
 		}
-		if len(p.OrganizationId) != len(orgs) {
+		if len(p.Organization) != len(orgs) {
 			return nil, fmt.Errorf("person.organization_id contains invalid organization id's")
 		}
 		t.AddOrganizations(orgs...)
@@ -496,7 +504,7 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 }
 
 func (repo *repository) GetPerson(ctx context.Context, id string) (*models.Person, error) {
-	row, err := repo.client.Person.Query().WithOrganizations().Where(person.PublicIDEQ(id)).First(ctx)
+	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(person.PublicIDEQ(id)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -509,7 +517,7 @@ func (repo *repository) GetPerson(ctx context.Context, id string) (*models.Perso
 }
 
 func (repo *repository) GetPersonByOtherId(ctx context.Context, typ string, val string) (*models.Person, error) {
-	row, err := repo.client.Person.Query().WithOrganizations().Where(func(s *entsql.Selector) {
+	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(func(s *entsql.Selector) {
 		exprVal := fmt.Sprintf(`[{"id":"%s","type":"%s"}]`, val, typ)
 		s.Where(entsql.ExprP("other_id::jsonb @> $1", exprVal))
 	}).First(ctx)
@@ -524,7 +532,7 @@ func (repo *repository) GetPersonByOtherId(ctx context.Context, typ string, val 
 }
 
 func (repo *repository) GetPersonByGismoId(ctx context.Context, gismoId string) (*models.Person, error) {
-	row, err := repo.client.Person.Query().WithOrganizations().Where(person.GismoID(gismoId)).First(ctx)
+	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(person.GismoID(gismoId)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -545,7 +553,7 @@ func (repo *repository) EachPerson(ctx context.Context, cb func(*models.Person) 
 	var offset int = 0
 	var limit int = 500
 	for {
-		rows, err := repo.client.Person.Query().WithOrganizations().Offset(offset).Limit(limit).Order(ent.Asc(person.FieldDateCreated)).All(ctx)
+		rows, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Offset(offset).Limit(limit).Order(ent.Asc(person.FieldDateCreated)).All(ctx)
 		if err != nil {
 			return err
 		}
@@ -606,6 +614,7 @@ func (repo *repository) SuggestPerson(ctx context.Context, query string) ([]*mod
 		Person.
 		Query().
 		WithOrganizations().
+		WithOrganizationPerson().
 		Where(person.IDIn(ids...)).
 		Order(func(s *entsql.Selector) {
 			orderStr := fmt.Sprintf("array_position($%d, id)", len(ids)+1)
@@ -638,14 +647,26 @@ func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
 			Type: schemaOtherId.Type,
 		})
 	}
-	orgIds := make([]string, 0)
-	orgRows := e.Edges.Organizations
-	sort.SliceStable(orgRows, func(i, j int) bool {
-		return orgRows[i].DateCreated.Before(orgRows[j].DateCreated)
-	})
-	for _, org := range e.Edges.Organizations {
-		orgIds = append(orgIds, org.PublicID)
+
+	var orgRefs []*v1.OrganizationRef
+	for _, orgRow := range e.Edges.Organizations {
+		var thisOrgPersonRow *ent.OrganizationPerson
+		for _, orgPersonRow := range e.Edges.OrganizationPerson {
+			if orgPersonRow.OrganizationID == orgRow.ID {
+				thisOrgPersonRow = orgPersonRow
+				break
+			}
+		}
+		orgRef := models.NewOrganizationRef(orgRow.PublicID)
+		orgRef.DateCreated = timestamppb.New(thisOrgPersonRow.DateCreated)
+		orgRef.DateUpdated = timestamppb.New(thisOrgPersonRow.DateUpdated)
+		orgRef.From = timestamppb.New(thisOrgPersonRow.From)
+		orgRef.Until = timestamppb.New(thisOrgPersonRow.Until)
+		orgRefs = append(orgRefs, orgRef)
 	}
+	sort.SliceStable(orgRefs, func(i, j int) bool {
+		return orgRefs[i].DateCreated.AsTime().Before(orgRefs[j].DateCreated.AsTime())
+	})
 
 	var uToken string
 	var uTokenErr error
@@ -678,7 +699,7 @@ func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
 			JobCategory:        e.JobCategory,
 			Orcid:              e.Orcid,
 			OrcidToken:         uToken,
-			OrganizationId:     orgIds,
+			Organization:       orgRefs,
 			PreferredLastName:  e.PreferredLastName,
 			PreferredFirstName: e.PreferredFirstName,
 			Title:              e.Title,

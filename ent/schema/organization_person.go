@@ -1,15 +1,25 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/ugent-library/person-service/models"
 )
 
 type OrganizationPerson struct {
 	ent.Schema
+}
+
+var genBeginningOfTime = func() time.Time {
+	return models.BeginningOfTime
+}
+var genEndOfTime = func() time.Time {
+	return models.EndOfTime
 }
 
 func (OrganizationPerson) Annotations() []schema.Annotation {
@@ -22,6 +32,8 @@ func (OrganizationPerson) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("organization_id"),
 		field.Int("person_id"),
+		field.Time("from").Default(genBeginningOfTime),
+		field.Time("until").Default(genEndOfTime).UpdateDefault(genEndOfTime),
 	}
 }
 

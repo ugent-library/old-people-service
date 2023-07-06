@@ -53,6 +53,8 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
+		{Name: "from", Type: field.TypeTime},
+		{Name: "until", Type: field.TypeTime},
 		{Name: "person_id", Type: field.TypeInt},
 		{Name: "organization_id", Type: field.TypeInt},
 	}
@@ -64,13 +66,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "organization_person_person_people",
-				Columns:    []*schema.Column{OrganizationPersonColumns[3]},
+				Columns:    []*schema.Column{OrganizationPersonColumns[5]},
 				RefColumns: []*schema.Column{PersonColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "organization_person_organization_organizations",
-				Columns:    []*schema.Column{OrganizationPersonColumns[4]},
+				Columns:    []*schema.Column{OrganizationPersonColumns[6]},
 				RefColumns: []*schema.Column{OrganizationColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -79,7 +81,7 @@ var (
 			{
 				Name:    "organizationperson_person_id_organization_id",
 				Unique:  true,
-				Columns: []*schema.Column{OrganizationPersonColumns[3], OrganizationPersonColumns[4]},
+				Columns: []*schema.Column{OrganizationPersonColumns[5], OrganizationPersonColumns[6]},
 			},
 		},
 	}

@@ -59,6 +59,16 @@ func init() {
 	organizationperson.DefaultDateUpdated = organizationpersonDescDateUpdated.Default.(func() time.Time)
 	// organizationperson.UpdateDefaultDateUpdated holds the default value on update for the date_updated field.
 	organizationperson.UpdateDefaultDateUpdated = organizationpersonDescDateUpdated.UpdateDefault.(func() time.Time)
+	// organizationpersonDescFrom is the schema descriptor for from field.
+	organizationpersonDescFrom := organizationpersonFields[2].Descriptor()
+	// organizationperson.DefaultFrom holds the default value on creation for the from field.
+	organizationperson.DefaultFrom = organizationpersonDescFrom.Default.(func() time.Time)
+	// organizationpersonDescUntil is the schema descriptor for until field.
+	organizationpersonDescUntil := organizationpersonFields[3].Descriptor()
+	// organizationperson.DefaultUntil holds the default value on creation for the until field.
+	organizationperson.DefaultUntil = organizationpersonDescUntil.Default.(func() time.Time)
+	// organizationperson.UpdateDefaultUntil holds the default value on update for the until field.
+	organizationperson.UpdateDefaultUntil = organizationpersonDescUntil.UpdateDefault.(func() time.Time)
 	personMixin := schema.Person{}.Mixin()
 	personMixinFields0 := personMixin[0].Fields()
 	_ = personMixinFields0

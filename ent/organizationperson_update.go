@@ -49,6 +49,26 @@ func (opu *OrganizationPersonUpdate) SetPersonID(i int) *OrganizationPersonUpdat
 	return opu
 }
 
+// SetFrom sets the "from" field.
+func (opu *OrganizationPersonUpdate) SetFrom(t time.Time) *OrganizationPersonUpdate {
+	opu.mutation.SetFrom(t)
+	return opu
+}
+
+// SetNillableFrom sets the "from" field if the given value is not nil.
+func (opu *OrganizationPersonUpdate) SetNillableFrom(t *time.Time) *OrganizationPersonUpdate {
+	if t != nil {
+		opu.SetFrom(*t)
+	}
+	return opu
+}
+
+// SetUntil sets the "until" field.
+func (opu *OrganizationPersonUpdate) SetUntil(t time.Time) *OrganizationPersonUpdate {
+	opu.mutation.SetUntil(t)
+	return opu
+}
+
 // SetPeopleID sets the "people" edge to the Person entity by ID.
 func (opu *OrganizationPersonUpdate) SetPeopleID(id int) *OrganizationPersonUpdate {
 	opu.mutation.SetPeopleID(id)
@@ -122,6 +142,10 @@ func (opu *OrganizationPersonUpdate) defaults() {
 		v := organizationperson.UpdateDefaultDateUpdated()
 		opu.mutation.SetDateUpdated(v)
 	}
+	if _, ok := opu.mutation.Until(); !ok {
+		v := organizationperson.UpdateDefaultUntil()
+		opu.mutation.SetUntil(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -155,6 +179,12 @@ func (opu *OrganizationPersonUpdate) sqlSave(ctx context.Context) (n int, err er
 	}
 	if value, ok := opu.mutation.DateUpdated(); ok {
 		_spec.SetField(organizationperson.FieldDateUpdated, field.TypeTime, value)
+	}
+	if value, ok := opu.mutation.From(); ok {
+		_spec.SetField(organizationperson.FieldFrom, field.TypeTime, value)
+	}
+	if value, ok := opu.mutation.Until(); ok {
+		_spec.SetField(organizationperson.FieldUntil, field.TypeTime, value)
 	}
 	if opu.mutation.PeopleCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -254,6 +284,26 @@ func (opuo *OrganizationPersonUpdateOne) SetPersonID(i int) *OrganizationPersonU
 	return opuo
 }
 
+// SetFrom sets the "from" field.
+func (opuo *OrganizationPersonUpdateOne) SetFrom(t time.Time) *OrganizationPersonUpdateOne {
+	opuo.mutation.SetFrom(t)
+	return opuo
+}
+
+// SetNillableFrom sets the "from" field if the given value is not nil.
+func (opuo *OrganizationPersonUpdateOne) SetNillableFrom(t *time.Time) *OrganizationPersonUpdateOne {
+	if t != nil {
+		opuo.SetFrom(*t)
+	}
+	return opuo
+}
+
+// SetUntil sets the "until" field.
+func (opuo *OrganizationPersonUpdateOne) SetUntil(t time.Time) *OrganizationPersonUpdateOne {
+	opuo.mutation.SetUntil(t)
+	return opuo
+}
+
 // SetPeopleID sets the "people" edge to the Person entity by ID.
 func (opuo *OrganizationPersonUpdateOne) SetPeopleID(id int) *OrganizationPersonUpdateOne {
 	opuo.mutation.SetPeopleID(id)
@@ -340,6 +390,10 @@ func (opuo *OrganizationPersonUpdateOne) defaults() {
 		v := organizationperson.UpdateDefaultDateUpdated()
 		opuo.mutation.SetDateUpdated(v)
 	}
+	if _, ok := opuo.mutation.Until(); !ok {
+		v := organizationperson.UpdateDefaultUntil()
+		opuo.mutation.SetUntil(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -390,6 +444,12 @@ func (opuo *OrganizationPersonUpdateOne) sqlSave(ctx context.Context) (_node *Or
 	}
 	if value, ok := opuo.mutation.DateUpdated(); ok {
 		_spec.SetField(organizationperson.FieldDateUpdated, field.TypeTime, value)
+	}
+	if value, ok := opuo.mutation.From(); ok {
+		_spec.SetField(organizationperson.FieldFrom, field.TypeTime, value)
+	}
+	if value, ok := opuo.mutation.Until(); ok {
+		_spec.SetField(organizationperson.FieldUntil, field.TypeTime, value)
 	}
 	if opuo.mutation.PeopleCleared() {
 		edge := &sqlgraph.EdgeSpec{

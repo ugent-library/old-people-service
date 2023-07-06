@@ -22,6 +22,10 @@ const (
 	FieldOrganizationID = "organization_id"
 	// FieldPersonID holds the string denoting the person_id field in the database.
 	FieldPersonID = "person_id"
+	// FieldFrom holds the string denoting the from field in the database.
+	FieldFrom = "from"
+	// FieldUntil holds the string denoting the until field in the database.
+	FieldUntil = "until"
 	// EdgePeople holds the string denoting the people edge name in mutations.
 	EdgePeople = "people"
 	// EdgeOrganizations holds the string denoting the organizations edge name in mutations.
@@ -51,6 +55,8 @@ var Columns = []string{
 	FieldDateUpdated,
 	FieldOrganizationID,
 	FieldPersonID,
+	FieldFrom,
+	FieldUntil,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -70,6 +76,12 @@ var (
 	DefaultDateUpdated func() time.Time
 	// UpdateDefaultDateUpdated holds the default value on update for the "date_updated" field.
 	UpdateDefaultDateUpdated func() time.Time
+	// DefaultFrom holds the default value on creation for the "from" field.
+	DefaultFrom func() time.Time
+	// DefaultUntil holds the default value on creation for the "until" field.
+	DefaultUntil func() time.Time
+	// UpdateDefaultUntil holds the default value on update for the "until" field.
+	UpdateDefaultUntil func() time.Time
 )
 
 // OrderOption defines the ordering options for the OrganizationPerson queries.
@@ -98,6 +110,16 @@ func ByOrganizationID(opts ...sql.OrderTermOption) OrderOption {
 // ByPersonID orders the results by the person_id field.
 func ByPersonID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPersonID, opts...).ToFunc()
+}
+
+// ByFrom orders the results by the from field.
+func ByFrom(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFrom, opts...).ToFunc()
+}
+
+// ByUntil orders the results by the until field.
+func ByUntil(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUntil, opts...).ToFunc()
 }
 
 // ByPeopleField orders the results by people field.

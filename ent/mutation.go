@@ -1220,6 +1220,8 @@ type OrganizationPersonMutation struct {
 	id                   *int
 	date_created         *time.Time
 	date_updated         *time.Time
+	from                 *time.Time
+	until                *time.Time
 	clearedFields        map[string]struct{}
 	people               *int
 	clearedpeople        bool
@@ -1472,6 +1474,78 @@ func (m *OrganizationPersonMutation) ResetPersonID() {
 	m.people = nil
 }
 
+// SetFrom sets the "from" field.
+func (m *OrganizationPersonMutation) SetFrom(t time.Time) {
+	m.from = &t
+}
+
+// From returns the value of the "from" field in the mutation.
+func (m *OrganizationPersonMutation) From() (r time.Time, exists bool) {
+	v := m.from
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFrom returns the old "from" field's value of the OrganizationPerson entity.
+// If the OrganizationPerson object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrganizationPersonMutation) OldFrom(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFrom is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFrom requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFrom: %w", err)
+	}
+	return oldValue.From, nil
+}
+
+// ResetFrom resets all changes to the "from" field.
+func (m *OrganizationPersonMutation) ResetFrom() {
+	m.from = nil
+}
+
+// SetUntil sets the "until" field.
+func (m *OrganizationPersonMutation) SetUntil(t time.Time) {
+	m.until = &t
+}
+
+// Until returns the value of the "until" field in the mutation.
+func (m *OrganizationPersonMutation) Until() (r time.Time, exists bool) {
+	v := m.until
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUntil returns the old "until" field's value of the OrganizationPerson entity.
+// If the OrganizationPerson object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrganizationPersonMutation) OldUntil(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUntil is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUntil requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUntil: %w", err)
+	}
+	return oldValue.Until, nil
+}
+
+// ResetUntil resets all changes to the "until" field.
+func (m *OrganizationPersonMutation) ResetUntil() {
+	m.until = nil
+}
+
 // SetPeopleID sets the "people" edge to the Person entity by id.
 func (m *OrganizationPersonMutation) SetPeopleID(id int) {
 	m.people = &id
@@ -1584,7 +1658,7 @@ func (m *OrganizationPersonMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrganizationPersonMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 6)
 	if m.date_created != nil {
 		fields = append(fields, organizationperson.FieldDateCreated)
 	}
@@ -1596,6 +1670,12 @@ func (m *OrganizationPersonMutation) Fields() []string {
 	}
 	if m.people != nil {
 		fields = append(fields, organizationperson.FieldPersonID)
+	}
+	if m.from != nil {
+		fields = append(fields, organizationperson.FieldFrom)
+	}
+	if m.until != nil {
+		fields = append(fields, organizationperson.FieldUntil)
 	}
 	return fields
 }
@@ -1613,6 +1693,10 @@ func (m *OrganizationPersonMutation) Field(name string) (ent.Value, bool) {
 		return m.OrganizationID()
 	case organizationperson.FieldPersonID:
 		return m.PersonID()
+	case organizationperson.FieldFrom:
+		return m.From()
+	case organizationperson.FieldUntil:
+		return m.Until()
 	}
 	return nil, false
 }
@@ -1630,6 +1714,10 @@ func (m *OrganizationPersonMutation) OldField(ctx context.Context, name string) 
 		return m.OldOrganizationID(ctx)
 	case organizationperson.FieldPersonID:
 		return m.OldPersonID(ctx)
+	case organizationperson.FieldFrom:
+		return m.OldFrom(ctx)
+	case organizationperson.FieldUntil:
+		return m.OldUntil(ctx)
 	}
 	return nil, fmt.Errorf("unknown OrganizationPerson field %s", name)
 }
@@ -1666,6 +1754,20 @@ func (m *OrganizationPersonMutation) SetField(name string, value ent.Value) erro
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPersonID(v)
+		return nil
+	case organizationperson.FieldFrom:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFrom(v)
+		return nil
+	case organizationperson.FieldUntil:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUntil(v)
 		return nil
 	}
 	return fmt.Errorf("unknown OrganizationPerson field %s", name)
@@ -1730,6 +1832,12 @@ func (m *OrganizationPersonMutation) ResetField(name string) error {
 		return nil
 	case organizationperson.FieldPersonID:
 		m.ResetPersonID()
+		return nil
+	case organizationperson.FieldFrom:
+		m.ResetFrom()
+		return nil
+	case organizationperson.FieldUntil:
+		m.ResetUntil()
 		return nil
 	}
 	return fmt.Errorf("unknown OrganizationPerson field %s", name)

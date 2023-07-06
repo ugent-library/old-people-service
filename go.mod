@@ -23,7 +23,6 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/ugent-library/zaphttp v0.0.0-20230513174723-52c27d21c5ce
 	go.uber.org/zap v1.24.0
-	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df
 	golang.org/x/net v0.11.0
 	google.golang.org/protobuf v1.31.0
 )

@@ -7,7 +7,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/ugent-library/person-service/models"
-	"golang.org/x/exp/slices"
 )
 
 var importStudentsCmd = &cobra.Command{
@@ -49,15 +48,22 @@ var importStudentsCmd = &cobra.Command{
 			}
 
 			if op == nil {
-				np.OrganizationId = append(np.OrganizationId, org.Id)
+				np.Organization = append(np.Organization, models.NewOrganizationRef(org.Id))
 				np, err := repo.CreatePerson(ctx, np)
 				if err != nil {
 					return fmt.Errorf("unable to create person: %w", err)
 				}
 				logger.Infof("successfully inserted person record %s", np.Id)
 			} else {
-				if !slices.Contains(op.OrganizationId, org.Id) {
-					op.OrganizationId = append(op.OrganizationId, org.Id)
+				orgFound := false
+				for _, orgRef := range op.Organization {
+					if orgRef.Id == org.Id {
+						orgFound = true
+						break
+					}
+				}
+				if !orgFound {
+					op.Organization = append(op.Organization, models.NewOrganizationRef(org.Id))
 				}
 				op.Active = true
 				op.BirthDate = np.BirthDate

@@ -62,6 +62,34 @@ func (opc *OrganizationPersonCreate) SetPersonID(i int) *OrganizationPersonCreat
 	return opc
 }
 
+// SetFrom sets the "from" field.
+func (opc *OrganizationPersonCreate) SetFrom(t time.Time) *OrganizationPersonCreate {
+	opc.mutation.SetFrom(t)
+	return opc
+}
+
+// SetNillableFrom sets the "from" field if the given value is not nil.
+func (opc *OrganizationPersonCreate) SetNillableFrom(t *time.Time) *OrganizationPersonCreate {
+	if t != nil {
+		opc.SetFrom(*t)
+	}
+	return opc
+}
+
+// SetUntil sets the "until" field.
+func (opc *OrganizationPersonCreate) SetUntil(t time.Time) *OrganizationPersonCreate {
+	opc.mutation.SetUntil(t)
+	return opc
+}
+
+// SetNillableUntil sets the "until" field if the given value is not nil.
+func (opc *OrganizationPersonCreate) SetNillableUntil(t *time.Time) *OrganizationPersonCreate {
+	if t != nil {
+		opc.SetUntil(*t)
+	}
+	return opc
+}
+
 // SetPeopleID sets the "people" edge to the Person entity by ID.
 func (opc *OrganizationPersonCreate) SetPeopleID(id int) *OrganizationPersonCreate {
 	opc.mutation.SetPeopleID(id)
@@ -127,6 +155,14 @@ func (opc *OrganizationPersonCreate) defaults() {
 		v := organizationperson.DefaultDateUpdated()
 		opc.mutation.SetDateUpdated(v)
 	}
+	if _, ok := opc.mutation.From(); !ok {
+		v := organizationperson.DefaultFrom()
+		opc.mutation.SetFrom(v)
+	}
+	if _, ok := opc.mutation.Until(); !ok {
+		v := organizationperson.DefaultUntil()
+		opc.mutation.SetUntil(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -142,6 +178,12 @@ func (opc *OrganizationPersonCreate) check() error {
 	}
 	if _, ok := opc.mutation.PersonID(); !ok {
 		return &ValidationError{Name: "person_id", err: errors.New(`ent: missing required field "OrganizationPerson.person_id"`)}
+	}
+	if _, ok := opc.mutation.From(); !ok {
+		return &ValidationError{Name: "from", err: errors.New(`ent: missing required field "OrganizationPerson.from"`)}
+	}
+	if _, ok := opc.mutation.Until(); !ok {
+		return &ValidationError{Name: "until", err: errors.New(`ent: missing required field "OrganizationPerson.until"`)}
 	}
 	if _, ok := opc.mutation.PeopleID(); !ok {
 		return &ValidationError{Name: "people", err: errors.New(`ent: missing required edge "OrganizationPerson.people"`)}
@@ -182,6 +224,14 @@ func (opc *OrganizationPersonCreate) createSpec() (*OrganizationPerson, *sqlgrap
 	if value, ok := opc.mutation.DateUpdated(); ok {
 		_spec.SetField(organizationperson.FieldDateUpdated, field.TypeTime, value)
 		_node.DateUpdated = value
+	}
+	if value, ok := opc.mutation.From(); ok {
+		_spec.SetField(organizationperson.FieldFrom, field.TypeTime, value)
+		_node.From = value
+	}
+	if value, ok := opc.mutation.Until(); ok {
+		_spec.SetField(organizationperson.FieldUntil, field.TypeTime, value)
+		_node.Until = value
 	}
 	if nodes := opc.mutation.PeopleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

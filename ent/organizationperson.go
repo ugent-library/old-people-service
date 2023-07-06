@@ -27,6 +27,10 @@ type OrganizationPerson struct {
 	OrganizationID int `json:"organization_id,omitempty"`
 	// PersonID holds the value of the "person_id" field.
 	PersonID int `json:"person_id,omitempty"`
+	// From holds the value of the "from" field.
+	From time.Time `json:"from,omitempty"`
+	// Until holds the value of the "until" field.
+	Until time.Time `json:"until,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the OrganizationPersonQuery when eager-loading is set.
 	Edges        OrganizationPersonEdges `json:"edges"`
@@ -77,7 +81,7 @@ func (*OrganizationPerson) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case organizationperson.FieldID, organizationperson.FieldOrganizationID, organizationperson.FieldPersonID:
 			values[i] = new(sql.NullInt64)
-		case organizationperson.FieldDateCreated, organizationperson.FieldDateUpdated:
+		case organizationperson.FieldDateCreated, organizationperson.FieldDateUpdated, organizationperson.FieldFrom, organizationperson.FieldUntil:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -123,6 +127,18 @@ func (op *OrganizationPerson) assignValues(columns []string, values []any) error
 				return fmt.Errorf("unexpected type %T for field person_id", values[i])
 			} else if value.Valid {
 				op.PersonID = int(value.Int64)
+			}
+		case organizationperson.FieldFrom:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field from", values[i])
+			} else if value.Valid {
+				op.From = value.Time
+			}
+		case organizationperson.FieldUntil:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field until", values[i])
+			} else if value.Valid {
+				op.Until = value.Time
 			}
 		default:
 			op.selectValues.Set(columns[i], values[i])
@@ -181,6 +197,12 @@ func (op *OrganizationPerson) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("person_id=")
 	builder.WriteString(fmt.Sprintf("%v", op.PersonID))
+	builder.WriteString(", ")
+	builder.WriteString("from=")
+	builder.WriteString(op.From.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("until=")
+	builder.WriteString(op.Until.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

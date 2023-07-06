@@ -10,11 +10,11 @@ import (
 
 	"github.com/nats-io/nats.go"
 	v1 "github.com/ugent-library/person-service/api/v1"
-	"github.com/ugent-library/person-service/arrayutil"
 	"github.com/ugent-library/person-service/gismo"
 	"github.com/ugent-library/person-service/inbox"
 	"github.com/ugent-library/person-service/models"
 	"github.com/ugent-library/person-service/ugentldap"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type GismoPersonSubscriber struct {
@@ -104,16 +104,17 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 
 	// clear old values
 	person.GismoId = iMsg.ID
-	person.OtherId = make([]*v1.IdRef, 0)
+	person.OtherId = nil
 	person.Email = ""
 	person.FirstName = ""
 	person.LastName = ""
 	person.Orcid = ""
-	person.OrganizationId = make([]string, 0)
+	person.Organization = nil
 	person.PreferredFirstName = ""
 	person.PreferredLastName = ""
 	person.Title = ""
-	var gismoOrganizationId []string
+	person.Organization = nil
+	var gismoOrganizationRefs []*v1.OrganizationRef
 
 	// add attributes from GISMO
 	for _, attr := range iMsg.Attributes {
@@ -150,9 +151,10 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 				person.Title = attr.Value
 			}
 		case "organization_id":
-			if withinDateRange {
-				gismoOrganizationId = append(gismoOrganizationId, attr.Value)
-			}
+			orgRef := models.NewOrganizationRef(attr.Value)
+			orgRef.From = timestamppb.New(*attr.StartDate)
+			orgRef.Until = timestamppb.New(*attr.EndDate)
+			gismoOrganizationRefs = append(gismoOrganizationRefs, orgRef)
 		case "preferred_first_name":
 			if withinDateRange {
 				person.PreferredFirstName = attr.Value
@@ -168,22 +170,33 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 		}
 	}
 
-	gismoOrganizationId = arrayutil.Uniq(gismoOrganizationId)
-
-	if len(gismoOrganizationId) > 0 {
-		orgIds := make([]string, 0)
-		orgsByGismo, err := ps.repository.GetOrganizationsByGismoId(ctx, gismoOrganizationId...)
+	if len(gismoOrganizationRefs) > 0 {
+		var gismoOrganizationIds []string
+		for _, orgRef := range gismoOrganizationRefs {
+			gismoOrganizationIds = append(gismoOrganizationIds, orgRef.Id)
+		}
+		orgsByGismo, err := ps.repository.GetOrganizationsByGismoId(ctx, gismoOrganizationIds...)
 		if err != nil {
 			return nil, err
 		}
 		// return fatal error when person arrives with organization that we do not know yet
-		if len(orgsByGismo) != len(gismoOrganizationId) {
+		if len(orgsByGismo) != len(gismoOrganizationIds) {
 			return nil, fmt.Errorf("%w: person.organization_id contains invalid gismo organization identifiers", models.ErrFatal)
 		}
-		for _, org := range orgsByGismo {
-			orgIds = append(orgIds, org.Id)
+
+		var orgRefs []*v1.OrganizationRef
+		for _, gismoOrgRef := range gismoOrganizationRefs {
+			for _, org := range orgsByGismo {
+				if gismoOrgRef.Id == org.GismoId {
+					oRef := models.NewOrganizationRef(org.Id)
+					oRef.From = gismoOrgRef.From
+					oRef.Until = gismoOrgRef.Until
+					orgRefs = append(orgRefs, oRef)
+					break
+				}
+			}
 		}
-		person.OrganizationId = orgIds
+		person.Organization = orgRefs
 	}
 
 	// enrich with ugent ldap attributes

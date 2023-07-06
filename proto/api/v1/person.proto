@@ -18,6 +18,14 @@ message IdRef {
   string type = 2;
 }
 
+message OrganizationRef {
+  string id = 1;
+  google.protobuf.Timestamp date_created = 2;
+  google.protobuf.Timestamp date_updated = 3;
+  google.protobuf.Timestamp from = 4;
+  google.protobuf.Timestamp until = 5;
+}
+
 message Person {
   string id = 1;
   string gismo_id = 2;
@@ -35,7 +43,7 @@ message Person {
   string birth_date = 14;
   string title = 15;
   repeated IdRef other_id = 16;
-  repeated string organization_id = 17;
+  repeated OrganizationRef organization = 17;
   repeated string job_category = 18;
   repeated string role = 19;
   map<string,string> settings = 20;

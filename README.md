@@ -52,56 +52,6 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
 
   description: host address for GRPC api
 
-* `PEOPLE_API_TLS_ENABLED`
-
-  type: `bool`
-
-  default: `false`
-
-  description: start GRPC server with TLS support. Requires options `api.tls_server_cert` and `api.tl_server_key`.
-
-* `PEOPLE_API_TLS_SERVER_CERT`
-
-  type: `string`
-
-  description: file location of server certificate
-
-* `PEOPLE_API_TLS_SERVER_KEY`
-
-  type: `string`
-
-  description: file location of server private key
-
-* `PEOPLE_API_CLIENT_INSECURE`
-
-  type: `bool`
-
-  default: `false`
-
-  description: set to false when your GRPC is running without TLS support
-
-* `PEOPLE_API_CLIENT_CACERT`
-
-  type: `string`
-
-  description: file location to root certificate. Only needed when GRPC is running with TLS support
-
-* `PEOPLE_API_PROXY_HOST`
-
-  type: `string`
-
-  description: host address for api proxy
-
-  default: `localhost`
-
-* `PEOPLE_API_PROXY_PORT`
-
-  type: `int`
-
-  description: proxy address for api proxy
-
-  default: `4001`
-
 * `PEOPLE_DB_URL`
 
   type: `string`
@@ -126,23 +76,164 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
 
   description: NATS connection url
 
+* `PEOPLE_NATS_NKEY`
+
+  type: `string`
+
+  description: [Ed25519](https://ed25519.cr.yp.to/) public key
+
+  In order to generate a key pair do the following:
+
+  ```
+  git clone https://github.com/nats-io/nkeys
+  cd nkeys/nk
+  go build
+  ./nk -gen user -pubout
+  ```
+
+  This command outputs two lines, the first containing the seed or private
+  (starting with `S`), followed by the public key
+
+  Add the public key to the nats user configuration (`nats.conf`):
+
+  ```
+  authorization {
+    default_permissions = {}
+    PERSON_SERVICE = {
+      subscribe = [
+        "gismo.person",
+        "gismo.organization",
+        "inboxOrganizationDeliverSubject",
+        "inboxPersonDeliverSubject",
+        "_INBOX.>",
+        "$JS.API.STREAM.CREATE.PEOPLE",
+        "$JS.API.STREAM.UPDATE.PEOPLE",
+        "$JS.API.STREAM.INFO.PEOPLE",
+        "$JS.API.STREAM.DELETE.PEOPLE",
+        "$JS.API.CONSUMER.DURABLE.CREATE.PEOPLE.>",
+        "$JS.API.CONSUMER.DELETE.PEOPLE.>",
+        "$JS.API.CONSUMER.INFO.PEOPLE.>"
+      ]
+    }
+    users = [
+      { nkey: "<public-key>", permissions: $PERSON_SERVICE }
+    ]
+  }
+  ```
+
+* `PEOPLE_NATS_NKEY_SEED`
+
+  type: `string`
+
+  description: [Ed25519](https://ed25519.cr.yp.to/) private key
+
+  Keep the private key close to your application.
+
+  Nats does not need to know about this.
+
+* `PEOPLE_LDAP_URL`
+
+  type: `string`
+
+  description: ldap connection url. e.g. `ldaps://ldaps.ugent.be:636`
+
+  required: `true`
+
+* `PEOPLE_LDAP_USERNAME`
+
+  type: `string`
+
+  description: ldap username
+
+  required: `true`
+
+  Note: internally we bind to scope `ou=people,dc=ugent,dc=be`, so make sure these
+  credentials are valid for that scope.
+
+* `PEOPLE_LDAP_PASSWORD`
+
+  type: `string`
+
+  description: ldap password
+
+  required: `true`
+
 # Start GRPC api
 
 ```
 $ ./person-service api start
 ```
 
-# Start NATS consumer
+# Start NATS consumer organization
 
 ```
-$ ./person-service inbox listen
+$ ./person-service inbox listen organization
 ```
 
-* creates NATS stream `PEOPLE` with subjects `person.update`. If already present, does not try to change it. Expections are:
+* creates NATS stream `GISMO` with subjects `gismo.organization`. If already present, does not try to change it. Expections are:
 
   * messages must be persisted to disk
 
-  * messages are created by [soap-bridge](https://github.com/ugent-library/soap-bridge) and look as [following](https://github.com/ugent-library/soap-bridge/blob/main/main.go#L59):
+  * messages are created by [soap-bridge](https://github.com/ugent-library/soap-bridge) and are SOAP Cerif XML messages as produced by GISMO. We have to convert those XML messages into this `inbox.Message` format:
+
+    ```
+    {
+        "id": "<gismo organization identifier>",
+        "language": "<iso language code>",
+        "attributes": [
+            {
+                "name": "<attribute name>",
+                "value": "<attribute value>",
+                "start_date": "<value valid from start date>",
+                "end_date": "<value valid till end date>"
+            },
+            ...
+        ]
+    }
+    ```
+
+* creates NATS push consumer `inboxOrganization` on stream `GISMO`. If already present, does not try to change it. Expectations are:
+
+  * DeliverSubject: `inboxOrganizationDeliverSubject`. This option makes it a push based consumer.
+
+  * Durable: `inboxOrganization`
+
+  * AckPolicy: explicit. So no automatic acknowledgments.
+
+  * MaxAckPending: 1. When higher than 1, pending messages may be sent out of order by the server.
+
+  * AckWait: 1 minute. This means that messages are resent after 1 minute when no acknowledgment was received. Putting this too low puts pressure on the processing.
+
+* binds to consumer `inboxOrganization` on stream `GISMO`
+
+* listens to subject `gismo.organization`
+
+* processes SOAP XML messages in order
+
+* messages with malformed XML are discarded. Acknowledgment is sent to ensure progression.
+
+* messages with unexpected XML structure are discarded, and acknowledged to ensure progression.
+
+* XML messages are converted to `inbox.Message` format.
+
+* `inbox.Message` results into insert or update of a organization record
+
+* Notes:
+
+  * if GISMO states that the organization is child of a parent organization, and that parent organization does not exist yet, then processing stops (no ack sent). Processing should happen in correct order.
+
+
+# Start NATS consumer person
+
+```
+$ ./person-service inbox listen person
+```
+
+* creates NATS stream `GISMO` with subjects `gismo.person`. If already present, does not try to change it. Expections are:
+
+  * messages must be persisted to disk
+
+  * messages are created by [soap-bridge](https://github.com/ugent-library/soap-bridge) and are SOAP Cerif XML messages as produced by GISMO. We have to convert those XML messages into this `inbox.Message` format:
 
     ```
     {
@@ -160,31 +251,41 @@ $ ./person-service inbox listen
     }
     ```
 
-* creates NATS push consumer `inbox` on stream `PEOPLE`. If already present, does not try to change it. Expectations are:
+* creates NATS push consumer `inboxPerson` on stream `GISMO`. If already present, does not try to change it. Expectations are:
 
-  * DeliverSubject: `inboxDeliverSubject`. This option makes it a push based consumer.
+  * DeliverSubject: `inboxPersonDeliverSubject`. This option makes it a push based consumer.
 
-  * Durable: `inbox`
+  * Durable: `inboxPerson`
 
   * AckPolicy: explicit. So no automatic acknowledgments.
 
   * MaxAckPending: 1. When higher than 1, pending messages may be sent out of order by the server.
 
-  * AckWait: 10 seconds. This means that messages are resent after 10 seconds when no acknowledgment was received
+  * AckWait: 1 minute. This means that messages are resent after 1 minute when no acknowledgment was received. Putting this too low puts pressure on the processing.
 
-* binds to consumer `inbox` on stream `PEOPLE`
+* binds to consumer `inboxPerson` on stream `GISMO`
 
-* listens to subject `person.update`
+* listens to subject `gismo.person`
 
-* processes JSON messages in order
+* processes SOAP XML messages in order
 
-* messages with malformed JSON are discarded. Acknowledgment is sent to ensure progression.
+* messages with malformed XML are discarded. Acknowledgment is sent to ensure progression.
 
-* messages with unexpected JSON structure are published to `inbox.rejected`. Acknowledgment is sent to ensure progression.
+* messages with unexpected XML structure are discarded, and acknowledged to ensure progression.
 
-* messages that result in invalid person records are republished to subject `inbox.person.rejected`. Acknowledgment is sent to ensure progression.
+* XML messages are converted to `inbox.Message` format.
 
-* on successfull update of the person record, the updated person record is republished on subject `person.updated`. Messages like this contain the full person record in JSON as payload. Acknowledgment is sent when record is stored successfully.
+* `inbox.Message` results into insert or update of a person record
+
+* Notes:
+
+  * If GISMO states that a person belongs to an organization that does not exist
+    yet in the database, then processing is stopped, and no ack is sent. Please make
+    sure that organizations are processed first. No attempt is made to store
+    the reported organization gismo identifier, and create the relation later.
+  * Every GISMO person message needs to have an ugent_id. Without an ugent_id one cannot
+    link with the ugent ldap.
+
 
 # Commands with grpcurl
 
@@ -201,43 +302,43 @@ h="Authorization: Basic "$(echo -n "$u:$p" | base64)
 List all GRPC methods
 
 ```
-$ grpcurl -H "$h" -plaintext localhost:3999 list api.v1.People
+$ grpcurl -H "$h" -plaintext localhost:3999 list api.v1.PersonService
 ```
 
 List of people
 
 ```
-$ grpcurl -H "$h" -plaintext localhost:3999 api.v1.People.GetAllPerson
+$ grpcurl -H "$h" -plaintext localhost:3999 api.v1.PersonService/GetAllPerson
 ```
 
 Get one person
 
 ```
-grpcurl -H "$h" -plaintext -d '{"id": "0DCE4DB4-F0EE-11E1-A9DE-61C894A0A6B4"}' localhost:3999 api.v1.People.GetPerson
+grpcurl -H "$h" -plaintext -d '{"id": "0DCE4DB4-F0EE-11E1-A9DE-61C894A0A6B4"}' localhost:3999 api.v1.PersonService/GetPerson
 ```
 
 Suggest people
 
 ```
-$ grpcurl -H "$h" -plaintext -d '{"query": "nicol fra"}' localhost:3999 api.v1.People.SuggestPerson
+$ grpcurl -H "$h" -plaintext -d '{"query": "nicol fra"}' localhost:3999 api.v1.PersonService/SuggestPerson
 ```
 
 Get organization
 
 ```
-$ grpcurl -H "$h" -plaintext -d '{"id": "CA20"}' localhost:3999 api.v1.People.GetOrganization
+$ grpcurl -H "$h" -plaintext -d '{"id": "CA20"}' localhost:3999 api.v1.PersonService/GetOrganization
 ```
 
 Get all organizations
 
 ```
-$ grpcurl -H "$h" -plaintext localhost:3999 api.v1.People.GetAllOrganization
+$ grpcurl -H "$h" -plaintext localhost:3999 api.v1.PersonService/GetAllOrganization
 ```
 
 Suggest organizations
 
 ```
-$ grpcurl -H "$h" -plaintext -d '{"query": "Academic He"}' localhost:3999 api.v1.People.SuggestOrganization
+$ grpcurl -H "$h" -plaintext -d '{"query": "Academic He"}' localhost:3999 api.v1.PersonService/SuggestOrganization
 ```
 
 # run in docker

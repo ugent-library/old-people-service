@@ -21,6 +21,7 @@ require (
 	github.com/ory/graceful v0.1.3
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.2
+	github.com/ugent-library/crypt v0.0.0-20230630063634-8c02106fd40e
 	github.com/ugent-library/zaphttp v0.0.0-20230513174723-52c27d21c5ce
 	go.uber.org/zap v1.24.0
 	golang.org/x/net v0.11.0

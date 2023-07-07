@@ -2,13 +2,9 @@ package repository
 
 import (
 	"context"
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rand"
 	"database/sql"
 	"encoding/base64"
 	"fmt"
-	"io"
 	"regexp"
 	"strings"
 
@@ -17,6 +13,7 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/schema"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/ugent-library/crypt"
 	"github.com/ugent-library/person-service/ent"
 )
 
@@ -155,65 +152,24 @@ func customSchemaChanges(next schema.Applier) schema.Applier {
 }
 
 func encryptMessage(key []byte, message string) (string, error) {
-
-	// Create a new AES cipher block from the secret key.
-	block, err := aes.NewCipher(key)
+	cryptedMsgInBytes, err := crypt.Encrypt(key, []byte(message))
 	if err != nil {
 		return "", err
 	}
 
-	// Wrap the cipher block in Galois Counter Mode.
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		return "", err
-	}
-
-	// Create a unique nonce containing 12 random bytes.
-	nonce := make([]byte, gcm.NonceSize())
-	_, err = io.ReadFull(rand.Reader, nonce)
-	if err != nil {
-		return "", err
-	}
-
-	// Encrypt the data using aesGCM.Seal(). By passing the nonce as the first
-	// parameter, the encrypted message will be appended to the nonce so
-	// that the encrypted message will be in the format
-	// "{nonce}{encrypted message}".
-	cryptedMsg := gcm.Seal(nonce, nonce, []byte(message), nil)
-
-	// Encode as a url safe base64 string.
-	return base64.URLEncoding.EncodeToString(cryptedMsg), nil
-
+	return base64.URLEncoding.EncodeToString(cryptedMsgInBytes), nil
 }
 
-func decryptMessage(key []byte, message string) (string, error) {
-
-	// Decode base64.
-	cryptedMsg, err := base64.URLEncoding.DecodeString(message)
+func decryptMessage(key []byte, cryptedMsg string) (string, error) {
+	cryptedMsgInBytes, err := base64.URLEncoding.DecodeString(cryptedMsg)
 	if err != nil {
 		return "", err
 	}
 
-	// Create a new AES cipher block from the secret key.
-	block, err := aes.NewCipher(key)
+	msgInBytes, err := crypt.Decrypt(key, cryptedMsgInBytes)
 	if err != nil {
 		return "", err
 	}
 
-	// Wrap the cipher block in Galois Counter Mode.
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		return "", err
-	}
-
-	nonceSize := gcm.NonceSize()
-
-	// Split cryptedMsg in nonce and encrypted message and use gcm.Open() to
-	// decrypt and authenticate the data.
-	msg, err := gcm.Open(nil, cryptedMsg[:nonceSize], cryptedMsg[nonceSize:], nil)
-	if err != nil {
-		return "", err
-	}
-
-	return string(msg), nil
+	return string(msgInBytes), nil
 }

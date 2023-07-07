@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"time"
 
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/jackc/pgx/v5"
@@ -747,4 +748,20 @@ func (repo *repository) SetPersonSettings(ctx context.Context, id string, settin
 	}
 
 	return nil
+}
+
+func (repo *repository) AutoExpirePeople(ctx context.Context) (int64, error) {
+	updateQuery := "UPDATE person SET active = false WHERE expiration_date <= $1 AND active = true"
+
+	res, err := repo.client.ExecContext(ctx, updateQuery, time.Now().Local().Format("20060101"))
+	if err != nil {
+		return 0, err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsAffected, nil
 }

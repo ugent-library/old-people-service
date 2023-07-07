@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	v1 "github.com/ugent-library/person-service/api/v1"
 	"github.com/ugent-library/person-service/models"
 )
 
@@ -18,7 +19,7 @@ var importStudentsCmd = &cobra.Command{
 		repo := Services().Repository
 
 		//TODO: require organisation "Universiteit Gent"?
-		org, err := repo.GetOrganizationByOtherId(ctx, "ugent_id", "UGent")
+		orgUgent, err := repo.GetOrganizationByOtherId(ctx, "ugent_id", "UGent")
 		if errors.Is(err, models.ErrNotFound) {
 			logger.Fatal(errors.New("unable to find parent organization UGent"))
 		}
@@ -28,60 +29,84 @@ var importStudentsCmd = &cobra.Command{
 
 		err = LDAPClient().SearchPeople("(objectClass=ugentStudent)", func(np *models.Person) error {
 
-			//TODO: assign to 'Universiteit Gent' automatically?
-			//TODO: loop by cursor instead of fetching all data at once?
-			//TODO: use ugentmodifytimestamp to fetch records incrementally?
+			/*
+				np = "dummy" person record as returned by SearchPeople
 
-			var op *models.Person
+				Notes:
+
+				* np.Id is empty
+				* np.Active is always true
+				* np.Organization contains "dummy" *v1.OrganizationRef where Id is an ugent identifier (e.g CA20).
+				  We try to match the ugent identifier against a stored organization.
+				  Every provided v1.OrganizationRef requires a match.
+				  Make sure the organizations are already stored.
+
+
+			*/
+
+			//TODO: use modifytimestamp to fetch records incrementally?
+
+			var oldPerson *models.Person
 			for _, otherId := range np.OtherId {
 				if otherId.Type != "historic_ugent_id" {
 					continue
 				}
-				oldPerson, err := repo.GetPersonByOtherId(ctx, "historic_ugent_id", otherId.Id)
+
+				oldPerson, err = repo.GetPersonByOtherId(ctx, "historic_ugent_id", otherId.Id)
 				if errors.Is(err, models.ErrNotFound) {
 					continue
 				} else if err != nil {
 					return err
 				}
-				op = oldPerson
+
+				logger.Infof("found existing person by matching historic_ugent_id %s", otherId.Id)
 				break
 			}
 
-			if op == nil {
-				np.Organization = append(np.Organization, models.NewOrganizationRef(org.Id))
+			// provided OrganizationRef#Id is an ugent_id. Match with stored organization
+			var newOrgRefs []*v1.OrganizationRef
+			for _, oRef := range np.Organization {
+				realOrg, err := repo.GetOrganizationByOtherId(ctx, "ugent_id", oRef.Id)
+				if errors.Is(err, models.ErrNotFound) {
+					continue
+				} else if err != nil {
+					return err
+				}
+				newOrgRef := models.NewOrganizationRef(realOrg.Id)
+				newOrgRef.From = oRef.From
+				newOrgRef.Until = oRef.Until
+				newOrgRefs = append(newOrgRefs, newOrgRef)
+			}
+			if len(newOrgRefs) == 0 {
+				newOrgRefs = append(newOrgRefs, models.NewOrganizationRef(orgUgent.Id))
+			}
+			np.Organization = newOrgRefs
+
+			if oldPerson == nil {
 				np, err := repo.CreatePerson(ctx, np)
 				if err != nil {
 					return fmt.Errorf("unable to create person: %w", err)
 				}
 				logger.Infof("successfully inserted person record %s", np.Id)
 			} else {
-				orgFound := false
-				for _, orgRef := range op.Organization {
-					if orgRef.Id == org.Id {
-						orgFound = true
-						break
-					}
-				}
-				if !orgFound {
-					op.Organization = append(op.Organization, models.NewOrganizationRef(org.Id))
-				}
-				op.Active = true
-				op.BirthDate = np.BirthDate
-				op.Email = np.Email
-				op.FirstName = np.FirstName
-				op.LastName = np.LastName
-				op.FullName = np.FullName
-				op.JobCategory = np.JobCategory
-				op.Title = np.Title
-				op.OtherId = np.OtherId // TODO: change this if non ldap identifiers are added
-				op.ObjectClass = np.ObjectClass
-				op.ExpirationDate = np.ExpirationDate
+				oldPerson.Active = true
+				oldPerson.BirthDate = np.BirthDate
+				oldPerson.Email = np.Email
+				oldPerson.FirstName = np.FirstName
+				oldPerson.LastName = np.LastName
+				oldPerson.FullName = np.FullName
+				oldPerson.JobCategory = np.JobCategory
+				oldPerson.Title = np.Title
+				oldPerson.OtherId = np.OtherId
+				oldPerson.ObjectClass = np.ObjectClass
+				oldPerson.ExpirationDate = np.ExpirationDate
+				oldPerson.Organization = np.Organization
 
-				op, err := repo.UpdatePerson(ctx, op)
+				oldPerson, err = repo.UpdatePerson(ctx, oldPerson)
 				if err != nil {
 					return fmt.Errorf("unable to update person: %w", err)
 				}
-				logger.Infof("success updated person record %s", op.Id)
+				logger.Infof("successfully updated person record %s", oldPerson.Id)
 			}
 
 			return nil
@@ -90,8 +115,6 @@ var importStudentsCmd = &cobra.Command{
 		if err != nil {
 			logger.Fatal(err)
 		}
-
-		// TODO: make person records that where not found inactive
 
 	},
 }

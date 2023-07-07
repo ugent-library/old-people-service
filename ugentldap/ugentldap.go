@@ -38,6 +38,7 @@ var ldapAttributes = []string{
 	"ugentAddressingTitle",
 	"displayName",
 	"ugentExpirationDate",
+	"departmentNumber",
 }
 
 func NewClient(config Config) *UgentLdap {
@@ -102,7 +103,7 @@ func (uc *UgentLdapConn) SearchPeople(filter string, cb func(*models.Person) err
 		}
 
 		for _, entry := range sr.Entries {
-			if err := cb(mapToPerson(entry)); err != nil {
+			if err := cb(mapToDummyPerson(entry)); err != nil {
 				cbErr = err
 				break
 			}
@@ -152,7 +153,7 @@ func (cli *UgentLdap) SearchPeople(filter string, cb func(*models.Person) error)
 	return uc.SearchPeople(filter, cb)
 }
 
-func mapToPerson(entry *ldap.Entry) *models.Person {
+func mapToDummyPerson(entry *ldap.Entry) *models.Person {
 	np := models.NewPerson()
 	np.Active = true
 
@@ -199,6 +200,9 @@ func mapToPerson(entry *ldap.Entry) *models.Person {
 				np.ObjectClass = append(np.ObjectClass, val)
 			case "ugentExpirationDate":
 				np.ExpirationDate = val
+			case "departmentNumber":
+				//OrganizationRef#Id is here an ugent id (e.g. CA20)
+				np.Organization = append(np.Organization, models.NewOrganizationRef(val))
 			}
 		}
 	}

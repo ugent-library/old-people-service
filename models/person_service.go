@@ -17,4 +17,5 @@ type PersonService interface {
 	SetPersonOrcid(context.Context, string, string) error
 	SetPersonRole(context.Context, string, []string) error
 	SetPersonSettings(context.Context, string, map[string]string) error
+	AutoExpirePeople(context.Context) (int64, error)
 }

@@ -45,7 +45,7 @@ func listenPersonFn() error {
 
 	js, _ := nc.JetStream()
 
-	sub, err := buildPersonSubscriber(js, Services())
+	sub, err := buildPersonSubscriber(js, Repository())
 
 	if err != nil {
 		return fmt.Errorf("%w: unable to build person subscriber: %w", models.ErrFatal, err)

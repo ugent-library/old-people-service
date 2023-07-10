@@ -51,7 +51,7 @@ func toTSQuery(query string) (string, []any) {
 	return tsQuery, queryArgs
 }
 
-func OpenClient(dsn string) (*ent.Client, error) {
+func openClient(dsn string) (*ent.Client, error) {
 
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {

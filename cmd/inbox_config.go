@@ -128,25 +128,25 @@ func natsConnect(config ConfigNats) (*nats.Conn, error) {
 	return options.Connect()
 }
 
-func buildOrganizationSubscriber(js nats.JetStreamContext, services *models.Services) (subscribers.Subcriber, error) {
+func buildOrganizationSubscriber(js nats.JetStreamContext, repo models.Repository) (subscribers.Subcriber, error) {
 	if err := initConsumer(js, natsStreamConfig.Name, &natsOrganizationConsumerConfig); err != nil {
 		return nil, fmt.Errorf("unable to create nats consumer %s: %w", natsOrganizationConsumerConfig.Durable, err)
 	}
 	orgSConfig := subscribers.GismoOrganizationConfig{}
 	orgSConfig.Logger = logger
-	orgSConfig.Repository = services.Repository
+	orgSConfig.Repository = repo
 	orgSConfig.Subject = natsOrganizationConsumerConfig.FilterSubject
 	orgSConfig.SubOpts = []nats.SubOpt{nats.Bind(natsStreamConfig.Name, natsOrganizationConsumerConfig.Durable)}
 	return subscribers.NewGismoOrganizationSubscriber(orgSConfig), nil
 }
 
-func buildPersonSubscriber(js nats.JetStreamContext, services *models.Services) (subscribers.Subcriber, error) {
+func buildPersonSubscriber(js nats.JetStreamContext, repo models.Repository) (subscribers.Subcriber, error) {
 	if err := initConsumer(js, natsStreamConfig.Name, &natsPersonConsumerConfig); err != nil {
 		return nil, fmt.Errorf("unable to create nats consumer %s: %w", natsPersonConsumerConfig.Durable, err)
 	}
 	personSConfig := subscribers.GismoPersonConfig{}
 	personSConfig.Logger = logger
-	personSConfig.Repository = services.Repository
+	personSConfig.Repository = repo
 	personSConfig.Subject = natsPersonConsumerConfig.FilterSubject
 	personSConfig.SubOpts = []nats.SubOpt{nats.Bind(natsStreamConfig.Name, natsPersonConsumerConfig.Durable)}
 	personSConfig.LdapClient = LDAPClient()

@@ -10,10 +10,7 @@ var expirePersonCmd = &cobra.Command{
 	Use:   "expire-person",
 	Short: "auto expire person records",
 	Run: func(cmd *cobra.Command, args []string) {
-		repo := Services().Repository
-		ctx := context.TODO()
-
-		nAffected, err := repo.AutoExpirePeople(ctx)
+		nAffected, err := Repository().AutoExpirePeople(context.TODO())
 		if err != nil {
 			logger.Fatal(err)
 		}

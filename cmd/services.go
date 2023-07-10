@@ -9,17 +9,17 @@ import (
 )
 
 var (
-	_services       *models.Services
-	_servicesOnce   sync.Once
+	_repository     models.Repository
+	_repositoryOnce sync.Once
 	_ldapClient     *ugentldap.UgentLdap
 	_ldapClientOnce sync.Once
 )
 
-func Services() *models.Services {
-	_servicesOnce.Do(func() {
-		_services = newServices()
+func Repository() models.Repository {
+	_repositoryOnce.Do(func() {
+		_repository = newRepository()
 	})
-	return _services
+	return _repository
 }
 
 func LDAPClient() *ugentldap.UgentLdap {
@@ -33,24 +33,15 @@ func LDAPClient() *ugentldap.UgentLdap {
 	return _ldapClient
 }
 
-func newServices() *models.Services {
-	dbClient, err := repository.OpenClient(config.Db.Url)
-	if err != nil {
-		panic(err)
-	}
-
-	dbConfig := &repository.Config{
-		Client: dbClient,
+func newRepository() models.Repository {
+	repo, err := repository.NewRepository(&repository.Config{
+		DbUrl:  config.Db.Url,
 		AesKey: config.Db.AesKey,
-	}
-
-	repo, err := repository.NewRepository(dbConfig)
+	})
 
 	if err != nil {
 		panic(err)
 	}
 
-	return &models.Services{
-		Repository: repo,
-	}
+	return repo
 }

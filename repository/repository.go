@@ -24,8 +24,12 @@ type repository struct {
 }
 
 func NewRepository(config *Config) (*repository, error) {
+	client, err := openClient(config.DbUrl)
+	if err != nil {
+		return nil, err
+	}
 	return &repository{
-		client: config.Client,
+		client: client,
 		secret: []byte(config.AesKey),
 	}, nil
 }

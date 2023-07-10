@@ -45,7 +45,7 @@ func listenOrganizationFn() error {
 
 	js, _ := nc.JetStream()
 
-	sub, err := buildOrganizationSubscriber(js, Services())
+	sub, err := buildOrganizationSubscriber(js, Repository())
 
 	if err != nil {
 		return fmt.Errorf("%w: unable to build organization subscriber: %w", models.ErrFatal, err)

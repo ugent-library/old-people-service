@@ -39,7 +39,6 @@ func (bs *BaseSubscriber) EnsureAck(msg *nats.Msg) {
 	if err := msg.Ack(); err != nil {
 		bs.logger.Fatal(fmt.Errorf("unable to acknowledge nats message: %w", err))
 	}
-
 }
 
 func NewBaseSubscriber(subject string) BaseSubscriber {

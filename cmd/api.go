@@ -42,10 +42,9 @@ var apiStartCmd = &cobra.Command{
 		mux.Use(middleware.RequestLogger(zapchi.LogFormatter()))
 		mux.Use(middleware.Recoverer)
 
-		services := Services()
 		grpcPath, grpcHandler := grpcserver.NewHandler(&grpcserver.ServerConfig{
 			Logger:     logger,
-			Repository: services.Repository,
+			Repository: Repository(),
 			Username:   config.Api.Username,
 			Password:   config.Api.Password,
 		})

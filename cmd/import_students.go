@@ -16,7 +16,7 @@ var importStudentsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		ctx := context.TODO()
-		repo := Services().Repository
+		repo := Repository()
 
 		//TODO: require organisation "Universiteit Gent"?
 		orgUgent, err := repo.GetOrganizationByOtherId(ctx, "ugent_id", "UGent")

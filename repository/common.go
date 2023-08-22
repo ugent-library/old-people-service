@@ -14,7 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/schema"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/ugent-library/crypt"
-	"github.com/ugent-library/person-service/ent"
+	"github.com/ugent-library/people-service/ent"
 )
 
 var regexMultipleSpaces = regexp.MustCompile(`\s+`)

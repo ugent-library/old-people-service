@@ -7,7 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/ugent-library/person-service/ent/schema"
+	"github.com/ugent-library/people-service/ent/schema"
 )
 
 const (

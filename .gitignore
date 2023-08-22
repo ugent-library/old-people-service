@@ -26,4 +26,4 @@ node_modules
 /.env
 
 # build file
-/person-service
+/people-service

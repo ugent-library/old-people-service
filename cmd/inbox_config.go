@@ -6,8 +6,8 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nkeys"
-	"github.com/ugent-library/person-service/models"
-	"github.com/ugent-library/person-service/subscribers"
+	"github.com/ugent-library/people-service/models"
+	"github.com/ugent-library/people-service/subscribers"
 )
 
 var natsStreamConfig = nats.StreamConfig{

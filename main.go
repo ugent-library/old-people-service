@@ -1,6 +1,6 @@
 package main
 
-import "github.com/ugent-library/person-service/cmd"
+import "github.com/ugent-library/people-service/cmd"
 
 func main() {
 	cmd.Execute()

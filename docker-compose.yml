@@ -1,10 +1,10 @@
 version: '3.5'
 
-# requirement: run "docker build -t person-service ." in order to create image person-service
+# requirement: run "docker build -t people-service ." in order to create image people-service
 services:
-  person_service_inbox_person:
-    image: ugentlib/person-service:latest
-    container_name: person_service_inbox_person
+  people_service_inbox_person:
+    image: ugentlib/people-service:latest
+    container_name: people_service_inbox_person
     depends_on:
       postgres:
         condition: service_healthy
@@ -12,12 +12,12 @@ services:
       nats:
         condition: service_started
     volumes:
-      - ./docker/.env:/opt/person-service/.env
-    command: "/bin/sh -c \"cd /opt/person-service && ./person-service inbox listen person\""
+      - ./docker/.env:/opt/people-service/.env
+    command: "/bin/sh -c \"cd /opt/people-service && ./people-service inbox listen person\""
 
-  person_service_inbox_organization:
-    image: ugentlib/person-service:latest
-    container_name: person_service_inbox_organization
+  people_service_inbox_organization:
+    image: ugentlib/people-service:latest
+    container_name: people_service_inbox_organization
     depends_on:
       postgres:
         condition: service_healthy
@@ -25,12 +25,12 @@ services:
       nats:
         condition: service_started
     volumes:
-      - ./docker/.env:/opt/person-service/.env
-    command: "/bin/sh -c \"cd /opt/person-service && ./person-service inbox listen organization\""
+      - ./docker/.env:/opt/people-service/.env
+    command: "/bin/sh -c \"cd /opt/people-service && ./people-service inbox listen organization\""
 
-  person_service_grpc:
-    container_name: person_service_grpc
-    image: ugentlib/person-service:latest
+  people_service_grpc:
+    container_name: people_service_grpc
+    image: ugentlib/people-service:latest
     depends_on:
       postgres:
         condition: service_healthy
@@ -39,8 +39,8 @@ services:
     ports:
       - 3999:3999
     volumes:
-      - ./docker/.env:/opt/person-service/.env
-    command: "/bin/sh -c \"cd /opt/person-service && ./person-service api start\""
+      - ./docker/.env:/opt/people-service/.env
+    command: "/bin/sh -c \"cd /opt/people-service && ./people-service api start\""
 
   # connect to postgres:
   #   connect to docker container

@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ugent-library/person-service/ent"
+	"github.com/ugent-library/people-service/ent"
 )
 
 // The OrganizationFunc type is an adapter to allow the use of ordinary

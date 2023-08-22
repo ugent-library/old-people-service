@@ -9,7 +9,7 @@ import (
 	"github.com/cenkalti/backoff"
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
-	"github.com/ugent-library/person-service/models"
+	"github.com/ugent-library/people-service/models"
 )
 
 var inboxListenPersonCmd = &cobra.Command{

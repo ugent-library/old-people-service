@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/bufbuild/connect-go"
-	v1 "github.com/ugent-library/person-service/api/v1"
-	"github.com/ugent-library/person-service/api/v1/v1connect"
-	"github.com/ugent-library/person-service/models"
+	v1 "github.com/ugent-library/people-service/api/v1"
+	"github.com/ugent-library/people-service/api/v1/v1connect"
+	"github.com/ugent-library/people-service/models"
 	"go.uber.org/zap"
 )
 

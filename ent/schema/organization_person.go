@@ -8,7 +8,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"github.com/ugent-library/person-service/models"
+	"github.com/ugent-library/people-service/models"
 )
 
 type OrganizationPerson struct {

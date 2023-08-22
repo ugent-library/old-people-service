@@ -19,7 +19,7 @@ var (
 var logger *zap.SugaredLogger
 
 var rootCmd = &cobra.Command{
-	Use: "person-service",
+	Use: "people-service",
 }
 
 func init() {

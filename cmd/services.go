@@ -3,9 +3,9 @@ package cmd
 import (
 	"sync"
 
-	"github.com/ugent-library/person-service/models"
-	"github.com/ugent-library/person-service/repository"
-	"github.com/ugent-library/person-service/ugentldap"
+	"github.com/ugent-library/people-service/models"
+	"github.com/ugent-library/people-service/repository"
+	"github.com/ugent-library/people-service/ugentldap"
 )
 
 var (

@@ -1,7 +1,7 @@
 package models
 
 import (
-	v1 "github.com/ugent-library/person-service/api/v1"
+	v1 "github.com/ugent-library/people-service/api/v1"
 )
 
 type Organization struct {

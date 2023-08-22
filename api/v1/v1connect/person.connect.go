@@ -15,7 +15,7 @@ import (
 	context "context"
 	errors "errors"
 	connect_go "github.com/bufbuild/connect-go"
-	v1 "github.com/ugent-library/person-service/api/v1"
+	v1 "github.com/ugent-library/people-service/api/v1"
 	http "net/http"
 	strings "strings"
 )

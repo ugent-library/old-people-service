@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/go-ldap/ldap/v3"
-	v1 "github.com/ugent-library/person-service/api/v1"
-	"github.com/ugent-library/person-service/models"
+	v1 "github.com/ugent-library/people-service/api/v1"
+	"github.com/ugent-library/people-service/models"
 )
 
 type UgentLdap struct {

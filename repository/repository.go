@@ -9,12 +9,12 @@ import (
 
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/jackc/pgx/v5"
-	v1 "github.com/ugent-library/person-service/api/v1"
-	"github.com/ugent-library/person-service/ent"
-	"github.com/ugent-library/person-service/ent/organization"
-	"github.com/ugent-library/person-service/ent/person"
-	"github.com/ugent-library/person-service/ent/schema"
-	"github.com/ugent-library/person-service/models"
+	v1 "github.com/ugent-library/people-service/api/v1"
+	"github.com/ugent-library/people-service/ent"
+	"github.com/ugent-library/people-service/ent/organization"
+	"github.com/ugent-library/people-service/ent/person"
+	"github.com/ugent-library/people-service/ent/schema"
+	"github.com/ugent-library/people-service/models"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

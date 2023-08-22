@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/nats-io/nats.go"
-	"github.com/ugent-library/person-service/inbox"
+	"github.com/ugent-library/people-service/inbox"
 	"go.uber.org/zap"
 )
 

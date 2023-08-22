@@ -3,7 +3,7 @@ package inbox
 import (
 	"time"
 
-	"github.com/ugent-library/person-service/models"
+	"github.com/ugent-library/people-service/models"
 )
 
 /*

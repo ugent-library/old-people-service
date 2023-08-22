@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/antchfx/xmlquery"
-	"github.com/ugent-library/person-service/inbox"
+	"github.com/ugent-library/people-service/inbox"
 )
 
 /*

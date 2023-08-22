@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
-	v1 "github.com/ugent-library/person-service/api/v1"
-	"github.com/ugent-library/person-service/gismo"
-	"github.com/ugent-library/person-service/inbox"
-	"github.com/ugent-library/person-service/models"
+	v1 "github.com/ugent-library/people-service/api/v1"
+	"github.com/ugent-library/people-service/gismo"
+	"github.com/ugent-library/people-service/inbox"
+	"github.com/ugent-library/people-service/models"
 )
 
 type GismoOrganizationSubscriber struct {

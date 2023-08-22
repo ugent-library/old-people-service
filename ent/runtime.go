@@ -5,10 +5,10 @@ package ent
 import (
 	"time"
 
-	"github.com/ugent-library/person-service/ent/organization"
-	"github.com/ugent-library/person-service/ent/organizationperson"
-	"github.com/ugent-library/person-service/ent/person"
-	"github.com/ugent-library/person-service/ent/schema"
+	"github.com/ugent-library/people-service/ent/organization"
+	"github.com/ugent-library/people-service/ent/organizationperson"
+	"github.com/ugent-library/people-service/ent/person"
+	"github.com/ugent-library/people-service/ent/schema"
 )
 
 // The init function reads all schema descriptors with runtime code

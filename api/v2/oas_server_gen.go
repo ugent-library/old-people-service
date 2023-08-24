@@ -8,66 +8,12 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
-	// GetOrganization implements getOrganization operation.
-	//
-	// Get single organization record.
-	//
-	// GET /organization/{id}
-	GetOrganization(ctx context.Context, params GetOrganizationParams) (*Organization, error)
-	// GetOrganizations implements getOrganizations operation.
-	//
-	// Get all organization records.
-	//
-	// GET /organization
-	GetOrganizations(ctx context.Context, params GetOrganizationsParams) (*PagedOrganizationListResponse, error)
-	// GetPeople implements getPeople operation.
-	//
-	// Get all person records.
-	//
-	// GET /person
-	GetPeople(ctx context.Context, params GetPeopleParams) (*PagedPersonListResponse, error)
 	// GetPerson implements getPerson operation.
 	//
 	// Retrieve a single person record.
 	//
 	// GET /person/{id}
 	GetPerson(ctx context.Context, params GetPersonParams) (*Person, error)
-	// SetPersonOrcid implements setPersonOrcid operation.
-	//
-	// Update person ORCID.
-	//
-	// PUT /person/{id}/orcid
-	SetPersonOrcid(ctx context.Context, req *SetPersonOrcidRequest, params SetPersonOrcidParams) error
-	// SetPersonOrcidToken implements setPersonOrcidToken operation.
-	//
-	// Update person ORCID token.
-	//
-	// PUT /person/{id}/orcid-token
-	SetPersonOrcidToken(ctx context.Context, req *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) error
-	// SetPersonRole implements setPersonRole operation.
-	//
-	// Update person role.
-	//
-	// PUT /person/{id}/role
-	SetPersonRole(ctx context.Context, req *SetPersonRoleRequest, params SetPersonRoleParams) error
-	// SetPersonSettings implements setPersonSettings operation.
-	//
-	// Update person settings.
-	//
-	// PUT /person/{id}/settings
-	SetPersonSettings(ctx context.Context, req *SetPersonSettingsRequest, params SetPersonSettingsParams) error
-	// SuggestOrganizations implements suggestOrganizations operation.
-	//
-	// Search on organization records.
-	//
-	// GET /organization-suggest
-	SuggestOrganizations(ctx context.Context, params SuggestOrganizationsParams) (*PagedOrganizationListResponse, error)
-	// SuggestPeople implements suggestPeople operation.
-	//
-	// Search on person records.
-	//
-	// GET /person-suggest
-	SuggestPeople(ctx context.Context, params SuggestPeopleParams) (*PagedPersonListResponse, error)
 	// NewError creates *ErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.

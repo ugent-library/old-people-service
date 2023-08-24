@@ -8,8 +8,6 @@ type OrganizationService interface {
 	UpdateOrganization(context.Context, *Organization) (*Organization, error)
 	GetOrganization(context.Context, string) (*Organization, error)
 	GetOrganizationByGismoId(context.Context, string) (*Organization, error)
-	GetOrganizations(context.Context) ([]*Organization, string, error)
-	GetMoreOrganizations(context.Context, string) ([]*Organization, string, error)
 	GetOrganizationsByGismoId(context.Context, ...string) ([]*Organization, error)
 	GetOrganizationByOtherId(context.Context, string, string) (*Organization, error)
 	DeleteOrganization(context.Context, string) error

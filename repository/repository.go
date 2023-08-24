@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
@@ -11,7 +9,6 @@ import (
 
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/jackc/pgx/v5"
-	"github.com/ugent-library/crypt"
 	v1 "github.com/ugent-library/people-service/api/v1"
 	"github.com/ugent-library/people-service/ent"
 	"github.com/ugent-library/people-service/ent/organization"
@@ -24,9 +21,6 @@ import (
 type repository struct {
 	client *ent.Client
 	secret []byte
-}
-type setCursor struct {
-	LastID int `json:"l"`
 }
 
 func NewRepository(config *Config) (*repository, error) {
@@ -213,48 +207,6 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 func (repo *repository) DeleteOrganization(ctx context.Context, id string) error {
 	_, err := repo.client.Organization.Delete().Where(organization.PublicIDEQ(id)).Exec(ctx)
 	return err
-}
-
-func (repo *repository) GetOrganizations(ctx context.Context) ([]*models.Organization, string, error) {
-	return repo.getOrganizations(ctx, setCursor{})
-}
-
-func (repo *repository) GetMoreOrganizations(ctx context.Context, tokenValue string) ([]*models.Organization, string, error) {
-	cursor := setCursor{}
-	if err := repo.decodeCursor(tokenValue, &cursor); err != nil {
-		return nil, "", err
-	}
-	return repo.getOrganizations(ctx, cursor)
-}
-
-func (repo *repository) getOrganizations(ctx context.Context, cursor setCursor) ([]*models.Organization, string, error) {
-	limit := 100
-	rows, err := repo.client.Organization.Query().Where(organization.IDGT(cursor.LastID)).Order(ent.Asc(organization.FieldID)).WithParent().Limit(limit).All(ctx)
-	if err != nil {
-		return nil, "", err
-	}
-
-	total, err := repo.client.Organization.Query().Count(ctx)
-	if err != nil {
-		return nil, "", err
-	}
-
-	var newCursor string
-	if total > len(rows) {
-		nc, err := repo.encodeCursor(setCursor{
-			LastID: rows[len(rows)-1].ID,
-		})
-		if err != nil {
-			return nil, "", err
-		}
-		newCursor = nc
-	}
-
-	orgs := make([]*models.Organization, 0, len(rows))
-	for _, row := range rows {
-		orgs = append(orgs, repo.orgUnwrap(row))
-	}
-	return orgs, newCursor, nil
 }
 
 func (repo *repository) EachOrganization(ctx context.Context, cb func(*models.Organization) bool) error {
@@ -601,53 +553,6 @@ func (repo *repository) DeletePerson(ctx context.Context, id string) error {
 	return err
 }
 
-func (repo *repository) GetPeople(ctx context.Context) ([]*models.Person, string, error) {
-	return repo.getPeople(ctx, setCursor{})
-}
-
-func (repo *repository) GetMorePeople(ctx context.Context, tokenValue string) ([]*models.Person, string, error) {
-	cursor := setCursor{}
-	if err := repo.decodeCursor(tokenValue, &cursor); err != nil {
-		return nil, "", err
-	}
-	return repo.getPeople(ctx, cursor)
-}
-
-func (repo *repository) getPeople(ctx context.Context, cursor setCursor) ([]*models.Person, string, error) {
-	limit := 100
-	rows, err := repo.client.Person.Query().Where(person.IDGT(cursor.LastID)).Order(ent.Asc(person.FieldID)).WithOrganizations().WithOrganizationPerson().Limit(limit).All(ctx)
-	if err != nil {
-		return nil, "", err
-	}
-
-	people := make([]*models.Person, 0, len(rows))
-	for _, row := range rows {
-		person, e := repo.personUnwrap(row)
-		if e != nil {
-			return nil, "", e
-		}
-		people = append(people, person)
-	}
-
-	total, err := repo.client.Person.Query().Count(ctx)
-	if err != nil {
-		return nil, "", err
-	}
-
-	var newCursor string
-	if total > len(rows) {
-		nc, err := repo.encodeCursor(setCursor{
-			LastID: rows[len(rows)-1].ID,
-		})
-		if err != nil {
-			return nil, "", err
-		}
-		newCursor = nc
-	}
-
-	return people, newCursor, nil
-}
-
 func (repo *repository) EachPerson(ctx context.Context, cb func(*models.Person) bool) error {
 	// TODO: find a better way to do this (no cursors possible)
 	var offset int = 0
@@ -863,25 +768,4 @@ func (repo *repository) AutoExpirePeople(ctx context.Context) (int64, error) {
 	}
 
 	return rowsAffected, nil
-}
-
-func (r *repository) encodeCursor(c any) (string, error) {
-	plaintext, _ := json.Marshal(c)
-	ciphertext, err := crypt.Encrypt(r.secret, plaintext)
-	if err != nil {
-		return "", err
-	}
-	return base64.URLEncoding.EncodeToString(ciphertext), nil
-}
-
-func (repo *repository) decodeCursor(encryptedCursor string, c any) error {
-	ciphertext, err := base64.URLEncoding.DecodeString(encryptedCursor)
-	if err != nil {
-		return err
-	}
-	plaintext, err := crypt.Decrypt(repo.secret, ciphertext)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(plaintext, c)
 }

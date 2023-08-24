@@ -34,7 +34,7 @@ type ErrorMessage struct {
 var serverStartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "start the api server",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		mux := chi.NewMux()
 
 		mux.Use(middleware.RequestID)
@@ -47,7 +47,6 @@ var serverStartCmd = &cobra.Command{
 
 		apiServer, err := api.NewServer(
 			api.NewService(&api.ServerConfig{
-				Logger:     logger,
 				Repository: Repository(),
 			}),
 			api.WithErrorHandler(func(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {
@@ -76,8 +75,9 @@ var serverStartCmd = &cobra.Command{
 
 		logger.Infof("starting server at %s", config.Api.Addr())
 		if err := graceful.Graceful(srv.ListenAndServe, srv.Shutdown); err != nil {
-			logger.Fatal(err)
+			return nil
 		}
 		logger.Info("gracefully stopped server")
+		return nil
 	},
 }

@@ -26,8 +26,8 @@ func NewService(serverConfig *ServerConfig) *Service {
 	}
 }
 
-func (svc *Service) GetOrganization(ctx context.Context, params GetOrganizationParams) (*Organization, error) {
-	org, err := svc.repository.GetOrganization(ctx, params.OrganizationId)
+func (s *Service) GetOrganization(ctx context.Context, params GetOrganizationParams) (*Organization, error) {
+	org, err := s.repository.GetOrganization(ctx, params.OrganizationId)
 
 	if err != nil && err == models.ErrNotFound {
 		return nil, err
@@ -39,15 +39,15 @@ func (svc *Service) GetOrganization(ctx context.Context, params GetOrganizationP
 	return mapToExternalOrganization(org), nil
 }
 
-func (svc *Service) GetOrganizations(ctx context.Context, params GetOrganizationsParams) (*PagedOrganizationListResponse, error) {
+func (s *Service) GetOrganizations(ctx context.Context, params GetOrganizationsParams) (*PagedOrganizationListResponse, error) {
 	var organizations []*models.Organization
 	var err error
 	var cursor string
 
 	if params.Cursor.Set {
-		organizations, cursor, err = svc.repository.GetMoreOrganizations(ctx, params.Cursor.Value)
+		organizations, cursor, err = s.repository.GetMoreOrganizations(ctx, params.Cursor.Value)
 	} else {
-		organizations, cursor, err = svc.repository.GetOrganizations(ctx)
+		organizations, cursor, err = s.repository.GetOrganizations(ctx)
 	}
 	if err != nil {
 		return nil, err
@@ -66,8 +66,8 @@ func (svc *Service) GetOrganizations(ctx context.Context, params GetOrganization
 	return res, nil
 }
 
-func (svc *Service) SuggestOrganizations(ctx context.Context, params SuggestOrganizationsParams) (*PagedOrganizationListResponse, error) {
-	orgs, err := svc.repository.SuggestOrganization(ctx, params.Query)
+func (s *Service) SuggestOrganizations(ctx context.Context, params SuggestOrganizationsParams) (*PagedOrganizationListResponse, error) {
+	orgs, err := s.repository.SuggestOrganization(ctx, params.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -82,15 +82,15 @@ func (svc *Service) SuggestOrganizations(ctx context.Context, params SuggestOrga
 	return res, nil
 }
 
-func (svc *Service) GetPeople(ctx context.Context, params GetPeopleParams) (*PagedPersonListResponse, error) {
+func (s *Service) GetPeople(ctx context.Context, params GetPeopleParams) (*PagedPersonListResponse, error) {
 	var people []*models.Person
 	var err error
 	var cursor string
 
 	if params.Cursor.Set {
-		people, cursor, err = svc.repository.GetMorePeople(ctx, params.Cursor.Value)
+		people, cursor, err = s.repository.GetMorePeople(ctx, params.Cursor.Value)
 	} else {
-		people, cursor, err = svc.repository.GetPeople(ctx)
+		people, cursor, err = s.repository.GetPeople(ctx)
 	}
 	if err != nil {
 		return nil, err
@@ -109,8 +109,8 @@ func (svc *Service) GetPeople(ctx context.Context, params GetPeopleParams) (*Pag
 	return res, nil
 }
 
-func (svc *Service) SuggestPeople(ctx context.Context, params SuggestPeopleParams) (*PagedPersonListResponse, error) {
-	people, err := svc.repository.SuggestPerson(ctx, params.Query)
+func (s *Service) SuggestPeople(ctx context.Context, params SuggestPeopleParams) (*PagedPersonListResponse, error) {
+	people, err := s.repository.SuggestPerson(ctx, params.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -125,34 +125,34 @@ func (svc *Service) SuggestPeople(ctx context.Context, params SuggestPeopleParam
 	return res, nil
 }
 
-func (svc *Service) GetPerson(ctx context.Context, params GetPersonParams) (*Person, error) {
-	person, err := svc.repository.GetPerson(ctx, params.PersonId)
+func (s *Service) GetPerson(ctx context.Context, params GetPersonParams) (*Person, error) {
+	person, err := s.repository.GetPerson(ctx, params.PersonId)
 	if err != nil {
 		return nil, err
 	}
 	return mapToExternalPerson(person), nil
 }
 
-func (svc *Service) SetPersonOrcid(ctx context.Context, req *SetPersonOrcidRequest, params SetPersonOrcidParams) error {
-	return svc.repository.SetPersonOrcid(ctx, params.PersonId, req.Orcid)
+func (s *Service) SetPersonOrcid(ctx context.Context, req *SetPersonOrcidRequest, params SetPersonOrcidParams) error {
+	return s.repository.SetPersonOrcid(ctx, params.PersonId, req.Orcid)
 }
 
-func (svc *Service) SetPersonOrcidToken(ctx context.Context, req *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) error {
-	return svc.repository.SetPersonOrcidToken(ctx, params.PersonId, req.OrcidToken)
+func (s *Service) SetPersonOrcidToken(ctx context.Context, req *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) error {
+	return s.repository.SetPersonOrcidToken(ctx, params.PersonId, req.OrcidToken)
 }
 
-func (svc *Service) SetPersonRole(ctx context.Context, req *SetPersonRoleRequest, params SetPersonRoleParams) error {
-	return svc.repository.SetPersonRole(ctx, params.PersonId, req.Role)
+func (s *Service) SetPersonRole(ctx context.Context, req *SetPersonRoleRequest, params SetPersonRoleParams) error {
+	return s.repository.SetPersonRole(ctx, params.PersonId, req.Role)
 }
 
-func (svc *Service) SetPersonSettings(ctx context.Context, req *SetPersonSettingsRequest, params SetPersonSettingsParams) error {
+func (s *Service) SetPersonSettings(ctx context.Context, req *SetPersonSettingsRequest, params SetPersonSettingsParams) error {
 	if req.Settings == nil {
 		return fmt.Errorf("%w: attribute settings is missing in request body", models.ErrMissingArgument)
 	}
-	return svc.repository.SetPersonSettings(ctx, params.PersonId, req.Settings)
+	return s.repository.SetPersonSettings(ctx, params.PersonId, req.Settings)
 }
 
-func (svc *Service) NewError(ctx context.Context, err error) *ErrorStatusCode {
+func (s *Service) NewError(ctx context.Context, err error) *ErrorStatusCode {
 	if errors.Is(err, models.ErrNotFound) {
 		return &ErrorStatusCode{
 			StatusCode: 404,

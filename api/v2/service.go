@@ -7,17 +7,13 @@ import (
 	"github.com/ugent-library/people-service/models"
 )
 
-type ServerConfig struct {
-	Repository models.Repository
-}
-
 type Service struct {
 	repository models.Repository
 }
 
-func NewService(serverConfig *ServerConfig) *Service {
+func NewService(repository models.Repository) *Service {
 	return &Service{
-		repository: serverConfig.Repository,
+		repository: repository,
 	}
 }
 

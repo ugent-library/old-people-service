@@ -46,9 +46,7 @@ var serverStartCmd = &cobra.Command{
 		mux.Use(middleware.Recoverer)
 
 		apiServer, err := api.NewServer(
-			api.NewService(&api.ServerConfig{
-				Repository: Repository(),
-			}),
+			api.NewService(Repository()),
 			api.WithErrorHandler(func(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {
 				status := ogenerrors.ErrorCode(err)
 				w.Header().Set("Content-Type", "application/json")

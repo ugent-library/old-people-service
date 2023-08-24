@@ -8,6 +8,8 @@ type PersonService interface {
 	SavePerson(context.Context, *Person) (*Person, error)
 	CreatePerson(context.Context, *Person) (*Person, error)
 	UpdatePerson(context.Context, *Person) (*Person, error)
+	GetPeople(context.Context) ([]*Person, string, error)
+	GetMorePeople(context.Context, string) ([]*Person, string, error)
 	GetPerson(context.Context, string) (*Person, error)
 	GetPersonByOtherId(context.Context, string, string) (*Person, error)
 	GetPersonByGismoId(context.Context, string) (*Person, error)

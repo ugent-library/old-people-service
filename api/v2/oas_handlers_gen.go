@@ -24,12 +24,12 @@ import (
 //
 // Get single organization record.
 //
-// GET /organization/{organizationId}
+// GET /organization/{id}
 func (s *Server) handleGetOrganizationRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getOrganization"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/organization/{organizationId}"),
+		semconv.HTTPRouteKey.String("/organization/{id}"),
 	}
 
 	// Start a span for this request.
@@ -82,9 +82,9 @@ func (s *Server) handleGetOrganizationRequest(args [1]string, argsEscaped bool, 
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
-					Name: "organizationId",
+					Name: "id",
 					In:   "path",
-				}: params.OrganizationId,
+				}: params.ID,
 			},
 			Raw: r,
 		}
@@ -357,12 +357,12 @@ func (s *Server) handleGetPeopleRequest(args [0]string, argsEscaped bool, w http
 //
 // Retrieve a single person record.
 //
-// GET /person/{personId}
+// GET /person/{id}
 func (s *Server) handleGetPersonRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getPerson"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/person/{personId}"),
+		semconv.HTTPRouteKey.String("/person/{id}"),
 	}
 
 	// Start a span for this request.
@@ -415,9 +415,9 @@ func (s *Server) handleGetPersonRequest(args [1]string, argsEscaped bool, w http
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
-					Name: "personId",
+					Name: "id",
 					In:   "path",
-				}: params.PersonId,
+				}: params.ID,
 			},
 			Raw: r,
 		}
@@ -468,12 +468,12 @@ func (s *Server) handleGetPersonRequest(args [1]string, argsEscaped bool, w http
 //
 // Update person ORCID.
 //
-// PUT /person/{personId}/orcid
+// PUT /person/{id}/orcid
 func (s *Server) handleSetPersonOrcidRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("setPersonOrcid"),
 		semconv.HTTPMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/person/{personId}/orcid"),
+		semconv.HTTPRouteKey.String("/person/{id}/orcid"),
 	}
 
 	// Start a span for this request.
@@ -541,9 +541,9 @@ func (s *Server) handleSetPersonOrcidRequest(args [1]string, argsEscaped bool, w
 			Body:          request,
 			Params: middleware.Parameters{
 				{
-					Name: "personId",
+					Name: "id",
 					In:   "path",
-				}: params.PersonId,
+				}: params.ID,
 			},
 			Raw: r,
 		}
@@ -594,12 +594,12 @@ func (s *Server) handleSetPersonOrcidRequest(args [1]string, argsEscaped bool, w
 //
 // Update person ORCID token.
 //
-// PUT /person/{personId}/orcid-token
+// PUT /person/{id}/orcid-token
 func (s *Server) handleSetPersonOrcidTokenRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("setPersonOrcidToken"),
 		semconv.HTTPMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/person/{personId}/orcid-token"),
+		semconv.HTTPRouteKey.String("/person/{id}/orcid-token"),
 	}
 
 	// Start a span for this request.
@@ -667,9 +667,9 @@ func (s *Server) handleSetPersonOrcidTokenRequest(args [1]string, argsEscaped bo
 			Body:          request,
 			Params: middleware.Parameters{
 				{
-					Name: "personId",
+					Name: "id",
 					In:   "path",
-				}: params.PersonId,
+				}: params.ID,
 			},
 			Raw: r,
 		}
@@ -720,12 +720,12 @@ func (s *Server) handleSetPersonOrcidTokenRequest(args [1]string, argsEscaped bo
 //
 // Update person role.
 //
-// PUT /person/{personId}/role
+// PUT /person/{id}/role
 func (s *Server) handleSetPersonRoleRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("setPersonRole"),
 		semconv.HTTPMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/person/{personId}/role"),
+		semconv.HTTPRouteKey.String("/person/{id}/role"),
 	}
 
 	// Start a span for this request.
@@ -793,9 +793,9 @@ func (s *Server) handleSetPersonRoleRequest(args [1]string, argsEscaped bool, w 
 			Body:          request,
 			Params: middleware.Parameters{
 				{
-					Name: "personId",
+					Name: "id",
 					In:   "path",
-				}: params.PersonId,
+				}: params.ID,
 			},
 			Raw: r,
 		}
@@ -846,12 +846,12 @@ func (s *Server) handleSetPersonRoleRequest(args [1]string, argsEscaped bool, w 
 //
 // Update person settings.
 //
-// PUT /person/{personId}/settings
+// PUT /person/{id}/settings
 func (s *Server) handleSetPersonSettingsRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("setPersonSettings"),
 		semconv.HTTPMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/person/{personId}/settings"),
+		semconv.HTTPRouteKey.String("/person/{id}/settings"),
 	}
 
 	// Start a span for this request.
@@ -919,9 +919,9 @@ func (s *Server) handleSetPersonSettingsRequest(args [1]string, argsEscaped bool
 			Body:          request,
 			Params: middleware.Parameters{
 				{
-					Name: "personId",
+					Name: "id",
 					In:   "path",
-				}: params.PersonId,
+				}: params.ID,
 			},
 			Raw: r,
 		}

@@ -18,22 +18,22 @@ import (
 // GetOrganizationParams is parameters of getOrganization operation.
 type GetOrganizationParams struct {
 	// Organization identifier.
-	OrganizationId string
+	ID string
 }
 
 func unpackGetOrganizationParams(packed middleware.Parameters) (params GetOrganizationParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "organizationId",
+			Name: "id",
 			In:   "path",
 		}
-		params.OrganizationId = packed[key].(string)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
 
 func decodeGetOrganizationParams(args [1]string, argsEscaped bool, r *http.Request) (params GetOrganizationParams, _ error) {
-	// Decode path: organizationId.
+	// Decode path: id.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -45,7 +45,7 @@ func decodeGetOrganizationParams(args [1]string, argsEscaped bool, r *http.Reque
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "organizationId",
+				Param:   "id",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -62,7 +62,7 @@ func decodeGetOrganizationParams(args [1]string, argsEscaped bool, r *http.Reque
 					return err
 				}
 
-				params.OrganizationId = c
+				params.ID = c
 				return nil
 			}(); err != nil {
 				return err
@@ -73,7 +73,7 @@ func decodeGetOrganizationParams(args [1]string, argsEscaped bool, r *http.Reque
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "organizationId",
+			Name: "id",
 			In:   "path",
 			Err:  err,
 		}
@@ -214,22 +214,22 @@ func decodeGetPeopleParams(args [0]string, argsEscaped bool, r *http.Request) (p
 // GetPersonParams is parameters of getPerson operation.
 type GetPersonParams struct {
 	// Person identifier.
-	PersonId string
+	ID string
 }
 
 func unpackGetPersonParams(packed middleware.Parameters) (params GetPersonParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "personId",
+			Name: "id",
 			In:   "path",
 		}
-		params.PersonId = packed[key].(string)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
 
 func decodeGetPersonParams(args [1]string, argsEscaped bool, r *http.Request) (params GetPersonParams, _ error) {
-	// Decode path: personId.
+	// Decode path: id.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -241,7 +241,7 @@ func decodeGetPersonParams(args [1]string, argsEscaped bool, r *http.Request) (p
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "personId",
+				Param:   "id",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -258,7 +258,7 @@ func decodeGetPersonParams(args [1]string, argsEscaped bool, r *http.Request) (p
 					return err
 				}
 
-				params.PersonId = c
+				params.ID = c
 				return nil
 			}(); err != nil {
 				return err
@@ -269,7 +269,7 @@ func decodeGetPersonParams(args [1]string, argsEscaped bool, r *http.Request) (p
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "personId",
+			Name: "id",
 			In:   "path",
 			Err:  err,
 		}
@@ -280,22 +280,22 @@ func decodeGetPersonParams(args [1]string, argsEscaped bool, r *http.Request) (p
 // SetPersonOrcidParams is parameters of setPersonOrcid operation.
 type SetPersonOrcidParams struct {
 	// Person identifier.
-	PersonId string
+	ID string
 }
 
 func unpackSetPersonOrcidParams(packed middleware.Parameters) (params SetPersonOrcidParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "personId",
+			Name: "id",
 			In:   "path",
 		}
-		params.PersonId = packed[key].(string)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
 
 func decodeSetPersonOrcidParams(args [1]string, argsEscaped bool, r *http.Request) (params SetPersonOrcidParams, _ error) {
-	// Decode path: personId.
+	// Decode path: id.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -307,7 +307,7 @@ func decodeSetPersonOrcidParams(args [1]string, argsEscaped bool, r *http.Reques
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "personId",
+				Param:   "id",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -324,7 +324,7 @@ func decodeSetPersonOrcidParams(args [1]string, argsEscaped bool, r *http.Reques
 					return err
 				}
 
-				params.PersonId = c
+				params.ID = c
 				return nil
 			}(); err != nil {
 				return err
@@ -335,7 +335,7 @@ func decodeSetPersonOrcidParams(args [1]string, argsEscaped bool, r *http.Reques
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "personId",
+			Name: "id",
 			In:   "path",
 			Err:  err,
 		}
@@ -346,22 +346,22 @@ func decodeSetPersonOrcidParams(args [1]string, argsEscaped bool, r *http.Reques
 // SetPersonOrcidTokenParams is parameters of setPersonOrcidToken operation.
 type SetPersonOrcidTokenParams struct {
 	// Person identifier.
-	PersonId string
+	ID string
 }
 
 func unpackSetPersonOrcidTokenParams(packed middleware.Parameters) (params SetPersonOrcidTokenParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "personId",
+			Name: "id",
 			In:   "path",
 		}
-		params.PersonId = packed[key].(string)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
 
 func decodeSetPersonOrcidTokenParams(args [1]string, argsEscaped bool, r *http.Request) (params SetPersonOrcidTokenParams, _ error) {
-	// Decode path: personId.
+	// Decode path: id.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -373,7 +373,7 @@ func decodeSetPersonOrcidTokenParams(args [1]string, argsEscaped bool, r *http.R
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "personId",
+				Param:   "id",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -390,7 +390,7 @@ func decodeSetPersonOrcidTokenParams(args [1]string, argsEscaped bool, r *http.R
 					return err
 				}
 
-				params.PersonId = c
+				params.ID = c
 				return nil
 			}(); err != nil {
 				return err
@@ -401,7 +401,7 @@ func decodeSetPersonOrcidTokenParams(args [1]string, argsEscaped bool, r *http.R
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "personId",
+			Name: "id",
 			In:   "path",
 			Err:  err,
 		}
@@ -412,22 +412,22 @@ func decodeSetPersonOrcidTokenParams(args [1]string, argsEscaped bool, r *http.R
 // SetPersonRoleParams is parameters of setPersonRole operation.
 type SetPersonRoleParams struct {
 	// Person identifier.
-	PersonId string
+	ID string
 }
 
 func unpackSetPersonRoleParams(packed middleware.Parameters) (params SetPersonRoleParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "personId",
+			Name: "id",
 			In:   "path",
 		}
-		params.PersonId = packed[key].(string)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
 
 func decodeSetPersonRoleParams(args [1]string, argsEscaped bool, r *http.Request) (params SetPersonRoleParams, _ error) {
-	// Decode path: personId.
+	// Decode path: id.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -439,7 +439,7 @@ func decodeSetPersonRoleParams(args [1]string, argsEscaped bool, r *http.Request
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "personId",
+				Param:   "id",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -456,7 +456,7 @@ func decodeSetPersonRoleParams(args [1]string, argsEscaped bool, r *http.Request
 					return err
 				}
 
-				params.PersonId = c
+				params.ID = c
 				return nil
 			}(); err != nil {
 				return err
@@ -467,7 +467,7 @@ func decodeSetPersonRoleParams(args [1]string, argsEscaped bool, r *http.Request
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "personId",
+			Name: "id",
 			In:   "path",
 			Err:  err,
 		}
@@ -478,22 +478,22 @@ func decodeSetPersonRoleParams(args [1]string, argsEscaped bool, r *http.Request
 // SetPersonSettingsParams is parameters of setPersonSettings operation.
 type SetPersonSettingsParams struct {
 	// Person identifier.
-	PersonId string
+	ID string
 }
 
 func unpackSetPersonSettingsParams(packed middleware.Parameters) (params SetPersonSettingsParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "personId",
+			Name: "id",
 			In:   "path",
 		}
-		params.PersonId = packed[key].(string)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
 
 func decodeSetPersonSettingsParams(args [1]string, argsEscaped bool, r *http.Request) (params SetPersonSettingsParams, _ error) {
-	// Decode path: personId.
+	// Decode path: id.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -505,7 +505,7 @@ func decodeSetPersonSettingsParams(args [1]string, argsEscaped bool, r *http.Req
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "personId",
+				Param:   "id",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -522,7 +522,7 @@ func decodeSetPersonSettingsParams(args [1]string, argsEscaped bool, r *http.Req
 					return err
 				}
 
-				params.PersonId = c
+				params.ID = c
 				return nil
 			}(); err != nil {
 				return err
@@ -533,7 +533,7 @@ func decodeSetPersonSettingsParams(args [1]string, argsEscaped bool, r *http.Req
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "personId",
+			Name: "id",
 			In:   "path",
 			Err:  err,
 		}

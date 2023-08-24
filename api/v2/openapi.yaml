@@ -5,13 +5,13 @@ info:
   version: 0.0.1
 
 paths:
-  "/person/{personId}":
+  "/person/{id}":
     get:
       summary: "Retrieve a single person record"
       description: "Retrieve a single person record"
       operationId: "getPerson"
       parameters:
-        - name: personId
+        - name: id
           in: path
           required: true
           description: "person identifier"
@@ -71,13 +71,13 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  "/person/{personId}/orcid":
+  "/person/{id}/orcid":
     put:
       summary: "Update person ORCID"
       description: "Update person ORCID"
       operationId: "setPersonOrcid"
       parameters:
-        - name: personId
+        - name: id
           in: path
           required: true
           description: "person identifier"
@@ -95,13 +95,13 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  "/person/{personId}/orcid-token":
+  "/person/{id}/orcid-token":
     put:
       summary: "Update person ORCID token"
       description: "Update person ORCID token"
       operationId: "setPersonOrcidToken"
       parameters:
-        - name: personId
+        - name: id
           in: path
           required: true
           description: "person identifier"
@@ -119,13 +119,13 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  "/person/{personId}/role":
+  "/person/{id}/role":
     put:
       summary: "Update person role"
       description: "Update person role"
       operationId: "setPersonRole"
       parameters:
-        - name: personId
+        - name: id
           in: path
           required: true
           description: "person identifier"
@@ -143,13 +143,13 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  "/person/{personId}/settings":
+  "/person/{id}/settings":
     put:
       summary: "Update person settings"
       description: "Update person settings"
       operationId: "setPersonSettings"
       parameters:
-        - name: personId
+        - name: id
           in: path
           required: true
           description: "person identifier"
@@ -167,13 +167,13 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  "/organization/{organizationId}":
+  "/organization/{id}":
     get:
       summary: "Get single organization record"
       description: "Get single organization record"
       operationId: "getOrganization"
       parameters:
-        - name: organizationId
+        - name: id
           in: path
           description: "organization identifier"
           required: true

@@ -12,7 +12,7 @@ type Handler interface {
 	//
 	// Get single organization record.
 	//
-	// GET /organization/{organizationId}
+	// GET /organization/{id}
 	GetOrganization(ctx context.Context, params GetOrganizationParams) (*Organization, error)
 	// GetOrganizations implements getOrganizations operation.
 	//
@@ -30,31 +30,31 @@ type Handler interface {
 	//
 	// Retrieve a single person record.
 	//
-	// GET /person/{personId}
+	// GET /person/{id}
 	GetPerson(ctx context.Context, params GetPersonParams) (*Person, error)
 	// SetPersonOrcid implements setPersonOrcid operation.
 	//
 	// Update person ORCID.
 	//
-	// PUT /person/{personId}/orcid
+	// PUT /person/{id}/orcid
 	SetPersonOrcid(ctx context.Context, req *SetPersonOrcidRequest, params SetPersonOrcidParams) error
 	// SetPersonOrcidToken implements setPersonOrcidToken operation.
 	//
 	// Update person ORCID token.
 	//
-	// PUT /person/{personId}/orcid-token
+	// PUT /person/{id}/orcid-token
 	SetPersonOrcidToken(ctx context.Context, req *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) error
 	// SetPersonRole implements setPersonRole operation.
 	//
 	// Update person role.
 	//
-	// PUT /person/{personId}/role
+	// PUT /person/{id}/role
 	SetPersonRole(ctx context.Context, req *SetPersonRoleRequest, params SetPersonRoleParams) error
 	// SetPersonSettings implements setPersonSettings operation.
 	//
 	// Update person settings.
 	//
-	// PUT /person/{personId}/settings
+	// PUT /person/{id}/settings
 	SetPersonSettings(ctx context.Context, req *SetPersonSettingsRequest, params SetPersonSettingsParams) error
 	// SuggestOrganizations implements suggestOrganizations operation.
 	//

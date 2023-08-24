@@ -27,7 +27,7 @@ func NewService(serverConfig *ServerConfig) *Service {
 }
 
 func (s *Service) GetOrganization(ctx context.Context, params GetOrganizationParams) (*Organization, error) {
-	org, err := s.repository.GetOrganization(ctx, params.OrganizationId)
+	org, err := s.repository.GetOrganization(ctx, params.ID)
 
 	if err != nil && err == models.ErrNotFound {
 		return nil, err
@@ -126,7 +126,7 @@ func (s *Service) SuggestPeople(ctx context.Context, params SuggestPeopleParams)
 }
 
 func (s *Service) GetPerson(ctx context.Context, params GetPersonParams) (*Person, error) {
-	person, err := s.repository.GetPerson(ctx, params.PersonId)
+	person, err := s.repository.GetPerson(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -134,22 +134,22 @@ func (s *Service) GetPerson(ctx context.Context, params GetPersonParams) (*Perso
 }
 
 func (s *Service) SetPersonOrcid(ctx context.Context, req *SetPersonOrcidRequest, params SetPersonOrcidParams) error {
-	return s.repository.SetPersonOrcid(ctx, params.PersonId, req.Orcid)
+	return s.repository.SetPersonOrcid(ctx, params.ID, req.Orcid)
 }
 
 func (s *Service) SetPersonOrcidToken(ctx context.Context, req *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) error {
-	return s.repository.SetPersonOrcidToken(ctx, params.PersonId, req.OrcidToken)
+	return s.repository.SetPersonOrcidToken(ctx, params.ID, req.OrcidToken)
 }
 
 func (s *Service) SetPersonRole(ctx context.Context, req *SetPersonRoleRequest, params SetPersonRoleParams) error {
-	return s.repository.SetPersonRole(ctx, params.PersonId, req.Role)
+	return s.repository.SetPersonRole(ctx, params.ID, req.Role)
 }
 
 func (s *Service) SetPersonSettings(ctx context.Context, req *SetPersonSettingsRequest, params SetPersonSettingsParams) error {
 	if req.Settings == nil {
 		return fmt.Errorf("%w: attribute settings is missing in request body", models.ErrMissingArgument)
 	}
-	return s.repository.SetPersonSettings(ctx, params.PersonId, req.Settings)
+	return s.repository.SetPersonSettings(ctx, params.ID, req.Settings)
 }
 
 func (s *Service) NewError(ctx context.Context, err error) *ErrorStatusCode {

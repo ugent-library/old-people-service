@@ -76,7 +76,7 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 //
 // Get single organization record.
 //
-// GET /organization/{organizationId}
+// GET /organization/{id}
 func (c *Client) GetOrganization(ctx context.Context, params GetOrganizationParams) (*Organization, error) {
 	res, err := c.sendGetOrganization(ctx, params)
 	_ = res
@@ -120,14 +120,14 @@ func (c *Client) sendGetOrganization(ctx context.Context, params GetOrganization
 	var pathParts [2]string
 	pathParts[0] = "/organization/"
 	{
-		// Encode "organizationId" parameter.
+		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "organizationId",
+			Param:   "id",
 			Style:   uri.PathStyleSimple,
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.OrganizationId))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -349,7 +349,7 @@ func (c *Client) sendGetPeople(ctx context.Context, params GetPeopleParams) (res
 //
 // Retrieve a single person record.
 //
-// GET /person/{personId}
+// GET /person/{id}
 func (c *Client) GetPerson(ctx context.Context, params GetPersonParams) (*Person, error) {
 	res, err := c.sendGetPerson(ctx, params)
 	_ = res
@@ -393,14 +393,14 @@ func (c *Client) sendGetPerson(ctx context.Context, params GetPersonParams) (res
 	var pathParts [2]string
 	pathParts[0] = "/person/"
 	{
-		// Encode "personId" parameter.
+		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "personId",
+			Param:   "id",
 			Style:   uri.PathStyleSimple,
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.PersonId))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -438,7 +438,7 @@ func (c *Client) sendGetPerson(ctx context.Context, params GetPersonParams) (res
 //
 // Update person ORCID.
 //
-// PUT /person/{personId}/orcid
+// PUT /person/{id}/orcid
 func (c *Client) SetPersonOrcid(ctx context.Context, request *SetPersonOrcidRequest, params SetPersonOrcidParams) error {
 	res, err := c.sendSetPersonOrcid(ctx, request, params)
 	_ = res
@@ -482,14 +482,14 @@ func (c *Client) sendSetPersonOrcid(ctx context.Context, request *SetPersonOrcid
 	var pathParts [3]string
 	pathParts[0] = "/person/"
 	{
-		// Encode "personId" parameter.
+		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "personId",
+			Param:   "id",
 			Style:   uri.PathStyleSimple,
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.PersonId))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -531,7 +531,7 @@ func (c *Client) sendSetPersonOrcid(ctx context.Context, request *SetPersonOrcid
 //
 // Update person ORCID token.
 //
-// PUT /person/{personId}/orcid-token
+// PUT /person/{id}/orcid-token
 func (c *Client) SetPersonOrcidToken(ctx context.Context, request *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) error {
 	res, err := c.sendSetPersonOrcidToken(ctx, request, params)
 	_ = res
@@ -575,14 +575,14 @@ func (c *Client) sendSetPersonOrcidToken(ctx context.Context, request *SetPerson
 	var pathParts [3]string
 	pathParts[0] = "/person/"
 	{
-		// Encode "personId" parameter.
+		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "personId",
+			Param:   "id",
 			Style:   uri.PathStyleSimple,
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.PersonId))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -624,7 +624,7 @@ func (c *Client) sendSetPersonOrcidToken(ctx context.Context, request *SetPerson
 //
 // Update person role.
 //
-// PUT /person/{personId}/role
+// PUT /person/{id}/role
 func (c *Client) SetPersonRole(ctx context.Context, request *SetPersonRoleRequest, params SetPersonRoleParams) error {
 	res, err := c.sendSetPersonRole(ctx, request, params)
 	_ = res
@@ -677,14 +677,14 @@ func (c *Client) sendSetPersonRole(ctx context.Context, request *SetPersonRoleRe
 	var pathParts [3]string
 	pathParts[0] = "/person/"
 	{
-		// Encode "personId" parameter.
+		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "personId",
+			Param:   "id",
 			Style:   uri.PathStyleSimple,
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.PersonId))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -726,7 +726,7 @@ func (c *Client) sendSetPersonRole(ctx context.Context, request *SetPersonRoleRe
 //
 // Update person settings.
 //
-// PUT /person/{personId}/settings
+// PUT /person/{id}/settings
 func (c *Client) SetPersonSettings(ctx context.Context, request *SetPersonSettingsRequest, params SetPersonSettingsParams) error {
 	res, err := c.sendSetPersonSettings(ctx, request, params)
 	_ = res
@@ -770,14 +770,14 @@ func (c *Client) sendSetPersonSettings(ctx context.Context, request *SetPersonSe
 	var pathParts [3]string
 	pathParts[0] = "/person/"
 	{
-		// Encode "personId" parameter.
+		// Encode "id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "personId",
+			Param:   "id",
 			Style:   uri.PathStyleSimple,
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.PersonId))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}

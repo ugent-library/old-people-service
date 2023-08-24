@@ -17,7 +17,7 @@ var _ Handler = UnimplementedHandler{}
 //
 // Get single organization record.
 //
-// GET /organization/{organizationId}
+// GET /organization/{id}
 func (UnimplementedHandler) GetOrganization(ctx context.Context, params GetOrganizationParams) (r *Organization, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -44,7 +44,7 @@ func (UnimplementedHandler) GetPeople(ctx context.Context, params GetPeopleParam
 //
 // Retrieve a single person record.
 //
-// GET /person/{personId}
+// GET /person/{id}
 func (UnimplementedHandler) GetPerson(ctx context.Context, params GetPersonParams) (r *Person, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -53,7 +53,7 @@ func (UnimplementedHandler) GetPerson(ctx context.Context, params GetPersonParam
 //
 // Update person ORCID.
 //
-// PUT /person/{personId}/orcid
+// PUT /person/{id}/orcid
 func (UnimplementedHandler) SetPersonOrcid(ctx context.Context, req *SetPersonOrcidRequest, params SetPersonOrcidParams) error {
 	return ht.ErrNotImplemented
 }
@@ -62,7 +62,7 @@ func (UnimplementedHandler) SetPersonOrcid(ctx context.Context, req *SetPersonOr
 //
 // Update person ORCID token.
 //
-// PUT /person/{personId}/orcid-token
+// PUT /person/{id}/orcid-token
 func (UnimplementedHandler) SetPersonOrcidToken(ctx context.Context, req *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) error {
 	return ht.ErrNotImplemented
 }
@@ -71,7 +71,7 @@ func (UnimplementedHandler) SetPersonOrcidToken(ctx context.Context, req *SetPer
 //
 // Update person role.
 //
-// PUT /person/{personId}/role
+// PUT /person/{id}/role
 func (UnimplementedHandler) SetPersonRole(ctx context.Context, req *SetPersonRoleRequest, params SetPersonRoleParams) error {
 	return ht.ErrNotImplemented
 }
@@ -80,7 +80,7 @@ func (UnimplementedHandler) SetPersonRole(ctx context.Context, req *SetPersonRol
 //
 // Update person settings.
 //
-// PUT /person/{personId}/settings
+// PUT /person/{id}/settings
 func (UnimplementedHandler) SetPersonSettings(ctx context.Context, req *SetPersonSettingsRequest, params SetPersonSettingsParams) error {
 	return ht.ErrNotImplemented
 }

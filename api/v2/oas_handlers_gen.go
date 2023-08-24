@@ -24,12 +24,12 @@ import (
 //
 // Get single organization record.
 //
-// GET /organizations/{organizationId}
+// GET /organization/{organizationId}
 func (s *Server) handleGetOrganizationRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getOrganization"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/organizations/{organizationId}"),
+		semconv.HTTPRouteKey.String("/organization/{organizationId}"),
 	}
 
 	// Start a span for this request.
@@ -62,50 +62,6 @@ func (s *Server) handleGetOrganizationRequest(args [1]string, argsEscaped bool, 
 			ID:   "getOrganization",
 		}
 	)
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			sctx, ok, err := s.securityApiKey(ctx, "GetOrganization", r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "ApiKey",
-					Err:              err,
-				}
-				recordError("Security:ApiKey", err)
-				s.cfg.ErrorHandler(ctx, w, r, err)
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 0
-				ctx = sctx
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			err = &ogenerrors.SecurityError{
-				OperationContext: opErrContext,
-				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
-			}
-			recordError("Security", err)
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-	}
 	params, err := decodeGetOrganizationParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
@@ -179,12 +135,12 @@ func (s *Server) handleGetOrganizationRequest(args [1]string, argsEscaped bool, 
 //
 // Get all organization records.
 //
-// GET /organizations
+// GET /organization
 func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getOrganizations"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/organizations"),
+		semconv.HTTPRouteKey.String("/organization"),
 	}
 
 	// Start a span for this request.
@@ -217,50 +173,6 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 			ID:   "getOrganizations",
 		}
 	)
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			sctx, ok, err := s.securityApiKey(ctx, "GetOrganizations", r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "ApiKey",
-					Err:              err,
-				}
-				recordError("Security:ApiKey", err)
-				s.cfg.ErrorHandler(ctx, w, r, err)
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 0
-				ctx = sctx
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			err = &ogenerrors.SecurityError{
-				OperationContext: opErrContext,
-				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
-			}
-			recordError("Security", err)
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-	}
 	params, err := decodeGetOrganizationsParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
@@ -334,12 +246,12 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 //
 // Get all person records.
 //
-// GET /people
+// GET /person
 func (s *Server) handleGetPeopleRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getPeople"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/people"),
+		semconv.HTTPRouteKey.String("/person"),
 	}
 
 	// Start a span for this request.
@@ -372,50 +284,6 @@ func (s *Server) handleGetPeopleRequest(args [0]string, argsEscaped bool, w http
 			ID:   "getPeople",
 		}
 	)
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			sctx, ok, err := s.securityApiKey(ctx, "GetPeople", r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "ApiKey",
-					Err:              err,
-				}
-				recordError("Security:ApiKey", err)
-				s.cfg.ErrorHandler(ctx, w, r, err)
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 0
-				ctx = sctx
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			err = &ogenerrors.SecurityError{
-				OperationContext: opErrContext,
-				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
-			}
-			recordError("Security", err)
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-	}
 	params, err := decodeGetPeopleParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
@@ -489,12 +357,12 @@ func (s *Server) handleGetPeopleRequest(args [0]string, argsEscaped bool, w http
 //
 // Retrieve a single person record.
 //
-// GET /people/{personId}
+// GET /person/{personId}
 func (s *Server) handleGetPersonRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("getPerson"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/people/{personId}"),
+		semconv.HTTPRouteKey.String("/person/{personId}"),
 	}
 
 	// Start a span for this request.
@@ -527,50 +395,6 @@ func (s *Server) handleGetPersonRequest(args [1]string, argsEscaped bool, w http
 			ID:   "getPerson",
 		}
 	)
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			sctx, ok, err := s.securityApiKey(ctx, "GetPerson", r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "ApiKey",
-					Err:              err,
-				}
-				recordError("Security:ApiKey", err)
-				s.cfg.ErrorHandler(ctx, w, r, err)
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 0
-				ctx = sctx
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			err = &ogenerrors.SecurityError{
-				OperationContext: opErrContext,
-				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
-			}
-			recordError("Security", err)
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-	}
 	params, err := decodeGetPersonParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
@@ -644,12 +468,12 @@ func (s *Server) handleGetPersonRequest(args [1]string, argsEscaped bool, w http
 //
 // Update person ORCID.
 //
-// PUT /people/{personId}/orcid
+// PUT /person/{personId}/orcid
 func (s *Server) handleSetPersonOrcidRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("setPersonOrcid"),
 		semconv.HTTPMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/people/{personId}/orcid"),
+		semconv.HTTPRouteKey.String("/person/{personId}/orcid"),
 	}
 
 	// Start a span for this request.
@@ -682,50 +506,6 @@ func (s *Server) handleSetPersonOrcidRequest(args [1]string, argsEscaped bool, w
 			ID:   "setPersonOrcid",
 		}
 	)
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			sctx, ok, err := s.securityApiKey(ctx, "SetPersonOrcid", r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "ApiKey",
-					Err:              err,
-				}
-				recordError("Security:ApiKey", err)
-				s.cfg.ErrorHandler(ctx, w, r, err)
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 0
-				ctx = sctx
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			err = &ogenerrors.SecurityError{
-				OperationContext: opErrContext,
-				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
-			}
-			recordError("Security", err)
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-	}
 	params, err := decodeSetPersonOrcidParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
@@ -814,12 +594,12 @@ func (s *Server) handleSetPersonOrcidRequest(args [1]string, argsEscaped bool, w
 //
 // Update person ORCID token.
 //
-// PUT /people/{personId}/orcid-token
+// PUT /person/{personId}/orcid-token
 func (s *Server) handleSetPersonOrcidTokenRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("setPersonOrcidToken"),
 		semconv.HTTPMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/people/{personId}/orcid-token"),
+		semconv.HTTPRouteKey.String("/person/{personId}/orcid-token"),
 	}
 
 	// Start a span for this request.
@@ -852,50 +632,6 @@ func (s *Server) handleSetPersonOrcidTokenRequest(args [1]string, argsEscaped bo
 			ID:   "setPersonOrcidToken",
 		}
 	)
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			sctx, ok, err := s.securityApiKey(ctx, "SetPersonOrcidToken", r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "ApiKey",
-					Err:              err,
-				}
-				recordError("Security:ApiKey", err)
-				s.cfg.ErrorHandler(ctx, w, r, err)
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 0
-				ctx = sctx
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			err = &ogenerrors.SecurityError{
-				OperationContext: opErrContext,
-				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
-			}
-			recordError("Security", err)
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-	}
 	params, err := decodeSetPersonOrcidTokenParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
@@ -984,12 +720,12 @@ func (s *Server) handleSetPersonOrcidTokenRequest(args [1]string, argsEscaped bo
 //
 // Update person role.
 //
-// PUT /people/{personId}/role
+// PUT /person/{personId}/role
 func (s *Server) handleSetPersonRoleRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("setPersonRole"),
 		semconv.HTTPMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/people/{personId}/role"),
+		semconv.HTTPRouteKey.String("/person/{personId}/role"),
 	}
 
 	// Start a span for this request.
@@ -1022,50 +758,6 @@ func (s *Server) handleSetPersonRoleRequest(args [1]string, argsEscaped bool, w 
 			ID:   "setPersonRole",
 		}
 	)
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			sctx, ok, err := s.securityApiKey(ctx, "SetPersonRole", r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "ApiKey",
-					Err:              err,
-				}
-				recordError("Security:ApiKey", err)
-				s.cfg.ErrorHandler(ctx, w, r, err)
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 0
-				ctx = sctx
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			err = &ogenerrors.SecurityError{
-				OperationContext: opErrContext,
-				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
-			}
-			recordError("Security", err)
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-	}
 	params, err := decodeSetPersonRoleParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
@@ -1154,12 +846,12 @@ func (s *Server) handleSetPersonRoleRequest(args [1]string, argsEscaped bool, w 
 //
 // Update person settings.
 //
-// PUT /people/{personId}/settings
+// PUT /person/{personId}/settings
 func (s *Server) handleSetPersonSettingsRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("setPersonSettings"),
 		semconv.HTTPMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/people/{personId}/settings"),
+		semconv.HTTPRouteKey.String("/person/{personId}/settings"),
 	}
 
 	// Start a span for this request.
@@ -1192,50 +884,6 @@ func (s *Server) handleSetPersonSettingsRequest(args [1]string, argsEscaped bool
 			ID:   "setPersonSettings",
 		}
 	)
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			sctx, ok, err := s.securityApiKey(ctx, "SetPersonSettings", r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "ApiKey",
-					Err:              err,
-				}
-				recordError("Security:ApiKey", err)
-				s.cfg.ErrorHandler(ctx, w, r, err)
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 0
-				ctx = sctx
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			err = &ogenerrors.SecurityError{
-				OperationContext: opErrContext,
-				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
-			}
-			recordError("Security", err)
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-	}
 	params, err := decodeSetPersonSettingsParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
@@ -1324,12 +972,12 @@ func (s *Server) handleSetPersonSettingsRequest(args [1]string, argsEscaped bool
 //
 // Search on organization records.
 //
-// GET /organizations-suggest
+// GET /organization-suggest
 func (s *Server) handleSuggestOrganizationsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("suggestOrganizations"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/organizations-suggest"),
+		semconv.HTTPRouteKey.String("/organization-suggest"),
 	}
 
 	// Start a span for this request.
@@ -1362,50 +1010,6 @@ func (s *Server) handleSuggestOrganizationsRequest(args [0]string, argsEscaped b
 			ID:   "suggestOrganizations",
 		}
 	)
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			sctx, ok, err := s.securityApiKey(ctx, "SuggestOrganizations", r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "ApiKey",
-					Err:              err,
-				}
-				recordError("Security:ApiKey", err)
-				s.cfg.ErrorHandler(ctx, w, r, err)
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 0
-				ctx = sctx
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			err = &ogenerrors.SecurityError{
-				OperationContext: opErrContext,
-				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
-			}
-			recordError("Security", err)
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-	}
 	params, err := decodeSuggestOrganizationsParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
@@ -1479,12 +1083,12 @@ func (s *Server) handleSuggestOrganizationsRequest(args [0]string, argsEscaped b
 //
 // Search on person records.
 //
-// GET /people-suggest
+// GET /person-suggest
 func (s *Server) handleSuggestPeopleRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("suggestPeople"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/people-suggest"),
+		semconv.HTTPRouteKey.String("/person-suggest"),
 	}
 
 	// Start a span for this request.
@@ -1517,50 +1121,6 @@ func (s *Server) handleSuggestPeopleRequest(args [0]string, argsEscaped bool, w 
 			ID:   "suggestPeople",
 		}
 	)
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			sctx, ok, err := s.securityApiKey(ctx, "SuggestPeople", r)
-			if err != nil {
-				err = &ogenerrors.SecurityError{
-					OperationContext: opErrContext,
-					Security:         "ApiKey",
-					Err:              err,
-				}
-				recordError("Security:ApiKey", err)
-				s.cfg.ErrorHandler(ctx, w, r, err)
-				return
-			}
-			if ok {
-				satisfied[0] |= 1 << 0
-				ctx = sctx
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			err = &ogenerrors.SecurityError{
-				OperationContext: opErrContext,
-				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
-			}
-			recordError("Security", err)
-			s.cfg.ErrorHandler(ctx, w, r, err)
-			return
-		}
-	}
 	params, err := decodeSuggestPeopleParams(args, argsEscaped, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{

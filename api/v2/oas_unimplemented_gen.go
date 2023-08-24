@@ -17,7 +17,7 @@ var _ Handler = UnimplementedHandler{}
 //
 // Get single organization record.
 //
-// GET /organizations/{organizationId}
+// GET /organization/{organizationId}
 func (UnimplementedHandler) GetOrganization(ctx context.Context, params GetOrganizationParams) (r *Organization, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -26,7 +26,7 @@ func (UnimplementedHandler) GetOrganization(ctx context.Context, params GetOrgan
 //
 // Get all organization records.
 //
-// GET /organizations
+// GET /organization
 func (UnimplementedHandler) GetOrganizations(ctx context.Context, params GetOrganizationsParams) (r *PagedOrganizationListResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -35,7 +35,7 @@ func (UnimplementedHandler) GetOrganizations(ctx context.Context, params GetOrga
 //
 // Get all person records.
 //
-// GET /people
+// GET /person
 func (UnimplementedHandler) GetPeople(ctx context.Context, params GetPeopleParams) (r *PagedPersonListResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -44,7 +44,7 @@ func (UnimplementedHandler) GetPeople(ctx context.Context, params GetPeopleParam
 //
 // Retrieve a single person record.
 //
-// GET /people/{personId}
+// GET /person/{personId}
 func (UnimplementedHandler) GetPerson(ctx context.Context, params GetPersonParams) (r *Person, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -53,7 +53,7 @@ func (UnimplementedHandler) GetPerson(ctx context.Context, params GetPersonParam
 //
 // Update person ORCID.
 //
-// PUT /people/{personId}/orcid
+// PUT /person/{personId}/orcid
 func (UnimplementedHandler) SetPersonOrcid(ctx context.Context, req *SetPersonOrcidRequest, params SetPersonOrcidParams) error {
 	return ht.ErrNotImplemented
 }
@@ -62,7 +62,7 @@ func (UnimplementedHandler) SetPersonOrcid(ctx context.Context, req *SetPersonOr
 //
 // Update person ORCID token.
 //
-// PUT /people/{personId}/orcid-token
+// PUT /person/{personId}/orcid-token
 func (UnimplementedHandler) SetPersonOrcidToken(ctx context.Context, req *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) error {
 	return ht.ErrNotImplemented
 }
@@ -71,7 +71,7 @@ func (UnimplementedHandler) SetPersonOrcidToken(ctx context.Context, req *SetPer
 //
 // Update person role.
 //
-// PUT /people/{personId}/role
+// PUT /person/{personId}/role
 func (UnimplementedHandler) SetPersonRole(ctx context.Context, req *SetPersonRoleRequest, params SetPersonRoleParams) error {
 	return ht.ErrNotImplemented
 }
@@ -80,7 +80,7 @@ func (UnimplementedHandler) SetPersonRole(ctx context.Context, req *SetPersonRol
 //
 // Update person settings.
 //
-// PUT /people/{personId}/settings
+// PUT /person/{personId}/settings
 func (UnimplementedHandler) SetPersonSettings(ctx context.Context, req *SetPersonSettingsRequest, params SetPersonSettingsParams) error {
 	return ht.ErrNotImplemented
 }
@@ -89,7 +89,7 @@ func (UnimplementedHandler) SetPersonSettings(ctx context.Context, req *SetPerso
 //
 // Search on organization records.
 //
-// GET /organizations-suggest
+// GET /organization-suggest
 func (UnimplementedHandler) SuggestOrganizations(ctx context.Context, params SuggestOrganizationsParams) (r *PagedOrganizationListResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -98,7 +98,7 @@ func (UnimplementedHandler) SuggestOrganizations(ctx context.Context, params Sug
 //
 // Search on person records.
 //
-// GET /people-suggest
+// GET /person-suggest
 func (UnimplementedHandler) SuggestPeople(ctx context.Context, params SuggestPeopleParams) (r *PagedPersonListResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }

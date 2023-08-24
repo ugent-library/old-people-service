@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"time"
 
@@ -27,20 +26,9 @@ var serverCmd = &cobra.Command{
 	Short: "server commands",
 }
 
-type apiSecurityHandler struct {
-	APIKey string
-}
-
 type ErrorMessage struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
-}
-
-func (s *apiSecurityHandler) HandleApiKey(ctx context.Context, operationName string, t api.ApiKey) (context.Context, error) {
-	if t.APIKey == s.APIKey {
-		return ctx, nil
-	}
-	return ctx, errors.New("unauthorized")
 }
 
 var serverStartCmd = &cobra.Command{
@@ -62,7 +50,6 @@ var serverStartCmd = &cobra.Command{
 				Logger:     logger,
 				Repository: Repository(),
 			}),
-			&apiSecurityHandler{APIKey: "test"}, // TODO
 			api.WithErrorHandler(func(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {
 				status := ogenerrors.ErrorCode(err)
 				w.Header().Set("Content-Type", "application/json")

@@ -12,61 +12,61 @@ type Handler interface {
 	//
 	// Get single organization record.
 	//
-	// GET /organizations/{organizationId}
+	// GET /organization/{organizationId}
 	GetOrganization(ctx context.Context, params GetOrganizationParams) (*Organization, error)
 	// GetOrganizations implements getOrganizations operation.
 	//
 	// Get all organization records.
 	//
-	// GET /organizations
+	// GET /organization
 	GetOrganizations(ctx context.Context, params GetOrganizationsParams) (*PagedOrganizationListResponse, error)
 	// GetPeople implements getPeople operation.
 	//
 	// Get all person records.
 	//
-	// GET /people
+	// GET /person
 	GetPeople(ctx context.Context, params GetPeopleParams) (*PagedPersonListResponse, error)
 	// GetPerson implements getPerson operation.
 	//
 	// Retrieve a single person record.
 	//
-	// GET /people/{personId}
+	// GET /person/{personId}
 	GetPerson(ctx context.Context, params GetPersonParams) (*Person, error)
 	// SetPersonOrcid implements setPersonOrcid operation.
 	//
 	// Update person ORCID.
 	//
-	// PUT /people/{personId}/orcid
+	// PUT /person/{personId}/orcid
 	SetPersonOrcid(ctx context.Context, req *SetPersonOrcidRequest, params SetPersonOrcidParams) error
 	// SetPersonOrcidToken implements setPersonOrcidToken operation.
 	//
 	// Update person ORCID token.
 	//
-	// PUT /people/{personId}/orcid-token
+	// PUT /person/{personId}/orcid-token
 	SetPersonOrcidToken(ctx context.Context, req *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) error
 	// SetPersonRole implements setPersonRole operation.
 	//
 	// Update person role.
 	//
-	// PUT /people/{personId}/role
+	// PUT /person/{personId}/role
 	SetPersonRole(ctx context.Context, req *SetPersonRoleRequest, params SetPersonRoleParams) error
 	// SetPersonSettings implements setPersonSettings operation.
 	//
 	// Update person settings.
 	//
-	// PUT /people/{personId}/settings
+	// PUT /person/{personId}/settings
 	SetPersonSettings(ctx context.Context, req *SetPersonSettingsRequest, params SetPersonSettingsParams) error
 	// SuggestOrganizations implements suggestOrganizations operation.
 	//
 	// Search on organization records.
 	//
-	// GET /organizations-suggest
+	// GET /organization-suggest
 	SuggestOrganizations(ctx context.Context, params SuggestOrganizationsParams) (*PagedOrganizationListResponse, error)
 	// SuggestPeople implements suggestPeople operation.
 	//
 	// Search on person records.
 	//
-	// GET /people-suggest
+	// GET /person-suggest
 	SuggestPeople(ctx context.Context, params SuggestPeopleParams) (*PagedPersonListResponse, error)
 	// NewError creates *ErrorStatusCode from error returned by handler.
 	//
@@ -77,20 +77,18 @@ type Handler interface {
 // Server implements http server based on OpenAPI v3 specification and
 // calls Handler to handle requests.
 type Server struct {
-	h   Handler
-	sec SecurityHandler
+	h Handler
 	baseServer
 }
 
 // NewServer creates new Server.
-func NewServer(h Handler, sec SecurityHandler, opts ...ServerOption) (*Server, error) {
+func NewServer(h Handler, opts ...ServerOption) (*Server, error) {
 	s, err := newServerConfig(opts...).baseServer()
 	if err != nil {
 		return nil, err
 	}
 	return &Server{
 		h:          h,
-		sec:        sec,
 		baseServer: s,
 	}, nil
 }

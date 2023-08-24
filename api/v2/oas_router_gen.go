@@ -55,8 +55,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
-			case 'o': // Prefix: "organizations"
-				if l := len("organizations"); len(elem) >= l && elem[0:l] == "organizations" {
+			case 'o': // Prefix: "organization"
+				if l := len("organization"); len(elem) >= l && elem[0:l] == "organization" {
 					elem = elem[l:]
 				} else {
 					break
@@ -117,8 +117,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 				}
-			case 'p': // Prefix: "people"
-				if l := len("people"); len(elem) >= l && elem[0:l] == "people" {
+			case 'p': // Prefix: "person"
+				if l := len("person"); len(elem) >= l && elem[0:l] == "person" {
 					elem = elem[l:]
 				} else {
 					break
@@ -358,8 +358,8 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
-			case 'o': // Prefix: "organizations"
-				if l := len("organizations"); len(elem) >= l && elem[0:l] == "organizations" {
+			case 'o': // Prefix: "organization"
+				if l := len("organization"); len(elem) >= l && elem[0:l] == "organization" {
 					elem = elem[l:]
 				} else {
 					break
@@ -370,7 +370,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					case "GET":
 						r.name = "GetOrganizations"
 						r.operationID = "getOrganizations"
-						r.pathPattern = "/organizations"
+						r.pathPattern = "/organization"
 						r.args = args
 						r.count = 0
 						return r, true
@@ -392,7 +392,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							// Leaf: SuggestOrganizations
 							r.name = "SuggestOrganizations"
 							r.operationID = "suggestOrganizations"
-							r.pathPattern = "/organizations-suggest"
+							r.pathPattern = "/organization-suggest"
 							r.args = args
 							r.count = 0
 							return r, true
@@ -418,7 +418,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							// Leaf: GetOrganization
 							r.name = "GetOrganization"
 							r.operationID = "getOrganization"
-							r.pathPattern = "/organizations/{organizationId}"
+							r.pathPattern = "/organization/{organizationId}"
 							r.args = args
 							r.count = 1
 							return r, true
@@ -427,8 +427,8 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 					}
 				}
-			case 'p': // Prefix: "people"
-				if l := len("people"); len(elem) >= l && elem[0:l] == "people" {
+			case 'p': // Prefix: "person"
+				if l := len("person"); len(elem) >= l && elem[0:l] == "person" {
 					elem = elem[l:]
 				} else {
 					break
@@ -439,7 +439,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					case "GET":
 						r.name = "GetPeople"
 						r.operationID = "getPeople"
-						r.pathPattern = "/people"
+						r.pathPattern = "/person"
 						r.args = args
 						r.count = 0
 						return r, true
@@ -461,7 +461,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							// Leaf: SuggestPeople
 							r.name = "SuggestPeople"
 							r.operationID = "suggestPeople"
-							r.pathPattern = "/people-suggest"
+							r.pathPattern = "/person-suggest"
 							r.args = args
 							r.count = 0
 							return r, true
@@ -490,7 +490,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						case "GET":
 							r.name = "GetPerson"
 							r.operationID = "getPerson"
-							r.pathPattern = "/people/{personId}"
+							r.pathPattern = "/person/{personId}"
 							r.args = args
 							r.count = 1
 							return r, true
@@ -522,7 +522,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								case "PUT":
 									r.name = "SetPersonOrcid"
 									r.operationID = "setPersonOrcid"
-									r.pathPattern = "/people/{personId}/orcid"
+									r.pathPattern = "/person/{personId}/orcid"
 									r.args = args
 									r.count = 1
 									return r, true
@@ -544,7 +544,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										// Leaf: SetPersonOrcidToken
 										r.name = "SetPersonOrcidToken"
 										r.operationID = "setPersonOrcidToken"
-										r.pathPattern = "/people/{personId}/orcid-token"
+										r.pathPattern = "/person/{personId}/orcid-token"
 										r.args = args
 										r.count = 1
 										return r, true
@@ -566,7 +566,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									// Leaf: SetPersonRole
 									r.name = "SetPersonRole"
 									r.operationID = "setPersonRole"
-									r.pathPattern = "/people/{personId}/role"
+									r.pathPattern = "/person/{personId}/role"
 									r.args = args
 									r.count = 1
 									return r, true
@@ -587,7 +587,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									// Leaf: SetPersonSettings
 									r.name = "SetPersonSettings"
 									r.operationID = "setPersonSettings"
-									r.pathPattern = "/people/{personId}/settings"
+									r.pathPattern = "/person/{personId}/settings"
 									r.args = args
 									r.count = 1
 									return r, true

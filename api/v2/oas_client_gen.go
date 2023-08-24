@@ -16,7 +16,6 @@ import (
 
 	"github.com/ogen-go/ogen/conv"
 	ht "github.com/ogen-go/ogen/http"
-	"github.com/ogen-go/ogen/ogenerrors"
 	"github.com/ogen-go/ogen/otelogen"
 	"github.com/ogen-go/ogen/uri"
 )
@@ -24,7 +23,6 @@ import (
 // Client implements OAS client.
 type Client struct {
 	serverURL *url.URL
-	sec       SecuritySource
 	baseClient
 }
 type errorHandler interface {
@@ -42,7 +40,7 @@ func trimTrailingSlashes(u *url.URL) {
 }
 
 // NewClient initializes new Client defined by OAS.
-func NewClient(serverURL string, sec SecuritySource, opts ...ClientOption) (*Client, error) {
+func NewClient(serverURL string, opts ...ClientOption) (*Client, error) {
 	u, err := url.Parse(serverURL)
 	if err != nil {
 		return nil, err
@@ -55,7 +53,6 @@ func NewClient(serverURL string, sec SecuritySource, opts ...ClientOption) (*Cli
 	}
 	return &Client{
 		serverURL:  u,
-		sec:        sec,
 		baseClient: c,
 	}, nil
 }
@@ -79,7 +76,7 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 //
 // Get single organization record.
 //
-// GET /organizations/{organizationId}
+// GET /organization/{organizationId}
 func (c *Client) GetOrganization(ctx context.Context, params GetOrganizationParams) (*Organization, error) {
 	res, err := c.sendGetOrganization(ctx, params)
 	_ = res
@@ -121,7 +118,7 @@ func (c *Client) sendGetOrganization(ctx context.Context, params GetOrganization
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
-	pathParts[0] = "/organizations/"
+	pathParts[0] = "/organization/"
 	{
 		// Encode "organizationId" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -148,39 +145,6 @@ func (c *Client) sendGetOrganization(ctx context.Context, params GetOrganization
 		return res, errors.Wrap(err, "create request")
 	}
 
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:ApiKey"
-			switch err := c.securityApiKey(ctx, "GetOrganization", r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"ApiKey\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
 	if err != nil {
@@ -201,7 +165,7 @@ func (c *Client) sendGetOrganization(ctx context.Context, params GetOrganization
 //
 // Get all organization records.
 //
-// GET /organizations
+// GET /organization
 func (c *Client) GetOrganizations(ctx context.Context, params GetOrganizationsParams) (*PagedOrganizationListResponse, error) {
 	res, err := c.sendGetOrganizations(ctx, params)
 	_ = res
@@ -243,7 +207,7 @@ func (c *Client) sendGetOrganizations(ctx context.Context, params GetOrganizatio
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/organizations"
+	pathParts[0] = "/organization"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeQueryParams"
@@ -273,39 +237,6 @@ func (c *Client) sendGetOrganizations(ctx context.Context, params GetOrganizatio
 		return res, errors.Wrap(err, "create request")
 	}
 
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:ApiKey"
-			switch err := c.securityApiKey(ctx, "GetOrganizations", r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"ApiKey\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
 	if err != nil {
@@ -326,7 +257,7 @@ func (c *Client) sendGetOrganizations(ctx context.Context, params GetOrganizatio
 //
 // Get all person records.
 //
-// GET /people
+// GET /person
 func (c *Client) GetPeople(ctx context.Context, params GetPeopleParams) (*PagedPersonListResponse, error) {
 	res, err := c.sendGetPeople(ctx, params)
 	_ = res
@@ -368,7 +299,7 @@ func (c *Client) sendGetPeople(ctx context.Context, params GetPeopleParams) (res
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/people"
+	pathParts[0] = "/person"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeQueryParams"
@@ -398,39 +329,6 @@ func (c *Client) sendGetPeople(ctx context.Context, params GetPeopleParams) (res
 		return res, errors.Wrap(err, "create request")
 	}
 
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:ApiKey"
-			switch err := c.securityApiKey(ctx, "GetPeople", r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"ApiKey\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
 	if err != nil {
@@ -451,7 +349,7 @@ func (c *Client) sendGetPeople(ctx context.Context, params GetPeopleParams) (res
 //
 // Retrieve a single person record.
 //
-// GET /people/{personId}
+// GET /person/{personId}
 func (c *Client) GetPerson(ctx context.Context, params GetPersonParams) (*Person, error) {
 	res, err := c.sendGetPerson(ctx, params)
 	_ = res
@@ -493,7 +391,7 @@ func (c *Client) sendGetPerson(ctx context.Context, params GetPersonParams) (res
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [2]string
-	pathParts[0] = "/people/"
+	pathParts[0] = "/person/"
 	{
 		// Encode "personId" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -520,39 +418,6 @@ func (c *Client) sendGetPerson(ctx context.Context, params GetPersonParams) (res
 		return res, errors.Wrap(err, "create request")
 	}
 
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:ApiKey"
-			switch err := c.securityApiKey(ctx, "GetPerson", r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"ApiKey\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
 	if err != nil {
@@ -573,7 +438,7 @@ func (c *Client) sendGetPerson(ctx context.Context, params GetPersonParams) (res
 //
 // Update person ORCID.
 //
-// PUT /people/{personId}/orcid
+// PUT /person/{personId}/orcid
 func (c *Client) SetPersonOrcid(ctx context.Context, request *SetPersonOrcidRequest, params SetPersonOrcidParams) error {
 	res, err := c.sendSetPersonOrcid(ctx, request, params)
 	_ = res
@@ -615,7 +480,7 @@ func (c *Client) sendSetPersonOrcid(ctx context.Context, request *SetPersonOrcid
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [3]string
-	pathParts[0] = "/people/"
+	pathParts[0] = "/person/"
 	{
 		// Encode "personId" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -646,39 +511,6 @@ func (c *Client) sendSetPersonOrcid(ctx context.Context, request *SetPersonOrcid
 		return res, errors.Wrap(err, "encode request")
 	}
 
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:ApiKey"
-			switch err := c.securityApiKey(ctx, "SetPersonOrcid", r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"ApiKey\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
 	if err != nil {
@@ -699,7 +531,7 @@ func (c *Client) sendSetPersonOrcid(ctx context.Context, request *SetPersonOrcid
 //
 // Update person ORCID token.
 //
-// PUT /people/{personId}/orcid-token
+// PUT /person/{personId}/orcid-token
 func (c *Client) SetPersonOrcidToken(ctx context.Context, request *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) error {
 	res, err := c.sendSetPersonOrcidToken(ctx, request, params)
 	_ = res
@@ -741,7 +573,7 @@ func (c *Client) sendSetPersonOrcidToken(ctx context.Context, request *SetPerson
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [3]string
-	pathParts[0] = "/people/"
+	pathParts[0] = "/person/"
 	{
 		// Encode "personId" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -772,39 +604,6 @@ func (c *Client) sendSetPersonOrcidToken(ctx context.Context, request *SetPerson
 		return res, errors.Wrap(err, "encode request")
 	}
 
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:ApiKey"
-			switch err := c.securityApiKey(ctx, "SetPersonOrcidToken", r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"ApiKey\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
 	if err != nil {
@@ -825,7 +624,7 @@ func (c *Client) sendSetPersonOrcidToken(ctx context.Context, request *SetPerson
 //
 // Update person role.
 //
-// PUT /people/{personId}/role
+// PUT /person/{personId}/role
 func (c *Client) SetPersonRole(ctx context.Context, request *SetPersonRoleRequest, params SetPersonRoleParams) error {
 	res, err := c.sendSetPersonRole(ctx, request, params)
 	_ = res
@@ -876,7 +675,7 @@ func (c *Client) sendSetPersonRole(ctx context.Context, request *SetPersonRoleRe
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [3]string
-	pathParts[0] = "/people/"
+	pathParts[0] = "/person/"
 	{
 		// Encode "personId" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -907,39 +706,6 @@ func (c *Client) sendSetPersonRole(ctx context.Context, request *SetPersonRoleRe
 		return res, errors.Wrap(err, "encode request")
 	}
 
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:ApiKey"
-			switch err := c.securityApiKey(ctx, "SetPersonRole", r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"ApiKey\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
 	if err != nil {
@@ -960,7 +726,7 @@ func (c *Client) sendSetPersonRole(ctx context.Context, request *SetPersonRoleRe
 //
 // Update person settings.
 //
-// PUT /people/{personId}/settings
+// PUT /person/{personId}/settings
 func (c *Client) SetPersonSettings(ctx context.Context, request *SetPersonSettingsRequest, params SetPersonSettingsParams) error {
 	res, err := c.sendSetPersonSettings(ctx, request, params)
 	_ = res
@@ -1002,7 +768,7 @@ func (c *Client) sendSetPersonSettings(ctx context.Context, request *SetPersonSe
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [3]string
-	pathParts[0] = "/people/"
+	pathParts[0] = "/person/"
 	{
 		// Encode "personId" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
@@ -1033,39 +799,6 @@ func (c *Client) sendSetPersonSettings(ctx context.Context, request *SetPersonSe
 		return res, errors.Wrap(err, "encode request")
 	}
 
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:ApiKey"
-			switch err := c.securityApiKey(ctx, "SetPersonSettings", r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"ApiKey\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
 	if err != nil {
@@ -1086,7 +819,7 @@ func (c *Client) sendSetPersonSettings(ctx context.Context, request *SetPersonSe
 //
 // Search on organization records.
 //
-// GET /organizations-suggest
+// GET /organization-suggest
 func (c *Client) SuggestOrganizations(ctx context.Context, params SuggestOrganizationsParams) (*PagedOrganizationListResponse, error) {
 	res, err := c.sendSuggestOrganizations(ctx, params)
 	_ = res
@@ -1128,7 +861,7 @@ func (c *Client) sendSuggestOrganizations(ctx context.Context, params SuggestOrg
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/organizations-suggest"
+	pathParts[0] = "/organization-suggest"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeQueryParams"
@@ -1155,39 +888,6 @@ func (c *Client) sendSuggestOrganizations(ctx context.Context, params SuggestOrg
 		return res, errors.Wrap(err, "create request")
 	}
 
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:ApiKey"
-			switch err := c.securityApiKey(ctx, "SuggestOrganizations", r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"ApiKey\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
 	if err != nil {
@@ -1208,7 +908,7 @@ func (c *Client) sendSuggestOrganizations(ctx context.Context, params SuggestOrg
 //
 // Search on person records.
 //
-// GET /people-suggest
+// GET /person-suggest
 func (c *Client) SuggestPeople(ctx context.Context, params SuggestPeopleParams) (*PagedPersonListResponse, error) {
 	res, err := c.sendSuggestPeople(ctx, params)
 	_ = res
@@ -1250,7 +950,7 @@ func (c *Client) sendSuggestPeople(ctx context.Context, params SuggestPeoplePara
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/people-suggest"
+	pathParts[0] = "/person-suggest"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeQueryParams"
@@ -1275,39 +975,6 @@ func (c *Client) sendSuggestPeople(ctx context.Context, params SuggestPeoplePara
 	r, err := ht.NewRequest(ctx, "GET", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
-	}
-
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:ApiKey"
-			switch err := c.securityApiKey(ctx, "SuggestPeople", r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"ApiKey\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
 	}
 
 	stage = "SendRequest"

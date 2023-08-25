@@ -44,30 +44,239 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		switch elem[0] {
-		case '/': // Prefix: "/person/"
-			if l := len("/person/"); len(elem) >= l && elem[0:l] == "/person/" {
+		case '/': // Prefix: "/"
+			if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 				elem = elem[l:]
 			} else {
 				break
 			}
 
-			// Param: "id"
-			// Leaf parameter
-			args[0] = elem
-			elem = ""
-
 			if len(elem) == 0 {
-				// Leaf node.
-				switch r.Method {
-				case "GET":
-					s.handleGetPersonRequest([1]string{
-						args[0],
-					}, elemIsEscaped, w, r)
-				default:
-					s.notAllowed(w, r, "GET")
+				break
+			}
+			switch elem[0] {
+			case 'o': // Prefix: "organization"
+				if l := len("organization"); len(elem) >= l && elem[0:l] == "organization" {
+					elem = elem[l:]
+				} else {
+					break
 				}
 
-				return
+				if len(elem) == 0 {
+					switch r.Method {
+					case "GET":
+						s.handleGetOrganizationsRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case '-': // Prefix: "-suggest"
+					if l := len("-suggest"); len(elem) >= l && elem[0:l] == "-suggest" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleSuggestOrganizationsRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+				case '/': // Prefix: "/"
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "id"
+					// Leaf parameter
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleGetOrganizationRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+				}
+			case 'p': // Prefix: "person"
+				if l := len("person"); len(elem) >= l && elem[0:l] == "person" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "GET":
+						s.handleGetPeopleRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case '-': // Prefix: "-suggest"
+					if l := len("-suggest"); len(elem) >= l && elem[0:l] == "-suggest" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleSuggestPeopleRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+				case '/': // Prefix: "/"
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "id"
+					// Match until "/"
+					idx := strings.IndexByte(elem, '/')
+					if idx < 0 {
+						idx = len(elem)
+					}
+					args[0] = elem[:idx]
+					elem = elem[idx:]
+
+					if len(elem) == 0 {
+						switch r.Method {
+						case "GET":
+							s.handleGetPersonRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case 'o': // Prefix: "orcid"
+							if l := len("orcid"); len(elem) >= l && elem[0:l] == "orcid" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								switch r.Method {
+								case "PUT":
+									s.handleSetPersonOrcidRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "PUT")
+								}
+
+								return
+							}
+							switch elem[0] {
+							case '-': // Prefix: "-token"
+								if l := len("-token"); len(elem) >= l && elem[0:l] == "-token" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "PUT":
+										s.handleSetPersonOrcidTokenRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "PUT")
+									}
+
+									return
+								}
+							}
+						case 'r': // Prefix: "role"
+							if l := len("role"); len(elem) >= l && elem[0:l] == "role" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "PUT":
+									s.handleSetPersonRoleRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "PUT")
+								}
+
+								return
+							}
+						case 's': // Prefix: "settings"
+							if l := len("settings"); len(elem) >= l && elem[0:l] == "settings" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "PUT":
+									s.handleSetPersonSettingsRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "PUT")
+								}
+
+								return
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -138,30 +347,256 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 			break
 		}
 		switch elem[0] {
-		case '/': // Prefix: "/person/"
-			if l := len("/person/"); len(elem) >= l && elem[0:l] == "/person/" {
+		case '/': // Prefix: "/"
+			if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 				elem = elem[l:]
 			} else {
 				break
 			}
 
-			// Param: "id"
-			// Leaf parameter
-			args[0] = elem
-			elem = ""
-
 			if len(elem) == 0 {
-				switch method {
-				case "GET":
-					// Leaf: GetPerson
-					r.name = "GetPerson"
-					r.operationID = "getPerson"
-					r.pathPattern = "/person/{id}"
-					r.args = args
-					r.count = 1
-					return r, true
-				default:
-					return
+				break
+			}
+			switch elem[0] {
+			case 'o': // Prefix: "organization"
+				if l := len("organization"); len(elem) >= l && elem[0:l] == "organization" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						r.name = "GetOrganizations"
+						r.operationID = "getOrganizations"
+						r.pathPattern = "/organization"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case '-': // Prefix: "-suggest"
+					if l := len("-suggest"); len(elem) >= l && elem[0:l] == "-suggest" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch method {
+						case "GET":
+							// Leaf: SuggestOrganizations
+							r.name = "SuggestOrganizations"
+							r.operationID = "suggestOrganizations"
+							r.pathPattern = "/organization-suggest"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+				case '/': // Prefix: "/"
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "id"
+					// Leaf parameter
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						switch method {
+						case "GET":
+							// Leaf: GetOrganization
+							r.name = "GetOrganization"
+							r.operationID = "getOrganization"
+							r.pathPattern = "/organization/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
+					}
+				}
+			case 'p': // Prefix: "person"
+				if l := len("person"); len(elem) >= l && elem[0:l] == "person" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						r.name = "GetPeople"
+						r.operationID = "getPeople"
+						r.pathPattern = "/person"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case '-': // Prefix: "-suggest"
+					if l := len("-suggest"); len(elem) >= l && elem[0:l] == "-suggest" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch method {
+						case "GET":
+							// Leaf: SuggestPeople
+							r.name = "SuggestPeople"
+							r.operationID = "suggestPeople"
+							r.pathPattern = "/person-suggest"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+				case '/': // Prefix: "/"
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "id"
+					// Match until "/"
+					idx := strings.IndexByte(elem, '/')
+					if idx < 0 {
+						idx = len(elem)
+					}
+					args[0] = elem[:idx]
+					elem = elem[idx:]
+
+					if len(elem) == 0 {
+						switch method {
+						case "GET":
+							r.name = "GetPerson"
+							r.operationID = "getPerson"
+							r.pathPattern = "/person/{id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case 'o': // Prefix: "orcid"
+							if l := len("orcid"); len(elem) >= l && elem[0:l] == "orcid" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								switch method {
+								case "PUT":
+									r.name = "SetPersonOrcid"
+									r.operationID = "setPersonOrcid"
+									r.pathPattern = "/person/{id}/orcid"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+							switch elem[0] {
+							case '-': // Prefix: "-token"
+								if l := len("-token"); len(elem) >= l && elem[0:l] == "-token" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch method {
+									case "PUT":
+										// Leaf: SetPersonOrcidToken
+										r.name = "SetPersonOrcidToken"
+										r.operationID = "setPersonOrcidToken"
+										r.pathPattern = "/person/{id}/orcid-token"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+							}
+						case 'r': // Prefix: "role"
+							if l := len("role"); len(elem) >= l && elem[0:l] == "role" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								switch method {
+								case "PUT":
+									// Leaf: SetPersonRole
+									r.name = "SetPersonRole"
+									r.operationID = "setPersonRole"
+									r.pathPattern = "/person/{id}/role"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+						case 's': // Prefix: "settings"
+							if l := len("settings"); len(elem) >= l && elem[0:l] == "settings" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								switch method {
+								case "PUT":
+									// Leaf: SetPersonSettings
+									r.name = "SetPersonSettings"
+									r.operationID = "setPersonSettings"
+									r.pathPattern = "/person/{id}/settings"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+						}
+					}
 				}
 			}
 		}

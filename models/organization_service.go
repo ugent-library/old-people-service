@@ -12,4 +12,6 @@ type OrganizationService interface {
 	GetOrganizationByOtherId(context.Context, string, string) (*Organization, error)
 	DeleteOrganization(context.Context, string) error
 	EachOrganization(context.Context, func(*Organization) bool) error
+	GetOrganizations(context.Context) ([]*Organization, string, error)
+	GetMoreOrganizations(context.Context, string) ([]*Organization, string, error)
 }

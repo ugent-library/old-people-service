@@ -18,4 +18,6 @@ type PersonService interface {
 	SetPersonRole(context.Context, string, []string) error
 	SetPersonSettings(context.Context, string, map[string]string) error
 	AutoExpirePeople(context.Context) (int64, error)
+	GetPeople(context.Context) ([]*Person, string, error)
+	GetMorePeople(context.Context, string) ([]*Person, string, error)
 }

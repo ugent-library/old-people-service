@@ -1,0 +1,142 @@
+openapi: 3.1.0
+
+info:
+  title: People Service
+  version: 0.0.1
+
+paths:
+  "/person/{id}":
+    get:
+      summary: "Retrieve a single person record"
+      description: "Retrieve a single person record"
+      operationId: "getPerson"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "person identifier"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Retrieve single person record successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Person"
+        default:
+          $ref: "#/components/responses/Error"
+  
+components:
+
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int64
+        message:
+          type: string
+      required:
+        - code
+        - message
+
+    IdRef:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+      required: [id, type]
+
+    OrganizationRef:
+      type: object
+      properties:
+        id:
+          type: string
+        date_created:
+          type: string
+          format: date-time
+        date_updated:
+          type: string
+          format: date-time
+        from:
+          type: string
+          format: date-time
+        until:
+          type: string
+          format: date-time
+      required: [id, date_created, date_updated, from]
+
+    Person:
+      type: object
+      required: [id, date_created, date_updated, active]
+      properties:
+        id:
+          type: string
+        gismo_id:
+          type: string
+        active:
+          type: boolean
+        date_created:
+          type: string
+          format: date-time
+        date_updated:
+          type: string
+          format: date-time
+        full_name:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        orcid:
+          type: string
+        orcid_token:
+          type: string
+        preferred_first_name:
+          type: string
+        preferred_last_name:
+          type: string
+        birth_date:
+          type: string
+        title:
+          type: string
+        other_id:
+          type: array
+          items:
+            $ref: "#/components/schemas/IdRef"
+        organization:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationRef"
+        job_category:
+          type: array
+          items:
+            type: string
+        role:
+          type: array
+          items:
+            type: string
+        settings:
+          type: object
+          additionalProperties:
+            type: string
+        object_class:
+          type: array
+          items:
+            type: string
+        expiration_date:
+          type: string

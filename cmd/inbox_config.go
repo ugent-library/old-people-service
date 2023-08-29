@@ -8,6 +8,7 @@ import (
 	"github.com/nats-io/nkeys"
 	"github.com/ugent-library/people-service/models"
 	"github.com/ugent-library/people-service/subscribers"
+	"github.com/ugent-library/people-service/ugentldap"
 )
 
 var natsStreamConfig = nats.StreamConfig{
@@ -149,7 +150,11 @@ func buildPersonSubscriber(js nats.JetStreamContext, repo models.Repository) (su
 	personSConfig.Repository = repo
 	personSConfig.Subject = natsPersonConsumerConfig.FilterSubject
 	personSConfig.SubOpts = []nats.SubOpt{nats.Bind(natsStreamConfig.Name, natsPersonConsumerConfig.Durable)}
-	personSConfig.LdapClient = LDAPClient()
+	personSConfig.LdapClient = ugentldap.NewClient(ugentldap.Config{
+		Url:      config.Ldap.Url,
+		Username: config.Ldap.Username,
+		Password: config.Ldap.Password,
+	})
 
 	return subscribers.NewGismoPersonSubscriber(personSConfig), nil
 }

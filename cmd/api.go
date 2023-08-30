@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/ugent-library/people-service/api/v1/v1connect"
 	"github.com/ugent-library/people-service/grpcserver"
+	"github.com/ugent-library/people-service/repository"
 	"github.com/ugent-library/zaphttp"
 	"github.com/ugent-library/zaphttp/zapchi"
 	"golang.org/x/net/http2"
@@ -42,9 +43,17 @@ var apiStartCmd = &cobra.Command{
 		mux.Use(middleware.RequestLogger(zapchi.LogFormatter()))
 		mux.Use(middleware.Recoverer)
 
+		repo, err := repository.NewRepository(&repository.Config{
+			DbUrl:  config.Db.Url,
+			AesKey: config.Db.AesKey,
+		})
+		if err != nil {
+			logger.Fatal(err)
+		}
+
 		grpcPath, grpcHandler := grpcserver.NewHandler(&grpcserver.ServerConfig{
 			Logger:     logger,
-			Repository: Repository(),
+			Repository: repo,
 			Username:   config.Api.Username,
 			Password:   config.Api.Password,
 		})

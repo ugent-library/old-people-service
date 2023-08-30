@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/cobra"
 	v1 "github.com/ugent-library/people-service/api/v1"
 	"github.com/ugent-library/people-service/models"
+	"github.com/ugent-library/people-service/repository"
+	"github.com/ugent-library/people-service/ugentldap"
 )
 
 var importStudentsCmd = &cobra.Command{
@@ -16,7 +18,18 @@ var importStudentsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		ctx := context.TODO()
-		repo := Repository()
+		ldapClient := ugentldap.NewClient(ugentldap.Config{
+			Url:      config.Ldap.Url,
+			Username: config.Ldap.Username,
+			Password: config.Ldap.Password,
+		})
+		repo, err := repository.NewRepository(&repository.Config{
+			DbUrl:  config.Db.Url,
+			AesKey: config.Db.AesKey,
+		})
+		if err != nil {
+			logger.Fatal(err)
+		}
 
 		//TODO: require organisation "Universiteit Gent"?
 		orgUgent, err := repo.GetOrganizationByOtherId(ctx, "ugent_id", "UGent")
@@ -27,7 +40,7 @@ var importStudentsCmd = &cobra.Command{
 			logger.Fatal(err)
 		}
 
-		err = LDAPClient().SearchPeople("(objectClass=ugentStudent)", func(np *models.Person) error {
+		err = ldapClient.SearchPeople("(objectClass=ugentStudent)", func(np *models.Person) error {
 
 			/*
 				np = "dummy" person record as returned by SearchPeople

@@ -12,6 +12,7 @@ import (
 	"github.com/ory/graceful"
 	"github.com/spf13/cobra"
 	"github.com/ugent-library/people-service/api/v2"
+	"github.com/ugent-library/people-service/repository"
 	"github.com/ugent-library/zaphttp"
 	"github.com/ugent-library/zaphttp/zapchi"
 )
@@ -35,6 +36,14 @@ var serverStartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "start the api server",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		repo, err := repository.NewRepository(&repository.Config{
+			DbUrl:  config.Db.Url,
+			AesKey: config.Db.AesKey,
+		})
+		if err != nil {
+			return err
+		}
+
 		mux := chi.NewMux()
 
 		mux.Use(middleware.RequestID)
@@ -46,7 +55,7 @@ var serverStartCmd = &cobra.Command{
 		mux.Use(middleware.Recoverer)
 
 		apiServer, err := api.NewServer(
-			api.NewService(Repository()),
+			api.NewService(repo),
 			api.WithErrorHandler(func(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {
 				status := ogenerrors.ErrorCode(err)
 				w.Header().Set("Content-Type", "application/json")

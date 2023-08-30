@@ -10,6 +10,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
 	"github.com/ugent-library/people-service/models"
+	"github.com/ugent-library/people-service/repository"
 )
 
 var inboxListenOrganizationCmd = &cobra.Command{
@@ -45,7 +46,15 @@ func listenOrganizationFn() error {
 
 	js, _ := nc.JetStream()
 
-	sub, err := buildOrganizationSubscriber(js, Repository())
+	repo, err := repository.NewRepository(&repository.Config{
+		DbUrl:  config.Db.Url,
+		AesKey: config.Db.AesKey,
+	})
+	if err != nil {
+		return fmt.Errorf("%w: %w", models.ErrFatal, err)
+	}
+
+	sub, err := buildOrganizationSubscriber(js, repo)
 
 	if err != nil {
 		return fmt.Errorf("%w: unable to build organization subscriber: %w", models.ErrFatal, err)

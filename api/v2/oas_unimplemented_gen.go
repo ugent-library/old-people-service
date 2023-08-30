@@ -13,12 +13,93 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
-// GetPerson implements getPerson operation.
+// GetOrganization implements GetOrganization operation.
+//
+// Get single organization record.
+//
+// POST /get-organization
+func (UnimplementedHandler) GetOrganization(ctx context.Context, req *GetOrganizationRequest) (r *Organization, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetOrganizations implements GetOrganizations operation.
+//
+// Get all organization records.
+//
+// POST /get-organizations
+func (UnimplementedHandler) GetOrganizations(ctx context.Context, req *GetOrganizationsRequest) (r *OrganizationListResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetPeople implements GetPeople operation.
+//
+// Get all person records.
+//
+// POST /get-people
+func (UnimplementedHandler) GetPeople(ctx context.Context, req *GetPeopleRequest) (r *PersonListResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetPerson implements GetPerson operation.
 //
 // Retrieve a single person record.
 //
-// GET /person/{id}
-func (UnimplementedHandler) GetPerson(ctx context.Context, params GetPersonParams) (r *Person, _ error) {
+// POST /get-person
+func (UnimplementedHandler) GetPerson(ctx context.Context, req *GetPersonRequest) (r *Person, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SetPersonOrcid implements SetPersonOrcid operation.
+//
+// Update person ORCID.
+//
+// POST /set-person-orcid
+func (UnimplementedHandler) SetPersonOrcid(ctx context.Context, req *SetPersonOrcidRequest) (r *Person, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SetPersonOrcidToken implements SetPersonOrcidToken operation.
+//
+// Update person ORCID token.
+//
+// POST /set-person-orcid-token
+func (UnimplementedHandler) SetPersonOrcidToken(ctx context.Context, req *SetPersonOrcidTokenRequest) (r *Person, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SetPersonRole implements SetPersonRole operation.
+//
+// Update person role.
+//
+// POST /set-person-role
+func (UnimplementedHandler) SetPersonRole(ctx context.Context, req *SetPersonRoleRequest) (r *Person, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SetPersonSettings implements SetPersonSettings operation.
+//
+// Update person settings.
+//
+// POST /set-person-settings
+func (UnimplementedHandler) SetPersonSettings(ctx context.Context, req *SetPersonSettingsRequest) (r *Person, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SuggestOrganizations implements SuggestOrganizations operation.
+//
+// Search on organization records.
+//
+// POST /suggest-organizations
+func (UnimplementedHandler) SuggestOrganizations(ctx context.Context, req *SuggestOrganizationsRequest) (r *OrganizationListResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SuggestPeople implements SuggestPeople operation.
+//
+// Search on person records.
+//
+// POST /suggest-people
+func (UnimplementedHandler) SuggestPeople(ctx context.Context, req *SuggestPeopleRequest) (r *PersonListResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

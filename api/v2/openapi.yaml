@@ -5,18 +5,17 @@ info:
   version: 0.0.1
 
 paths:
-  "/person/{id}":
-    get:
+  "/get-person":
+    post:
       summary: "Retrieve a single person record"
       description: "Retrieve a single person record"
-      operationId: "getPerson"
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: "person identifier"
-          schema:
-            type: string
+      operationId: "GetPerson"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetPersonRequest"
+        required: true
       responses:
         "200":
           description: "Retrieve single person record successfully"
@@ -26,7 +25,196 @@ paths:
                 $ref: "#/components/schemas/Person"
         default:
           $ref: "#/components/responses/Error"
-  
+
+  "/get-people":
+    post:
+      summary: "Get all person records"
+      description: "Get all person records"
+      operationId: "GetPeople"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetPeopleRequest"
+        required: true
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonListResponse"
+        default:
+          $ref: "#/components/responses/Error"
+
+  "/suggest-people":
+    post:
+      summary: "Search on person records"
+      description: "Search on person records"
+      operationId: "SuggestPeople"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SuggestPeopleRequest"
+        required: true
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonListResponse"
+        default:
+          $ref: "#/components/responses/Error"  
+
+  "/set-person-orcid":
+    post:
+      summary: "Update person ORCID"
+      description: "Update person ORCID"
+      operationId: "SetPersonOrcid"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetPersonOrcidRequest"
+        required: true
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Person"
+        default:
+          $ref: "#/components/responses/Error"
+
+  "/set-person-orcid-token":
+    post:
+      summary: "Update person ORCID token"
+      description: "Update person ORCID token"
+      operationId: "SetPersonOrcidToken"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetPersonOrcidTokenRequest"
+        required: true
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Person"
+        default:
+          $ref: "#/components/responses/Error"
+
+  "/set-person-role":
+    post:
+      summary: "Update person role"
+      description: "Update person role"
+      operationId: "SetPersonRole"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetPersonRoleRequest"
+        required: true
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Person"
+        default:
+          $ref: "#/components/responses/Error"
+
+  "/set-person-settings":
+    post:
+      summary: "Update person settings"
+      description: "Update person settings"
+      operationId: "SetPersonSettings"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetPersonSettingsRequest"
+        required: true
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Person"
+        default:
+          $ref: "#/components/responses/Error"
+
+  "/get-organization":
+    post:
+      summary: "Get single organization record"
+      description: "Get single organization record"
+      operationId: "GetOrganization"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetOrganizationRequest"
+        required: true
+      responses:
+        "200":
+          description: "Retrieve a single organization record successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Organization"
+        default:
+          $ref: "#/components/responses/Error"
+
+  "/get-organizations":
+    post:
+      summary: "Get all organization records"
+      description: "Get all organization records"
+      operationId: "GetOrganizations"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetOrganizationsRequest"
+        required: true
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationListResponse"
+        default:
+          $ref: "#/components/responses/Error"
+
+  "/suggest-organizations":
+    post:
+      summary: "Search on organization records"
+      description: "Search on organization records"
+      operationId: "SuggestOrganizations"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SuggestOrganizationsRequest"
+        required: true
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationListResponse"
+        default:
+          $ref: "#/components/responses/Error"
+
 components:
 
   responses:
@@ -140,3 +328,143 @@ components:
             type: string
         expiration_date:
           type: string
+
+    Organization:
+      type: object
+      properties:
+        id:
+          type: string
+        gismo_id:
+          type: string
+        date_created:
+          type: string
+          format: date-time
+        date_updated:
+          type: string
+          format: date-time
+        type:
+          type: string
+        name_dut:
+          type: string
+        name_eng:
+          type: string
+        parent_id:
+          type: string
+        other_id:
+          type: array
+          items:
+            $ref: "#/components/schemas/IdRef"
+      required: [id, date_created, date_updated, type]
+
+    PersonListResponse:
+      type: object
+      required: [data]
+      properties:
+        cursor:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Person"
+
+    OrganizationListResponse:
+      type: object
+      required: [data]
+      properties:
+        cursor:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Organization"
+
+    GetPersonRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+      required: [id]
+
+    GetPeopleRequest:
+      type: object
+      properties:
+        cursor:
+          type: string
+      required: [cursor]
+
+    SuggestPeopleRequest:
+      type: object
+      properties:
+        query:
+          type: string
+          minLength: 1
+      required: [query]
+
+    SetPersonOrcidRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        orcid:
+          type: string
+      required: [id, orcid]
+
+    SetPersonOrcidTokenRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        orcid_token:
+          type: string
+      required: [id, orcid_token]
+
+    SetPersonRoleRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        role:
+          type: array
+          items:
+            type: string
+            minLength: 1
+      required: [id, role]
+
+    SetPersonSettingsRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        settings:
+          type: object
+          additionalProperties:
+            type: string
+      required: [id, settings]
+
+    GetOrganizationRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+      required: [id]
+
+    GetOrganizationsRequest:
+      type: object
+      properties:
+        cursor:
+          type: string
+      required: [cursor]
+
+    SuggestOrganizationsRequest:
+      type: object
+      properties:
+        query:
+          type: string
+          minLength: 1
+      required: [query]

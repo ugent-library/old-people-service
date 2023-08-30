@@ -63,6 +63,66 @@ func (s *ErrorStatusCode) SetResponse(val Error) {
 	s.Response = val
 }
 
+// Ref: #/components/schemas/GetOrganizationRequest
+type GetOrganizationRequest struct {
+	ID string `json:"id"`
+}
+
+// GetID returns the value of ID.
+func (s *GetOrganizationRequest) GetID() string {
+	return s.ID
+}
+
+// SetID sets the value of ID.
+func (s *GetOrganizationRequest) SetID(val string) {
+	s.ID = val
+}
+
+// Ref: #/components/schemas/GetOrganizationsRequest
+type GetOrganizationsRequest struct {
+	Cursor string `json:"cursor"`
+}
+
+// GetCursor returns the value of Cursor.
+func (s *GetOrganizationsRequest) GetCursor() string {
+	return s.Cursor
+}
+
+// SetCursor sets the value of Cursor.
+func (s *GetOrganizationsRequest) SetCursor(val string) {
+	s.Cursor = val
+}
+
+// Ref: #/components/schemas/GetPeopleRequest
+type GetPeopleRequest struct {
+	Cursor string `json:"cursor"`
+}
+
+// GetCursor returns the value of Cursor.
+func (s *GetPeopleRequest) GetCursor() string {
+	return s.Cursor
+}
+
+// SetCursor sets the value of Cursor.
+func (s *GetPeopleRequest) SetCursor(val string) {
+	s.Cursor = val
+}
+
+// Ref: #/components/schemas/GetPersonRequest
+type GetPersonRequest struct {
+	ID string `json:"id"`
+}
+
+// GetID returns the value of ID.
+func (s *GetPersonRequest) GetID() string {
+	return s.ID
+}
+
+// SetID sets the value of ID.
+func (s *GetPersonRequest) SetID(val string) {
+	s.ID = val
+}
+
 // Ref: #/components/schemas/IdRef
 type IdRef struct {
 	ID   string `json:"id"`
@@ -330,6 +390,32 @@ func (s *Organization) SetOtherID(val []IdRef) {
 	s.OtherID = val
 }
 
+// Ref: #/components/schemas/OrganizationListResponse
+type OrganizationListResponse struct {
+	Cursor OptString      `json:"cursor"`
+	Data   []Organization `json:"data"`
+}
+
+// GetCursor returns the value of Cursor.
+func (s *OrganizationListResponse) GetCursor() OptString {
+	return s.Cursor
+}
+
+// GetData returns the value of Data.
+func (s *OrganizationListResponse) GetData() []Organization {
+	return s.Data
+}
+
+// SetCursor sets the value of Cursor.
+func (s *OrganizationListResponse) SetCursor(val OptString) {
+	s.Cursor = val
+}
+
+// SetData sets the value of Data.
+func (s *OrganizationListResponse) SetData(val []Organization) {
+	s.Data = val
+}
+
 // Ref: #/components/schemas/OrganizationRef
 type OrganizationRef struct {
 	ID          string      `json:"id"`
@@ -387,58 +473,6 @@ func (s *OrganizationRef) SetFrom(val time.Time) {
 // SetUntil sets the value of Until.
 func (s *OrganizationRef) SetUntil(val OptDateTime) {
 	s.Until = val
-}
-
-// Ref: #/components/schemas/PagedOrganizationListResponse
-type PagedOrganizationListResponse struct {
-	Cursor OptString      `json:"cursor"`
-	Data   []Organization `json:"data"`
-}
-
-// GetCursor returns the value of Cursor.
-func (s *PagedOrganizationListResponse) GetCursor() OptString {
-	return s.Cursor
-}
-
-// GetData returns the value of Data.
-func (s *PagedOrganizationListResponse) GetData() []Organization {
-	return s.Data
-}
-
-// SetCursor sets the value of Cursor.
-func (s *PagedOrganizationListResponse) SetCursor(val OptString) {
-	s.Cursor = val
-}
-
-// SetData sets the value of Data.
-func (s *PagedOrganizationListResponse) SetData(val []Organization) {
-	s.Data = val
-}
-
-// Ref: #/components/schemas/PagedPersonListResponse
-type PagedPersonListResponse struct {
-	Cursor OptString `json:"cursor"`
-	Data   []Person  `json:"data"`
-}
-
-// GetCursor returns the value of Cursor.
-func (s *PagedPersonListResponse) GetCursor() OptString {
-	return s.Cursor
-}
-
-// GetData returns the value of Data.
-func (s *PagedPersonListResponse) GetData() []Person {
-	return s.Data
-}
-
-// SetCursor sets the value of Cursor.
-func (s *PagedPersonListResponse) SetCursor(val OptString) {
-	s.Cursor = val
-}
-
-// SetData sets the value of Data.
-func (s *PagedPersonListResponse) SetData(val []Person) {
-	s.Data = val
 }
 
 // Ref: #/components/schemas/Person
@@ -687,6 +721,32 @@ func (s *Person) SetExpirationDate(val OptString) {
 	s.ExpirationDate = val
 }
 
+// Ref: #/components/schemas/PersonListResponse
+type PersonListResponse struct {
+	Cursor OptString `json:"cursor"`
+	Data   []Person  `json:"data"`
+}
+
+// GetCursor returns the value of Cursor.
+func (s *PersonListResponse) GetCursor() OptString {
+	return s.Cursor
+}
+
+// GetData returns the value of Data.
+func (s *PersonListResponse) GetData() []Person {
+	return s.Data
+}
+
+// SetCursor sets the value of Cursor.
+func (s *PersonListResponse) SetCursor(val OptString) {
+	s.Cursor = val
+}
+
+// SetData sets the value of Data.
+func (s *PersonListResponse) SetData(val []Person) {
+	s.Data = val
+}
+
 type PersonSettings map[string]string
 
 func (s *PersonSettings) init() PersonSettings {
@@ -700,12 +760,23 @@ func (s *PersonSettings) init() PersonSettings {
 
 // Ref: #/components/schemas/SetPersonOrcidRequest
 type SetPersonOrcidRequest struct {
+	ID    string `json:"id"`
 	Orcid string `json:"orcid"`
+}
+
+// GetID returns the value of ID.
+func (s *SetPersonOrcidRequest) GetID() string {
+	return s.ID
 }
 
 // GetOrcid returns the value of Orcid.
 func (s *SetPersonOrcidRequest) GetOrcid() string {
 	return s.Orcid
+}
+
+// SetID sets the value of ID.
+func (s *SetPersonOrcidRequest) SetID(val string) {
+	s.ID = val
 }
 
 // SetOrcid sets the value of Orcid.
@@ -715,12 +786,23 @@ func (s *SetPersonOrcidRequest) SetOrcid(val string) {
 
 // Ref: #/components/schemas/SetPersonOrcidTokenRequest
 type SetPersonOrcidTokenRequest struct {
+	ID         string `json:"id"`
 	OrcidToken string `json:"orcid_token"`
+}
+
+// GetID returns the value of ID.
+func (s *SetPersonOrcidTokenRequest) GetID() string {
+	return s.ID
 }
 
 // GetOrcidToken returns the value of OrcidToken.
 func (s *SetPersonOrcidTokenRequest) GetOrcidToken() string {
 	return s.OrcidToken
+}
+
+// SetID sets the value of ID.
+func (s *SetPersonOrcidTokenRequest) SetID(val string) {
+	s.ID = val
 }
 
 // SetOrcidToken sets the value of OrcidToken.
@@ -730,12 +812,23 @@ func (s *SetPersonOrcidTokenRequest) SetOrcidToken(val string) {
 
 // Ref: #/components/schemas/SetPersonRoleRequest
 type SetPersonRoleRequest struct {
+	ID   string   `json:"id"`
 	Role []string `json:"role"`
+}
+
+// GetID returns the value of ID.
+func (s *SetPersonRoleRequest) GetID() string {
+	return s.ID
 }
 
 // GetRole returns the value of Role.
 func (s *SetPersonRoleRequest) GetRole() []string {
 	return s.Role
+}
+
+// SetID sets the value of ID.
+func (s *SetPersonRoleRequest) SetID(val string) {
+	s.ID = val
 }
 
 // SetRole sets the value of Role.
@@ -745,12 +838,23 @@ func (s *SetPersonRoleRequest) SetRole(val []string) {
 
 // Ref: #/components/schemas/SetPersonSettingsRequest
 type SetPersonSettingsRequest struct {
+	ID       string                           `json:"id"`
 	Settings SetPersonSettingsRequestSettings `json:"settings"`
+}
+
+// GetID returns the value of ID.
+func (s *SetPersonSettingsRequest) GetID() string {
+	return s.ID
 }
 
 // GetSettings returns the value of Settings.
 func (s *SetPersonSettingsRequest) GetSettings() SetPersonSettingsRequestSettings {
 	return s.Settings
+}
+
+// SetID sets the value of ID.
+func (s *SetPersonSettingsRequest) SetID(val string) {
+	s.ID = val
 }
 
 // SetSettings sets the value of Settings.
@@ -767,4 +871,34 @@ func (s *SetPersonSettingsRequestSettings) init() SetPersonSettingsRequestSettin
 		*s = m
 	}
 	return m
+}
+
+// Ref: #/components/schemas/SuggestOrganizationsRequest
+type SuggestOrganizationsRequest struct {
+	Query string `json:"query"`
+}
+
+// GetQuery returns the value of Query.
+func (s *SuggestOrganizationsRequest) GetQuery() string {
+	return s.Query
+}
+
+// SetQuery sets the value of Query.
+func (s *SuggestOrganizationsRequest) SetQuery(val string) {
+	s.Query = val
+}
+
+// Ref: #/components/schemas/SuggestPeopleRequest
+type SuggestPeopleRequest struct {
+	Query string `json:"query"`
+}
+
+// GetQuery returns the value of Query.
+func (s *SuggestPeopleRequest) GetQuery() string {
+	return s.Query
+}
+
+// SetQuery sets the value of Query.
+func (s *SuggestPeopleRequest) SetQuery(val string) {
+	s.Query = val
 }

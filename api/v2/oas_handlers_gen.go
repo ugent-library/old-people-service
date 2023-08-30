@@ -20,16 +20,16 @@ import (
 	"github.com/ogen-go/ogen/otelogen"
 )
 
-// handleGetOrganizationRequest handles getOrganization operation.
+// handleGetOrganizationRequest handles GetOrganization operation.
 //
 // Get single organization record.
 //
-// GET /organization/{id}
-func (s *Server) handleGetOrganizationRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// POST /get-organization
+func (s *Server) handleGetOrganizationRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("getOrganization"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/organization/{id}"),
+		otelogen.OperationID("GetOrganization"),
+		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/get-organization"),
 	}
 
 	// Start a span for this request.
@@ -59,39 +59,39 @@ func (s *Server) handleGetOrganizationRequest(args [1]string, argsEscaped bool, 
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: "GetOrganization",
-			ID:   "getOrganization",
+			ID:   "GetOrganization",
 		}
 	)
-	params, err := decodeGetOrganizationParams(args, argsEscaped, r)
+	request, close, err := s.decodeGetOrganizationRequest(r)
 	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
+		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
 			Err:              err,
 		}
-		recordError("DecodeParams", err)
+		recordError("DecodeRequest", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
 
 	var response *Organization
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
 			OperationName: "GetOrganization",
-			OperationID:   "getOrganization",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			OperationID:   "GetOrganization",
+			Body:          request,
+			Params:        middleware.Parameters{},
+			Raw:           r,
 		}
 
 		type (
-			Request  = struct{}
-			Params   = GetOrganizationParams
+			Request  = *GetOrganizationRequest
+			Params   = struct{}
 			Response = *Organization
 		)
 		response, err = middleware.HookMiddleware[
@@ -101,14 +101,14 @@ func (s *Server) handleGetOrganizationRequest(args [1]string, argsEscaped bool, 
 		](
 			m,
 			mreq,
-			unpackGetOrganizationParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetOrganization(ctx, params)
+				response, err = s.h.GetOrganization(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetOrganization(ctx, params)
+		response, err = s.h.GetOrganization(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -131,16 +131,16 @@ func (s *Server) handleGetOrganizationRequest(args [1]string, argsEscaped bool, 
 	}
 }
 
-// handleGetOrganizationsRequest handles getOrganizations operation.
+// handleGetOrganizationsRequest handles GetOrganizations operation.
 //
 // Get all organization records.
 //
-// GET /organization
+// POST /get-organizations
 func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("getOrganizations"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/organization"),
+		otelogen.OperationID("GetOrganizations"),
+		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/get-organizations"),
 	}
 
 	// Start a span for this request.
@@ -170,40 +170,40 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: "GetOrganizations",
-			ID:   "getOrganizations",
+			ID:   "GetOrganizations",
 		}
 	)
-	params, err := decodeGetOrganizationsParams(args, argsEscaped, r)
+	request, close, err := s.decodeGetOrganizationsRequest(r)
 	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
+		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
 			Err:              err,
 		}
-		recordError("DecodeParams", err)
+		recordError("DecodeRequest", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
 
-	var response *PagedOrganizationListResponse
+	var response *OrganizationListResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
 			OperationName: "GetOrganizations",
-			OperationID:   "getOrganizations",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "cursor",
-					In:   "query",
-				}: params.Cursor,
-			},
-			Raw: r,
+			OperationID:   "GetOrganizations",
+			Body:          request,
+			Params:        middleware.Parameters{},
+			Raw:           r,
 		}
 
 		type (
-			Request  = struct{}
-			Params   = GetOrganizationsParams
-			Response = *PagedOrganizationListResponse
+			Request  = *GetOrganizationsRequest
+			Params   = struct{}
+			Response = *OrganizationListResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -212,14 +212,14 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 		](
 			m,
 			mreq,
-			unpackGetOrganizationsParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetOrganizations(ctx, params)
+				response, err = s.h.GetOrganizations(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetOrganizations(ctx, params)
+		response, err = s.h.GetOrganizations(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -242,16 +242,16 @@ func (s *Server) handleGetOrganizationsRequest(args [0]string, argsEscaped bool,
 	}
 }
 
-// handleGetPeopleRequest handles getPeople operation.
+// handleGetPeopleRequest handles GetPeople operation.
 //
 // Get all person records.
 //
-// GET /person
+// POST /get-people
 func (s *Server) handleGetPeopleRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("getPeople"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/person"),
+		otelogen.OperationID("GetPeople"),
+		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/get-people"),
 	}
 
 	// Start a span for this request.
@@ -281,40 +281,40 @@ func (s *Server) handleGetPeopleRequest(args [0]string, argsEscaped bool, w http
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: "GetPeople",
-			ID:   "getPeople",
+			ID:   "GetPeople",
 		}
 	)
-	params, err := decodeGetPeopleParams(args, argsEscaped, r)
+	request, close, err := s.decodeGetPeopleRequest(r)
 	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
+		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
 			Err:              err,
 		}
-		recordError("DecodeParams", err)
+		recordError("DecodeRequest", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
 
-	var response *PagedPersonListResponse
+	var response *PersonListResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
 			OperationName: "GetPeople",
-			OperationID:   "getPeople",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "cursor",
-					In:   "query",
-				}: params.Cursor,
-			},
-			Raw: r,
+			OperationID:   "GetPeople",
+			Body:          request,
+			Params:        middleware.Parameters{},
+			Raw:           r,
 		}
 
 		type (
-			Request  = struct{}
-			Params   = GetPeopleParams
-			Response = *PagedPersonListResponse
+			Request  = *GetPeopleRequest
+			Params   = struct{}
+			Response = *PersonListResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -323,14 +323,14 @@ func (s *Server) handleGetPeopleRequest(args [0]string, argsEscaped bool, w http
 		](
 			m,
 			mreq,
-			unpackGetPeopleParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetPeople(ctx, params)
+				response, err = s.h.GetPeople(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetPeople(ctx, params)
+		response, err = s.h.GetPeople(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -353,16 +353,16 @@ func (s *Server) handleGetPeopleRequest(args [0]string, argsEscaped bool, w http
 	}
 }
 
-// handleGetPersonRequest handles getPerson operation.
+// handleGetPersonRequest handles GetPerson operation.
 //
 // Retrieve a single person record.
 //
-// GET /person/{id}
-func (s *Server) handleGetPersonRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// POST /get-person
+func (s *Server) handleGetPersonRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("getPerson"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/person/{id}"),
+		otelogen.OperationID("GetPerson"),
+		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/get-person"),
 	}
 
 	// Start a span for this request.
@@ -392,39 +392,39 @@ func (s *Server) handleGetPersonRequest(args [1]string, argsEscaped bool, w http
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: "GetPerson",
-			ID:   "getPerson",
+			ID:   "GetPerson",
 		}
 	)
-	params, err := decodeGetPersonParams(args, argsEscaped, r)
+	request, close, err := s.decodeGetPersonRequest(r)
 	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
+		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
 			Err:              err,
 		}
-		recordError("DecodeParams", err)
+		recordError("DecodeRequest", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
 
 	var response *Person
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
 			OperationName: "GetPerson",
-			OperationID:   "getPerson",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			OperationID:   "GetPerson",
+			Body:          request,
+			Params:        middleware.Parameters{},
+			Raw:           r,
 		}
 
 		type (
-			Request  = struct{}
-			Params   = GetPersonParams
+			Request  = *GetPersonRequest
+			Params   = struct{}
 			Response = *Person
 		)
 		response, err = middleware.HookMiddleware[
@@ -434,14 +434,14 @@ func (s *Server) handleGetPersonRequest(args [1]string, argsEscaped bool, w http
 		](
 			m,
 			mreq,
-			unpackGetPersonParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetPerson(ctx, params)
+				response, err = s.h.GetPerson(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetPerson(ctx, params)
+		response, err = s.h.GetPerson(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -464,16 +464,16 @@ func (s *Server) handleGetPersonRequest(args [1]string, argsEscaped bool, w http
 	}
 }
 
-// handleSetPersonOrcidRequest handles setPersonOrcid operation.
+// handleSetPersonOrcidRequest handles SetPersonOrcid operation.
 //
 // Update person ORCID.
 //
-// PUT /person/{id}/orcid
-func (s *Server) handleSetPersonOrcidRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// POST /set-person-orcid
+func (s *Server) handleSetPersonOrcidRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("setPersonOrcid"),
-		semconv.HTTPMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/person/{id}/orcid"),
+		otelogen.OperationID("SetPersonOrcid"),
+		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/set-person-orcid"),
 	}
 
 	// Start a span for this request.
@@ -503,19 +503,9 @@ func (s *Server) handleSetPersonOrcidRequest(args [1]string, argsEscaped bool, w
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: "SetPersonOrcid",
-			ID:   "setPersonOrcid",
+			ID:   "SetPersonOrcid",
 		}
 	)
-	params, err := decodeSetPersonOrcidParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 	request, close, err := s.decodeSetPersonOrcidRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
@@ -537,20 +527,15 @@ func (s *Server) handleSetPersonOrcidRequest(args [1]string, argsEscaped bool, w
 		mreq := middleware.Request{
 			Context:       ctx,
 			OperationName: "SetPersonOrcid",
-			OperationID:   "setPersonOrcid",
+			OperationID:   "SetPersonOrcid",
 			Body:          request,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:        middleware.Parameters{},
+			Raw:           r,
 		}
 
 		type (
 			Request  = *SetPersonOrcidRequest
-			Params   = SetPersonOrcidParams
+			Params   = struct{}
 			Response = *Person
 		)
 		response, err = middleware.HookMiddleware[
@@ -560,14 +545,14 @@ func (s *Server) handleSetPersonOrcidRequest(args [1]string, argsEscaped bool, w
 		](
 			m,
 			mreq,
-			unpackSetPersonOrcidParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.SetPersonOrcid(ctx, request, params)
+				response, err = s.h.SetPersonOrcid(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.SetPersonOrcid(ctx, request, params)
+		response, err = s.h.SetPersonOrcid(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -590,16 +575,16 @@ func (s *Server) handleSetPersonOrcidRequest(args [1]string, argsEscaped bool, w
 	}
 }
 
-// handleSetPersonOrcidTokenRequest handles setPersonOrcidToken operation.
+// handleSetPersonOrcidTokenRequest handles SetPersonOrcidToken operation.
 //
 // Update person ORCID token.
 //
-// PUT /person/{id}/orcid-token
-func (s *Server) handleSetPersonOrcidTokenRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// POST /set-person-orcid-token
+func (s *Server) handleSetPersonOrcidTokenRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("setPersonOrcidToken"),
-		semconv.HTTPMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/person/{id}/orcid-token"),
+		otelogen.OperationID("SetPersonOrcidToken"),
+		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/set-person-orcid-token"),
 	}
 
 	// Start a span for this request.
@@ -629,19 +614,9 @@ func (s *Server) handleSetPersonOrcidTokenRequest(args [1]string, argsEscaped bo
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: "SetPersonOrcidToken",
-			ID:   "setPersonOrcidToken",
+			ID:   "SetPersonOrcidToken",
 		}
 	)
-	params, err := decodeSetPersonOrcidTokenParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 	request, close, err := s.decodeSetPersonOrcidTokenRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
@@ -663,20 +638,15 @@ func (s *Server) handleSetPersonOrcidTokenRequest(args [1]string, argsEscaped bo
 		mreq := middleware.Request{
 			Context:       ctx,
 			OperationName: "SetPersonOrcidToken",
-			OperationID:   "setPersonOrcidToken",
+			OperationID:   "SetPersonOrcidToken",
 			Body:          request,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:        middleware.Parameters{},
+			Raw:           r,
 		}
 
 		type (
 			Request  = *SetPersonOrcidTokenRequest
-			Params   = SetPersonOrcidTokenParams
+			Params   = struct{}
 			Response = *Person
 		)
 		response, err = middleware.HookMiddleware[
@@ -686,14 +656,14 @@ func (s *Server) handleSetPersonOrcidTokenRequest(args [1]string, argsEscaped bo
 		](
 			m,
 			mreq,
-			unpackSetPersonOrcidTokenParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.SetPersonOrcidToken(ctx, request, params)
+				response, err = s.h.SetPersonOrcidToken(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.SetPersonOrcidToken(ctx, request, params)
+		response, err = s.h.SetPersonOrcidToken(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -716,16 +686,16 @@ func (s *Server) handleSetPersonOrcidTokenRequest(args [1]string, argsEscaped bo
 	}
 }
 
-// handleSetPersonRoleRequest handles setPersonRole operation.
+// handleSetPersonRoleRequest handles SetPersonRole operation.
 //
 // Update person role.
 //
-// PUT /person/{id}/role
-func (s *Server) handleSetPersonRoleRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// POST /set-person-role
+func (s *Server) handleSetPersonRoleRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("setPersonRole"),
-		semconv.HTTPMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/person/{id}/role"),
+		otelogen.OperationID("SetPersonRole"),
+		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/set-person-role"),
 	}
 
 	// Start a span for this request.
@@ -755,19 +725,9 @@ func (s *Server) handleSetPersonRoleRequest(args [1]string, argsEscaped bool, w 
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: "SetPersonRole",
-			ID:   "setPersonRole",
+			ID:   "SetPersonRole",
 		}
 	)
-	params, err := decodeSetPersonRoleParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 	request, close, err := s.decodeSetPersonRoleRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
@@ -789,20 +749,15 @@ func (s *Server) handleSetPersonRoleRequest(args [1]string, argsEscaped bool, w 
 		mreq := middleware.Request{
 			Context:       ctx,
 			OperationName: "SetPersonRole",
-			OperationID:   "setPersonRole",
+			OperationID:   "SetPersonRole",
 			Body:          request,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:        middleware.Parameters{},
+			Raw:           r,
 		}
 
 		type (
 			Request  = *SetPersonRoleRequest
-			Params   = SetPersonRoleParams
+			Params   = struct{}
 			Response = *Person
 		)
 		response, err = middleware.HookMiddleware[
@@ -812,14 +767,14 @@ func (s *Server) handleSetPersonRoleRequest(args [1]string, argsEscaped bool, w 
 		](
 			m,
 			mreq,
-			unpackSetPersonRoleParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.SetPersonRole(ctx, request, params)
+				response, err = s.h.SetPersonRole(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.SetPersonRole(ctx, request, params)
+		response, err = s.h.SetPersonRole(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -842,16 +797,16 @@ func (s *Server) handleSetPersonRoleRequest(args [1]string, argsEscaped bool, w 
 	}
 }
 
-// handleSetPersonSettingsRequest handles setPersonSettings operation.
+// handleSetPersonSettingsRequest handles SetPersonSettings operation.
 //
 // Update person settings.
 //
-// PUT /person/{id}/settings
-func (s *Server) handleSetPersonSettingsRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// POST /set-person-settings
+func (s *Server) handleSetPersonSettingsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("setPersonSettings"),
-		semconv.HTTPMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/person/{id}/settings"),
+		otelogen.OperationID("SetPersonSettings"),
+		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/set-person-settings"),
 	}
 
 	// Start a span for this request.
@@ -881,19 +836,9 @@ func (s *Server) handleSetPersonSettingsRequest(args [1]string, argsEscaped bool
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: "SetPersonSettings",
-			ID:   "setPersonSettings",
+			ID:   "SetPersonSettings",
 		}
 	)
-	params, err := decodeSetPersonSettingsParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
 	request, close, err := s.decodeSetPersonSettingsRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
@@ -915,20 +860,15 @@ func (s *Server) handleSetPersonSettingsRequest(args [1]string, argsEscaped bool
 		mreq := middleware.Request{
 			Context:       ctx,
 			OperationName: "SetPersonSettings",
-			OperationID:   "setPersonSettings",
+			OperationID:   "SetPersonSettings",
 			Body:          request,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
+			Params:        middleware.Parameters{},
+			Raw:           r,
 		}
 
 		type (
 			Request  = *SetPersonSettingsRequest
-			Params   = SetPersonSettingsParams
+			Params   = struct{}
 			Response = *Person
 		)
 		response, err = middleware.HookMiddleware[
@@ -938,14 +878,14 @@ func (s *Server) handleSetPersonSettingsRequest(args [1]string, argsEscaped bool
 		](
 			m,
 			mreq,
-			unpackSetPersonSettingsParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.SetPersonSettings(ctx, request, params)
+				response, err = s.h.SetPersonSettings(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.SetPersonSettings(ctx, request, params)
+		response, err = s.h.SetPersonSettings(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -968,16 +908,16 @@ func (s *Server) handleSetPersonSettingsRequest(args [1]string, argsEscaped bool
 	}
 }
 
-// handleSuggestOrganizationsRequest handles suggestOrganizations operation.
+// handleSuggestOrganizationsRequest handles SuggestOrganizations operation.
 //
 // Search on organization records.
 //
-// GET /organization-suggest
+// POST /suggest-organizations
 func (s *Server) handleSuggestOrganizationsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("suggestOrganizations"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/organization-suggest"),
+		otelogen.OperationID("SuggestOrganizations"),
+		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/suggest-organizations"),
 	}
 
 	// Start a span for this request.
@@ -1007,40 +947,40 @@ func (s *Server) handleSuggestOrganizationsRequest(args [0]string, argsEscaped b
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: "SuggestOrganizations",
-			ID:   "suggestOrganizations",
+			ID:   "SuggestOrganizations",
 		}
 	)
-	params, err := decodeSuggestOrganizationsParams(args, argsEscaped, r)
+	request, close, err := s.decodeSuggestOrganizationsRequest(r)
 	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
+		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
 			Err:              err,
 		}
-		recordError("DecodeParams", err)
+		recordError("DecodeRequest", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
 
-	var response *PagedOrganizationListResponse
+	var response *OrganizationListResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
 			OperationName: "SuggestOrganizations",
-			OperationID:   "suggestOrganizations",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "query",
-					In:   "query",
-				}: params.Query,
-			},
-			Raw: r,
+			OperationID:   "SuggestOrganizations",
+			Body:          request,
+			Params:        middleware.Parameters{},
+			Raw:           r,
 		}
 
 		type (
-			Request  = struct{}
-			Params   = SuggestOrganizationsParams
-			Response = *PagedOrganizationListResponse
+			Request  = *SuggestOrganizationsRequest
+			Params   = struct{}
+			Response = *OrganizationListResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1049,14 +989,14 @@ func (s *Server) handleSuggestOrganizationsRequest(args [0]string, argsEscaped b
 		](
 			m,
 			mreq,
-			unpackSuggestOrganizationsParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.SuggestOrganizations(ctx, params)
+				response, err = s.h.SuggestOrganizations(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.SuggestOrganizations(ctx, params)
+		response, err = s.h.SuggestOrganizations(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -1079,16 +1019,16 @@ func (s *Server) handleSuggestOrganizationsRequest(args [0]string, argsEscaped b
 	}
 }
 
-// handleSuggestPeopleRequest handles suggestPeople operation.
+// handleSuggestPeopleRequest handles SuggestPeople operation.
 //
 // Search on person records.
 //
-// GET /person-suggest
+// POST /suggest-people
 func (s *Server) handleSuggestPeopleRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("suggestPeople"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/person-suggest"),
+		otelogen.OperationID("SuggestPeople"),
+		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/suggest-people"),
 	}
 
 	// Start a span for this request.
@@ -1118,40 +1058,40 @@ func (s *Server) handleSuggestPeopleRequest(args [0]string, argsEscaped bool, w 
 		err          error
 		opErrContext = ogenerrors.OperationContext{
 			Name: "SuggestPeople",
-			ID:   "suggestPeople",
+			ID:   "SuggestPeople",
 		}
 	)
-	params, err := decodeSuggestPeopleParams(args, argsEscaped, r)
+	request, close, err := s.decodeSuggestPeopleRequest(r)
 	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
+		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
 			Err:              err,
 		}
-		recordError("DecodeParams", err)
+		recordError("DecodeRequest", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
 
-	var response *PagedPersonListResponse
+	var response *PersonListResponse
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
 			OperationName: "SuggestPeople",
-			OperationID:   "suggestPeople",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "query",
-					In:   "query",
-				}: params.Query,
-			},
-			Raw: r,
+			OperationID:   "SuggestPeople",
+			Body:          request,
+			Params:        middleware.Parameters{},
+			Raw:           r,
 		}
 
 		type (
-			Request  = struct{}
-			Params   = SuggestPeopleParams
-			Response = *PagedPersonListResponse
+			Request  = *SuggestPeopleRequest
+			Params   = struct{}
+			Response = *PersonListResponse
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1160,14 +1100,14 @@ func (s *Server) handleSuggestPeopleRequest(args [0]string, argsEscaped bool, w 
 		](
 			m,
 			mreq,
-			unpackSuggestPeopleParams,
+			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.SuggestPeople(ctx, params)
+				response, err = s.h.SuggestPeople(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.SuggestPeople(ctx, params)
+		response, err = s.h.SuggestPeople(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)

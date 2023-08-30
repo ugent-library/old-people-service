@@ -14,7 +14,6 @@ import (
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/trace"
 
-	"github.com/ogen-go/ogen/conv"
 	ht "github.com/ogen-go/ogen/http"
 	"github.com/ogen-go/ogen/otelogen"
 	"github.com/ogen-go/ogen/uri"
@@ -72,20 +71,29 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 	return u
 }
 
-// GetOrganization invokes getOrganization operation.
+// GetOrganization invokes GetOrganization operation.
 //
 // Get single organization record.
 //
-// GET /organization/{id}
-func (c *Client) GetOrganization(ctx context.Context, params GetOrganizationParams) (*Organization, error) {
-	res, err := c.sendGetOrganization(ctx, params)
+// POST /get-organization
+func (c *Client) GetOrganization(ctx context.Context, request *GetOrganizationRequest) (*Organization, error) {
+	res, err := c.sendGetOrganization(ctx, request)
 	_ = res
 	return res, err
 }
 
-func (c *Client) sendGetOrganization(ctx context.Context, params GetOrganizationParams) (res *Organization, err error) {
+func (c *Client) sendGetOrganization(ctx context.Context, request *GetOrganizationRequest) (res *Organization, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("getOrganization"),
+		otelogen.OperationID("GetOrganization"),
+	}
+	// Validate request before sending.
+	if err := func() error {
+		if err := request.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return res, errors.Wrap(err, "validate")
 	}
 
 	// Run stopwatch.
@@ -117,32 +125,17 @@ func (c *Client) sendGetOrganization(ctx context.Context, params GetOrganization
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [2]string
-	pathParts[0] = "/organization/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
+	var pathParts [1]string
+	pathParts[0] = "/get-organization"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "GET", u)
+	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeGetOrganizationRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
 	}
 
 	stage = "SendRequest"
@@ -161,20 +154,20 @@ func (c *Client) sendGetOrganization(ctx context.Context, params GetOrganization
 	return result, nil
 }
 
-// GetOrganizations invokes getOrganizations operation.
+// GetOrganizations invokes GetOrganizations operation.
 //
 // Get all organization records.
 //
-// GET /organization
-func (c *Client) GetOrganizations(ctx context.Context, params GetOrganizationsParams) (*PagedOrganizationListResponse, error) {
-	res, err := c.sendGetOrganizations(ctx, params)
+// POST /get-organizations
+func (c *Client) GetOrganizations(ctx context.Context, request *GetOrganizationsRequest) (*OrganizationListResponse, error) {
+	res, err := c.sendGetOrganizations(ctx, request)
 	_ = res
 	return res, err
 }
 
-func (c *Client) sendGetOrganizations(ctx context.Context, params GetOrganizationsParams) (res *PagedOrganizationListResponse, err error) {
+func (c *Client) sendGetOrganizations(ctx context.Context, request *GetOrganizationsRequest) (res *OrganizationListResponse, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("getOrganizations"),
+		otelogen.OperationID("GetOrganizations"),
 	}
 
 	// Run stopwatch.
@@ -207,34 +200,16 @@ func (c *Client) sendGetOrganizations(ctx context.Context, params GetOrganizatio
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/organization"
+	pathParts[0] = "/get-organizations"
 	uri.AddPathParts(u, pathParts[:]...)
 
-	stage = "EncodeQueryParams"
-	q := uri.NewQueryEncoder()
-	{
-		// Encode "cursor" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "cursor",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.Cursor.Get(); ok {
-				return e.EncodeValue(conv.StringToString(val))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	u.RawQuery = q.Values().Encode()
-
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "GET", u)
+	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeGetOrganizationsRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
 	}
 
 	stage = "SendRequest"
@@ -253,20 +228,20 @@ func (c *Client) sendGetOrganizations(ctx context.Context, params GetOrganizatio
 	return result, nil
 }
 
-// GetPeople invokes getPeople operation.
+// GetPeople invokes GetPeople operation.
 //
 // Get all person records.
 //
-// GET /person
-func (c *Client) GetPeople(ctx context.Context, params GetPeopleParams) (*PagedPersonListResponse, error) {
-	res, err := c.sendGetPeople(ctx, params)
+// POST /get-people
+func (c *Client) GetPeople(ctx context.Context, request *GetPeopleRequest) (*PersonListResponse, error) {
+	res, err := c.sendGetPeople(ctx, request)
 	_ = res
 	return res, err
 }
 
-func (c *Client) sendGetPeople(ctx context.Context, params GetPeopleParams) (res *PagedPersonListResponse, err error) {
+func (c *Client) sendGetPeople(ctx context.Context, request *GetPeopleRequest) (res *PersonListResponse, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("getPeople"),
+		otelogen.OperationID("GetPeople"),
 	}
 
 	// Run stopwatch.
@@ -299,34 +274,16 @@ func (c *Client) sendGetPeople(ctx context.Context, params GetPeopleParams) (res
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/person"
+	pathParts[0] = "/get-people"
 	uri.AddPathParts(u, pathParts[:]...)
 
-	stage = "EncodeQueryParams"
-	q := uri.NewQueryEncoder()
-	{
-		// Encode "cursor" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "cursor",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.Cursor.Get(); ok {
-				return e.EncodeValue(conv.StringToString(val))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	u.RawQuery = q.Values().Encode()
-
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "GET", u)
+	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeGetPeopleRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
 	}
 
 	stage = "SendRequest"
@@ -345,20 +302,29 @@ func (c *Client) sendGetPeople(ctx context.Context, params GetPeopleParams) (res
 	return result, nil
 }
 
-// GetPerson invokes getPerson operation.
+// GetPerson invokes GetPerson operation.
 //
 // Retrieve a single person record.
 //
-// GET /person/{id}
-func (c *Client) GetPerson(ctx context.Context, params GetPersonParams) (*Person, error) {
-	res, err := c.sendGetPerson(ctx, params)
+// POST /get-person
+func (c *Client) GetPerson(ctx context.Context, request *GetPersonRequest) (*Person, error) {
+	res, err := c.sendGetPerson(ctx, request)
 	_ = res
 	return res, err
 }
 
-func (c *Client) sendGetPerson(ctx context.Context, params GetPersonParams) (res *Person, err error) {
+func (c *Client) sendGetPerson(ctx context.Context, request *GetPersonRequest) (res *Person, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("getPerson"),
+		otelogen.OperationID("GetPerson"),
+	}
+	// Validate request before sending.
+	if err := func() error {
+		if err := request.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return res, errors.Wrap(err, "validate")
 	}
 
 	// Run stopwatch.
@@ -390,32 +356,17 @@ func (c *Client) sendGetPerson(ctx context.Context, params GetPersonParams) (res
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [2]string
-	pathParts[0] = "/person/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
+	var pathParts [1]string
+	pathParts[0] = "/get-person"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "GET", u)
+	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeGetPersonRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
 	}
 
 	stage = "SendRequest"
@@ -434,20 +385,29 @@ func (c *Client) sendGetPerson(ctx context.Context, params GetPersonParams) (res
 	return result, nil
 }
 
-// SetPersonOrcid invokes setPersonOrcid operation.
+// SetPersonOrcid invokes SetPersonOrcid operation.
 //
 // Update person ORCID.
 //
-// PUT /person/{id}/orcid
-func (c *Client) SetPersonOrcid(ctx context.Context, request *SetPersonOrcidRequest, params SetPersonOrcidParams) (*Person, error) {
-	res, err := c.sendSetPersonOrcid(ctx, request, params)
+// POST /set-person-orcid
+func (c *Client) SetPersonOrcid(ctx context.Context, request *SetPersonOrcidRequest) (*Person, error) {
+	res, err := c.sendSetPersonOrcid(ctx, request)
 	_ = res
 	return res, err
 }
 
-func (c *Client) sendSetPersonOrcid(ctx context.Context, request *SetPersonOrcidRequest, params SetPersonOrcidParams) (res *Person, err error) {
+func (c *Client) sendSetPersonOrcid(ctx context.Context, request *SetPersonOrcidRequest) (res *Person, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("setPersonOrcid"),
+		otelogen.OperationID("SetPersonOrcid"),
+	}
+	// Validate request before sending.
+	if err := func() error {
+		if err := request.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return res, errors.Wrap(err, "validate")
 	}
 
 	// Run stopwatch.
@@ -479,31 +439,12 @@ func (c *Client) sendSetPersonOrcid(ctx context.Context, request *SetPersonOrcid
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/person/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/orcid"
+	var pathParts [1]string
+	pathParts[0] = "/set-person-orcid"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "PUT", u)
+	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
@@ -527,20 +468,29 @@ func (c *Client) sendSetPersonOrcid(ctx context.Context, request *SetPersonOrcid
 	return result, nil
 }
 
-// SetPersonOrcidToken invokes setPersonOrcidToken operation.
+// SetPersonOrcidToken invokes SetPersonOrcidToken operation.
 //
 // Update person ORCID token.
 //
-// PUT /person/{id}/orcid-token
-func (c *Client) SetPersonOrcidToken(ctx context.Context, request *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) (*Person, error) {
-	res, err := c.sendSetPersonOrcidToken(ctx, request, params)
+// POST /set-person-orcid-token
+func (c *Client) SetPersonOrcidToken(ctx context.Context, request *SetPersonOrcidTokenRequest) (*Person, error) {
+	res, err := c.sendSetPersonOrcidToken(ctx, request)
 	_ = res
 	return res, err
 }
 
-func (c *Client) sendSetPersonOrcidToken(ctx context.Context, request *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) (res *Person, err error) {
+func (c *Client) sendSetPersonOrcidToken(ctx context.Context, request *SetPersonOrcidTokenRequest) (res *Person, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("setPersonOrcidToken"),
+		otelogen.OperationID("SetPersonOrcidToken"),
+	}
+	// Validate request before sending.
+	if err := func() error {
+		if err := request.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return res, errors.Wrap(err, "validate")
 	}
 
 	// Run stopwatch.
@@ -572,31 +522,12 @@ func (c *Client) sendSetPersonOrcidToken(ctx context.Context, request *SetPerson
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/person/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/orcid-token"
+	var pathParts [1]string
+	pathParts[0] = "/set-person-orcid-token"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "PUT", u)
+	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
@@ -620,20 +551,20 @@ func (c *Client) sendSetPersonOrcidToken(ctx context.Context, request *SetPerson
 	return result, nil
 }
 
-// SetPersonRole invokes setPersonRole operation.
+// SetPersonRole invokes SetPersonRole operation.
 //
 // Update person role.
 //
-// PUT /person/{id}/role
-func (c *Client) SetPersonRole(ctx context.Context, request *SetPersonRoleRequest, params SetPersonRoleParams) (*Person, error) {
-	res, err := c.sendSetPersonRole(ctx, request, params)
+// POST /set-person-role
+func (c *Client) SetPersonRole(ctx context.Context, request *SetPersonRoleRequest) (*Person, error) {
+	res, err := c.sendSetPersonRole(ctx, request)
 	_ = res
 	return res, err
 }
 
-func (c *Client) sendSetPersonRole(ctx context.Context, request *SetPersonRoleRequest, params SetPersonRoleParams) (res *Person, err error) {
+func (c *Client) sendSetPersonRole(ctx context.Context, request *SetPersonRoleRequest) (res *Person, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("setPersonRole"),
+		otelogen.OperationID("SetPersonRole"),
 	}
 	// Validate request before sending.
 	if err := func() error {
@@ -674,31 +605,12 @@ func (c *Client) sendSetPersonRole(ctx context.Context, request *SetPersonRoleRe
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/person/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/role"
+	var pathParts [1]string
+	pathParts[0] = "/set-person-role"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "PUT", u)
+	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
@@ -722,20 +634,29 @@ func (c *Client) sendSetPersonRole(ctx context.Context, request *SetPersonRoleRe
 	return result, nil
 }
 
-// SetPersonSettings invokes setPersonSettings operation.
+// SetPersonSettings invokes SetPersonSettings operation.
 //
 // Update person settings.
 //
-// PUT /person/{id}/settings
-func (c *Client) SetPersonSettings(ctx context.Context, request *SetPersonSettingsRequest, params SetPersonSettingsParams) (*Person, error) {
-	res, err := c.sendSetPersonSettings(ctx, request, params)
+// POST /set-person-settings
+func (c *Client) SetPersonSettings(ctx context.Context, request *SetPersonSettingsRequest) (*Person, error) {
+	res, err := c.sendSetPersonSettings(ctx, request)
 	_ = res
 	return res, err
 }
 
-func (c *Client) sendSetPersonSettings(ctx context.Context, request *SetPersonSettingsRequest, params SetPersonSettingsParams) (res *Person, err error) {
+func (c *Client) sendSetPersonSettings(ctx context.Context, request *SetPersonSettingsRequest) (res *Person, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("setPersonSettings"),
+		otelogen.OperationID("SetPersonSettings"),
+	}
+	// Validate request before sending.
+	if err := func() error {
+		if err := request.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return res, errors.Wrap(err, "validate")
 	}
 
 	// Run stopwatch.
@@ -767,31 +688,12 @@ func (c *Client) sendSetPersonSettings(ctx context.Context, request *SetPersonSe
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/person/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/settings"
+	var pathParts [1]string
+	pathParts[0] = "/set-person-settings"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "PUT", u)
+	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
@@ -815,20 +717,29 @@ func (c *Client) sendSetPersonSettings(ctx context.Context, request *SetPersonSe
 	return result, nil
 }
 
-// SuggestOrganizations invokes suggestOrganizations operation.
+// SuggestOrganizations invokes SuggestOrganizations operation.
 //
 // Search on organization records.
 //
-// GET /organization-suggest
-func (c *Client) SuggestOrganizations(ctx context.Context, params SuggestOrganizationsParams) (*PagedOrganizationListResponse, error) {
-	res, err := c.sendSuggestOrganizations(ctx, params)
+// POST /suggest-organizations
+func (c *Client) SuggestOrganizations(ctx context.Context, request *SuggestOrganizationsRequest) (*OrganizationListResponse, error) {
+	res, err := c.sendSuggestOrganizations(ctx, request)
 	_ = res
 	return res, err
 }
 
-func (c *Client) sendSuggestOrganizations(ctx context.Context, params SuggestOrganizationsParams) (res *PagedOrganizationListResponse, err error) {
+func (c *Client) sendSuggestOrganizations(ctx context.Context, request *SuggestOrganizationsRequest) (res *OrganizationListResponse, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("suggestOrganizations"),
+		otelogen.OperationID("SuggestOrganizations"),
+	}
+	// Validate request before sending.
+	if err := func() error {
+		if err := request.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return res, errors.Wrap(err, "validate")
 	}
 
 	// Run stopwatch.
@@ -861,31 +772,16 @@ func (c *Client) sendSuggestOrganizations(ctx context.Context, params SuggestOrg
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/organization-suggest"
+	pathParts[0] = "/suggest-organizations"
 	uri.AddPathParts(u, pathParts[:]...)
 
-	stage = "EncodeQueryParams"
-	q := uri.NewQueryEncoder()
-	{
-		// Encode "query" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "query",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.Query))
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	u.RawQuery = q.Values().Encode()
-
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "GET", u)
+	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeSuggestOrganizationsRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
 	}
 
 	stage = "SendRequest"
@@ -904,20 +800,29 @@ func (c *Client) sendSuggestOrganizations(ctx context.Context, params SuggestOrg
 	return result, nil
 }
 
-// SuggestPeople invokes suggestPeople operation.
+// SuggestPeople invokes SuggestPeople operation.
 //
 // Search on person records.
 //
-// GET /person-suggest
-func (c *Client) SuggestPeople(ctx context.Context, params SuggestPeopleParams) (*PagedPersonListResponse, error) {
-	res, err := c.sendSuggestPeople(ctx, params)
+// POST /suggest-people
+func (c *Client) SuggestPeople(ctx context.Context, request *SuggestPeopleRequest) (*PersonListResponse, error) {
+	res, err := c.sendSuggestPeople(ctx, request)
 	_ = res
 	return res, err
 }
 
-func (c *Client) sendSuggestPeople(ctx context.Context, params SuggestPeopleParams) (res *PagedPersonListResponse, err error) {
+func (c *Client) sendSuggestPeople(ctx context.Context, request *SuggestPeopleRequest) (res *PersonListResponse, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("suggestPeople"),
+		otelogen.OperationID("SuggestPeople"),
+	}
+	// Validate request before sending.
+	if err := func() error {
+		if err := request.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return res, errors.Wrap(err, "validate")
 	}
 
 	// Run stopwatch.
@@ -950,31 +855,16 @@ func (c *Client) sendSuggestPeople(ctx context.Context, params SuggestPeoplePara
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/person-suggest"
+	pathParts[0] = "/suggest-people"
 	uri.AddPathParts(u, pathParts[:]...)
 
-	stage = "EncodeQueryParams"
-	q := uri.NewQueryEncoder()
-	{
-		// Encode "query" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "query",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.Query))
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	u.RawQuery = q.Values().Encode()
-
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "GET", u)
+	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeSuggestPeopleRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
 	}
 
 	stage = "SendRequest"

@@ -97,7 +97,7 @@ func decodeGetOrganizationResponse(resp *http.Response) (res *Organization, _ er
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetOrganizationsResponse(resp *http.Response) (res *PagedOrganizationListResponse, _ error) {
+func decodeGetOrganizationsResponse(resp *http.Response) (res *OrganizationListResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -113,7 +113,7 @@ func decodeGetOrganizationsResponse(resp *http.Response) (res *PagedOrganization
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response PagedOrganizationListResponse
+			var response OrganizationListResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -180,7 +180,7 @@ func decodeGetOrganizationsResponse(resp *http.Response) (res *PagedOrganization
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetPeopleResponse(resp *http.Response) (res *PagedPersonListResponse, _ error) {
+func decodeGetPeopleResponse(resp *http.Response) (res *PersonListResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -196,7 +196,7 @@ func decodeGetPeopleResponse(resp *http.Response) (res *PagedPersonListResponse,
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response PagedPersonListResponse
+			var response PersonListResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -678,7 +678,7 @@ func decodeSetPersonSettingsResponse(resp *http.Response) (res *Person, _ error)
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeSuggestOrganizationsResponse(resp *http.Response) (res *PagedOrganizationListResponse, _ error) {
+func decodeSuggestOrganizationsResponse(resp *http.Response) (res *OrganizationListResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -694,7 +694,7 @@ func decodeSuggestOrganizationsResponse(resp *http.Response) (res *PagedOrganiza
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response PagedOrganizationListResponse
+			var response OrganizationListResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -761,7 +761,7 @@ func decodeSuggestOrganizationsResponse(resp *http.Response) (res *PagedOrganiza
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeSuggestPeopleResponse(resp *http.Response) (res *PagedPersonListResponse, _ error) {
+func decodeSuggestPeopleResponse(resp *http.Response) (res *PersonListResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -777,7 +777,7 @@ func decodeSuggestPeopleResponse(resp *http.Response) (res *PagedPersonListRespo
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response PagedPersonListResponse
+			var response PersonListResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err

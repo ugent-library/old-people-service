@@ -8,66 +8,66 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
-	// GetOrganization implements getOrganization operation.
+	// GetOrganization implements GetOrganization operation.
 	//
 	// Get single organization record.
 	//
-	// GET /organization/{id}
-	GetOrganization(ctx context.Context, params GetOrganizationParams) (*Organization, error)
-	// GetOrganizations implements getOrganizations operation.
+	// POST /get-organization
+	GetOrganization(ctx context.Context, req *GetOrganizationRequest) (*Organization, error)
+	// GetOrganizations implements GetOrganizations operation.
 	//
 	// Get all organization records.
 	//
-	// GET /organization
-	GetOrganizations(ctx context.Context, params GetOrganizationsParams) (*PagedOrganizationListResponse, error)
-	// GetPeople implements getPeople operation.
+	// POST /get-organizations
+	GetOrganizations(ctx context.Context, req *GetOrganizationsRequest) (*OrganizationListResponse, error)
+	// GetPeople implements GetPeople operation.
 	//
 	// Get all person records.
 	//
-	// GET /person
-	GetPeople(ctx context.Context, params GetPeopleParams) (*PagedPersonListResponse, error)
-	// GetPerson implements getPerson operation.
+	// POST /get-people
+	GetPeople(ctx context.Context, req *GetPeopleRequest) (*PersonListResponse, error)
+	// GetPerson implements GetPerson operation.
 	//
 	// Retrieve a single person record.
 	//
-	// GET /person/{id}
-	GetPerson(ctx context.Context, params GetPersonParams) (*Person, error)
-	// SetPersonOrcid implements setPersonOrcid operation.
+	// POST /get-person
+	GetPerson(ctx context.Context, req *GetPersonRequest) (*Person, error)
+	// SetPersonOrcid implements SetPersonOrcid operation.
 	//
 	// Update person ORCID.
 	//
-	// PUT /person/{id}/orcid
-	SetPersonOrcid(ctx context.Context, req *SetPersonOrcidRequest, params SetPersonOrcidParams) (*Person, error)
-	// SetPersonOrcidToken implements setPersonOrcidToken operation.
+	// POST /set-person-orcid
+	SetPersonOrcid(ctx context.Context, req *SetPersonOrcidRequest) (*Person, error)
+	// SetPersonOrcidToken implements SetPersonOrcidToken operation.
 	//
 	// Update person ORCID token.
 	//
-	// PUT /person/{id}/orcid-token
-	SetPersonOrcidToken(ctx context.Context, req *SetPersonOrcidTokenRequest, params SetPersonOrcidTokenParams) (*Person, error)
-	// SetPersonRole implements setPersonRole operation.
+	// POST /set-person-orcid-token
+	SetPersonOrcidToken(ctx context.Context, req *SetPersonOrcidTokenRequest) (*Person, error)
+	// SetPersonRole implements SetPersonRole operation.
 	//
 	// Update person role.
 	//
-	// PUT /person/{id}/role
-	SetPersonRole(ctx context.Context, req *SetPersonRoleRequest, params SetPersonRoleParams) (*Person, error)
-	// SetPersonSettings implements setPersonSettings operation.
+	// POST /set-person-role
+	SetPersonRole(ctx context.Context, req *SetPersonRoleRequest) (*Person, error)
+	// SetPersonSettings implements SetPersonSettings operation.
 	//
 	// Update person settings.
 	//
-	// PUT /person/{id}/settings
-	SetPersonSettings(ctx context.Context, req *SetPersonSettingsRequest, params SetPersonSettingsParams) (*Person, error)
-	// SuggestOrganizations implements suggestOrganizations operation.
+	// POST /set-person-settings
+	SetPersonSettings(ctx context.Context, req *SetPersonSettingsRequest) (*Person, error)
+	// SuggestOrganizations implements SuggestOrganizations operation.
 	//
 	// Search on organization records.
 	//
-	// GET /organization-suggest
-	SuggestOrganizations(ctx context.Context, params SuggestOrganizationsParams) (*PagedOrganizationListResponse, error)
-	// SuggestPeople implements suggestPeople operation.
+	// POST /suggest-organizations
+	SuggestOrganizations(ctx context.Context, req *SuggestOrganizationsRequest) (*OrganizationListResponse, error)
+	// SuggestPeople implements SuggestPeople operation.
 	//
 	// Search on person records.
 	//
-	// GET /person-suggest
-	SuggestPeople(ctx context.Context, params SuggestPeopleParams) (*PagedPersonListResponse, error)
+	// POST /suggest-people
+	SuggestPeople(ctx context.Context, req *SuggestPeopleRequest) (*PersonListResponse, error)
 	// NewError creates *ErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.

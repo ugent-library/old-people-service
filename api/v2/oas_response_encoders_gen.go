@@ -24,7 +24,7 @@ func encodeGetOrganizationResponse(response *Organization, w http.ResponseWriter
 	return nil
 }
 
-func encodeGetOrganizationsResponse(response *PagedOrganizationListResponse, w http.ResponseWriter, span trace.Span) error {
+func encodeGetOrganizationsResponse(response *OrganizationListResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))
@@ -37,7 +37,7 @@ func encodeGetOrganizationsResponse(response *PagedOrganizationListResponse, w h
 	return nil
 }
 
-func encodeGetPeopleResponse(response *PagedPersonListResponse, w http.ResponseWriter, span trace.Span) error {
+func encodeGetPeopleResponse(response *PersonListResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))
@@ -115,7 +115,7 @@ func encodeSetPersonSettingsResponse(response *Person, w http.ResponseWriter, sp
 	return nil
 }
 
-func encodeSuggestOrganizationsResponse(response *PagedOrganizationListResponse, w http.ResponseWriter, span trace.Span) error {
+func encodeSuggestOrganizationsResponse(response *OrganizationListResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))
@@ -128,7 +128,7 @@ func encodeSuggestOrganizationsResponse(response *PagedOrganizationListResponse,
 	return nil
 }
 
-func encodeSuggestPeopleResponse(response *PagedPersonListResponse, w http.ResponseWriter, span trace.Span) error {
+func encodeSuggestPeopleResponse(response *PersonListResponse, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))

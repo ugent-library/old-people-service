@@ -241,7 +241,7 @@ func (repo *repository) EachOrganization(ctx context.Context, cb func(*models.Or
 	return nil
 }
 
-func (repo *repository) SuggestOrganization(ctx context.Context, query string) ([]*models.Organization, error) {
+func (repo *repository) SuggestOrganizations(ctx context.Context, query string) ([]*models.Organization, error) {
 	tsQuery, tsQueryArgs := toTSQuery(query)
 	tsQuery = "ts @@ " + tsQuery
 	rows, err := repo.client.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
@@ -630,7 +630,7 @@ func (repo *repository) EachPerson(ctx context.Context, cb func(*models.Person) 
 	return nil
 }
 
-func (repo *repository) SuggestPerson(ctx context.Context, query string) ([]*models.Person, error) {
+func (repo *repository) SuggestPeople(ctx context.Context, query string) ([]*models.Person, error) {
 	// fetch ids via a raw query ..
 	tsQuery, tsQueryArgs := toTSQuery(query)
 	sqlQuery := fmt.Sprintf(

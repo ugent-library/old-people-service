@@ -54,7 +54,7 @@ func (s *Service) GetPeople(ctx context.Context, req *GetPeopleRequest) (*Person
 }
 
 func (s *Service) SuggestPeople(ctx context.Context, req *SuggestPeopleRequest) (*PersonListResponse, error) {
-	people, err := s.repository.SuggestPerson(ctx, req.Query)
+	people, err := s.repository.SuggestPeople(ctx, req.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func (s *Service) GetOrganizations(ctx context.Context, req *GetOrganizationsReq
 }
 
 func (s *Service) SuggestOrganizations(ctx context.Context, req *SuggestOrganizationsRequest) (*OrganizationListResponse, error) {
-	orgs, err := s.repository.SuggestOrganization(ctx, req.Query)
+	orgs, err := s.repository.SuggestOrganizations(ctx, req.Query)
 	if err != nil {
 		return nil, err
 	}

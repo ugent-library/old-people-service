@@ -96,7 +96,7 @@ func (srv *server) SuggestPerson(ctx context.Context, req *connect.Request[v1.Su
 		)
 	}
 
-	persons, err := srv.repository.SuggestPerson(ctx, req.Msg.Query)
+	persons, err := srv.repository.SuggestPeople(ctx, req.Msg.Query)
 
 	if err != nil {
 		srv.logger.Errorf("grpc call SuggestPerson failed: %s", err)
@@ -201,7 +201,7 @@ func (srv *server) SuggestOrganization(ctx context.Context, req *connect.Request
 		)
 	}
 
-	organizations, err := srv.repository.SuggestOrganization(ctx, req.Msg.Query)
+	organizations, err := srv.repository.SuggestOrganizations(ctx, req.Msg.Query)
 
 	if err != nil {
 		srv.logger.Errorf("grpc call SuggestOrganization failed: %s", err)

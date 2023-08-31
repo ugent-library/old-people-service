@@ -40,7 +40,7 @@ var importStudentsCmd = &cobra.Command{
 			logger.Fatal(err)
 		}
 
-		err = ldapClient.SearchPeople("(objectClass=ugentStudent)", func(np *models.Person) error {
+		err = ldapClient.SearchStudents(func(np *models.Person) error {
 
 			/*
 				np = "dummy" person record as returned by SearchPeople

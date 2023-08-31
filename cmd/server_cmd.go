@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
@@ -32,6 +33,17 @@ type ErrorMessage struct {
 	Message string `json:"message"`
 }
 
+type apiSecurityHandler struct {
+	APIKey string
+}
+
+func (s *apiSecurityHandler) HandleApiKey(ctx context.Context, operationName string, t api.ApiKey) (context.Context, error) {
+	if t.APIKey == s.APIKey {
+		return ctx, nil
+	}
+	return ctx, errors.New("unauthorized")
+}
+
 var serverStartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "start the api server",
@@ -56,6 +68,7 @@ var serverStartCmd = &cobra.Command{
 
 		apiServer, err := api.NewServer(
 			api.NewService(repo),
+			&apiSecurityHandler{APIKey: config.Api.Key},
 			api.WithErrorHandler(func(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) {
 				status := ogenerrors.ErrorCode(err)
 				w.Header().Set("Content-Type", "application/json")

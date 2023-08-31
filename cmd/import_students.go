@@ -31,15 +31,6 @@ var importStudentsCmd = &cobra.Command{
 			logger.Fatal(err)
 		}
 
-		//TODO: require organisation "Universiteit Gent"?
-		orgUgent, err := repo.GetOrganizationByOtherId(ctx, "ugent_id", "UGent")
-		if errors.Is(err, models.ErrNotFound) {
-			logger.Fatal(errors.New("unable to find parent organization UGent"))
-		}
-		if err != nil {
-			logger.Fatal(err)
-		}
-
 		err = ldapClient.SearchPeople("(objectClass=ugentStudent)", func(np *models.Person) error {
 
 			/*
@@ -89,9 +80,6 @@ var importStudentsCmd = &cobra.Command{
 				newOrgRef.From = oRef.From
 				newOrgRef.Until = oRef.Until
 				newOrgRefs = append(newOrgRefs, newOrgRef)
-			}
-			if len(newOrgRefs) == 0 {
-				newOrgRefs = append(newOrgRefs, models.NewOrganizationRef(orgUgent.Id))
 			}
 			np.Organization = newOrgRefs
 

@@ -11,6 +11,20 @@ func (s *ErrorStatusCode) Error() string {
 	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
 }
 
+type ApiKey struct {
+	APIKey string
+}
+
+// GetAPIKey returns the value of APIKey.
+func (s *ApiKey) GetAPIKey() string {
+	return s.APIKey
+}
+
+// SetAPIKey sets the value of APIKey.
+func (s *ApiKey) SetAPIKey(val string) {
+	s.APIKey = val
+}
+
 // Ref: #/components/schemas/Error
 type Error struct {
 	Code    int64  `json:"code"`

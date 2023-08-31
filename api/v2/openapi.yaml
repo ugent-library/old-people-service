@@ -215,7 +215,16 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
+security:
+  - apiKey: []
+
 components:
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-Api-Key
 
   responses:
     Error:

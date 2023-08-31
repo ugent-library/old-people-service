@@ -18,6 +18,7 @@ type ConfigApi struct {
 	Port     int    `json:"port,omitempty" env:"PORT" envDefault:"3999"`
 	Username string `json:"username,omitempty" env:"USERNAME,notEmpty"`
 	Password string `json:"password,omitempty" env:"PASSWORD,notEmpty"`
+	Key      string `json:"key,omitempty" env:"KEY,notEmpty"`
 }
 
 type ConfigLdap struct {

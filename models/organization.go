@@ -1,11 +1,17 @@
 package models
 
-import (
-	v1 "github.com/ugent-library/people-service/api/v1"
-)
+import "time"
 
 type Organization struct {
-	*v1.Organization
+	Id          string     `json:"id,omitempty"`
+	GismoId     string     `json:"gismo_id,omitempty"`
+	DateCreated *time.Time `json:"date_created,omitempty"`
+	DateUpdated *time.Time `json:"date_updated,omitempty"`
+	Type        string     `json:"type,omitempty"`
+	NameDut     string     `json:"name_dut,omitempty"`
+	NameEng     string     `json:"name_eng,omitempty"`
+	ParentId    string     `json:"parent_id,omitempty"`
+	OtherId     []*IdRef   `json:"other_id,omitempty"`
 }
 
 func (org *Organization) IsStored() bool {
@@ -13,7 +19,5 @@ func (org *Organization) IsStored() bool {
 }
 
 func NewOrganization() *Organization {
-	return &Organization{
-		Organization: &v1.Organization{},
-	}
+	return &Organization{}
 }

@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/go-ldap/ldap/v3"
-	v1 "github.com/ugent-library/people-service/api/v1"
 	"github.com/ugent-library/people-service/models"
 )
 
@@ -165,24 +164,24 @@ func mapToDummyPerson(entry *ldap.Entry) *models.Person {
 		for _, val := range attr.Values {
 			switch attr.Name {
 			case "uid":
-				np.OtherId = append(np.OtherId, &v1.IdRef{
+				np.OtherId = append(np.OtherId, &models.IdRef{
 					Type: "ugent_username",
 					Id:   val,
 				})
 			// contains current active ugentID
 			case "ugentID":
-				np.OtherId = append(np.OtherId, &v1.IdRef{
+				np.OtherId = append(np.OtherId, &models.IdRef{
 					Type: "ugent_id",
 					Id:   val,
 				})
 			// contains ugentID also (at the end)
 			case "ugentHistoricIDs":
-				np.OtherId = append(np.OtherId, &v1.IdRef{
+				np.OtherId = append(np.OtherId, &models.IdRef{
 					Type: "historic_ugent_id",
 					Id:   val,
 				})
 			case "ugentBarcode":
-				np.OtherId = append(np.OtherId, &v1.IdRef{
+				np.OtherId = append(np.OtherId, &models.IdRef{
 					Type: "ugent_barcode",
 					Id:   val,
 				})

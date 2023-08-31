@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
-	v1 "github.com/ugent-library/people-service/api/v1"
 	"github.com/ugent-library/people-service/gismo"
 	"github.com/ugent-library/people-service/inbox"
 	"github.com/ugent-library/people-service/models"
@@ -59,7 +58,7 @@ func (oSub *GismoOrganizationSubscriber) Process(msg *nats.Msg) (*inbox.Message,
 	if iMsg.Source == "gismo.organization.update" {
 		org.NameDut = ""
 		org.NameEng = ""
-		org.OtherId = make([]*v1.IdRef, 0)
+		org.OtherId = make([]*models.IdRef, 0)
 		org.Type = "organization"
 		org.ParentId = ""
 		org.GismoId = iMsg.ID
@@ -91,17 +90,17 @@ func (oSub *GismoOrganizationSubscriber) Process(msg *nats.Msg) (*inbox.Message,
 			case "type":
 				org.Type = attr.Value
 			case "ugent_memorialis_id":
-				org.OtherId = append(org.OtherId, &v1.IdRef{
+				org.OtherId = append(org.OtherId, &models.IdRef{
 					Type: "ugent_memorialis_id",
 					Id:   attr.Value,
 				})
 			case "code":
-				org.OtherId = append(org.OtherId, &v1.IdRef{
+				org.OtherId = append(org.OtherId, &models.IdRef{
 					Type: "ugent_id",
 					Id:   attr.Value,
 				})
 			case "biblio_code":
-				org.OtherId = append(org.OtherId, &v1.IdRef{
+				org.OtherId = append(org.OtherId, &models.IdRef{
 					Type: "biblio_id",
 					Id:   attr.Value,
 				})

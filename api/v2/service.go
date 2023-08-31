@@ -204,8 +204,8 @@ func mapToExternalPerson(person *models.Person) *Person {
 	if person.BirthDate != "" {
 		p.BirthDate = NewOptString(person.BirthDate)
 	}
-	p.DateCreated = person.DateCreated.AsTime()
-	p.DateUpdated = person.DateUpdated.AsTime()
+	p.DateCreated = *person.DateCreated
+	p.DateUpdated = *person.DateUpdated
 	if person.Email != "" {
 		p.Email = NewOptString(person.Email)
 	}
@@ -241,12 +241,12 @@ func mapToExternalPerson(person *models.Person) *Person {
 	for _, orgRef := range person.Organization {
 		oRef := OrganizationRef{
 			ID:          orgRef.Id,
-			DateCreated: orgRef.DateCreated.AsTime(),
-			DateUpdated: orgRef.DateUpdated.AsTime(),
-			From:        orgRef.From.AsTime(),
+			DateCreated: *orgRef.DateCreated,
+			DateUpdated: *orgRef.DateUpdated,
+			From:        *orgRef.From,
 		}
 		if orgRef.Until != nil {
-			oRef.Until = NewOptDateTime(orgRef.Until.AsTime())
+			oRef.Until = NewOptDateTime(*orgRef.Until)
 		}
 		p.Organization = append(p.Organization, oRef)
 	}
@@ -277,8 +277,8 @@ func mapToExternalOrganization(org *models.Organization) *Organization {
 	if org.GismoId != "" {
 		o.GismoID = NewOptString(org.GismoId)
 	}
-	o.DateCreated = org.DateCreated.AsTime()
-	o.DateUpdated = org.DateUpdated.AsTime()
+	o.DateCreated = *org.DateCreated
+	o.DateUpdated = *org.DateUpdated
 	if org.NameDut != "" {
 		o.NameDut = NewOptString(org.NameDut)
 	}

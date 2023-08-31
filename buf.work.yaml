@@ -1,4 +1,0 @@
-# cf. https://buf.build/docs/how-to/replace-protoc-with-buf/
-version: v1
-directories:
-  - proto

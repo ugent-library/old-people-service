@@ -9,12 +9,10 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
-	v1 "github.com/ugent-library/people-service/api/v1"
 	"github.com/ugent-library/people-service/gismo"
 	"github.com/ugent-library/people-service/inbox"
 	"github.com/ugent-library/people-service/models"
 	"github.com/ugent-library/people-service/ugentldap"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type GismoPersonSubscriber struct {
@@ -114,7 +112,7 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 	person.PreferredLastName = ""
 	person.Title = ""
 	person.Organization = nil
-	var gismoOrganizationRefs []*v1.OrganizationRef
+	var gismoOrganizationRefs []*models.OrganizationRef
 
 	// add attributes from GISMO
 	for _, attr := range iMsg.Attributes {
@@ -133,16 +131,16 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 				person.LastName = attr.Value
 			}
 		case "ugent_id":
-			person.OtherId = append(person.OtherId, &v1.IdRef{
+			person.OtherId = append(person.OtherId, &models.IdRef{
 				Type: "ugent_id",
 				Id:   attr.Value,
 			})
-			person.OtherId = append(person.OtherId, &v1.IdRef{
+			person.OtherId = append(person.OtherId, &models.IdRef{
 				Type: "historic_ugent_id",
 				Id:   attr.Value,
 			})
 		case "ugent_memorialis_id":
-			person.OtherId = append(person.OtherId, &v1.IdRef{
+			person.OtherId = append(person.OtherId, &models.IdRef{
 				Type: "ugent_memorialis_id",
 				Id:   attr.Value,
 			})
@@ -152,8 +150,8 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 			}
 		case "organization_id":
 			orgRef := models.NewOrganizationRef(attr.Value)
-			orgRef.From = timestamppb.New(*attr.StartDate)
-			orgRef.Until = timestamppb.New(*attr.EndDate)
+			orgRef.From = attr.StartDate
+			orgRef.Until = attr.EndDate
 			gismoOrganizationRefs = append(gismoOrganizationRefs, orgRef)
 		case "preferred_first_name":
 			if withinDateRange {
@@ -184,7 +182,7 @@ func (ps *GismoPersonSubscriber) Process(msg *nats.Msg) (*inbox.Message, error) 
 			return nil, fmt.Errorf("%w: person.organization_id contains invalid gismo organization identifiers", models.ErrFatal)
 		}
 
-		var orgRefs []*v1.OrganizationRef
+		var orgRefs []*models.OrganizationRef
 		for _, gismoOrgRef := range gismoOrganizationRefs {
 			for _, org := range orgsByGismo {
 				if gismoOrgRef.Id == org.GismoId {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	v1 "github.com/ugent-library/people-service/api/v1"
 	"github.com/ugent-library/people-service/models"
 	"github.com/ugent-library/people-service/repository"
 	"github.com/ugent-library/people-service/ugentldap"
@@ -40,9 +39,9 @@ var importStudentsCmd = &cobra.Command{
 
 				* np.Id is empty
 				* np.Active is always true
-				* np.Organization contains "dummy" *v1.OrganizationRef where Id is an ugent identifier (e.g CA20).
+				* np.Organization contains "dummy" *models.OrganizationRef where Id is an ugent identifier (e.g CA20).
 				  We try to match the ugent identifier against a stored organization.
-				  Every provided v1.OrganizationRef requires a match.
+				  Every provided models.OrganizationRef requires a match.
 				  Make sure the organizations are already stored.
 
 
@@ -68,7 +67,7 @@ var importStudentsCmd = &cobra.Command{
 			}
 
 			// provided OrganizationRef#Id is an ugent_id. Match with stored organization
-			var newOrgRefs []*v1.OrganizationRef
+			var newOrgRefs []*models.OrganizationRef
 			for _, oRef := range np.Organization {
 				realOrg, err := repo.GetOrganizationByOtherId(ctx, "ugent_id", oRef.Id)
 				if errors.Is(err, models.ErrNotFound) {

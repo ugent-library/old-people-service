@@ -28,8 +28,8 @@ services:
       - ./docker/.env:/opt/people-service/.env
     command: "/bin/sh -c \"cd /opt/people-service && ./people-service inbox listen organization\""
 
-  people_service_grpc:
-    container_name: people_service_grpc
+  people_service_server:
+    container_name: people_service_server
     image: ugentlib/people-service:latest
     depends_on:
       postgres:
@@ -40,7 +40,7 @@ services:
       - 3999:3999
     volumes:
       - ./docker/.env:/opt/people-service/.env
-    command: "/bin/sh -c \"cd /opt/people-service && ./people-service api start\""
+    command: "/bin/sh -c \"cd /opt/people-service && ./people-service server start\""
 
   # connect to postgres:
   #   connect to docker container

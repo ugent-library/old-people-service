@@ -14,11 +14,9 @@ type ConfigNats struct {
 }
 
 type ConfigApi struct {
-	Host     string `json:"host,omitempty" env:"HOST" envDefault:"localhost"`
-	Port     int    `json:"port,omitempty" env:"PORT" envDefault:"3999"`
-	Username string `json:"username,omitempty" env:"USERNAME,notEmpty"`
-	Password string `json:"password,omitempty" env:"PASSWORD,notEmpty"`
-	Key      string `json:"key,omitempty" env:"KEY,notEmpty"`
+	Host string `json:"host,omitempty" env:"HOST" envDefault:"localhost"`
+	Port int    `json:"port,omitempty" env:"PORT" envDefault:"3999"`
+	Key  string `json:"key,omitempty" env:"KEY,notEmpty"`
 }
 
 type ConfigLdap struct {

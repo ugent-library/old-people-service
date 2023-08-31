@@ -20,21 +20,13 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
 
   default: `false`
 
-* `PEOPLE_API_USERNAME`
+* `PEOPLE_API_KEY`
 
   type: `string`
 
   default: `people`
 
-  description: username for basic authentication. Used in authentication for GPRC api
-
-* `PEOPLE_API_PASSWORD`
-
-  type: `string`
-
-  default: `people`
-
-  description: password for basic authentication. Used in authentication for GPRC api
+  description: api key. Used in authentication header `X-Api-Key` for server (openapi)
 
 * `PEOPLE_API_PORT`
 
@@ -42,7 +34,7 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
 
   default: `3999`
 
-  description: port address for GRPC api
+  description: port address for server
 
 * `PEOPLE_API_HOST`
 
@@ -50,7 +42,7 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
 
   default: `127.0.0.1`
 
-  description: host address for GRPC api
+  description: host address for server
 
 * `PEOPLE_DB_URL`
 
@@ -158,10 +150,10 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
 
   required: `true`
 
-# Start GRPC api
+# Start the api server (openapi)
 
 ```
-$ ./people-service api start
+$ ./people-service server start
 ```
 
 # Start NATS consumer organization
@@ -285,61 +277,6 @@ $ ./people-service inbox listen person
     the reported organization gismo identifier, and create the relation later.
   * Every GISMO person message needs to have an ugent_id. Without an ugent_id one cannot
     link with the ugent ldap.
-
-
-# Commands with grpcurl
-
-Install grpc client like [grpcurl](https://github.com/fullstorydev/grpcurl)
-
-Initialize common information:
-
-```
-username=people
-password=people
-h="Authorization: Basic "$(echo -n "$u:$p" | base64)
-```
-
-List all GRPC methods
-
-```
-$ grpcurl -H "$h" -plaintext localhost:3999 list api.v1.PersonService
-```
-
-List of people
-
-```
-$ grpcurl -H "$h" -plaintext localhost:3999 api.v1.PersonService/GetAllPerson
-```
-
-Get one person
-
-```
-grpcurl -H "$h" -plaintext -d '{"id": "0DCE4DB4-F0EE-11E1-A9DE-61C894A0A6B4"}' localhost:3999 api.v1.PersonService/GetPerson
-```
-
-Suggest people
-
-```
-$ grpcurl -H "$h" -plaintext -d '{"query": "nicol fra"}' localhost:3999 api.v1.PersonService/SuggestPerson
-```
-
-Get organization
-
-```
-$ grpcurl -H "$h" -plaintext -d '{"id": "CA20"}' localhost:3999 api.v1.PersonService/GetOrganization
-```
-
-Get all organizations
-
-```
-$ grpcurl -H "$h" -plaintext localhost:3999 api.v1.PersonService/GetAllOrganization
-```
-
-Suggest organizations
-
-```
-$ grpcurl -H "$h" -plaintext -d '{"query": "Academic He"}' localhost:3999 api.v1.PersonService/SuggestOrganization
-```
 
 # run in docker
 

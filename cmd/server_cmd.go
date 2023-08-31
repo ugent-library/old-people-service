@@ -12,7 +12,7 @@ import (
 	"github.com/ogen-go/ogen/ogenerrors"
 	"github.com/ory/graceful"
 	"github.com/spf13/cobra"
-	"github.com/ugent-library/people-service/api/v2"
+	"github.com/ugent-library/people-service/api/v1"
 	"github.com/ugent-library/people-service/repository"
 	"github.com/ugent-library/zaphttp"
 	"github.com/ugent-library/zaphttp/zapchi"
@@ -85,7 +85,7 @@ var serverStartCmd = &cobra.Command{
 		}
 
 		mux.Get("/api/v1/openapi.yaml", func(w http.ResponseWriter, r *http.Request) {
-			http.ServeFile(w, r, "api/v2/openapi.yaml")
+			http.ServeFile(w, r, "api/v1/openapi.yaml")
 		})
 		mux.Mount("/swagger/", http.StripPrefix("/swagger/", http.FileServer(http.Dir("public/swagger-ui-5.1.0"))))
 		mux.Mount("/api/v1", http.StripPrefix("/api/v1", apiServer))

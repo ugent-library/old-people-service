@@ -1,12 +1,32 @@
 package models
 
 import (
-	v1 "github.com/ugent-library/people-service/api/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"time"
 )
 
 type Person struct {
-	*v1.Person
+	Id                 string             `json:"id,omitempty"`
+	GismoId            string             `json:"gismo_id,omitempty"`
+	Active             bool               `json:"active,omitempty"`
+	DateCreated        *time.Time         `json:"date_created,omitempty"`
+	DateUpdated        *time.Time         `json:"date_updated,omitempty"`
+	FullName           string             `json:"full_name,omitempty"`
+	FirstName          string             `json:"first_name,omitempty"`
+	LastName           string             `json:"last_name,omitempty"`
+	Email              string             `json:"email,omitempty"`
+	Orcid              string             `json:"orcid,omitempty"`
+	OrcidToken         string             `json:"orcid_token,omitempty"`
+	PreferredFirstName string             `json:"preferred_first_name,omitempty"`
+	PreferredLastName  string             `json:"preferred_last_name,omitempty"`
+	BirthDate          string             `json:"birth_date,omitempty"`
+	Title              string             `json:"title,omitempty"`
+	OtherId            []*IdRef           `json:"other_id,omitempty"`
+	Organization       []*OrganizationRef `json:"organization,omitempty"`
+	JobCategory        []string           `json:"job_category,omitempty"`
+	Role               []string           `json:"role,omitempty"`
+	Settings           map[string]string  `json:"settings,omitempty"`
+	ObjectClass        []string           `json:"object_class,omitempty"`
+	ExpirationDate     string             `json:"expiration_date,omitempty"`
 }
 
 func (person *Person) IsStored() bool {
@@ -14,15 +34,13 @@ func (person *Person) IsStored() bool {
 }
 
 func NewPerson() *Person {
-	return &Person{
-		Person: &v1.Person{},
-	}
+	return &Person{}
 }
 
-func NewOrganizationRef(id string) *v1.OrganizationRef {
-	return &v1.OrganizationRef{
+func NewOrganizationRef(id string) *OrganizationRef {
+	return &OrganizationRef{
 		Id:    id,
-		From:  timestamppb.New(BeginningOfTime),
-		Until: timestamppb.New(EndOfTime),
+		From:  &BeginningOfTime,
+		Until: &EndOfTime,
 	}
 }

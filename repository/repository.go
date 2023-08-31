@@ -12,13 +12,11 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/jackc/pgx/v5"
 	"github.com/ugent-library/crypt"
-	v1 "github.com/ugent-library/people-service/api/v1"
 	"github.com/ugent-library/people-service/ent"
 	"github.com/ugent-library/people-service/ent/organization"
 	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/schema"
 	"github.com/ugent-library/people-service/models"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type repository struct {
@@ -152,8 +150,8 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	}
 
 	// collect entgo managed fields
-	org.DateCreated = timestamppb.New(row.DateCreated)
-	org.DateUpdated = timestamppb.New(row.DateUpdated)
+	org.DateCreated = &row.DateCreated
+	org.DateUpdated = &row.DateUpdated
 
 	return org, nil
 }
@@ -305,9 +303,9 @@ func (repo *repository) getOrganizations(ctx context.Context, cursor setCursor) 
 }
 
 func (repo *repository) orgUnwrap(e *ent.Organization) *models.Organization {
-	otherIds := make([]*v1.IdRef, 0, len(e.OtherID))
+	otherIds := make([]*models.IdRef, 0, len(e.OtherID))
 	for _, schemaOtherId := range e.OtherID {
-		otherIds = append(otherIds, &v1.IdRef{
+		otherIds = append(otherIds, &models.IdRef{
 			Id:   schemaOtherId.ID,
 			Type: schemaOtherId.Type,
 		})
@@ -317,16 +315,14 @@ func (repo *repository) orgUnwrap(e *ent.Organization) *models.Organization {
 		gismoId = *e.GismoID
 	}
 	org := &models.Organization{
-		Organization: &v1.Organization{
-			Id:          e.PublicID,
-			GismoId:     gismoId,
-			DateCreated: timestamppb.New(e.DateCreated),
-			DateUpdated: timestamppb.New(e.DateUpdated),
-			Type:        e.Type,
-			NameDut:     e.NameDut,
-			NameEng:     e.NameEng,
-			OtherId:     otherIds,
-		},
+		Id:          e.PublicID,
+		GismoId:     gismoId,
+		DateCreated: &e.DateCreated,
+		DateUpdated: &e.DateUpdated,
+		Type:        e.Type,
+		NameDut:     e.NameDut,
+		NameEng:     e.NameEng,
+		OtherId:     otherIds,
 	}
 	if parentOrg := e.Edges.Parent; parentOrg != nil {
 		org.ParentId = parentOrg.PublicID
@@ -422,8 +418,8 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 	}
 
 	// collect entgo managed fields
-	p.DateCreated = timestamppb.New(row.DateCreated)
-	p.DateUpdated = timestamppb.New(row.DateUpdated)
+	p.DateCreated = &row.DateCreated
+	p.DateUpdated = &row.DateUpdated
 	p.Id = row.PublicID
 
 	return p, nil
@@ -694,15 +690,15 @@ func (repo *repository) SuggestPeople(ctx context.Context, query string) ([]*mod
 }
 
 func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
-	refIds := make([]*v1.IdRef, 0, len(e.OtherID))
+	refIds := make([]*models.IdRef, 0, len(e.OtherID))
 	for _, schemaOtherId := range e.OtherID {
-		refIds = append(refIds, &v1.IdRef{
+		refIds = append(refIds, &models.IdRef{
 			Id:   schemaOtherId.ID,
 			Type: schemaOtherId.Type,
 		})
 	}
 
-	var orgRefs []*v1.OrganizationRef
+	var orgRefs []*models.OrganizationRef
 	for _, orgRow := range e.Edges.Organizations {
 		var thisOrgPersonRow *ent.OrganizationPerson
 		for _, orgPersonRow := range e.Edges.OrganizationPerson {
@@ -712,14 +708,14 @@ func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
 			}
 		}
 		orgRef := models.NewOrganizationRef(orgRow.PublicID)
-		orgRef.DateCreated = timestamppb.New(thisOrgPersonRow.DateCreated)
-		orgRef.DateUpdated = timestamppb.New(thisOrgPersonRow.DateUpdated)
-		orgRef.From = timestamppb.New(thisOrgPersonRow.From)
-		orgRef.Until = timestamppb.New(thisOrgPersonRow.Until)
+		orgRef.DateCreated = &thisOrgPersonRow.DateCreated
+		orgRef.DateUpdated = &thisOrgPersonRow.DateUpdated
+		orgRef.From = &thisOrgPersonRow.From
+		orgRef.Until = &thisOrgPersonRow.Until
 		orgRefs = append(orgRefs, orgRef)
 	}
 	sort.SliceStable(orgRefs, func(i, j int) bool {
-		return orgRefs[i].DateCreated.AsTime().Before(orgRefs[j].DateCreated.AsTime())
+		return orgRefs[i].DateCreated.Before(*orgRefs[j].DateCreated)
 	})
 
 	var uToken string
@@ -738,29 +734,27 @@ func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
 		gismoId = *e.GismoID
 	}
 	p := &models.Person{
-		Person: &v1.Person{
-			Active:             e.Active,
-			BirthDate:          e.BirthDate,
-			DateCreated:        timestamppb.New(e.DateCreated),
-			DateUpdated:        timestamppb.New(e.DateUpdated),
-			Email:              e.Email,
-			OtherId:            refIds,
-			FirstName:          e.FirstName,
-			FullName:           e.FullName,
-			Id:                 e.PublicID,
-			GismoId:            gismoId,
-			LastName:           e.LastName,
-			JobCategory:        e.JobCategory,
-			Orcid:              e.Orcid,
-			OrcidToken:         uToken,
-			Organization:       orgRefs,
-			PreferredLastName:  e.PreferredLastName,
-			PreferredFirstName: e.PreferredFirstName,
-			Title:              e.Title,
-			Role:               e.Role,
-			Settings:           e.Settings,
-			ObjectClass:        e.ObjectClass,
-		},
+		Active:             e.Active,
+		BirthDate:          e.BirthDate,
+		DateCreated:        &e.DateCreated,
+		DateUpdated:        &e.DateUpdated,
+		Email:              e.Email,
+		OtherId:            refIds,
+		FirstName:          e.FirstName,
+		FullName:           e.FullName,
+		Id:                 e.PublicID,
+		GismoId:            gismoId,
+		LastName:           e.LastName,
+		JobCategory:        e.JobCategory,
+		Orcid:              e.Orcid,
+		OrcidToken:         uToken,
+		Organization:       orgRefs,
+		PreferredLastName:  e.PreferredLastName,
+		PreferredFirstName: e.PreferredFirstName,
+		Title:              e.Title,
+		Role:               e.Role,
+		Settings:           e.Settings,
+		ObjectClass:        e.ObjectClass,
 	}
 	return p, nil
 }

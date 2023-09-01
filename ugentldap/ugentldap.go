@@ -152,10 +152,6 @@ func (cli *Client) SearchPeople(filter string, cb func(*models.Person) error) er
 	return uc.SearchPeople(filter, cb)
 }
 
-func (cli *Client) SearchStudents(cb func(*models.Person) error) error {
-	return cli.SearchPeople("(objectClass=ugentStudent)", cb)
-}
-
 func mapToDummyPerson(entry *ldap.Entry) *models.Person {
 	np := models.NewPerson()
 	np.Active = true

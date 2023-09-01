@@ -95,7 +95,7 @@ var serverStartCmd = &cobra.Command{
 
 		logger.Infof("starting server at %s", config.Api.Addr())
 		if err := graceful.Graceful(srv.ListenAndServe, srv.Shutdown); err != nil {
-			return nil
+			return err
 		}
 		logger.Info("gracefully stopped server")
 		return nil

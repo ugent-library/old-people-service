@@ -9,16 +9,17 @@ import (
 var expirePersonCmd = &cobra.Command{
 	Use:   "expire-person",
 	Short: "auto expire person records",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		repo, err := newRepository()
 		if err != nil {
-			logger.Fatal(err)
+			return err
 		}
 		nAffected, err := repo.AutoExpirePeople(context.TODO())
 		if err != nil {
-			logger.Fatal(err)
+			return err
 		}
 		logger.Infof("%d person records expired", nAffected)
+		return nil
 	},
 }
 

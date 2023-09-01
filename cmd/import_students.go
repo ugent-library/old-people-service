@@ -12,13 +12,13 @@ import (
 var importStudentsCmd = &cobra.Command{
 	Use:   "students",
 	Short: "import student records from UGent LDAP",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		ctx := context.TODO()
 		ldapClient := newUgentLdapClient()
 		repo, err := newRepository()
 		if err != nil {
-			logger.Fatal(err)
+			return err
 		}
 
 		err = ldapClient.SearchPeople("(objectClass=ugentStudent)", func(np *models.Person) error {
@@ -103,10 +103,7 @@ var importStudentsCmd = &cobra.Command{
 			return nil
 		})
 
-		if err != nil {
-			logger.Fatal(err)
-		}
-
+		return err
 	},
 }
 

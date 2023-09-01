@@ -14,25 +14,20 @@ import (
 
 var inboxListenPersonCmd = &cobra.Command{
 	Use: "person",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		expB := backoff.NewExponentialBackOff()
 		expB.MaxInterval = time.Minute
 		b := backoff.WithMaxRetries(expB, 100)
 		b = backoff.WithContext(b, cmd.Context())
 
-		err := backoff.Retry(func() error {
+		return backoff.Retry(func() error {
 			err := listenPersonFn()
 			if err != nil {
 				logger.Error(err)
 			}
 			return err
 		}, b)
-
-		if err != nil {
-			logger.Errorf("fatal error: %s", err)
-		}
-
 	},
 }
 

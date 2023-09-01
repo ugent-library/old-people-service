@@ -4,9 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"runtime"
-	"time"
 
-	"github.com/cenkalti/backoff"
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
 	"github.com/ugent-library/people-service/models"
@@ -15,19 +13,7 @@ import (
 var inboxListenPersonCmd = &cobra.Command{
 	Use: "person",
 	RunE: func(cmd *cobra.Command, args []string) error {
-
-		expB := backoff.NewExponentialBackOff()
-		expB.MaxInterval = time.Minute
-		b := backoff.WithMaxRetries(expB, 100)
-		b = backoff.WithContext(b, cmd.Context())
-
-		return backoff.Retry(func() error {
-			err := listenPersonFn()
-			if err != nil {
-				logger.Error(err)
-			}
-			return err
-		}, b)
+		return backOffRetry(cmd.Context(), listenPersonFn)
 	},
 }
 

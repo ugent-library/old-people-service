@@ -6,6 +6,9 @@ import (
 
 	"github.com/caarlos0/env/v8"
 	"github.com/spf13/cobra"
+	"github.com/ugent-library/people-service/models"
+	"github.com/ugent-library/people-service/repository"
+	"github.com/ugent-library/people-service/ugentldap"
 	"go.uber.org/zap"
 
 	// load .env file if present
@@ -45,6 +48,21 @@ func initLogger() {
 	}
 	cobra.CheckErr(e)
 	logger = l.Sugar()
+}
+
+func newRepository() (models.Repository, error) {
+	return repository.NewRepository(&repository.Config{
+		DbUrl:  config.Db.Url,
+		AesKey: config.Db.AesKey,
+	})
+}
+
+func newUgentLdapClient() *ugentldap.Client {
+	return ugentldap.NewClient(ugentldap.Config{
+		Url:      config.Ldap.Url,
+		Username: config.Ldap.Username,
+		Password: config.Ldap.Password,
+	})
 }
 
 func Execute() {

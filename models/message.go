@@ -1,9 +1,7 @@
-package inbox
+package models
 
 import (
 	"time"
-
-	"github.com/ugent-library/people-service/models"
 )
 
 /*
@@ -42,7 +40,7 @@ func (m *Message) GetAttributeAt(name string, t time.Time) (string, error) {
 			return attr.Value, nil
 		}
 	}
-	return "", models.ErrNotFound
+	return "", ErrNotFound
 }
 
 func (m *Message) GetAttributesAt(name string, t time.Time) []string {

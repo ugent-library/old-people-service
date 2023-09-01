@@ -166,7 +166,7 @@ $ ./people-service inbox listen organization
 
   * messages must be persisted to disk
 
-  * messages are created by [soap-bridge](https://github.com/ugent-library/soap-bridge) and are SOAP Cerif XML messages as produced by GISMO. We have to convert those XML messages into this `inbox.Message` format:
+  * messages are created by [soap-bridge](https://github.com/ugent-library/soap-bridge) and are SOAP Cerif XML messages as produced by GISMO. We have to convert those XML messages into this `models.Message` format:
 
     ```
     {
@@ -206,9 +206,9 @@ $ ./people-service inbox listen organization
 
 * messages with unexpected XML structure are discarded, and acknowledged to ensure progression.
 
-* XML messages are converted to `inbox.Message` format.
+* XML messages are converted to `models.Message` format.
 
-* `inbox.Message` results into insert or update of a organization record
+* `models.Message` results into insert or update of a organization record
 
 * Notes:
 
@@ -225,7 +225,7 @@ $ ./people-service inbox listen person
 
   * messages must be persisted to disk
 
-  * messages are created by [soap-bridge](https://github.com/ugent-library/soap-bridge) and are SOAP Cerif XML messages as produced by GISMO. We have to convert those XML messages into this `inbox.Message` format:
+  * messages are created by [soap-bridge](https://github.com/ugent-library/soap-bridge) and are SOAP Cerif XML messages as produced by GISMO. We have to convert those XML messages into this `models.Message` format:
 
     ```
     {
@@ -265,9 +265,9 @@ $ ./people-service inbox listen person
 
 * messages with unexpected XML structure are discarded, and acknowledged to ensure progression.
 
-* XML messages are converted to `inbox.Message` format.
+* XML messages are converted to `models.Message` format.
 
-* `inbox.Message` results into insert or update of a person record
+* `models.Message` results into insert or update of a person record
 
 * Notes:
 

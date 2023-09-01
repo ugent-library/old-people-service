@@ -4,27 +4,23 @@ import (
 	"fmt"
 
 	"github.com/nats-io/nats.go"
-	"github.com/ugent-library/people-service/inbox"
-	"go.uber.org/zap"
 )
 
 type Subcriber interface {
 	Subject() string
 	SubOpts() []nats.SubOpt
-	Process(*nats.Msg) (*inbox.Message, error)
-	EnsureAck(*nats.Msg)
+	Process(*nats.Msg) (string, error)
+	EnsureAck(*nats.Msg) error
 }
 
 type BaseSubscriber struct {
 	subject string
 	subOpts []nats.SubOpt
-	logger  *zap.SugaredLogger
 }
 
 type BaseConfig struct {
 	Subject string
 	SubOpts []nats.SubOpt
-	Logger  *zap.SugaredLogger
 }
 
 func (bs *BaseSubscriber) Subject() string {
@@ -35,13 +31,14 @@ func (bs *BaseSubscriber) SubOpts() []nats.SubOpt {
 	return bs.subOpts
 }
 
-func (bs *BaseSubscriber) EnsureAck(msg *nats.Msg) {
+func (bs *BaseSubscriber) EnsureAck(msg *nats.Msg) error {
 	if err := msg.Ack(); err != nil {
-		bs.logger.Fatal(fmt.Errorf("unable to acknowledge nats message: %w", err))
+		return fmt.Errorf("unable to acknowledge nats message: %w", err)
 	}
+	return nil
 }
 
-func NewBaseSubscriber(subject string) BaseSubscriber {
+func newBaseSubscriber(subject string) BaseSubscriber {
 	return BaseSubscriber{
 		subject: subject,
 		subOpts: []nats.SubOpt{

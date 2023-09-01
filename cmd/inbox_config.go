@@ -6,9 +6,8 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nkeys"
-	"github.com/ugent-library/people-service/models"
+	"github.com/ugent-library/people-service/gismo"
 	"github.com/ugent-library/people-service/subscribers"
-	"github.com/ugent-library/people-service/ugentldap"
 )
 
 var natsStreamConfig = nats.StreamConfig{
@@ -129,32 +128,42 @@ func natsConnect(config ConfigNats) (*nats.Conn, error) {
 	return options.Connect()
 }
 
-func buildOrganizationSubscriber(js nats.JetStreamContext, repo models.Repository) (subscribers.Subcriber, error) {
+func newOrganizationSubscriber(js nats.JetStreamContext) (subscribers.Subcriber, error) {
 	if err := initConsumer(js, natsStreamConfig.Name, &natsOrganizationConsumerConfig); err != nil {
 		return nil, fmt.Errorf("unable to create nats consumer %s: %w", natsOrganizationConsumerConfig.Durable, err)
 	}
 	orgSConfig := subscribers.GismoOrganizationConfig{}
-	orgSConfig.Logger = logger
-	orgSConfig.Repository = repo
+	gismoImporter, err := newGismoImporter()
+	if err != nil {
+		return nil, err
+	}
+	orgSConfig.GismoImporter = gismoImporter
 	orgSConfig.Subject = natsOrganizationConsumerConfig.FilterSubject
 	orgSConfig.SubOpts = []nats.SubOpt{nats.Bind(natsStreamConfig.Name, natsOrganizationConsumerConfig.Durable)}
 	return subscribers.NewGismoOrganizationSubscriber(orgSConfig), nil
 }
 
-func buildPersonSubscriber(js nats.JetStreamContext, repo models.Repository) (subscribers.Subcriber, error) {
+func newPersonSubscriber(js nats.JetStreamContext) (subscribers.Subcriber, error) {
 	if err := initConsumer(js, natsStreamConfig.Name, &natsPersonConsumerConfig); err != nil {
 		return nil, fmt.Errorf("unable to create nats consumer %s: %w", natsPersonConsumerConfig.Durable, err)
 	}
 	personSConfig := subscribers.GismoPersonConfig{}
-	personSConfig.Logger = logger
-	personSConfig.Repository = repo
+	gismoImporter, err := newGismoImporter()
+	if err != nil {
+		return nil, err
+	}
+	personSConfig.GismoImporter = gismoImporter
 	personSConfig.Subject = natsPersonConsumerConfig.FilterSubject
 	personSConfig.SubOpts = []nats.SubOpt{nats.Bind(natsStreamConfig.Name, natsPersonConsumerConfig.Durable)}
-	personSConfig.LdapClient = ugentldap.NewClient(ugentldap.Config{
-		Url:      config.Ldap.Url,
-		Username: config.Ldap.Username,
-		Password: config.Ldap.Password,
-	})
 
 	return subscribers.NewGismoPersonSubscriber(personSConfig), nil
+}
+
+func newGismoImporter() (*gismo.Importer, error) {
+	repo, err := newRepository()
+	if err != nil {
+		return nil, err
+	}
+	ugentLdapClient := newUgentLdapClient()
+	return gismo.NewImporter(repo, ugentLdapClient), nil
 }

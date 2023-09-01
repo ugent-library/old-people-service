@@ -10,7 +10,6 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
 	"github.com/ugent-library/people-service/models"
-	"github.com/ugent-library/people-service/repository"
 )
 
 var inboxListenPersonCmd = &cobra.Command{
@@ -46,22 +45,14 @@ func listenPersonFn() error {
 
 	js, _ := nc.JetStream()
 
-	repo, err := repository.NewRepository(&repository.Config{
-		DbUrl:  config.Db.Url,
-		AesKey: config.Db.AesKey,
-	})
-	if err != nil {
-		return fmt.Errorf("%w: %w", models.ErrFatal, err)
-	}
-
-	sub, err := buildPersonSubscriber(js, repo)
+	sub, err := newPersonSubscriber(js)
 
 	if err != nil {
 		return fmt.Errorf("%w: unable to build person subscriber: %w", models.ErrFatal, err)
 	}
 
 	_, err = js.Subscribe(sub.Subject(), func(msg *nats.Msg) {
-		iMsg, lErr := sub.Process(msg)
+		id, lErr := sub.Process(msg)
 
 		if errors.Is(lErr, models.ErrFatal) {
 			logger.Fatal(lErr) // escape loop
@@ -72,10 +63,12 @@ func listenPersonFn() error {
 		} else if lErr != nil {
 			logger.Errorf("subject %s: caught unexpected error: %s", sub.Subject(), lErr)
 		} else {
-			logger.Infof("subject %s: processed message %s", sub.Subject(), iMsg.ID)
+			logger.Infof("subject %s: processed message %s", sub.Subject(), id)
 		}
 
-		sub.EnsureAck(msg)
+		if err := sub.EnsureAck(msg); err != nil {
+			logger.Fatal(err)
+		}
 	}, sub.SubOpts()...)
 
 	if err != nil {

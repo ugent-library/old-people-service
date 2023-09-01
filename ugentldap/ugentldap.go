@@ -7,13 +7,13 @@ import (
 	"github.com/ugent-library/people-service/models"
 )
 
-type UgentLdap struct {
+type Client struct {
 	url      string
 	username string
 	password string
 }
 
-type UgentLdapConn struct {
+type ClientConn struct {
 	conn *ldap.Conn
 }
 
@@ -40,15 +40,15 @@ var ldapAttributes = []string{
 	"departmentNumber",
 }
 
-func NewClient(config Config) *UgentLdap {
-	return &UgentLdap{
+func NewClient(config Config) *Client {
+	return &Client{
 		url:      config.Url,
 		username: config.Username,
 		password: config.Password,
 	}
 }
 
-func (cli *UgentLdap) NewConn() (*UgentLdapConn, error) {
+func (cli *Client) NewConn() (*ClientConn, error) {
 	conn, err := ldap.DialURL(cli.url)
 	if err != nil {
 		return nil, err
@@ -59,14 +59,14 @@ func (cli *UgentLdap) NewConn() (*UgentLdapConn, error) {
 		return nil, err
 	}
 
-	return &UgentLdapConn{conn}, nil
+	return &ClientConn{conn}, nil
 }
 
-func (uc *UgentLdapConn) Close() error {
-	return uc.conn.Close()
+func (conn *ClientConn) Close() error {
+	return conn.conn.Close()
 }
 
-func (uc *UgentLdapConn) SearchPeople(filter string, cb func(*models.Person) error) error {
+func (conn *ClientConn) SearchPeople(filter string, cb func(*models.Person) error) error {
 	searchReq := ldap.NewSearchRequest(
 		"ou=people,dc=ugent,dc=be",
 		ldap.ScopeSingleLevel,
@@ -89,7 +89,7 @@ func (uc *UgentLdapConn) SearchPeople(filter string, cb func(*models.Person) err
 	var cbErr error
 
 	for {
-		sr, err := uc.conn.Search(searchReq)
+		sr, err := conn.conn.Search(searchReq)
 		if err != nil {
 			return err
 		}
@@ -135,7 +135,7 @@ func (uc *UgentLdapConn) SearchPeople(filter string, cb func(*models.Person) err
 	*/
 	if cbErr != nil && pagingControl != nil {
 		pagingControl.PagingSize = 0
-		if _, err := uc.conn.Search(searchReq); err != nil {
+		if _, err := conn.conn.Search(searchReq); err != nil {
 			return err
 		}
 	}
@@ -143,7 +143,7 @@ func (uc *UgentLdapConn) SearchPeople(filter string, cb func(*models.Person) err
 	return nil
 }
 
-func (cli *UgentLdap) SearchPeople(filter string, cb func(*models.Person) error) error {
+func (cli *Client) SearchPeople(filter string, cb func(*models.Person) error) error {
 	uc, err := cli.NewConn()
 	if err != nil {
 		return err
@@ -152,7 +152,7 @@ func (cli *UgentLdap) SearchPeople(filter string, cb func(*models.Person) error)
 	return uc.SearchPeople(filter, cb)
 }
 
-func (cli *UgentLdap) SearchStudents(cb func(*models.Person) error) error {
+func (cli *Client) SearchStudents(cb func(*models.Person) error) error {
 	return cli.SearchPeople("(objectClass=ugentStudent)", cb)
 }
 

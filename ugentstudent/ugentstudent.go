@@ -38,8 +38,6 @@ func (si *Importer) ImportAll(cb func(*models.Person)) error {
 			  Make sure the organizations are already stored.
 		*/
 
-		//TODO: use modifytimestamp to fetch records incrementally?
-
 		var oldPerson *models.Person
 		for _, otherId := range newPerson.OtherId {
 			if otherId.Type != "historic_ugent_id" {

@@ -77,7 +77,7 @@ var serverStartCmd = &cobra.Command{
 			}),
 		)
 		if err != nil {
-			logger.Fatal(err)
+			return err
 		}
 
 		mux.Get("/api/v1/openapi.yaml", func(w http.ResponseWriter, r *http.Request) {

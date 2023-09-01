@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"errors"
@@ -10,14 +10,14 @@ import (
 	"github.com/ugent-library/people-service/models"
 )
 
-var inboxListenOrganizationCmd = &cobra.Command{
-	Use: "organization",
+var inboxListenPersonCmd = &cobra.Command{
+	Use: "person",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return backOffRetry(cmd.Context(), listenOrganizationFn)
+		return backOffRetry(cmd.Context(), listenPersonFn)
 	},
 }
 
-func listenOrganizationFn() error {
+func listenPersonFn() error {
 	nc, err := natsConnect(config.Nats)
 
 	if err != nil {
@@ -26,10 +26,10 @@ func listenOrganizationFn() error {
 
 	js, _ := nc.JetStream()
 
-	sub, err := newOrganizationSubscriber(js)
+	sub, err := newPersonSubscriber(js)
 
 	if err != nil {
-		return fmt.Errorf("%w: unable to build organization subscriber: %w", models.ErrFatal, err)
+		return fmt.Errorf("%w: unable to build person subscriber: %w", models.ErrFatal, err)
 	}
 
 	_, err = js.Subscribe(sub.Subject(), func(msg *nats.Msg) {
@@ -63,5 +63,5 @@ func listenOrganizationFn() error {
 }
 
 func init() {
-	inboxListenCmd.AddCommand(inboxListenOrganizationCmd)
+	inboxListenCmd.AddCommand(inboxListenPersonCmd)
 }

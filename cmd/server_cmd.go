@@ -13,7 +13,6 @@ import (
 	"github.com/ory/graceful"
 	"github.com/spf13/cobra"
 	"github.com/ugent-library/people-service/api/v1"
-	"github.com/ugent-library/people-service/repository"
 	"github.com/ugent-library/zaphttp"
 	"github.com/ugent-library/zaphttp/zapchi"
 )
@@ -48,10 +47,7 @@ var serverStartCmd = &cobra.Command{
 	Use:   "start",
 	Short: "start the api server",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		repo, err := repository.NewRepository(&repository.Config{
-			DbUrl:  config.Db.Url,
-			AesKey: config.Db.AesKey,
-		})
+		repo, err := newRepository()
 		if err != nil {
 			return err
 		}

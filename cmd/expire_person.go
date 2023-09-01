@@ -4,17 +4,13 @@ import (
 	"context"
 
 	"github.com/spf13/cobra"
-	"github.com/ugent-library/people-service/repository"
 )
 
 var expirePersonCmd = &cobra.Command{
 	Use:   "expire-person",
 	Short: "auto expire person records",
 	Run: func(cmd *cobra.Command, args []string) {
-		repo, err := repository.NewRepository(&repository.Config{
-			DbUrl:  config.Db.Url,
-			AesKey: config.Db.AesKey,
-		})
+		repo, err := newRepository()
 		if err != nil {
 			logger.Fatal(err)
 		}

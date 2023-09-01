@@ -7,8 +7,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/ugent-library/people-service/models"
-	"github.com/ugent-library/people-service/repository"
-	"github.com/ugent-library/people-service/ugentldap"
 )
 
 var importStudentsCmd = &cobra.Command{
@@ -17,15 +15,8 @@ var importStudentsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		ctx := context.TODO()
-		ldapClient := ugentldap.NewClient(ugentldap.Config{
-			Url:      config.Ldap.Url,
-			Username: config.Ldap.Username,
-			Password: config.Ldap.Password,
-		})
-		repo, err := repository.NewRepository(&repository.Config{
-			DbUrl:  config.Db.Url,
-			AesKey: config.Db.AesKey,
-		})
+		ldapClient := newUgentLdapClient()
+		repo, err := newRepository()
 		if err != nil {
 			logger.Fatal(err)
 		}

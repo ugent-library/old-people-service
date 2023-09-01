@@ -1,5 +1,5 @@
 # build stage
-FROM golang:alpine AS build
+FROM golang:1.20-alpine AS build
 
 WORKDIR /opt/people-service
 

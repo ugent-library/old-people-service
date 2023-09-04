@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
+	"github.com/go-ldap/ldap/v3"
 	"github.com/ugent-library/people-service/models"
 	"github.com/ugent-library/people-service/ugentldap"
 )
@@ -23,27 +25,72 @@ func NewImporter(repo models.Repository, ugentLdapClient *ugentldap.Client) *Imp
 
 func (si *Importer) ImportAll(cb func(*models.Person)) error {
 	ctx := context.TODO()
-	err := si.ugentLdapClient.SearchPeople("(objectClass=ugentStudent)", func(newPerson *models.Person) error {
+	err := si.ugentLdapClient.SearchPeople("(objectClass=ugentStudent)", func(ldapEntry *ldap.Entry) error {
 
-		/*
-			"newPerson" is a "dummy" person record as returned by SearchPeople
+		newPerson := models.NewPerson()
+		newPerson.Active = true
 
-			Notes:
-
-			* newPerson.Id is empty
-			* newPerson.Active is always true
-			* newPerson.Organization contains "dummy" *models.OrganizationRef where Id is an ugent identifier (e.g CA20).
-			  We try to match the ugent identifier against a stored organization.
-			  Every provided models.OrganizationRef requires a match.
-			  Make sure the organizations are already stored.
-		*/
+		for _, attr := range ldapEntry.Attributes {
+			for _, val := range attr.Values {
+				switch attr.Name {
+				case "uid":
+					newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
+						Type: "ugent_username",
+						Id:   val,
+					})
+				// contains current active ugentID
+				case "ugentID":
+					newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
+						Type: "ugent_id",
+						Id:   val,
+					})
+				// contains ugentID also (at the end)
+				case "ugentHistoricIDs":
+					newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
+						Type: "historic_ugent_id",
+						Id:   val,
+					})
+				case "ugentBarcode":
+					newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
+						Type: "ugent_barcode",
+						Id:   val,
+					})
+				case "ugentPreferredGivenName":
+					newPerson.FirstName = val
+				case "ugentPreferredSn":
+					newPerson.LastName = val
+				case "displayName":
+					newPerson.FullName = val
+				case "ugentBirthDate":
+					newPerson.BirthDate = val
+				case "mail":
+					newPerson.Email = strings.ToLower(val)
+				case "ugentJobCategory":
+					newPerson.JobCategory = append(newPerson.JobCategory, val)
+				case "ugentAddressingTitle":
+					newPerson.Title = val
+				case "objectClass":
+					newPerson.ObjectClass = append(newPerson.ObjectClass, val)
+				case "ugentExpirationDate":
+					newPerson.ExpirationDate = val
+				case "departmentNumber":
+					realOrg, err := si.repository.GetOrganizationByOtherId(ctx, "ugent_id", val)
+					if errors.Is(err, models.ErrNotFound) {
+						continue
+					} else if err != nil {
+						return err
+					}
+					newOrgRef := models.NewOrganizationRef(realOrg.Id)
+					newPerson.Organization = append(newPerson.Organization, newOrgRef)
+				}
+			}
+		}
 
 		var oldPerson *models.Person
 		for _, otherId := range newPerson.OtherId {
 			if otherId.Type != "historic_ugent_id" {
 				continue
 			}
-
 			op, err := si.repository.GetPersonByOtherId(ctx, "historic_ugent_id", otherId.Id)
 			if errors.Is(err, models.ErrNotFound) {
 				continue
@@ -53,22 +100,6 @@ func (si *Importer) ImportAll(cb func(*models.Person)) error {
 			oldPerson = op
 			break
 		}
-
-		// provided OrganizationRef#Id is an ugent_id. Match with stored organization
-		var newOrgRefs []*models.OrganizationRef
-		for _, oRef := range newPerson.Organization {
-			realOrg, err := si.repository.GetOrganizationByOtherId(ctx, "ugent_id", oRef.Id)
-			if errors.Is(err, models.ErrNotFound) {
-				continue
-			} else if err != nil {
-				return err
-			}
-			newOrgRef := models.NewOrganizationRef(realOrg.Id)
-			newOrgRef.From = oRef.From
-			newOrgRef.Until = oRef.Until
-			newOrgRefs = append(newOrgRefs, newOrgRef)
-		}
-		newPerson.Organization = newOrgRefs
 
 		if oldPerson == nil {
 			np, err := si.repository.CreatePerson(ctx, newPerson)

@@ -3,7 +3,7 @@ package cli
 import (
 	"github.com/spf13/cobra"
 	"github.com/ugent-library/people-service/models"
-	"github.com/ugent-library/people-service/ugentstudent"
+	"github.com/ugent-library/people-service/student"
 )
 
 var importStudentsCmd = &cobra.Command{
@@ -16,7 +16,7 @@ var importStudentsCmd = &cobra.Command{
 			return err
 		}
 
-		importer := ugentstudent.NewImporter(repo, ugentLdapClient)
+		importer := student.NewImporter(repo, ugentLdapClient)
 		return importer.ImportAll(func(person *models.Person) {
 			logger.Infof("successfully imported person %s", person.Id)
 		})

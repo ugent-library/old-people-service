@@ -860,7 +860,6 @@ func (repo *repository) getPeople(ctx context.Context, cursor setCursor) ([]*mod
 	return people, newCursor, nil
 }
 
-// TODO: use "similar" functions from repository/common.go
 func (repo *repository) encodeCursor(c any) (string, error) {
 	plaintext, _ := json.Marshal(c)
 	ciphertext, err := crypt.Encrypt(repo.secret, plaintext)

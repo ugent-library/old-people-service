@@ -216,24 +216,27 @@ func (repo *repository) DeleteOrganization(ctx context.Context, id string) error
 
 func (repo *repository) EachOrganization(ctx context.Context, cb func(*models.Organization) bool) error {
 
-	// TODO: find a better way to do this (no cursors possible)
-	var offset int = 0
-	var limit int = 500
+	cursor := setCursor{}
+
 	for {
-		rows, err := repo.client.Organization.Query().WithParent().Offset(offset).Limit(limit).Order(ent.Asc(organization.FieldDateCreated)).All(ctx)
+		organizations, newCursor, err := repo.getOrganizations(ctx, cursor)
 		if err != nil {
 			return err
 		}
-		// entgo returns no error on empty results
-		if len(rows) == 0 {
-			break
-		}
-		for _, row := range rows {
-			if !cb(repo.orgUnwrap(row)) {
+
+		for _, organization := range organizations {
+			if !cb(organization) {
 				return nil
 			}
 		}
-		offset += limit
+
+		if len(organizations) == 0 {
+			break
+		}
+		if newCursor.LastID <= 0 {
+			break
+		}
+		cursor = newCursor
 	}
 
 	return nil
@@ -613,31 +616,31 @@ func (repo *repository) DeletePerson(ctx context.Context, id string) error {
 }
 
 func (repo *repository) EachPerson(ctx context.Context, cb func(*models.Person) bool) error {
-	// TODO: find a better way to do this (no cursors possible)
-	var offset int = 0
-	var limit int = 500
+	cursor := setCursor{}
+
 	for {
-		rows, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Offset(offset).Limit(limit).Order(ent.Asc(person.FieldDateCreated)).All(ctx)
+		people, newCursor, err := repo.getPeople(ctx, cursor)
 		if err != nil {
 			return err
 		}
-		// entgo returns no error on empty results
-		if len(rows) == 0 {
-			break
-		}
-		for _, row := range rows {
-			p, err := repo.personUnwrap(row)
-			if err != nil {
-				return err
-			}
-			if !cb(p) {
+
+		for _, person := range people {
+			if !cb(person) {
 				return nil
 			}
 		}
-		offset += limit
+
+		if len(people) == 0 {
+			break
+		}
+		if newCursor.LastID <= 0 {
+			break
+		}
+		cursor = newCursor
 	}
 
 	return nil
+
 }
 
 func (repo *repository) SuggestPeople(ctx context.Context, query string) ([]*models.Person, error) {

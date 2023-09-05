@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/antchfx/xmlquery"
+	"github.com/go-ldap/ldap/v3"
 	"github.com/ugent-library/people-service/models"
 	"github.com/ugent-library/people-service/ugentldap"
 )
@@ -514,36 +515,9 @@ func (gi *Importer) ImportPerson(buf []byte) (*models.Message, error) {
 	}
 
 	// enrich with ugent ldap attributes
-	ldapQueryParts := make([]string, 0, len(ugentIds))
-	for _, ugentId := range ugentIds {
-		ldapQueryParts = append(ldapQueryParts, fmt.Sprintf("(ugentHistoricIDs=%s)", ugentId))
-	}
-	ldapQuery := "(&" + strings.Join(ldapQueryParts, "") + ")"
-	ldapPersons := make([]*models.Person, 0)
-	err = gi.ugentLdapClient.SearchPeople(ldapQuery, func(p *models.Person) error {
-		ldapPersons = append(ldapPersons, p)
-		return nil
-	})
+	person, err = gi.updatePersonFromLdap(person)
 	if err != nil {
-		return nil, err
-	}
-
-	// TODO: what if there are multiple matches?
-	// TODO: what if we match the wrong user (ugent id is reused)
-
-	// TODO: better check: ugentStudent or ugentEmployee also
-	person.Active = len(ldapPersons) > 0
-
-	if len(ldapPersons) >= 1 {
-		ldapPerson := ldapPersons[0]
-		person.FullName = ldapPerson.FullName
-		for _, otherId := range ldapPerson.OtherId {
-			if otherId.Type == "ugent_username" || otherId.Type == "ugent_barcode" {
-				person.OtherId = append(person.OtherId, otherId)
-			}
-		}
-		person.ExpirationDate = ldapPerson.ExpirationDate
-		person.ObjectClass = ldapPerson.ObjectClass
+		return nil, fmt.Errorf("%w: unable to save person record: %s", models.ErrFatal, err)
 	}
 
 	// create/update record
@@ -552,4 +526,58 @@ func (gi *Importer) ImportPerson(buf []byte) (*models.Message, error) {
 	}
 
 	return msg, nil
+}
+
+func (gi *Importer) updatePersonFromLdap(person *models.Person) (*models.Person, error) {
+	ugentIds := []string{}
+	for _, otherId := range person.OtherId {
+		if otherId.Type == "historic_ugent_id" {
+			ugentIds = append(ugentIds, otherId.Id)
+		}
+	}
+
+	ldapQueryParts := make([]string, 0, len(ugentIds))
+	for _, ugentId := range ugentIds {
+		ldapQueryParts = append(ldapQueryParts, fmt.Sprintf("(ugentHistoricIDs=%s)", ugentId))
+	}
+	ldapQuery := "(&" + strings.Join(ldapQueryParts, "") + ")"
+	ldapEntries := make([]*ldap.Entry, 0)
+	err := gi.ugentLdapClient.SearchPeople(ldapQuery, func(ldapEntry *ldap.Entry) error {
+		ldapEntries = append(ldapEntries, ldapEntry)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	person.Active = len(ldapEntries) > 0
+
+	if len(ldapEntries) >= 1 {
+		ldapEntry := ldapEntries[0]
+
+		for _, attr := range ldapEntry.Attributes {
+			for _, val := range attr.Values {
+				switch attr.Name {
+				case "displayName":
+					person.FullName = val
+				case "ugentBarcode":
+					person.OtherId = append(person.OtherId, &models.IdRef{
+						Type: "ugent_barcode",
+						Id:   val,
+					})
+				case "uid":
+					person.OtherId = append(person.OtherId, &models.IdRef{
+						Type: "ugent_username",
+						Id:   val,
+					})
+				case "ugentExpirationDate":
+					person.ExpirationDate = val
+				case "objectClass":
+					person.ObjectClass = append(person.ObjectClass, val)
+				}
+			}
+		}
+	}
+
+	return person, nil
 }

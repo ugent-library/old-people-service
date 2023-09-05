@@ -1,10 +1,7 @@
 package ugentldap
 
 import (
-	"strings"
-
 	"github.com/go-ldap/ldap/v3"
-	"github.com/ugent-library/people-service/models"
 )
 
 type Client struct {
@@ -66,7 +63,7 @@ func (conn *ClientConn) Close() error {
 	return conn.conn.Close()
 }
 
-func (conn *ClientConn) SearchPeople(filter string, cb func(*models.Person) error) error {
+func (conn *ClientConn) SearchPeople(filter string, cb func(*ldap.Entry) error) error {
 	searchReq := ldap.NewSearchRequest(
 		"ou=people,dc=ugent,dc=be",
 		ldap.ScopeSingleLevel,
@@ -102,7 +99,7 @@ func (conn *ClientConn) SearchPeople(filter string, cb func(*models.Person) erro
 		}
 
 		for _, entry := range sr.Entries {
-			if err := cb(mapToDummyPerson(entry)); err != nil {
+			if err := cb(entry); err != nil {
 				cbErr = err
 				break
 			}
@@ -143,71 +140,11 @@ func (conn *ClientConn) SearchPeople(filter string, cb func(*models.Person) erro
 	return nil
 }
 
-func (cli *Client) SearchPeople(filter string, cb func(*models.Person) error) error {
+func (cli *Client) SearchPeople(filter string, cb func(*ldap.Entry) error) error {
 	uc, err := cli.NewConn()
 	if err != nil {
 		return err
 	}
 	defer uc.Close()
 	return uc.SearchPeople(filter, cb)
-}
-
-func (cli *Client) SearchStudents(cb func(*models.Person) error) error {
-	return cli.SearchPeople("(objectClass=ugentStudent)", cb)
-}
-
-func mapToDummyPerson(entry *ldap.Entry) *models.Person {
-	np := models.NewPerson()
-	np.Active = true
-
-	for _, attr := range entry.Attributes {
-		for _, val := range attr.Values {
-			switch attr.Name {
-			case "uid":
-				np.OtherId = append(np.OtherId, &models.IdRef{
-					Type: "ugent_username",
-					Id:   val,
-				})
-			// contains current active ugentID
-			case "ugentID":
-				np.OtherId = append(np.OtherId, &models.IdRef{
-					Type: "ugent_id",
-					Id:   val,
-				})
-			// contains ugentID also (at the end)
-			case "ugentHistoricIDs":
-				np.OtherId = append(np.OtherId, &models.IdRef{
-					Type: "historic_ugent_id",
-					Id:   val,
-				})
-			case "ugentBarcode":
-				np.OtherId = append(np.OtherId, &models.IdRef{
-					Type: "ugent_barcode",
-					Id:   val,
-				})
-			case "ugentPreferredGivenName":
-				np.FirstName = val
-			case "ugentPreferredSn":
-				np.LastName = val
-			case "displayName":
-				np.FullName = val
-			case "ugentBirthDate":
-				np.BirthDate = val
-			case "mail":
-				np.Email = strings.ToLower(val)
-			case "ugentJobCategory":
-				np.JobCategory = append(np.JobCategory, val)
-			case "ugentAddressingTitle":
-				np.Title = val
-			case "objectClass":
-				np.ObjectClass = append(np.ObjectClass, val)
-			case "ugentExpirationDate":
-				np.ExpirationDate = val
-			case "departmentNumber":
-				//OrganizationRef#Id is here an ugent id (e.g. CA20)
-				np.Organization = append(np.Organization, models.NewOrganizationRef(val))
-			}
-		}
-	}
-	return np
 }

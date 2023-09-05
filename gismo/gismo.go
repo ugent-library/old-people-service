@@ -520,6 +520,11 @@ func (gi *Importer) ImportPerson(buf []byte) (*models.Message, error) {
 		return nil, fmt.Errorf("%w: unable to save person record: %s", models.ErrFatal, err)
 	}
 
+	// set to active=false when no longer active in gismo
+	if msg.Source == "gismo.person.delete" {
+		person.Active = false
+	}
+
 	// create/update record
 	if _, err = gi.repository.SavePerson(ctx, person); err != nil {
 		return nil, fmt.Errorf("%w: unable to save person record: %s", models.ErrFatal, err)

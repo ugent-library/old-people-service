@@ -570,7 +570,7 @@ func (gi *Importer) enrichPersonWithLdap(person *models.Person) (*models.Person,
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%w: unable to save person record: %s", models.ErrFatal, err)
+		return nil, fmt.Errorf("%w: unable to query ugent ldap: %s", models.ErrFatal, err)
 	}
 
 	person.Active = len(ldapEntries) > 0

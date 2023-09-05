@@ -515,13 +515,34 @@ func (gi *Importer) ImportPerson(buf []byte) (*models.Message, error) {
 	}
 
 	// enrich with ugent ldap attributes
+	person, err = gi.updatePersonFromLdap(person)
+	if err != nil {
+		return nil, fmt.Errorf("%w: unable to save person record: %s", models.ErrFatal, err)
+	}
+
+	// create/update record
+	if _, err = gi.repository.SavePerson(ctx, person); err != nil {
+		return nil, fmt.Errorf("%w: unable to save person record: %s", models.ErrFatal, err)
+	}
+
+	return msg, nil
+}
+
+func (gi *Importer) updatePersonFromLdap(person *models.Person) (*models.Person, error) {
+	ugentIds := []string{}
+	for _, otherId := range person.OtherId {
+		if otherId.Type == "historic_ugent_id" {
+			ugentIds = append(ugentIds, otherId.Id)
+		}
+	}
+
 	ldapQueryParts := make([]string, 0, len(ugentIds))
 	for _, ugentId := range ugentIds {
 		ldapQueryParts = append(ldapQueryParts, fmt.Sprintf("(ugentHistoricIDs=%s)", ugentId))
 	}
 	ldapQuery := "(&" + strings.Join(ldapQueryParts, "") + ")"
 	ldapEntries := make([]*ldap.Entry, 0)
-	err = gi.ugentLdapClient.SearchPeople(ldapQuery, func(ldapEntry *ldap.Entry) error {
+	err := gi.ugentLdapClient.SearchPeople(ldapQuery, func(ldapEntry *ldap.Entry) error {
 		ldapEntries = append(ldapEntries, ldapEntry)
 		return nil
 	})
@@ -558,10 +579,5 @@ func (gi *Importer) ImportPerson(buf []byte) (*models.Message, error) {
 		}
 	}
 
-	// create/update record
-	if _, err = gi.repository.SavePerson(ctx, person); err != nil {
-		return nil, fmt.Errorf("%w: unable to save person record: %s", models.ErrFatal, err)
-	}
-
-	return msg, nil
+	return person, nil
 }

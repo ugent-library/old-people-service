@@ -26,64 +26,9 @@ func NewImporter(repo models.Repository, ugentLdapClient *ugentldap.Client) *Imp
 func (si *Importer) ImportAll(cb func(*models.Person)) error {
 	ctx := context.TODO()
 	err := si.ugentLdapClient.SearchPeople("(objectClass=ugentStudent)", func(ldapEntry *ldap.Entry) error {
-
-		newPerson := models.NewPerson()
-		newPerson.Active = true
-
-		for _, attr := range ldapEntry.Attributes {
-			for _, val := range attr.Values {
-				switch attr.Name {
-				case "uid":
-					newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
-						Type: "ugent_username",
-						Id:   val,
-					})
-				// contains current active ugentID
-				case "ugentID":
-					newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
-						Type: "ugent_id",
-						Id:   val,
-					})
-				// contains ugentID also (at the end)
-				case "ugentHistoricIDs":
-					newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
-						Type: "historic_ugent_id",
-						Id:   val,
-					})
-				case "ugentBarcode":
-					newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
-						Type: "ugent_barcode",
-						Id:   val,
-					})
-				case "ugentPreferredGivenName":
-					newPerson.FirstName = val
-				case "ugentPreferredSn":
-					newPerson.LastName = val
-				case "displayName":
-					newPerson.FullName = val
-				case "ugentBirthDate":
-					newPerson.BirthDate = val
-				case "mail":
-					newPerson.Email = strings.ToLower(val)
-				case "ugentJobCategory":
-					newPerson.JobCategory = append(newPerson.JobCategory, val)
-				case "ugentAddressingTitle":
-					newPerson.Title = val
-				case "objectClass":
-					newPerson.ObjectClass = append(newPerson.ObjectClass, val)
-				case "ugentExpirationDate":
-					newPerson.ExpirationDate = val
-				case "departmentNumber":
-					realOrg, err := si.repository.GetOrganizationByOtherId(ctx, "ugent_id", val)
-					if errors.Is(err, models.ErrNotFound) {
-						continue
-					} else if err != nil {
-						return err
-					}
-					newOrgRef := models.NewOrganizationRef(realOrg.Id)
-					newPerson.Organization = append(newPerson.Organization, newOrgRef)
-				}
-			}
+		newPerson, err := si.ldapEntryToPerson(ldapEntry)
+		if err != nil {
+			return err
 		}
 
 		var oldPerson *models.Person
@@ -132,4 +77,68 @@ func (si *Importer) ImportAll(cb func(*models.Person)) error {
 	})
 
 	return err
+}
+
+func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, error) {
+	newPerson := models.NewPerson()
+	newPerson.Active = true
+	ctx := context.TODO()
+
+	for _, attr := range ldapEntry.Attributes {
+		for _, val := range attr.Values {
+			switch attr.Name {
+			case "uid":
+				newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
+					Type: "ugent_username",
+					Id:   val,
+				})
+			// contains current active ugentID
+			case "ugentID":
+				newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
+					Type: "ugent_id",
+					Id:   val,
+				})
+			// contains ugentID also (at the end)
+			case "ugentHistoricIDs":
+				newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
+					Type: "historic_ugent_id",
+					Id:   val,
+				})
+			case "ugentBarcode":
+				newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
+					Type: "ugent_barcode",
+					Id:   val,
+				})
+			case "ugentPreferredGivenName":
+				newPerson.FirstName = val
+			case "ugentPreferredSn":
+				newPerson.LastName = val
+			case "displayName":
+				newPerson.FullName = val
+			case "ugentBirthDate":
+				newPerson.BirthDate = val
+			case "mail":
+				newPerson.Email = strings.ToLower(val)
+			case "ugentJobCategory":
+				newPerson.JobCategory = append(newPerson.JobCategory, val)
+			case "ugentAddressingTitle":
+				newPerson.Title = val
+			case "objectClass":
+				newPerson.ObjectClass = append(newPerson.ObjectClass, val)
+			case "ugentExpirationDate":
+				newPerson.ExpirationDate = val
+			case "departmentNumber":
+				realOrg, err := si.repository.GetOrganizationByOtherId(ctx, "ugent_id", val)
+				if errors.Is(err, models.ErrNotFound) {
+					continue
+				} else if err != nil {
+					return nil, err
+				}
+				newOrgRef := models.NewOrganizationRef(realOrg.Id)
+				newPerson.Organization = append(newPerson.Organization, newOrgRef)
+			}
+		}
+	}
+
+	return newPerson, nil
 }

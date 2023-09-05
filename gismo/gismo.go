@@ -385,37 +385,36 @@ func (gi *Importer) ImportPerson(buf []byte) (*models.Message, error) {
 		return nil, err
 	}
 
-	ctx := context.TODO()
+	// retrieve old person by matching on attributes in gismo message
+	// returns new person when no match is found
+	person, err := gi.getPersonByMessage(msg)
+	if err != nil {
+		return nil, err
+	}
+
+	// enrich person with incoming gismo attributes
+	person, err = gi.enrichPersonWithMessage(person, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	// enrich person with ugent ldap attributes
+	person, err = gi.enrichPersonWithLdap(person)
+	if err != nil {
+		return nil, err
+	}
+
+	// create/update record
+	if _, err = gi.repository.SavePerson(context.TODO(), person); err != nil {
+		return nil, fmt.Errorf("%w: unable to save person record: %s", models.ErrFatal, err)
+	}
+
+	return msg, nil
+}
+
+func (gi *Importer) enrichPersonWithMessage(person *models.Person, msg *models.Message) (*models.Person, error) {
 	now := time.Now()
-
-	// Without ugentId no linking possible
-	ugentIds := msg.GetAttributesAt("ugent_id", now)
-	if len(ugentIds) == 0 {
-		return nil, fmt.Errorf("%w: missing ugent_id in message %s", models.ErrSkipped, msg.ID)
-	}
-
-	// trial 1: retrieve old person by gismo-id
-	person, err := gi.repository.GetPersonByGismoId(ctx, msg.ID)
-
-	// trial 2: retrieve old person by ugent-id
-	if errors.Is(err, models.ErrNotFound) {
-		for _, ugentId := range ugentIds {
-			person, err = gi.repository.GetPersonByOtherId(ctx, "historic_ugent_id", ugentId)
-			if errors.Is(err, models.ErrNotFound) {
-				continue
-			}
-			if err != nil {
-				return nil, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)
-			}
-		}
-	} else if err != nil {
-		return nil, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)
-	}
-
-	// trial 3: new person record
-	if person == nil {
-		person = models.NewPerson()
-	}
+	ctx := context.TODO()
 
 	// clear old values
 	person.GismoId = msg.ID
@@ -514,26 +513,45 @@ func (gi *Importer) ImportPerson(buf []byte) (*models.Message, error) {
 		person.Organization = orgRefs
 	}
 
-	// enrich with ugent ldap attributes
-	person, err = gi.updatePersonFromLdap(person)
-	if err != nil {
-		return nil, fmt.Errorf("%w: unable to save person record: %s", models.ErrFatal, err)
-	}
-
-	// set to active=false when no longer active in gismo
-	if msg.Source == "gismo.person.delete" {
-		person.Active = false
-	}
-
-	// create/update record
-	if _, err = gi.repository.SavePerson(ctx, person); err != nil {
-		return nil, fmt.Errorf("%w: unable to save person record: %s", models.ErrFatal, err)
-	}
-
-	return msg, nil
+	return person, nil
 }
 
-func (gi *Importer) updatePersonFromLdap(person *models.Person) (*models.Person, error) {
+func (gi *Importer) getPersonByMessage(msg *models.Message) (*models.Person, error) {
+	ctx := context.TODO()
+	now := time.Now()
+
+	// Without ugentId no linking possible
+	ugentIds := msg.GetAttributesAt("ugent_id", now)
+	if len(ugentIds) == 0 {
+		return nil, fmt.Errorf("%w: missing ugent_id in message %s", models.ErrSkipped, msg.ID)
+	}
+
+	// trial 1: retrieve old person by gismo-id
+	person, err := gi.repository.GetPersonByGismoId(ctx, msg.ID)
+	if err == nil {
+		return person, nil
+	}
+	if !errors.Is(err, models.ErrNotFound) {
+		return nil, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)
+	}
+
+	// trial 2: retrieve old person by ugent-id
+	for _, ugentId := range ugentIds {
+		person, err = gi.repository.GetPersonByOtherId(ctx, "historic_ugent_id", ugentId)
+		if errors.Is(err, models.ErrNotFound) {
+			continue
+		}
+		if err != nil {
+			return nil, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)
+		}
+		return person, nil
+	}
+
+	// trial 3: new person record
+	return models.NewPerson(), nil
+}
+
+func (gi *Importer) enrichPersonWithLdap(person *models.Person) (*models.Person, error) {
 	ugentIds := []string{}
 	for _, otherId := range person.OtherId {
 		if otherId.Type == "historic_ugent_id" {
@@ -552,7 +570,7 @@ func (gi *Importer) updatePersonFromLdap(person *models.Person) (*models.Person,
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: unable to save person record: %s", models.ErrFatal, err)
 	}
 
 	person.Active = len(ldapEntries) > 0

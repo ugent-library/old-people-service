@@ -40,7 +40,7 @@ func listenPersonFn() error {
 		} else if errors.Is(lErr, models.ErrNonFatal) {
 			logger.Errorf("subject %s: caught non fatal error: %s", sub.Subject(), lErr)
 		} else if errors.Is(lErr, models.ErrSkipped) {
-			logger.Errorf("subject %s: message was skipped: %s", lErr)
+			logger.Errorf("subject %s: message was skipped: %s", sub.Subject(), lErr)
 		} else if lErr != nil {
 			logger.Errorf("subject %s: caught unexpected error: %s", sub.Subject(), lErr)
 		} else {

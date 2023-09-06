@@ -83,10 +83,9 @@ func (repo *repository) GetOrganizationsByGismoId(ctx context.Context, gismoIds 
 	return orgs, nil
 }
 
-func (repo *repository) GetOrganizationByOtherId(ctx context.Context, typ string, val string) (*models.Organization, error) {
+func (repo *repository) GetOrganizationByOtherId(ctx context.Context, typ string, values ...string) (*models.Organization, error) {
 	row, err := repo.client.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
-		exprVal := fmt.Sprintf(`[{"id":"%s","type":"%s"}]`, val, typ)
-		s.Where(entsql.ExprP("other_id::jsonb @> $1", exprVal))
+		s.Where(entsql.ExprP("other_id->$1 ?| $2", typ, values))
 	}).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
@@ -118,14 +117,7 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
-	schemaOtherIds := make([]schema.IdRef, 0, len(org.OtherId))
-	for _, refId := range org.OtherId {
-		schemaOtherIds = append(schemaOtherIds, schema.IdRef{
-			ID:   refId.Id,
-			Type: refId.Type,
-		})
-	}
-	t.SetOtherID(schemaOtherIds)
+	t.SetOtherID(schema.IdRefs(org.OtherId))
 	t.SetGismoID(org.GismoId)
 	if org.ParentId != "" {
 		parentOrgRow, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentId)).First(ctx)
@@ -168,14 +160,7 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
-	schemaOtherIds := make([]schema.IdRef, 0, len(org.OtherId))
-	for _, refId := range org.OtherId {
-		schemaOtherIds = append(schemaOtherIds, schema.IdRef{
-			ID:   refId.Id,
-			Type: refId.Type,
-		})
-	}
-	t.SetOtherID(schemaOtherIds)
+	t.SetOtherID(schema.IdRefs(org.OtherId))
 	t.SetGismoID(org.GismoId)
 	t.ClearParent()
 	if org.ParentId != "" {
@@ -320,13 +305,6 @@ func (repo *repository) getOrganizations(ctx context.Context, cursor setCursor) 
 }
 
 func (repo *repository) orgUnwrap(e *ent.Organization) *models.Organization {
-	otherIds := make([]*models.IdRef, 0, len(e.OtherID))
-	for _, schemaOtherId := range e.OtherID {
-		otherIds = append(otherIds, &models.IdRef{
-			Id:   schemaOtherId.ID,
-			Type: schemaOtherId.Type,
-		})
-	}
 	var gismoId string = ""
 	if e.GismoID != nil {
 		gismoId = *e.GismoID
@@ -339,7 +317,7 @@ func (repo *repository) orgUnwrap(e *ent.Organization) *models.Organization {
 		Type:        e.Type,
 		NameDut:     e.NameDut,
 		NameEng:     e.NameEng,
-		OtherId:     otherIds,
+		OtherId:     models.IdRefs(e.OtherID),
 	}
 	if parentOrg := e.Edges.Parent; parentOrg != nil {
 		org.ParentId = parentOrg.PublicID
@@ -398,14 +376,7 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 		t.SetOrcidToken(eToken)
 	}
 
-	schemaOtherIds := make([]schema.IdRef, 0, len(p.OtherId))
-	for _, refId := range p.OtherId {
-		schemaOtherIds = append(schemaOtherIds, schema.IdRef{
-			ID:   refId.Id,
-			Type: refId.Type,
-		})
-	}
-	t.SetOtherID(schemaOtherIds)
+	t.SetOtherID(schema.IdRefs(p.OtherId))
 	t.SetPreferredFirstName(p.PreferredFirstName)
 	t.SetPreferredLastName(p.PreferredLastName)
 
@@ -532,14 +503,7 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 		t.SetOrcidToken(eToken)
 	}
 
-	schemaOtherIds := make([]schema.IdRef, 0, len(p.OtherId))
-	for _, refId := range p.OtherId {
-		schemaOtherIds = append(schemaOtherIds, schema.IdRef{
-			ID:   refId.Id,
-			Type: refId.Type,
-		})
-	}
-	t.SetOtherID(schemaOtherIds)
+	t.SetOtherID(schema.IdRefs(p.OtherId))
 	t.SetPreferredFirstName(p.PreferredFirstName)
 	t.SetPreferredLastName(p.PreferredLastName)
 	t.ClearOrganizations()
@@ -583,10 +547,9 @@ func (repo *repository) GetPerson(ctx context.Context, id string) (*models.Perso
 	return repo.personUnwrap(row)
 }
 
-func (repo *repository) GetPersonByOtherId(ctx context.Context, typ string, val string) (*models.Person, error) {
+func (repo *repository) GetPersonByOtherId(ctx context.Context, typ string, values ...string) (*models.Person, error) {
 	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(func(s *entsql.Selector) {
-		exprVal := fmt.Sprintf(`[{"id":"%s","type":"%s"}]`, val, typ)
-		s.Where(entsql.ExprP("other_id::jsonb @> $1", exprVal))
+		s.Where(entsql.ExprP("other_id->$1 ?| $2", typ, values))
 	}).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
@@ -707,14 +670,6 @@ func (repo *repository) SuggestPeople(ctx context.Context, query string) ([]*mod
 }
 
 func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
-	refIds := make([]*models.IdRef, 0, len(e.OtherID))
-	for _, schemaOtherId := range e.OtherID {
-		refIds = append(refIds, &models.IdRef{
-			Id:   schemaOtherId.ID,
-			Type: schemaOtherId.Type,
-		})
-	}
-
 	var orgRefs []*models.OrganizationRef
 	for _, orgRow := range e.Edges.Organizations {
 		var thisOrgPersonRow *ent.OrganizationPerson
@@ -756,7 +711,7 @@ func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
 		DateCreated:        &e.DateCreated,
 		DateUpdated:        &e.DateUpdated,
 		Email:              e.Email,
-		OtherId:            refIds,
+		OtherId:            models.IdRefs(e.OtherID),
 		FirstName:          e.FirstName,
 		FullName:           e.FullName,
 		Id:                 e.PublicID,

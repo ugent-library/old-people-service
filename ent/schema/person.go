@@ -14,10 +14,7 @@ type Person struct {
 	ent.Schema
 }
 
-type IdRef struct {
-	ID   string `json:"id"`
-	Type string `json:"type"`
-}
+type IdRefs map[string][]string
 
 // TODO validate type
 var PersonIdTypes = []string{
@@ -42,7 +39,7 @@ func (Person) Fields() []ent.Field {
 		field.Bool("active").Default(false),
 		field.String("birth_date").Optional(),
 		field.String("email").Optional(),
-		field.JSON("other_id", []IdRef{}).Optional().Default([]IdRef{}),
+		field.JSON("other_id", IdRefs{}).Optional().Default(IdRefs{}),
 		field.String("first_name").Optional(),
 		field.String("full_name").Optional(),
 		field.String("last_name").Optional(),

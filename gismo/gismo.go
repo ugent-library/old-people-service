@@ -158,7 +158,7 @@ func (gi *Importer) ImportOrganization(buf []byte) (*models.Message, error) {
 		now := time.Now()
 		org.NameDut = ""
 		org.NameEng = ""
-		org.OtherId = make([]*models.IdRef, 0)
+		org.OtherId = models.IdRefs{}
 		org.Type = "organization"
 		org.ParentId = ""
 		org.GismoId = msg.ID
@@ -190,20 +190,11 @@ func (gi *Importer) ImportOrganization(buf []byte) (*models.Message, error) {
 			case "type":
 				org.Type = attr.Value
 			case "ugent_memorialis_id":
-				org.OtherId = append(org.OtherId, &models.IdRef{
-					Type: "ugent_memorialis_id",
-					Id:   attr.Value,
-				})
+				org.OtherId["ugent_memorialis_id"] = append(org.OtherId["ugent_memorialis_id"], attr.Value)
 			case "code":
-				org.OtherId = append(org.OtherId, &models.IdRef{
-					Type: "ugent_id",
-					Id:   attr.Value,
-				})
+				org.OtherId["ugent_id"] = append(org.OtherId["ugent_id"], attr.Value)
 			case "biblio_code":
-				org.OtherId = append(org.OtherId, &models.IdRef{
-					Type: "biblio_id",
-					Id:   attr.Value,
-				})
+				org.OtherId["biblio_id"] = append(org.OtherId["biblio_id"], attr.Value)
 			}
 		}
 
@@ -457,19 +448,10 @@ func (gi *Importer) enrichPersonWithMessage(person *models.Person, msg *models.M
 				person.LastName = attr.Value
 			}
 		case "ugent_id":
-			person.OtherId = append(person.OtherId, &models.IdRef{
-				Type: "ugent_id",
-				Id:   attr.Value,
-			})
-			person.OtherId = append(person.OtherId, &models.IdRef{
-				Type: "historic_ugent_id",
-				Id:   attr.Value,
-			})
+			person.OtherId["ugent_id"] = append(person.OtherId["ugent_id"], attr.Value)
+			person.OtherId["historic_ugent_id"] = append(person.OtherId["historic_ugent_id"], attr.Value)
 		case "ugent_memorialis_id":
-			person.OtherId = append(person.OtherId, &models.IdRef{
-				Type: "ugent_memorialis_id",
-				Id:   attr.Value,
-			})
+			person.OtherId["ugent_memorialis_id"] = append(person.OtherId["ugent_memorialis_id"], attr.Value)
 		case "title":
 			if withinDateRange {
 				person.Title = attr.Value
@@ -546,15 +528,12 @@ func (gi *Importer) getPersonByMessage(msg *models.Message) (*models.Person, err
 	}
 
 	// trial 2: retrieve old person by ugent-id
-	for _, ugentId := range ugentIds {
-		person, err = gi.repository.GetPersonByOtherId(ctx, "historic_ugent_id", ugentId)
-		if errors.Is(err, models.ErrNotFound) {
-			continue
-		}
-		if err != nil {
-			return nil, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)
-		}
+	person, err = gi.repository.GetPersonByOtherId(ctx, "historic_ugent_id", ugentIds...)
+	if err == nil {
 		return person, nil
+	}
+	if !errors.Is(err, models.ErrNotFound) {
+		return nil, fmt.Errorf("%w: unable to fetch person record: %s", models.ErrFatal, err)
 	}
 
 	// trial 3: new person record
@@ -562,15 +541,8 @@ func (gi *Importer) getPersonByMessage(msg *models.Message) (*models.Person, err
 }
 
 func (gi *Importer) enrichPersonWithLdap(person *models.Person) (*models.Person, error) {
-	ugentIds := []string{}
-	for _, otherId := range person.OtherId {
-		if otherId.Type == "historic_ugent_id" {
-			ugentIds = append(ugentIds, otherId.Id)
-		}
-	}
-
-	ldapQueryParts := make([]string, 0, len(ugentIds))
-	for _, ugentId := range ugentIds {
+	ldapQueryParts := make([]string, 0, len(person.OtherId["historic_ugent_id"]))
+	for _, ugentId := range person.OtherId["historic_ugent_id"] {
 		ldapQueryParts = append(ldapQueryParts, fmt.Sprintf("(ugentHistoricIDs=%s)", ugentId))
 	}
 	ldapQuery := "(&" + strings.Join(ldapQueryParts, "") + ")"
@@ -594,15 +566,9 @@ func (gi *Importer) enrichPersonWithLdap(person *models.Person) (*models.Person,
 				case "displayName":
 					person.FullName = val
 				case "ugentBarcode":
-					person.OtherId = append(person.OtherId, &models.IdRef{
-						Type: "ugent_barcode",
-						Id:   val,
-					})
+					person.OtherId["ugent_barcode"] = append(person.OtherId["ugent_barcode"], val)
 				case "uid":
-					person.OtherId = append(person.OtherId, &models.IdRef{
-						Type: "ugent_username",
-						Id:   val,
-					})
+					person.OtherId["ugent_username"] = append(person.OtherId["ugent_username"], val)
 				case "ugentExpirationDate":
 					person.ExpirationDate = val
 				case "objectClass":

@@ -11,7 +11,7 @@ type Organization struct {
 	NameDut     string     `json:"name_dut,omitempty"`
 	NameEng     string     `json:"name_eng,omitempty"`
 	ParentId    string     `json:"parent_id,omitempty"`
-	OtherId     []*IdRef   `json:"other_id,omitempty"`
+	OtherId     IdRefs     `json:"other_id,omitempty"`
 }
 
 func (org *Organization) IsStored() bool {
@@ -19,5 +19,7 @@ func (org *Organization) IsStored() bool {
 }
 
 func NewOrganization() *Organization {
-	return &Organization{}
+	org := &Organization{}
+	org.OtherId = IdRefs{}
+	return org
 }

@@ -512,114 +512,69 @@ func (s *GetPersonRequest) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *IdRef) Encode(e *jx.Encoder) {
+func (s IdRefs) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
-// encodeFields encodes fields.
-func (s *IdRef) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("id")
-		e.Str(s.ID)
-	}
-	{
-		e.FieldStart("type")
-		e.Str(s.Type)
-	}
-}
+// encodeFields implements json.Marshaler.
+func (s IdRefs) encodeFields(e *jx.Encoder) {
+	for k, elem := range s {
+		e.FieldStart(k)
 
-var jsonFieldsNameOfIdRef = [2]string{
-	0: "id",
-	1: "type",
-}
-
-// Decode decodes IdRef from json.
-func (s *IdRef) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode IdRef to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Str()
-				s.ID = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"id\"")
-			}
-		case "type":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Str()
-				s.Type = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"type\"")
-			}
-		default:
-			return d.Skip()
+		e.ArrStart()
+		for _, elem := range elem {
+			e.Str(elem)
 		}
+		e.ArrEnd()
+	}
+}
+
+// Decode decodes IdRefs from json.
+func (s *IdRefs) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode IdRefs to nil")
+	}
+	m := s.init()
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		var elem []string
+		if err := func() error {
+			elem = make([]string, 0)
+			if err := d.Arr(func(d *jx.Decoder) error {
+				var elemElem string
+				v, err := d.Str()
+				elemElem = string(v)
+				if err != nil {
+					return err
+				}
+				elem = append(elem, elemElem)
+				return nil
+			}); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrapf(err, "decode field %q", k)
+		}
+		m[string(k)] = elem
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode IdRef")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000011,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfIdRef) {
-					name = jsonFieldsNameOfIdRef[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
+		return errors.Wrap(err, "decode IdRefs")
 	}
 
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *IdRef) MarshalJSON() ([]byte, error) {
+func (s IdRefs) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *IdRef) UnmarshalJSON(data []byte) error {
+func (s *IdRefs) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -657,6 +612,40 @@ func (s OptDateTime) MarshalJSON() ([]byte, error) {
 func (s *OptDateTime) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d, json.DecodeDateTime)
+}
+
+// Encode encodes IdRefs as json.
+func (o OptIdRefs) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes IdRefs from json.
+func (o *OptIdRefs) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptIdRefs to nil")
+	}
+	o.Set = true
+	o.Value = make(IdRefs)
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptIdRefs) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptIdRefs) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
 }
 
 // Encode encodes PersonSettings as json.
@@ -778,13 +767,9 @@ func (s *Organization) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.OtherID != nil {
+		if s.OtherID.Set {
 			e.FieldStart("other_id")
-			e.ArrStart()
-			for _, elem := range s.OtherID {
-				elem.Encode(e)
-			}
-			e.ArrEnd()
+			s.OtherID.Encode(e)
 		}
 	}
 }
@@ -900,15 +885,8 @@ func (s *Organization) Decode(d *jx.Decoder) error {
 			}
 		case "other_id":
 			if err := func() error {
-				s.OtherID = make([]IdRef, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem IdRef
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.OtherID = append(s.OtherID, elem)
-					return nil
-				}); err != nil {
+				s.OtherID.Reset()
+				if err := s.OtherID.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -1351,13 +1329,9 @@ func (s *Person) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.OtherID != nil {
+		if s.OtherID.Set {
 			e.FieldStart("other_id")
-			e.ArrStart()
-			for _, elem := range s.OtherID {
-				elem.Encode(e)
-			}
-			e.ArrEnd()
+			s.OtherID.Encode(e)
 		}
 	}
 	{
@@ -1608,15 +1582,8 @@ func (s *Person) Decode(d *jx.Decoder) error {
 			}
 		case "other_id":
 			if err := func() error {
-				s.OtherID = make([]IdRef, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem IdRef
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.OtherID = append(s.OtherID, elem)
-					return nil
-				}); err != nil {
+				s.OtherID.Reset()
+				if err := s.OtherID.Decode(d); err != nil {
 					return err
 				}
 				return nil

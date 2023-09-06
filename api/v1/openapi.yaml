@@ -250,14 +250,12 @@ components:
         - code
         - message
 
-    IdRef:
+    IdRefs:
       type: object
-      properties:
-        id:
+      additionalProperties:
+        type: array
+        items:
           type: string
-        type:
-          type: string
-      required: [id, type]
 
     OrganizationRef:
       type: object
@@ -315,9 +313,7 @@ components:
         title:
           type: string
         other_id:
-          type: array
-          items:
-            $ref: "#/components/schemas/IdRef"
+          $ref: "#/components/schemas/IdRefs"
         organization:
           type: array
           items:
@@ -363,9 +359,7 @@ components:
         parent_id:
           type: string
         other_id:
-          type: array
-          items:
-            $ref: "#/components/schemas/IdRef"
+          $ref: "#/components/schemas/IdRefs"
       required: [id, date_created, date_updated, type]
 
     PersonListResponse:

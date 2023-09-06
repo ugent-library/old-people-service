@@ -250,11 +250,8 @@ func mapToExternalPerson(person *models.Person) *Person {
 		}
 		p.Organization = append(p.Organization, oRef)
 	}
-	for _, otherId := range person.OtherId {
-		p.OtherID = append(p.OtherID, IdRef{
-			ID:   otherId.Id,
-			Type: otherId.Type,
-		})
+	if len(person.OtherId) > 0 {
+		p.OtherID = NewOptIdRefs(IdRefs(person.OtherId))
 	}
 	p.Role = append(p.Role, person.Role...)
 	if person.Settings != nil {
@@ -285,11 +282,8 @@ func mapToExternalOrganization(org *models.Organization) *Organization {
 	if org.NameEng != "" {
 		o.NameEng = NewOptString(org.NameEng)
 	}
-	for _, otherId := range org.OtherId {
-		o.OtherID = append(o.OtherID, IdRef{
-			ID:   otherId.Id,
-			Type: otherId.Type,
-		})
+	if len(org.OtherId) > 0 {
+		o.OtherID = NewOptIdRefs(IdRefs(org.OtherId))
 	}
 	if org.ParentId != "" {
 		o.ParentID = NewOptString(org.ParentId)

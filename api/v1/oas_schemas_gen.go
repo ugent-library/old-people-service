@@ -137,30 +137,16 @@ func (s *GetPersonRequest) SetID(val string) {
 	s.ID = val
 }
 
-// Ref: #/components/schemas/IdRef
-type IdRef struct {
-	ID   string `json:"id"`
-	Type string `json:"type"`
-}
+// Ref: #/components/schemas/IdRefs
+type IdRefs map[string][]string
 
-// GetID returns the value of ID.
-func (s *IdRef) GetID() string {
-	return s.ID
-}
-
-// GetType returns the value of Type.
-func (s *IdRef) GetType() string {
-	return s.Type
-}
-
-// SetID sets the value of ID.
-func (s *IdRef) SetID(val string) {
-	s.ID = val
-}
-
-// SetType sets the value of Type.
-func (s *IdRef) SetType(val string) {
-	s.Type = val
+func (s *IdRefs) init() IdRefs {
+	m := *s
+	if m == nil {
+		m = map[string][]string{}
+		*s = m
+	}
+	return m
 }
 
 // NewOptDateTime returns new OptDateTime with value set to v.
@@ -203,6 +189,52 @@ func (o OptDateTime) Get() (v time.Time, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptDateTime) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptIdRefs returns new OptIdRefs with value set to v.
+func NewOptIdRefs(v IdRefs) OptIdRefs {
+	return OptIdRefs{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptIdRefs is optional IdRefs.
+type OptIdRefs struct {
+	Value IdRefs
+	Set   bool
+}
+
+// IsSet returns true if OptIdRefs was set.
+func (o OptIdRefs) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptIdRefs) Reset() {
+	var v IdRefs
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptIdRefs) SetTo(v IdRefs) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptIdRefs) Get() (v IdRefs, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptIdRefs) Or(d IdRefs) IdRefs {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -311,7 +343,7 @@ type Organization struct {
 	NameDut     OptString `json:"name_dut"`
 	NameEng     OptString `json:"name_eng"`
 	ParentID    OptString `json:"parent_id"`
-	OtherID     []IdRef   `json:"other_id"`
+	OtherID     OptIdRefs `json:"other_id"`
 }
 
 // GetID returns the value of ID.
@@ -355,7 +387,7 @@ func (s *Organization) GetParentID() OptString {
 }
 
 // GetOtherID returns the value of OtherID.
-func (s *Organization) GetOtherID() []IdRef {
+func (s *Organization) GetOtherID() OptIdRefs {
 	return s.OtherID
 }
 
@@ -400,7 +432,7 @@ func (s *Organization) SetParentID(val OptString) {
 }
 
 // SetOtherID sets the value of OtherID.
-func (s *Organization) SetOtherID(val []IdRef) {
+func (s *Organization) SetOtherID(val OptIdRefs) {
 	s.OtherID = val
 }
 
@@ -506,7 +538,7 @@ type Person struct {
 	PreferredLastName  OptString         `json:"preferred_last_name"`
 	BirthDate          OptString         `json:"birth_date"`
 	Title              OptString         `json:"title"`
-	OtherID            []IdRef           `json:"other_id"`
+	OtherID            OptIdRefs         `json:"other_id"`
 	Organization       []OrganizationRef `json:"organization"`
 	JobCategory        []string          `json:"job_category"`
 	Role               []string          `json:"role"`
@@ -591,7 +623,7 @@ func (s *Person) GetTitle() OptString {
 }
 
 // GetOtherID returns the value of OtherID.
-func (s *Person) GetOtherID() []IdRef {
+func (s *Person) GetOtherID() OptIdRefs {
 	return s.OtherID
 }
 
@@ -701,7 +733,7 @@ func (s *Person) SetTitle(val OptString) {
 }
 
 // SetOtherID sets the value of OtherID.
-func (s *Person) SetOtherID(val []IdRef) {
+func (s *Person) SetOtherID(val OptIdRefs) {
 	s.OtherID = val
 }
 

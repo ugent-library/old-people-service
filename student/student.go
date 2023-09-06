@@ -31,19 +31,9 @@ func (si *Importer) ImportAll(cb func(*models.Person)) error {
 			return err
 		}
 
-		var oldPerson *models.Person
-		for _, otherId := range newPerson.OtherId {
-			if otherId.Type != "historic_ugent_id" {
-				continue
-			}
-			op, err := si.repository.GetPersonByOtherId(ctx, "historic_ugent_id", otherId.Id)
-			if errors.Is(err, models.ErrNotFound) {
-				continue
-			} else if err != nil {
-				return err
-			}
-			oldPerson = op
-			break
+		oldPerson, err := si.repository.GetPersonByOtherId(ctx, "historic_ugent_id", newPerson.OtherId["historic_ugent_id"]...)
+		if err != nil && !errors.Is(err, models.ErrNotFound) {
+			return err
 		}
 
 		if oldPerson == nil {
@@ -88,27 +78,15 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 		for _, val := range attr.Values {
 			switch attr.Name {
 			case "uid":
-				newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
-					Type: "ugent_username",
-					Id:   val,
-				})
+				newPerson.OtherId["ugent_username"] = append(newPerson.OtherId["ugent_username"], val)
 			// contains current active ugentID
 			case "ugentID":
-				newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
-					Type: "ugent_id",
-					Id:   val,
-				})
+				newPerson.OtherId["ugent_id"] = append(newPerson.OtherId["ugent_id"], val)
 			// contains ugentID also (at the end)
 			case "ugentHistoricIDs":
-				newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
-					Type: "historic_ugent_id",
-					Id:   val,
-				})
+				newPerson.OtherId["historic_ugent_id"] = append(newPerson.OtherId["historic_ugent_id"], val)
 			case "ugentBarcode":
-				newPerson.OtherId = append(newPerson.OtherId, &models.IdRef{
-					Type: "ugent_barcode",
-					Id:   val,
-				})
+				newPerson.OtherId["ugent_barcode"] = append(newPerson.OtherId["ugent_barcode"], val)
 			case "ugentPreferredGivenName":
 				newPerson.FirstName = val
 			case "ugentPreferredSn":

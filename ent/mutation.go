@@ -45,8 +45,7 @@ type OrganizationMutation struct {
 	_type                      *string
 	name_dut                   *string
 	name_eng                   *string
-	other_id                   *[]schema.IdRef
-	appendother_id             []schema.IdRef
+	other_id                   *schema.IdRefs
 	clearedFields              map[string]struct{}
 	people                     map[int]struct{}
 	removedpeople              map[int]struct{}
@@ -454,13 +453,12 @@ func (m *OrganizationMutation) ResetNameEng() {
 }
 
 // SetOtherID sets the "other_id" field.
-func (m *OrganizationMutation) SetOtherID(sr []schema.IdRef) {
+func (m *OrganizationMutation) SetOtherID(sr schema.IdRefs) {
 	m.other_id = &sr
-	m.appendother_id = nil
 }
 
 // OtherID returns the value of the "other_id" field in the mutation.
-func (m *OrganizationMutation) OtherID() (r []schema.IdRef, exists bool) {
+func (m *OrganizationMutation) OtherID() (r schema.IdRefs, exists bool) {
 	v := m.other_id
 	if v == nil {
 		return
@@ -471,7 +469,7 @@ func (m *OrganizationMutation) OtherID() (r []schema.IdRef, exists bool) {
 // OldOtherID returns the old "other_id" field's value of the Organization entity.
 // If the Organization object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrganizationMutation) OldOtherID(ctx context.Context) (v []schema.IdRef, err error) {
+func (m *OrganizationMutation) OldOtherID(ctx context.Context) (v schema.IdRefs, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldOtherID is only allowed on UpdateOne operations")
 	}
@@ -485,23 +483,9 @@ func (m *OrganizationMutation) OldOtherID(ctx context.Context) (v []schema.IdRef
 	return oldValue.OtherID, nil
 }
 
-// AppendOtherID adds sr to the "other_id" field.
-func (m *OrganizationMutation) AppendOtherID(sr []schema.IdRef) {
-	m.appendother_id = append(m.appendother_id, sr...)
-}
-
-// AppendedOtherID returns the list of values that were appended to the "other_id" field in this mutation.
-func (m *OrganizationMutation) AppendedOtherID() ([]schema.IdRef, bool) {
-	if len(m.appendother_id) == 0 {
-		return nil, false
-	}
-	return m.appendother_id, true
-}
-
 // ClearOtherID clears the value of the "other_id" field.
 func (m *OrganizationMutation) ClearOtherID() {
 	m.other_id = nil
-	m.appendother_id = nil
 	m.clearedFields[organization.FieldOtherID] = struct{}{}
 }
 
@@ -514,7 +498,6 @@ func (m *OrganizationMutation) OtherIDCleared() bool {
 // ResetOtherID resets all changes to the "other_id" field.
 func (m *OrganizationMutation) ResetOtherID() {
 	m.other_id = nil
-	m.appendother_id = nil
 	delete(m.clearedFields, organization.FieldOtherID)
 }
 
@@ -929,7 +912,7 @@ func (m *OrganizationMutation) SetField(name string, value ent.Value) error {
 		m.SetNameEng(v)
 		return nil
 	case organization.FieldOtherID:
-		v, ok := value.([]schema.IdRef)
+		v, ok := value.(schema.IdRefs)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1948,8 +1931,7 @@ type PersonMutation struct {
 	active                     *bool
 	birth_date                 *string
 	email                      *string
-	other_id                   *[]schema.IdRef
-	appendother_id             []schema.IdRef
+	other_id                   *schema.IdRefs
 	first_name                 *string
 	full_name                  *string
 	last_name                  *string
@@ -2368,13 +2350,12 @@ func (m *PersonMutation) ResetEmail() {
 }
 
 // SetOtherID sets the "other_id" field.
-func (m *PersonMutation) SetOtherID(sr []schema.IdRef) {
+func (m *PersonMutation) SetOtherID(sr schema.IdRefs) {
 	m.other_id = &sr
-	m.appendother_id = nil
 }
 
 // OtherID returns the value of the "other_id" field in the mutation.
-func (m *PersonMutation) OtherID() (r []schema.IdRef, exists bool) {
+func (m *PersonMutation) OtherID() (r schema.IdRefs, exists bool) {
 	v := m.other_id
 	if v == nil {
 		return
@@ -2385,7 +2366,7 @@ func (m *PersonMutation) OtherID() (r []schema.IdRef, exists bool) {
 // OldOtherID returns the old "other_id" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldOtherID(ctx context.Context) (v []schema.IdRef, err error) {
+func (m *PersonMutation) OldOtherID(ctx context.Context) (v schema.IdRefs, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldOtherID is only allowed on UpdateOne operations")
 	}
@@ -2399,23 +2380,9 @@ func (m *PersonMutation) OldOtherID(ctx context.Context) (v []schema.IdRef, err 
 	return oldValue.OtherID, nil
 }
 
-// AppendOtherID adds sr to the "other_id" field.
-func (m *PersonMutation) AppendOtherID(sr []schema.IdRef) {
-	m.appendother_id = append(m.appendother_id, sr...)
-}
-
-// AppendedOtherID returns the list of values that were appended to the "other_id" field in this mutation.
-func (m *PersonMutation) AppendedOtherID() ([]schema.IdRef, bool) {
-	if len(m.appendother_id) == 0 {
-		return nil, false
-	}
-	return m.appendother_id, true
-}
-
 // ClearOtherID clears the value of the "other_id" field.
 func (m *PersonMutation) ClearOtherID() {
 	m.other_id = nil
-	m.appendother_id = nil
 	m.clearedFields[person.FieldOtherID] = struct{}{}
 }
 
@@ -2428,7 +2395,6 @@ func (m *PersonMutation) OtherIDCleared() bool {
 // ResetOtherID resets all changes to the "other_id" field.
 func (m *PersonMutation) ResetOtherID() {
 	m.other_id = nil
-	m.appendother_id = nil
 	delete(m.clearedFields, person.FieldOtherID)
 }
 
@@ -3483,7 +3449,7 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		m.SetEmail(v)
 		return nil
 	case person.FieldOtherID:
-		v, ok := value.([]schema.IdRef)
+		v, ok := value.(schema.IdRefs)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

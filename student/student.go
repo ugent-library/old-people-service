@@ -3,7 +3,6 @@ package student
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 
 	"github.com/go-ldap/ldap/v3"
@@ -23,7 +22,8 @@ func NewImporter(repo models.Repository, ugentLdapClient *ugentldap.Client) *Imp
 	}
 }
 
-func (si *Importer) ImportAll(cb func(*models.Person)) error {
+// Each calls callback function with valid models.Person to save
+func (si *Importer) Each(cb func(*models.Person) error) error {
 	ctx := context.TODO()
 	err := si.ugentLdapClient.SearchPeople("(objectClass=ugentStudent)", func(ldapEntry *ldap.Entry) error {
 		newPerson, err := si.ldapEntryToPerson(ldapEntry)
@@ -37,11 +37,9 @@ func (si *Importer) ImportAll(cb func(*models.Person)) error {
 		}
 
 		if oldPerson == nil {
-			np, err := si.repository.CreatePerson(ctx, newPerson)
-			if err != nil {
-				return fmt.Errorf("unable to create person: %w", err)
+			if err := cb(newPerson); err != nil {
+				return err
 			}
-			cb(np)
 		} else {
 			oldPerson.Active = true
 			oldPerson.BirthDate = newPerson.BirthDate
@@ -56,11 +54,9 @@ func (si *Importer) ImportAll(cb func(*models.Person)) error {
 			oldPerson.ExpirationDate = newPerson.ExpirationDate
 			oldPerson.Organization = newPerson.Organization
 
-			oldPerson, err := si.repository.UpdatePerson(ctx, oldPerson)
-			if err != nil {
-				return fmt.Errorf("unable to update person: %w", err)
+			if err := cb(oldPerson); err != nil {
+				return err
 			}
-			cb(oldPerson)
 		}
 
 		return nil

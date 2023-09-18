@@ -33,19 +33,19 @@ func listenPersonFn() error {
 	}
 
 	_, err = js.Subscribe(sub.Subject(), func(msg *nats.Msg) {
-		id, lErr := sub.Process(msg)
+		id, err := sub.Process(msg)
 
-		if errors.Is(lErr, models.ErrFatal) {
-			logger.Fatal(lErr) // escape loop
-		} else if errors.Is(lErr, models.ErrSkipped) {
-			logger.Errorf("subject %s: message was skipped: %s", sub.Subject(), lErr)
-		} else if lErr != nil {
-			logger.Errorf("subject %s: caught unexpected error: %s", sub.Subject(), lErr)
+		if errors.Is(err, models.ErrFatal) {
+			logger.Fatal(err) // escape loop
+		} else if errors.Is(err, models.ErrSkipped) {
+			logger.Errorf("subject %s: message was skipped: %s", sub.Subject(), err)
+		} else if err != nil {
+			logger.Errorf("subject %s: caught unexpected error: %s", sub.Subject(), err)
 		} else {
 			logger.Infof("subject %s: processed message %s", sub.Subject(), id)
 		}
 
-		if err := sub.EnsureAck(msg); err != nil {
+		if err = sub.EnsureAck(msg); err != nil {
 			logger.Fatal(err)
 		}
 	}, sub.SubOpts()...)

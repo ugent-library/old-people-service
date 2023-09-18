@@ -51,7 +51,7 @@ func (si *Importer) ImportAll(cb func(*models.Person)) error {
 			oldPerson.FullName = newPerson.FullName
 			oldPerson.JobCategory = newPerson.JobCategory
 			oldPerson.Title = newPerson.Title
-			oldPerson.OtherId = newPerson.OtherId
+			oldPerson.OtherId = newPerson.OtherId.Dup()
 			oldPerson.ObjectClass = newPerson.ObjectClass
 			oldPerson.ExpirationDate = newPerson.ExpirationDate
 			oldPerson.Organization = newPerson.Organization
@@ -78,15 +78,15 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 		for _, val := range attr.Values {
 			switch attr.Name {
 			case "uid":
-				newPerson.OtherId["ugent_username"] = append(newPerson.OtherId["ugent_username"], val)
+				newPerson.OtherId.Add("ugent_username", val)
 			// contains current active ugentID
 			case "ugentID":
-				newPerson.OtherId["ugent_id"] = append(newPerson.OtherId["ugent_id"], val)
+				newPerson.OtherId.Add("ugent_id", val)
 			// contains ugentID also (at the end)
 			case "ugentHistoricIDs":
-				newPerson.OtherId["historic_ugent_id"] = append(newPerson.OtherId["historic_ugent_id"], val)
+				newPerson.OtherId.Add("historic_ugent_id", val)
 			case "ugentBarcode":
-				newPerson.OtherId["ugent_barcode"] = append(newPerson.OtherId["ugent_barcode"], val)
+				newPerson.OtherId.Add("ugent_barcode", val)
 			case "ugentPreferredGivenName":
 				newPerson.FirstName = val
 			case "ugentPreferredSn":

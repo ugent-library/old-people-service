@@ -158,7 +158,7 @@ func (gi *Importer) ImportOrganization(buf []byte) (*models.Message, error) {
 		now := time.Now()
 		org.NameDut = ""
 		org.NameEng = ""
-		org.OtherId = models.IdRefs{}
+		org.OtherId.Clear()
 		org.Type = "organization"
 		org.ParentId = ""
 		org.GismoId = msg.ID
@@ -190,11 +190,11 @@ func (gi *Importer) ImportOrganization(buf []byte) (*models.Message, error) {
 			case "type":
 				org.Type = attr.Value
 			case "ugent_memorialis_id":
-				org.OtherId["ugent_memorialis_id"] = append(org.OtherId["ugent_memorialis_id"], attr.Value)
+				org.OtherId.Add("ugent_memorialis_id", attr.Value)
 			case "code":
-				org.OtherId["ugent_id"] = append(org.OtherId["ugent_id"], attr.Value)
+				org.OtherId.Add("ugent_id", attr.Value)
 			case "biblio_code":
-				org.OtherId["biblio_id"] = append(org.OtherId["biblio_id"], attr.Value)
+				org.OtherId.Add("biblio_id", attr.Value)
 			}
 		}
 
@@ -419,7 +419,7 @@ func (gi *Importer) enrichPersonWithMessage(person *models.Person, msg *models.M
 
 	// clear old values
 	person.GismoId = msg.ID
-	person.OtherId = nil
+	person.OtherId.Clear()
 	person.Email = ""
 	person.FirstName = ""
 	person.LastName = ""
@@ -448,10 +448,10 @@ func (gi *Importer) enrichPersonWithMessage(person *models.Person, msg *models.M
 				person.LastName = attr.Value
 			}
 		case "ugent_id":
-			person.OtherId["ugent_id"] = append(person.OtherId["ugent_id"], attr.Value)
-			person.OtherId["historic_ugent_id"] = append(person.OtherId["historic_ugent_id"], attr.Value)
+			person.OtherId.Add("ugent_id", attr.Value)
+			person.OtherId.Add("historic_ugent_id", attr.Value)
 		case "ugent_memorialis_id":
-			person.OtherId["ugent_memorialis_id"] = append(person.OtherId["ugent_memorialis_id"], attr.Value)
+			person.OtherId.Add("ugent_memorialis_id", attr.Value)
 		case "title":
 			if withinDateRange {
 				person.Title = attr.Value
@@ -566,9 +566,9 @@ func (gi *Importer) enrichPersonWithLdap(person *models.Person) (*models.Person,
 				case "displayName":
 					person.FullName = val
 				case "ugentBarcode":
-					person.OtherId["ugent_barcode"] = append(person.OtherId["ugent_barcode"], val)
+					person.OtherId.Add("ugent_barcode", val)
 				case "uid":
-					person.OtherId["ugent_username"] = append(person.OtherId["ugent_username"], val)
+					person.OtherId.Add("ugent_username", val)
 				case "ugentExpirationDate":
 					person.ExpirationDate = val
 				case "objectClass":

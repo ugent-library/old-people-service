@@ -37,8 +37,6 @@ func listenOrganizationFn() error {
 
 		if errors.Is(lErr, models.ErrFatal) {
 			logger.Fatal(lErr) // escape loop
-		} else if errors.Is(lErr, models.ErrNonFatal) {
-			logger.Errorf("subject %s: caught non fatal error: %s", sub.Subject(), lErr)
 		} else if errors.Is(lErr, models.ErrSkipped) {
 			logger.Errorf("subject %s: message was skipped: %s", sub.Subject(), lErr)
 		} else if lErr != nil {

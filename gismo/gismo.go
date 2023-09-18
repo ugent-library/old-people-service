@@ -528,7 +528,7 @@ func (gi *Importer) getPersonByMessage(msg *models.Message) (*models.Person, err
 	}
 
 	// trial 2: retrieve old person by ugent-id
-	person, err = gi.repository.GetPersonByOtherId(ctx, "historic_ugent_id", ugentIds...)
+	person, err = gi.repository.GetPersonByAnyOtherId(ctx, "historic_ugent_id", ugentIds...)
 	if err == nil {
 		return person, nil
 	}

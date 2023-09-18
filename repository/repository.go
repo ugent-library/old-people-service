@@ -83,7 +83,7 @@ func (repo *repository) GetOrganizationsByGismoId(ctx context.Context, gismoIds 
 	return orgs, nil
 }
 
-func (repo *repository) GetOrganizationByOtherId(ctx context.Context, typ string, values ...string) (*models.Organization, error) {
+func (repo *repository) GetOrganizationByAnyOtherId(ctx context.Context, typ string, values ...string) (*models.Organization, error) {
 	row, err := repo.client.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
 		s.Where(entsql.ExprP("other_id->$1 ?| $2", typ, values))
 	}).First(ctx)
@@ -547,7 +547,7 @@ func (repo *repository) GetPerson(ctx context.Context, id string) (*models.Perso
 	return repo.personUnwrap(row)
 }
 
-func (repo *repository) GetPersonByOtherId(ctx context.Context, typ string, values ...string) (*models.Person, error) {
+func (repo *repository) GetPersonByAnyOtherId(ctx context.Context, typ string, values ...string) (*models.Person, error) {
 	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(func(s *entsql.Selector) {
 		s.Where(entsql.ExprP("other_id->$1 ?| $2", typ, values))
 	}).First(ctx)

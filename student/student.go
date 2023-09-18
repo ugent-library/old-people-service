@@ -31,7 +31,7 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 			return err
 		}
 
-		oldPerson, err := si.repository.GetPersonByOtherId(ctx, "historic_ugent_id", newPerson.OtherId["historic_ugent_id"]...)
+		oldPerson, err := si.repository.GetPersonByAnyOtherId(ctx, "historic_ugent_id", newPerson.OtherId["historic_ugent_id"]...)
 		if err != nil && !errors.Is(err, models.ErrNotFound) {
 			return err
 		}
@@ -102,7 +102,7 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 			case "ugentExpirationDate":
 				newPerson.ExpirationDate = val
 			case "departmentNumber":
-				realOrg, err := si.repository.GetOrganizationByOtherId(ctx, "ugent_id", val)
+				realOrg, err := si.repository.GetOrganizationByAnyOtherId(ctx, "ugent_id", val)
 				if errors.Is(err, models.ErrNotFound) {
 					continue
 				} else if err != nil {

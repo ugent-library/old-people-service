@@ -133,11 +133,11 @@ func newOrganizationSubscriber(js nats.JetStreamContext) (subscribers.Subcriber,
 		return nil, fmt.Errorf("unable to create nats consumer %s: %w", natsOrganizationConsumerConfig.Durable, err)
 	}
 	orgSConfig := subscribers.GismoOrganizationConfig{}
-	gismoImporter, err := newGismoImporter()
+	gismoProcessor, err := newGismoProcessor()
 	if err != nil {
 		return nil, err
 	}
-	orgSConfig.GismoImporter = gismoImporter
+	orgSConfig.GismoProcessor = gismoProcessor
 	orgSConfig.Subject = natsOrganizationConsumerConfig.FilterSubject
 	orgSConfig.SubOpts = []nats.SubOpt{nats.Bind(natsStreamConfig.Name, natsOrganizationConsumerConfig.Durable)}
 	return subscribers.NewGismoOrganizationSubscriber(orgSConfig), nil
@@ -148,22 +148,22 @@ func newPersonSubscriber(js nats.JetStreamContext) (subscribers.Subcriber, error
 		return nil, fmt.Errorf("unable to create nats consumer %s: %w", natsPersonConsumerConfig.Durable, err)
 	}
 	personSConfig := subscribers.GismoPersonConfig{}
-	gismoImporter, err := newGismoImporter()
+	gismoProcessor, err := newGismoProcessor()
 	if err != nil {
 		return nil, err
 	}
-	personSConfig.GismoImporter = gismoImporter
+	personSConfig.GismoProcessor = gismoProcessor
 	personSConfig.Subject = natsPersonConsumerConfig.FilterSubject
 	personSConfig.SubOpts = []nats.SubOpt{nats.Bind(natsStreamConfig.Name, natsPersonConsumerConfig.Durable)}
 
 	return subscribers.NewGismoPersonSubscriber(personSConfig), nil
 }
 
-func newGismoImporter() (*gismo.Importer, error) {
+func newGismoProcessor() (*gismo.Processor, error) {
 	repo, err := newRepository()
 	if err != nil {
 		return nil, err
 	}
 	ugentLdapClient := newUgentLdapClient()
-	return gismo.NewImporter(repo, ugentLdapClient), nil
+	return gismo.NewProcessor(repo, ugentLdapClient), nil
 }

@@ -10,26 +10,26 @@ import (
 
 type GismoOrganizationSubscriber struct {
 	BaseSubscriber
-	gismoImporter *gismo.Importer
+	gismoProcessor *gismo.Processor
 }
 
 type GismoOrganizationConfig struct {
 	BaseConfig
-	GismoImporter *gismo.Importer
+	GismoProcessor *gismo.Processor
 }
 
 func NewGismoOrganizationSubscriber(config GismoOrganizationConfig) *GismoOrganizationSubscriber {
 	bs := newBaseSubscriber(config.Subject)
 	os := &GismoOrganizationSubscriber{
 		BaseSubscriber: bs,
-		gismoImporter:  config.GismoImporter,
+		gismoProcessor: config.GismoProcessor,
 	}
 	os.subOpts = append(os.subOpts, config.SubOpts...)
 	return os
 }
 
 func (oSub *GismoOrganizationSubscriber) Process(msg *nats.Msg) (string, error) {
-	iMsg, err := oSub.gismoImporter.ImportOrganization(msg.Data)
+	iMsg, err := oSub.gismoProcessor.ImportOrganizationByMessage(msg.Data)
 	if err != nil {
 		return "", fmt.Errorf("%w: %w", models.ErrSkipped, err)
 	}

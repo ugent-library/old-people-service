@@ -14,19 +14,19 @@ import (
 	"github.com/ugent-library/people-service/ugentldap"
 )
 
-type Importer struct {
+type Processor struct {
 	repository      models.Repository
 	ugentLdapClient *ugentldap.Client
 }
 
-func NewImporter(repo models.Repository, ugentLdapClient *ugentldap.Client) *Importer {
-	return &Importer{
+func NewProcessor(repo models.Repository, ugentLdapClient *ugentldap.Client) *Processor {
+	return &Processor{
 		repository:      repo,
 		ugentLdapClient: ugentLdapClient,
 	}
 }
 
-func (gi *Importer) parseOrganizationMessage(buf []byte) (*models.Message, error) {
+func (gi *Processor) parseOrganizationMessage(buf []byte) (*models.Message, error) {
 	doc, err := xmlquery.Parse(bytes.NewReader(buf))
 	if err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func (gi *Importer) parseOrganizationMessage(buf []byte) (*models.Message, error
 	return msg, nil
 }
 
-func (gi *Importer) ImportOrganization(buf []byte) (*models.Message, error) {
+func (gi *Processor) ImportOrganizationByMessage(buf []byte) (*models.Message, error) {
 	msg, err := gi.parseOrganizationMessage(buf)
 	if err != nil {
 		return nil, err
@@ -201,7 +201,7 @@ func (gi *Importer) ImportOrganization(buf []byte) (*models.Message, error) {
 	return msg, nil
 }
 
-func (gi *Importer) parsePersonMessage(buf []byte) (*models.Message, error) {
+func (gi *Processor) parsePersonMessage(buf []byte) (*models.Message, error) {
 	doc, err := xmlquery.Parse(bytes.NewReader(buf))
 	if err != nil {
 		return nil, err
@@ -370,7 +370,7 @@ func (gi *Importer) parsePersonMessage(buf []byte) (*models.Message, error) {
 	return msg, nil
 }
 
-func (gi *Importer) ImportPerson(buf []byte) (*models.Message, error) {
+func (gi *Processor) ImportPersonByMessage(buf []byte) (*models.Message, error) {
 	msg, err := gi.parsePersonMessage(buf)
 	if err != nil {
 		return nil, err
@@ -403,7 +403,7 @@ func (gi *Importer) ImportPerson(buf []byte) (*models.Message, error) {
 	return msg, nil
 }
 
-func (gi *Importer) enrichPersonWithMessage(person *models.Person, msg *models.Message) (*models.Person, error) {
+func (gi *Processor) enrichPersonWithMessage(person *models.Person, msg *models.Message) (*models.Person, error) {
 	now := time.Now()
 	ctx := context.TODO()
 
@@ -498,7 +498,7 @@ func (gi *Importer) enrichPersonWithMessage(person *models.Person, msg *models.M
 	return person, nil
 }
 
-func (gi *Importer) getPersonByMessage(msg *models.Message) (*models.Person, error) {
+func (gi *Processor) getPersonByMessage(msg *models.Message) (*models.Person, error) {
 	ctx := context.TODO()
 	now := time.Now()
 
@@ -530,7 +530,7 @@ func (gi *Importer) getPersonByMessage(msg *models.Message) (*models.Person, err
 	return models.NewPerson(), nil
 }
 
-func (gi *Importer) enrichPersonWithLdap(person *models.Person) (*models.Person, error) {
+func (gi *Processor) enrichPersonWithLdap(person *models.Person) (*models.Person, error) {
 	ldapQueryParts := make([]string, 0, len(person.OtherId["historic_ugent_id"]))
 	for _, ugentId := range person.OtherId["historic_ugent_id"] {
 		ldapQueryParts = append(ldapQueryParts, fmt.Sprintf("(ugentHistoricIDs=%s)", ugentId))

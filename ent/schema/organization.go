@@ -13,18 +13,6 @@ type Organization struct {
 	ent.Schema
 }
 
-var OrganizationIdTypes = []string{
-	// vb. WE03, WE03V
-	// (gismo: org-code)
-	"ugent_id",
-	// vb. WE03* (biblio uses "*" to mark historic organizations)
-	// (gismo: biblio-code)
-	"biblio_id",
-	// vb. 000006045
-	// (gismo: memorialis)
-	"ugent_memorialis_id",
-}
-
 func (Organization) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "organization"},

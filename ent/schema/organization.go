@@ -13,11 +13,6 @@ type Organization struct {
 	ent.Schema
 }
 
-var OrganizationTypes = []string{
-	"organization",
-	"department",
-}
-
 var OrganizationIdTypes = []string{
 	// vb. WE03, WE03V
 	// (gismo: org-code)

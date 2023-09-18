@@ -16,16 +16,6 @@ type Person struct {
 
 type IdRefs map[string][]string
 
-// TODO validate type
-var PersonIdTypes = []string{
-	"ugent_id",
-	"ugent_barcode",
-	"ugent_username",
-	"historic_ugent_id",
-	"ugent_memorialis_id",
-	"uzgent_id",
-}
-
 func (Person) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "person"},

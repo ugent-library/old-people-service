@@ -45,7 +45,7 @@ func NewClient(config Config) *Client {
 	}
 }
 
-func (cli *Client) NewConn() (*ClientConn, error) {
+func (cli *Client) newConn() (*ClientConn, error) {
 	conn, err := ldap.DialURL(cli.url)
 	if err != nil {
 		return nil, err
@@ -59,11 +59,11 @@ func (cli *Client) NewConn() (*ClientConn, error) {
 	return &ClientConn{conn}, nil
 }
 
-func (conn *ClientConn) Close() error {
+func (conn *ClientConn) close() error {
 	return conn.conn.Close()
 }
 
-func (conn *ClientConn) SearchPeople(filter string, cb func(*ldap.Entry) error) error {
+func (conn *ClientConn) searchPeople(filter string, cb func(*ldap.Entry) error) error {
 	searchReq := ldap.NewSearchRequest(
 		"ou=people,dc=ugent,dc=be",
 		ldap.ScopeSingleLevel,
@@ -141,10 +141,10 @@ func (conn *ClientConn) SearchPeople(filter string, cb func(*ldap.Entry) error) 
 }
 
 func (cli *Client) SearchPeople(filter string, cb func(*ldap.Entry) error) error {
-	uc, err := cli.NewConn()
+	uc, err := cli.newConn()
 	if err != nil {
 		return err
 	}
-	defer uc.Close()
-	return uc.SearchPeople(filter, cb)
+	defer uc.close()
+	return uc.searchPeople(filter, cb)
 }

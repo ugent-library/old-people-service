@@ -5,6 +5,8 @@ package api
 import (
 	"fmt"
 	"time"
+
+	"github.com/go-faster/errors"
 )
 
 func (s *ErrorStatusCode) Error() string {
@@ -77,6 +79,71 @@ func (s *ErrorStatusCode) SetResponse(val Error) {
 	s.Response = val
 }
 
+// Ref: #/components/schemas/GetOrganizationByOtherIdRequest
+type GetOrganizationByOtherIdRequest struct {
+	ID   string                              `json:"id"`
+	Type GetOrganizationByOtherIdRequestType `json:"type"`
+}
+
+// GetID returns the value of ID.
+func (s *GetOrganizationByOtherIdRequest) GetID() string {
+	return s.ID
+}
+
+// GetType returns the value of Type.
+func (s *GetOrganizationByOtherIdRequest) GetType() GetOrganizationByOtherIdRequestType {
+	return s.Type
+}
+
+// SetID sets the value of ID.
+func (s *GetOrganizationByOtherIdRequest) SetID(val string) {
+	s.ID = val
+}
+
+// SetType sets the value of Type.
+func (s *GetOrganizationByOtherIdRequest) SetType(val GetOrganizationByOtherIdRequestType) {
+	s.Type = val
+}
+
+type GetOrganizationByOtherIdRequestType string
+
+const (
+	GetOrganizationByOtherIdRequestTypeUgentID           GetOrganizationByOtherIdRequestType = "ugent_id"
+	GetOrganizationByOtherIdRequestTypeBiblioID          GetOrganizationByOtherIdRequestType = "biblio_id"
+	GetOrganizationByOtherIdRequestTypeUgentMemorialisID GetOrganizationByOtherIdRequestType = "ugent_memorialis_id"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GetOrganizationByOtherIdRequestType) MarshalText() ([]byte, error) {
+	switch s {
+	case GetOrganizationByOtherIdRequestTypeUgentID:
+		return []byte(s), nil
+	case GetOrganizationByOtherIdRequestTypeBiblioID:
+		return []byte(s), nil
+	case GetOrganizationByOtherIdRequestTypeUgentMemorialisID:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GetOrganizationByOtherIdRequestType) UnmarshalText(data []byte) error {
+	switch GetOrganizationByOtherIdRequestType(data) {
+	case GetOrganizationByOtherIdRequestTypeUgentID:
+		*s = GetOrganizationByOtherIdRequestTypeUgentID
+		return nil
+	case GetOrganizationByOtherIdRequestTypeBiblioID:
+		*s = GetOrganizationByOtherIdRequestTypeBiblioID
+		return nil
+	case GetOrganizationByOtherIdRequestTypeUgentMemorialisID:
+		*s = GetOrganizationByOtherIdRequestTypeUgentMemorialisID
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Ref: #/components/schemas/GetOrganizationRequest
 type GetOrganizationRequest struct {
 	ID string `json:"id"`
@@ -120,6 +187,83 @@ func (s *GetPeopleRequest) GetCursor() string {
 // SetCursor sets the value of Cursor.
 func (s *GetPeopleRequest) SetCursor(val string) {
 	s.Cursor = val
+}
+
+// Ref: #/components/schemas/GetPersonByOtherIdRequest
+type GetPersonByOtherIdRequest struct {
+	ID   string                        `json:"id"`
+	Type GetPersonByOtherIdRequestType `json:"type"`
+}
+
+// GetID returns the value of ID.
+func (s *GetPersonByOtherIdRequest) GetID() string {
+	return s.ID
+}
+
+// GetType returns the value of Type.
+func (s *GetPersonByOtherIdRequest) GetType() GetPersonByOtherIdRequestType {
+	return s.Type
+}
+
+// SetID sets the value of ID.
+func (s *GetPersonByOtherIdRequest) SetID(val string) {
+	s.ID = val
+}
+
+// SetType sets the value of Type.
+func (s *GetPersonByOtherIdRequest) SetType(val GetPersonByOtherIdRequestType) {
+	s.Type = val
+}
+
+type GetPersonByOtherIdRequestType string
+
+const (
+	GetPersonByOtherIdRequestTypeUgentID           GetPersonByOtherIdRequestType = "ugent_id"
+	GetPersonByOtherIdRequestTypeHistoricUgentID   GetPersonByOtherIdRequestType = "historic_ugent_id"
+	GetPersonByOtherIdRequestTypeUgentBarcode      GetPersonByOtherIdRequestType = "ugent_barcode"
+	GetPersonByOtherIdRequestTypeUgentUsername     GetPersonByOtherIdRequestType = "ugent_username"
+	GetPersonByOtherIdRequestTypeUgentMemorialisID GetPersonByOtherIdRequestType = "ugent_memorialis_id"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GetPersonByOtherIdRequestType) MarshalText() ([]byte, error) {
+	switch s {
+	case GetPersonByOtherIdRequestTypeUgentID:
+		return []byte(s), nil
+	case GetPersonByOtherIdRequestTypeHistoricUgentID:
+		return []byte(s), nil
+	case GetPersonByOtherIdRequestTypeUgentBarcode:
+		return []byte(s), nil
+	case GetPersonByOtherIdRequestTypeUgentUsername:
+		return []byte(s), nil
+	case GetPersonByOtherIdRequestTypeUgentMemorialisID:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GetPersonByOtherIdRequestType) UnmarshalText(data []byte) error {
+	switch GetPersonByOtherIdRequestType(data) {
+	case GetPersonByOtherIdRequestTypeUgentID:
+		*s = GetPersonByOtherIdRequestTypeUgentID
+		return nil
+	case GetPersonByOtherIdRequestTypeHistoricUgentID:
+		*s = GetPersonByOtherIdRequestTypeHistoricUgentID
+		return nil
+	case GetPersonByOtherIdRequestTypeUgentBarcode:
+		*s = GetPersonByOtherIdRequestTypeUgentBarcode
+		return nil
+	case GetPersonByOtherIdRequestTypeUgentUsername:
+		*s = GetPersonByOtherIdRequestTypeUgentUsername
+		return nil
+	case GetPersonByOtherIdRequestTypeUgentMemorialisID:
+		*s = GetPersonByOtherIdRequestTypeUgentMemorialisID
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/GetPersonRequest

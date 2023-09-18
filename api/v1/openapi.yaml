@@ -29,6 +29,28 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
+  "/get-person-by-other-id":
+    post:
+      summary: "Retrieve a single person record by one of its extra identifiers"
+      description: "Retrieve a single person record by one of its extra identifiers"
+      operationId: "GetPersonByOtherId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetPersonByOtherIdRequest"
+        required: true
+      responses:
+        "200":
+          description: "Retrieve single person record successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Person"
+        default:
+          $ref: "#/components/responses/Error"
+
+
   "/get-people":
     post:
       summary: "Get all person records"
@@ -175,6 +197,28 @@ paths:
                 $ref: "#/components/schemas/Organization"
         default:
           $ref: "#/components/responses/Error"
+
+  "/get-organization-by-other-id":
+    post:
+      summary: "Get single organization record by one of its extra identifiers"
+      description: "Get single organization record by one of its extra identifiers"
+      operationId: "GetOrganizationByOtherId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetOrganizationByOtherIdRequest"
+        required: true
+      responses:
+        "200":
+          description: "Retrieve a single organization record successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Organization"
+        default:
+          $ref: "#/components/responses/Error"
+
 
   "/get-organizations":
     post:
@@ -392,6 +436,22 @@ components:
           minLength: 1
       required: [id]
 
+    GetPersonByOtherIdRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum:
+            - ugent_id
+            - historic_ugent_id
+            - ugent_barcode
+            - ugent_username
+            - ugent_memorialis_id
+      required: [id, type]
+
     GetPeopleRequest:
       type: object
       properties:
@@ -459,6 +519,20 @@ components:
           type: string
           minLength: 1
       required: [id]
+
+    GetOrganizationByOtherIdRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum:
+            - ugent_id
+            - biblio_id
+            - ugent_memorialis_id
+      required: [id,type]
 
     GetOrganizationsRequest:
       type: object

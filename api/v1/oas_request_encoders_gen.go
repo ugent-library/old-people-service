@@ -25,6 +25,20 @@ func encodeGetOrganizationRequest(
 	return nil
 }
 
+func encodeGetOrganizationByOtherIdRequest(
+	req *GetOrganizationByOtherIdRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := jx.GetEncoder()
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeGetOrganizationsRequest(
 	req *GetOrganizationsRequest,
 	r *http.Request,
@@ -55,6 +69,20 @@ func encodeGetPeopleRequest(
 
 func encodeGetPersonRequest(
 	req *GetPersonRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := jx.GetEncoder()
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeGetPersonByOtherIdRequest(
+	req *GetPersonByOtherIdRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

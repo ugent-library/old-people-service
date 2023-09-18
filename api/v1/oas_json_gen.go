@@ -128,6 +128,159 @@ func (s *Error) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *GetOrganizationByOtherIdRequest) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetOrganizationByOtherIdRequest) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("id")
+		e.Str(s.ID)
+	}
+	{
+		e.FieldStart("type")
+		s.Type.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfGetOrganizationByOtherIdRequest = [2]string{
+	0: "id",
+	1: "type",
+}
+
+// Decode decodes GetOrganizationByOtherIdRequest from json.
+func (s *GetOrganizationByOtherIdRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationByOtherIdRequest to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.ID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "type":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetOrganizationByOtherIdRequest")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfGetOrganizationByOtherIdRequest) {
+					name = jsonFieldsNameOfGetOrganizationByOtherIdRequest[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetOrganizationByOtherIdRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationByOtherIdRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetOrganizationByOtherIdRequestType as json.
+func (s GetOrganizationByOtherIdRequestType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes GetOrganizationByOtherIdRequestType from json.
+func (s *GetOrganizationByOtherIdRequestType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetOrganizationByOtherIdRequestType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch GetOrganizationByOtherIdRequestType(v) {
+	case GetOrganizationByOtherIdRequestTypeUgentID:
+		*s = GetOrganizationByOtherIdRequestTypeUgentID
+	case GetOrganizationByOtherIdRequestTypeBiblioID:
+		*s = GetOrganizationByOtherIdRequestTypeBiblioID
+	case GetOrganizationByOtherIdRequestTypeUgentMemorialisID:
+		*s = GetOrganizationByOtherIdRequestTypeUgentMemorialisID
+	default:
+		*s = GetOrganizationByOtherIdRequestType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s GetOrganizationByOtherIdRequestType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetOrganizationByOtherIdRequestType) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *GetOrganizationRequest) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -411,6 +564,163 @@ func (s *GetPeopleRequest) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *GetPeopleRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *GetPersonByOtherIdRequest) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *GetPersonByOtherIdRequest) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("id")
+		e.Str(s.ID)
+	}
+	{
+		e.FieldStart("type")
+		s.Type.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfGetPersonByOtherIdRequest = [2]string{
+	0: "id",
+	1: "type",
+}
+
+// Decode decodes GetPersonByOtherIdRequest from json.
+func (s *GetPersonByOtherIdRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetPersonByOtherIdRequest to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.ID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "type":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode GetPersonByOtherIdRequest")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfGetPersonByOtherIdRequest) {
+					name = jsonFieldsNameOfGetPersonByOtherIdRequest[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *GetPersonByOtherIdRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetPersonByOtherIdRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes GetPersonByOtherIdRequestType as json.
+func (s GetPersonByOtherIdRequestType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes GetPersonByOtherIdRequestType from json.
+func (s *GetPersonByOtherIdRequestType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode GetPersonByOtherIdRequestType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch GetPersonByOtherIdRequestType(v) {
+	case GetPersonByOtherIdRequestTypeUgentID:
+		*s = GetPersonByOtherIdRequestTypeUgentID
+	case GetPersonByOtherIdRequestTypeHistoricUgentID:
+		*s = GetPersonByOtherIdRequestTypeHistoricUgentID
+	case GetPersonByOtherIdRequestTypeUgentBarcode:
+		*s = GetPersonByOtherIdRequestTypeUgentBarcode
+	case GetPersonByOtherIdRequestTypeUgentUsername:
+		*s = GetPersonByOtherIdRequestTypeUgentUsername
+	case GetPersonByOtherIdRequestTypeUgentMemorialisID:
+		*s = GetPersonByOtherIdRequestTypeUgentMemorialisID
+	default:
+		*s = GetPersonByOtherIdRequestType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s GetPersonByOtherIdRequestType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *GetPersonByOtherIdRequestType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

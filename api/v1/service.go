@@ -26,6 +26,14 @@ func (s *Service) GetPerson(ctx context.Context, req *GetPersonRequest) (*Person
 	return mapToExternalPerson(person), nil
 }
 
+func (s *Service) GetPersonByOtherId(ctx context.Context, req *GetPersonByOtherIdRequest) (*Person, error) {
+	person, err := s.repository.GetPersonByAnyOtherId(ctx, string(req.Type), req.ID)
+	if err != nil {
+		return nil, err
+	}
+	return mapToExternalPerson(person), nil
+}
+
 func (s *Service) GetPeople(ctx context.Context, req *GetPeopleRequest) (*PersonListResponse, error) {
 	var people []*models.Person
 	var err error
@@ -118,6 +126,15 @@ func (s *Service) SetPersonSettings(ctx context.Context, req *SetPersonSettingsR
 
 func (s *Service) GetOrganization(ctx context.Context, req *GetOrganizationRequest) (*Organization, error) {
 	org, err := s.repository.GetOrganization(ctx, req.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return mapToExternalOrganization(org), nil
+}
+
+func (s *Service) GetOrganizationByOtherId(ctx context.Context, req *GetOrganizationByOtherIdRequest) (*Organization, error) {
+	org, err := s.repository.GetOrganizationByAnyOtherId(ctx, string(req.Type), req.ID)
 	if err != nil {
 		return nil, err
 	}

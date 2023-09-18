@@ -83,6 +83,24 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 					switch elem[0] {
+					case '-': // Prefix: "-by-other-id"
+						if l := len("-by-other-id"); len(elem) >= l && elem[0:l] == "-by-other-id" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleGetOrganizationByOtherIdRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
 					case 's': // Prefix: "s"
 						if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
 							elem = elem[l:]
@@ -139,7 +157,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
 							switch r.Method {
 							case "POST":
 								s.handleGetPersonRequest([0]string{}, elemIsEscaped, w, r)
@@ -148,6 +165,26 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							}
 
 							return
+						}
+						switch elem[0] {
+						case '-': // Prefix: "-by-other-id"
+							if l := len("-by-other-id"); len(elem) >= l && elem[0:l] == "-by-other-id" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "POST":
+									s.handleGetPersonByOtherIdRequest([0]string{}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "POST")
+								}
+
+								return
+							}
 						}
 					}
 				}
@@ -409,6 +446,27 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 					}
 					switch elem[0] {
+					case '-': // Prefix: "-by-other-id"
+						if l := len("-by-other-id"); len(elem) >= l && elem[0:l] == "-by-other-id" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							switch method {
+							case "POST":
+								// Leaf: GetOrganizationByOtherId
+								r.name = "GetOrganizationByOtherId"
+								r.operationID = "GetOrganizationByOtherId"
+								r.pathPattern = "/get-organization-by-other-id"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
 					case 's': // Prefix: "s"
 						if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
 							elem = elem[l:]
@@ -473,7 +531,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						if len(elem) == 0 {
 							switch method {
 							case "POST":
-								// Leaf: GetPerson
 								r.name = "GetPerson"
 								r.operationID = "GetPerson"
 								r.pathPattern = "/get-person"
@@ -482,6 +539,29 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								return r, true
 							default:
 								return
+							}
+						}
+						switch elem[0] {
+						case '-': // Prefix: "-by-other-id"
+							if l := len("-by-other-id"); len(elem) >= l && elem[0:l] == "-by-other-id" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								switch method {
+								case "POST":
+									// Leaf: GetPersonByOtherId
+									r.name = "GetPersonByOtherId"
+									r.operationID = "GetPersonByOtherId"
+									r.pathPattern = "/get-person-by-other-id"
+									r.args = args
+									r.count = 0
+									return r, true
+								default:
+									return
+								}
 							}
 						}
 					}

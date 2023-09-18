@@ -175,6 +175,161 @@ func (s *Server) handleGetOrganizationRequest(args [0]string, argsEscaped bool, 
 	}
 }
 
+// handleGetOrganizationByOtherIdRequest handles GetOrganizationByOtherId operation.
+//
+// Get single organization record by one of its extra identifiers.
+//
+// POST /get-organization-by-other-id
+func (s *Server) handleGetOrganizationByOtherIdRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetOrganizationByOtherId"),
+		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/get-organization-by-other-id"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "GetOrganizationByOtherId",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(float64(elapsedDuration)/float64(time.Millisecond)), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	s.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "GetOrganizationByOtherId",
+			ID:   "GetOrganizationByOtherId",
+		}
+	)
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			sctx, ok, err := s.securityApiKey(ctx, "GetOrganizationByOtherId", r)
+			if err != nil {
+				err = &ogenerrors.SecurityError{
+					OperationContext: opErrContext,
+					Security:         "ApiKey",
+					Err:              err,
+				}
+				recordError("Security:ApiKey", err)
+				s.cfg.ErrorHandler(ctx, w, r, err)
+				return
+			}
+			if ok {
+				satisfied[0] |= 1 << 0
+				ctx = sctx
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			err = &ogenerrors.SecurityError{
+				OperationContext: opErrContext,
+				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
+			}
+			recordError("Security", err)
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+	}
+	request, close, err := s.decodeGetOrganizationByOtherIdRequest(r)
+	if err != nil {
+		err = &ogenerrors.DecodeRequestError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		recordError("DecodeRequest", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
+
+	var response *Organization
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "GetOrganizationByOtherId",
+			OperationID:   "GetOrganizationByOtherId",
+			Body:          request,
+			Params:        middleware.Parameters{},
+			Raw:           r,
+		}
+
+		type (
+			Request  = *GetOrganizationByOtherIdRequest
+			Params   = struct{}
+			Response = *Organization
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			nil,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.GetOrganizationByOtherId(ctx, request)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.GetOrganizationByOtherId(ctx, request)
+	}
+	if err != nil {
+		recordError("Internal", err)
+		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+			encodeErrorResponse(errRes, w, span)
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		encodeErrorResponse(s.h.NewError(ctx, err), w, span)
+		return
+	}
+
+	if err := encodeGetOrganizationByOtherIdResponse(response, w, span); err != nil {
+		recordError("EncodeResponse", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+}
+
 // handleGetOrganizationsRequest handles GetOrganizations operation.
 //
 // Get all organization records.
@@ -634,6 +789,161 @@ func (s *Server) handleGetPersonRequest(args [0]string, argsEscaped bool, w http
 	}
 
 	if err := encodeGetPersonResponse(response, w, span); err != nil {
+		recordError("EncodeResponse", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+}
+
+// handleGetPersonByOtherIdRequest handles GetPersonByOtherId operation.
+//
+// Retrieve a single person record by one of its extra identifiers.
+//
+// POST /get-person-by-other-id
+func (s *Server) handleGetPersonByOtherIdRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetPersonByOtherId"),
+		semconv.HTTPMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/get-person-by-other-id"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "GetPersonByOtherId",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(float64(elapsedDuration)/float64(time.Millisecond)), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	s.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "GetPersonByOtherId",
+			ID:   "GetPersonByOtherId",
+		}
+	)
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			sctx, ok, err := s.securityApiKey(ctx, "GetPersonByOtherId", r)
+			if err != nil {
+				err = &ogenerrors.SecurityError{
+					OperationContext: opErrContext,
+					Security:         "ApiKey",
+					Err:              err,
+				}
+				recordError("Security:ApiKey", err)
+				s.cfg.ErrorHandler(ctx, w, r, err)
+				return
+			}
+			if ok {
+				satisfied[0] |= 1 << 0
+				ctx = sctx
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			err = &ogenerrors.SecurityError{
+				OperationContext: opErrContext,
+				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
+			}
+			recordError("Security", err)
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+	}
+	request, close, err := s.decodeGetPersonByOtherIdRequest(r)
+	if err != nil {
+		err = &ogenerrors.DecodeRequestError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		recordError("DecodeRequest", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
+
+	var response *Person
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "GetPersonByOtherId",
+			OperationID:   "GetPersonByOtherId",
+			Body:          request,
+			Params:        middleware.Parameters{},
+			Raw:           r,
+		}
+
+		type (
+			Request  = *GetPersonByOtherIdRequest
+			Params   = struct{}
+			Response = *Person
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			nil,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.GetPersonByOtherId(ctx, request)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.GetPersonByOtherId(ctx, request)
+	}
+	if err != nil {
+		recordError("Internal", err)
+		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {
+			encodeErrorResponse(errRes, w, span)
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		encodeErrorResponse(s.h.NewError(ctx, err), w, span)
+		return
+	}
+
+	if err := encodeGetPersonByOtherIdResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return

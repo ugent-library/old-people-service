@@ -19,16 +19,6 @@ type Importer struct {
 	ugentLdapClient *ugentldap.Client
 }
 
-/*
-	ImportPerson and ImportOrganization return the following
-	wrapped errors
-
-	* `models.ErrFatal` when message cannot be processed at the time and needs to be resent.
-	   e.g. database is unavailabe
-	* `models.ErrSkipped` when message cannot be processed, but can be skipped.
-	   Mostly for message that cannot be mapped (e.g. missing ugent_id)
-*/
-
 func NewImporter(repo models.Repository, ugentLdapClient *ugentldap.Client) *Importer {
 	return &Importer{
 		repository:      repo,

@@ -114,14 +114,8 @@ func (pu *PersonUpdate) ClearEmail() *PersonUpdate {
 }
 
 // SetOtherID sets the "other_id" field.
-func (pu *PersonUpdate) SetOtherID(sr []schema.IdRef) *PersonUpdate {
+func (pu *PersonUpdate) SetOtherID(sr schema.IdRefs) *PersonUpdate {
 	pu.mutation.SetOtherID(sr)
-	return pu
-}
-
-// AppendOtherID appends sr to the "other_id" field.
-func (pu *PersonUpdate) AppendOtherID(sr []schema.IdRef) *PersonUpdate {
-	pu.mutation.AppendOtherID(sr)
 	return pu
 }
 
@@ -532,11 +526,6 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.OtherID(); ok {
 		_spec.SetField(person.FieldOtherID, field.TypeJSON, value)
 	}
-	if value, ok := pu.mutation.AppendedOtherID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldOtherID, value)
-		})
-	}
 	if pu.mutation.OtherIDCleared() {
 		_spec.ClearField(person.FieldOtherID, field.TypeJSON)
 	}
@@ -838,14 +827,8 @@ func (puo *PersonUpdateOne) ClearEmail() *PersonUpdateOne {
 }
 
 // SetOtherID sets the "other_id" field.
-func (puo *PersonUpdateOne) SetOtherID(sr []schema.IdRef) *PersonUpdateOne {
+func (puo *PersonUpdateOne) SetOtherID(sr schema.IdRefs) *PersonUpdateOne {
 	puo.mutation.SetOtherID(sr)
-	return puo
-}
-
-// AppendOtherID appends sr to the "other_id" field.
-func (puo *PersonUpdateOne) AppendOtherID(sr []schema.IdRef) *PersonUpdateOne {
-	puo.mutation.AppendOtherID(sr)
 	return puo
 }
 
@@ -1285,11 +1268,6 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	}
 	if value, ok := puo.mutation.OtherID(); ok {
 		_spec.SetField(person.FieldOtherID, field.TypeJSON, value)
-	}
-	if value, ok := puo.mutation.AppendedOtherID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, person.FieldOtherID, value)
-		})
 	}
 	if puo.mutation.OtherIDCleared() {
 		_spec.ClearField(person.FieldOtherID, field.TypeJSON)

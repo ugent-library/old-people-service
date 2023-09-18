@@ -107,7 +107,7 @@ var (
 	// DefaultType holds the default value on creation for the "type" field.
 	DefaultType string
 	// DefaultOtherID holds the default value on creation for the "other_id" field.
-	DefaultOtherID []schema.IdRef
+	DefaultOtherID schema.IdRefs
 )
 
 // OrderOption defines the ordering options for the Organization queries.

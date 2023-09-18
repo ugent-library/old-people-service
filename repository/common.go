@@ -127,7 +127,7 @@ func customSchemaChanges(next schema.Applier) schema.Applier {
 		ALTER TABLE organization
 		ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS
 		(
-			to_tsvector('simple', jsonb_path_query_array(other_id, '$[*].id')) ||
+			to_tsvector('simple', jsonb_path_query_array(other_id,'$.**{2}')) ||
 			to_tsvector('simple', public_id) ||
 			to_tsvector('usimple',name_dut) ||
 			to_tsvector('usimple', name_eng)

@@ -9,7 +9,7 @@ type OrganizationService interface {
 	GetOrganization(context.Context, string) (*Organization, error)
 	GetOrganizationByGismoId(context.Context, string) (*Organization, error)
 	GetOrganizationsByGismoId(context.Context, ...string) ([]*Organization, error)
-	GetOrganizationByOtherId(context.Context, string, string) (*Organization, error)
+	GetOrganizationByOtherId(context.Context, string, ...string) (*Organization, error)
 	DeleteOrganization(context.Context, string) error
 	EachOrganization(context.Context, func(*Organization) bool) error
 	GetOrganizations(context.Context) ([]*Organization, string, error)

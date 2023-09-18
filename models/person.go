@@ -20,7 +20,7 @@ type Person struct {
 	PreferredLastName  string             `json:"preferred_last_name,omitempty"`
 	BirthDate          string             `json:"birth_date,omitempty"`
 	Title              string             `json:"title,omitempty"`
-	OtherId            []*IdRef           `json:"other_id,omitempty"`
+	OtherId            IdRefs             `json:"other_id,omitempty"`
 	Organization       []*OrganizationRef `json:"organization,omitempty"`
 	JobCategory        []string           `json:"job_category,omitempty"`
 	Role               []string           `json:"role,omitempty"`
@@ -34,7 +34,9 @@ func (person *Person) IsStored() bool {
 }
 
 func NewPerson() *Person {
-	return &Person{}
+	p := &Person{}
+	p.OtherId = IdRefs{}
+	return p
 }
 
 func NewOrganizationRef(id string) *OrganizationRef {

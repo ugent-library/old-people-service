@@ -10,7 +10,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people-service/ent/organization"
 	"github.com/ugent-library/people-service/ent/organizationperson"
@@ -114,14 +113,8 @@ func (ou *OrganizationUpdate) ClearNameEng() *OrganizationUpdate {
 }
 
 // SetOtherID sets the "other_id" field.
-func (ou *OrganizationUpdate) SetOtherID(sr []schema.IdRef) *OrganizationUpdate {
+func (ou *OrganizationUpdate) SetOtherID(sr schema.IdRefs) *OrganizationUpdate {
 	ou.mutation.SetOtherID(sr)
-	return ou
-}
-
-// AppendOtherID appends sr to the "other_id" field.
-func (ou *OrganizationUpdate) AppendOtherID(sr []schema.IdRef) *OrganizationUpdate {
-	ou.mutation.AppendOtherID(sr)
 	return ou
 }
 
@@ -352,11 +345,6 @@ func (ou *OrganizationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := ou.mutation.OtherID(); ok {
 		_spec.SetField(organization.FieldOtherID, field.TypeJSON, value)
-	}
-	if value, ok := ou.mutation.AppendedOtherID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, organization.FieldOtherID, value)
-		})
 	}
 	if ou.mutation.OtherIDCleared() {
 		_spec.ClearField(organization.FieldOtherID, field.TypeJSON)
@@ -640,14 +628,8 @@ func (ouo *OrganizationUpdateOne) ClearNameEng() *OrganizationUpdateOne {
 }
 
 // SetOtherID sets the "other_id" field.
-func (ouo *OrganizationUpdateOne) SetOtherID(sr []schema.IdRef) *OrganizationUpdateOne {
+func (ouo *OrganizationUpdateOne) SetOtherID(sr schema.IdRefs) *OrganizationUpdateOne {
 	ouo.mutation.SetOtherID(sr)
-	return ouo
-}
-
-// AppendOtherID appends sr to the "other_id" field.
-func (ouo *OrganizationUpdateOne) AppendOtherID(sr []schema.IdRef) *OrganizationUpdateOne {
-	ouo.mutation.AppendOtherID(sr)
 	return ouo
 }
 
@@ -908,11 +890,6 @@ func (ouo *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizat
 	}
 	if value, ok := ouo.mutation.OtherID(); ok {
 		_spec.SetField(organization.FieldOtherID, field.TypeJSON, value)
-	}
-	if value, ok := ouo.mutation.AppendedOtherID(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, organization.FieldOtherID, value)
-		})
 	}
 	if ouo.mutation.OtherIDCleared() {
 		_spec.ClearField(organization.FieldOtherID, field.TypeJSON)

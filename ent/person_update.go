@@ -16,7 +16,7 @@ import (
 	"github.com/ugent-library/people-service/ent/organizationperson"
 	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/predicate"
-	"github.com/ugent-library/people-service/ent/schema"
+	"github.com/ugent-library/people-service/models"
 )
 
 // PersonUpdate is the builder for updating Person entities.
@@ -114,8 +114,8 @@ func (pu *PersonUpdate) ClearEmail() *PersonUpdate {
 }
 
 // SetOtherID sets the "other_id" field.
-func (pu *PersonUpdate) SetOtherID(sr schema.IdRefs) *PersonUpdate {
-	pu.mutation.SetOtherID(sr)
+func (pu *PersonUpdate) SetOtherID(mr models.IdRefs) *PersonUpdate {
+	pu.mutation.SetOtherID(mr)
 	return pu
 }
 
@@ -827,8 +827,8 @@ func (puo *PersonUpdateOne) ClearEmail() *PersonUpdateOne {
 }
 
 // SetOtherID sets the "other_id" field.
-func (puo *PersonUpdateOne) SetOtherID(sr schema.IdRefs) *PersonUpdateOne {
-	puo.mutation.SetOtherID(sr)
+func (puo *PersonUpdateOne) SetOtherID(mr models.IdRefs) *PersonUpdateOne {
+	puo.mutation.SetOtherID(mr)
 	return puo
 }
 

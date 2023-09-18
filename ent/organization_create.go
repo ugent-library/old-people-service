@@ -13,7 +13,7 @@ import (
 	"github.com/ugent-library/people-service/ent/organization"
 	"github.com/ugent-library/people-service/ent/organizationperson"
 	"github.com/ugent-library/people-service/ent/person"
-	"github.com/ugent-library/people-service/ent/schema"
+	"github.com/ugent-library/people-service/models"
 )
 
 // OrganizationCreate is the builder for creating a Organization entity.
@@ -122,8 +122,8 @@ func (oc *OrganizationCreate) SetNillableNameEng(s *string) *OrganizationCreate 
 }
 
 // SetOtherID sets the "other_id" field.
-func (oc *OrganizationCreate) SetOtherID(sr schema.IdRefs) *OrganizationCreate {
-	oc.mutation.SetOtherID(sr)
+func (oc *OrganizationCreate) SetOtherID(mr models.IdRefs) *OrganizationCreate {
+	oc.mutation.SetOtherID(mr)
 	return oc
 }
 

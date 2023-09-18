@@ -13,7 +13,7 @@ import (
 	"github.com/ugent-library/people-service/ent/organization"
 	"github.com/ugent-library/people-service/ent/organizationperson"
 	"github.com/ugent-library/people-service/ent/person"
-	"github.com/ugent-library/people-service/ent/schema"
+	"github.com/ugent-library/people-service/models"
 )
 
 // PersonCreate is the builder for creating a Person entity.
@@ -122,8 +122,8 @@ func (pc *PersonCreate) SetNillableEmail(s *string) *PersonCreate {
 }
 
 // SetOtherID sets the "other_id" field.
-func (pc *PersonCreate) SetOtherID(sr schema.IdRefs) *PersonCreate {
-	pc.mutation.SetOtherID(sr)
+func (pc *PersonCreate) SetOtherID(mr models.IdRefs) *PersonCreate {
+	pc.mutation.SetOtherID(mr)
 	return pc
 }
 

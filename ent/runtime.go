@@ -9,6 +9,7 @@ import (
 	"github.com/ugent-library/people-service/ent/organizationperson"
 	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/schema"
+	"github.com/ugent-library/people-service/models"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -43,7 +44,7 @@ func init() {
 	// organizationDescOtherID is the schema descriptor for other_id field.
 	organizationDescOtherID := organizationFields[4].Descriptor()
 	// organization.DefaultOtherID holds the default value on creation for the other_id field.
-	organization.DefaultOtherID = organizationDescOtherID.Default.(schema.IdRefs)
+	organization.DefaultOtherID = organizationDescOtherID.Default.(models.IdRefs)
 	organizationpersonMixin := schema.OrganizationPerson{}.Mixin()
 	organizationpersonMixinFields0 := organizationpersonMixin[0].Fields()
 	_ = organizationpersonMixinFields0
@@ -97,7 +98,7 @@ func init() {
 	// personDescOtherID is the schema descriptor for other_id field.
 	personDescOtherID := personFields[4].Descriptor()
 	// person.DefaultOtherID holds the default value on creation for the other_id field.
-	person.DefaultOtherID = personDescOtherID.Default.(schema.IdRefs)
+	person.DefaultOtherID = personDescOtherID.Default.(models.IdRefs)
 	// personDescJobCategory is the schema descriptor for job_category field.
 	personDescJobCategory := personFields[8].Descriptor()
 	// person.DefaultJobCategory holds the default value on creation for the job_category field.

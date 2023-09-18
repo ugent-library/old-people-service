@@ -15,7 +15,6 @@ import (
 	"github.com/ugent-library/people-service/ent"
 	"github.com/ugent-library/people-service/ent/organization"
 	"github.com/ugent-library/people-service/ent/person"
-	"github.com/ugent-library/people-service/ent/schema"
 	"github.com/ugent-library/people-service/models"
 )
 
@@ -117,7 +116,7 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
-	t.SetOtherID(schema.IdRefs(org.OtherId))
+	t.SetOtherID(org.OtherId)
 	t.SetGismoID(org.GismoId)
 	if org.ParentId != "" {
 		parentOrgRow, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentId)).First(ctx)
@@ -160,7 +159,7 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
-	t.SetOtherID(schema.IdRefs(org.OtherId))
+	t.SetOtherID(org.OtherId)
 	t.SetGismoID(org.GismoId)
 	t.ClearParent()
 	if org.ParentId != "" {
@@ -376,7 +375,7 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 		t.SetOrcidToken(eToken)
 	}
 
-	t.SetOtherID(schema.IdRefs(p.OtherId))
+	t.SetOtherID(p.OtherId)
 	t.SetPreferredFirstName(p.PreferredFirstName)
 	t.SetPreferredLastName(p.PreferredLastName)
 
@@ -503,7 +502,7 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 		t.SetOrcidToken(eToken)
 	}
 
-	t.SetOtherID(schema.IdRefs(p.OtherId))
+	t.SetOtherID(p.OtherId)
 	t.SetPreferredFirstName(p.PreferredFirstName)
 	t.SetPreferredLastName(p.PreferredLastName)
 	t.ClearOrganizations()

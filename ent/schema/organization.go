@@ -7,6 +7,7 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+	"github.com/ugent-library/people-service/models"
 )
 
 type Organization struct {
@@ -26,7 +27,7 @@ func (Organization) Fields() []ent.Field {
 		field.String("type").Default("organization"),
 		field.String("name_dut").Optional(),
 		field.String("name_eng").Optional(),
-		field.JSON("other_id", IdRefs{}).Optional().Default(IdRefs{}),
+		field.JSON("other_id", models.IdRefs{}).Optional().Default(models.IdRefs{}),
 		field.Int("parent_id").Optional(),
 	}
 }

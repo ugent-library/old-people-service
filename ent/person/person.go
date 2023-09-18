@@ -7,7 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/ugent-library/people-service/ent/schema"
+	"github.com/ugent-library/people-service/models"
 )
 
 const (
@@ -131,7 +131,7 @@ var (
 	// DefaultActive holds the default value on creation for the "active" field.
 	DefaultActive bool
 	// DefaultOtherID holds the default value on creation for the "other_id" field.
-	DefaultOtherID schema.IdRefs
+	DefaultOtherID models.IdRefs
 	// DefaultJobCategory holds the default value on creation for the "job_category" field.
 	DefaultJobCategory []string
 	// DefaultRole holds the default value on creation for the "role" field.

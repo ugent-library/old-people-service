@@ -129,9 +129,25 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 		if err != nil {
 			return nil, err
 		}
-		// return fatal error when person arrives with organization that we do not know yet
-		if len(orgsByGismo) != len(gismoOrganizationIds) {
-			return nil, fmt.Errorf("%w: person.organization_id contains invalid gismo organization identifiers", models.ErrFatal)
+
+		// create dummy organizations when organization is not yet known
+		for _, gismoOrganizationId := range gismoOrganizationIds {
+			var gismoOrg *models.Organization
+			for _, org := range orgsByGismo {
+				if org.GismoId == gismoOrganizationId {
+					gismoOrg = org
+					break
+				}
+			}
+			if gismoOrg == nil {
+				gismoOrg = models.NewOrganization()
+				gismoOrg.GismoId = gismoOrganizationId
+				gismoOrg, err = pp.repository.SaveOrganization(ctx, gismoOrg)
+				if err != nil {
+					return nil, err
+				}
+				orgsByGismo = append(orgsByGismo, gismoOrg)
+			}
 		}
 
 		var orgRefs []*models.OrganizationRef

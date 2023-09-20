@@ -28,7 +28,7 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 	ctx := context.TODO()
 
 	org, err := op.repository.GetOrganizationByGismoId(ctx, msg.ID)
-	if err != nil && err == models.ErrNotFound {
+	if errors.Is(err, models.ErrNotFound) {
 		org = models.NewOrganization()
 	} else if err != nil {
 		return nil, fmt.Errorf("%w: unable to fetch organization record: %s", models.ErrFatal, err)
@@ -52,9 +52,15 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 				if withinDateRange {
 					orgParentByGismo, err := op.repository.GetOrganizationByGismoId(ctx, attr.Value)
 					if errors.Is(err, models.ErrNotFound) {
-						return nil, fmt.Errorf("%w: unable to find parent organization with gismo id %s", models.ErrFatal, attr.Value)
+						orgParentByGismo := models.NewOrganization()
+						orgParentByGismo.GismoId = attr.Value
+						orgParentByGismo, err = op.repository.CreateOrganization(ctx, orgParentByGismo)
+						if err != nil {
+							return nil, fmt.Errorf("%w: unable to create parent organization: %s", models.ErrFatal, err)
+						}
+						org.ParentId = orgParentByGismo.Id
 					} else if err != nil {
-						return nil, fmt.Errorf("%w", models.ErrFatal)
+						return nil, fmt.Errorf("%w: unable to query database: %s", models.ErrFatal, err)
 					} else {
 						org.ParentId = orgParentByGismo.Id
 					}

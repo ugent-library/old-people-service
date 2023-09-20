@@ -21,11 +21,16 @@ var importStudentsCmd = &cobra.Command{
 
 		importer := student.NewImporter(repo, ugentLdapClient)
 		return importer.Each(func(person *models.Person) error {
+			isNewRecord := !person.IsStored()
 			person, err := repo.SavePerson(context.TODO(), person)
 			if err != nil {
 				return fmt.Errorf("unable to save person %s: %w", person.Id, err)
 			}
-			logger.Infof("successfully imported person %s", person.Id)
+			if isNewRecord {
+				logger.Infof("successfully created person %s", person.Id)
+			} else {
+				logger.Infof("successfully updated person %s", person.Id)
+			}
 			return nil
 		})
 	},

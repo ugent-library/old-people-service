@@ -298,3 +298,63 @@ $ docker compose up
 ```
 
 Docker compose uses that image `people-service`
+
+# Database setup
+
+For database migrations this application works with the migration toolset of [Atlas](https://atlasgo.io/).
+
+All database sql files are stored in directory `migrations/` and should be executed in
+
+alphabetical order. Try to run only files that you haven't run yet.
+
+The database integration is done with [entgo](https://entgo.io/).
+
+In order to create your first migration files for atlas (starting from an existing database),
+run the following command (example):
+
+```
+atlas migrate diff create_tables --dir "file://migrations" --to "postgres://people:people@localhost:5432/people?sslmode=disable" --dev-url "docker://postgres/14/test?search_path=public"
+```
+
+When you change the entgo schema definition run the following commands:
+
+```
+# create new schema generated from ent schema
+go generate ./...
+
+# let atlas generate migration files to reach the new state
+atlas migrate diff <migration-name> --dir "file://migrations" to "ent://ent/schema" --dev-url "docker://postgres/14/test?search_path=public"
+```
+
+Apply the new change
+
+```
+atlas migrate apply --dir "file://migrations" --url "postgres://biblio:biblio@localhost:5432/authority?sslmode=disable"
+```
+
+When get an error from atlas, stating that the database is not clean,
+you must add the option `--baseline <timestamp>` to indicate which
+version is expected in the database.
+
+You'll notice now that atlas has created a new schema called
+`atlas_schema_revisions` inside your database.
+
+Create a custom migration file (for example because entgo cannot generate these entities):
+
+```
+atlas migrate new <migration-name> --dir "file://migrations"
+
+```
+
+You may change the contents of the migration files,
+but make sure to regenerate checksum files:
+
+```
+atlas migrate hash --dir "file://migrations"
+```
+
+Validate a new migration with `atlas lint` before applying it:
+
+```
+atlas migrate lint --dev-url "docker://postgres/14/test?search_path=public" --dir file://migrations --latest 1
+```

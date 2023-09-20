@@ -65,7 +65,7 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 	return err
 }
 
-// ldapEntryToPerson maps ldap entry to new Person, and creates Organization's if necessary (side effect)
+// ldapEntryToPerson maps ldap entry to new Person
 func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, error) {
 	newPerson := models.NewPerson()
 	newPerson.Active = true

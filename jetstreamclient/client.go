@@ -69,11 +69,12 @@ func (c *Client) initStream() error {
 		}
 	}
 
+	prefix := strings.ToLower(c.streamName)
 	consumerConfigs := []nats.ConsumerConfig{
 		{
 			AckPolicy:      nats.AckExplicitPolicy,
 			Durable:        "inboxPerson",
-			DeliverSubject: "inboxPersonDeliverSubject",
+			DeliverSubject: prefix + ".inboxPersonDeliverSubject",
 			AckWait:        time.Minute,
 			MaxAckPending:  1,
 			FilterSubject:  c.personSubject,
@@ -82,7 +83,7 @@ func (c *Client) initStream() error {
 		{
 			AckPolicy:      nats.AckExplicitPolicy,
 			Durable:        "inboxOrganization",
-			DeliverSubject: "inboxOrganizationDeliverSubject",
+			DeliverSubject: prefix + ".inboxOrganizationDeliverSubject",
 			AckWait:        time.Minute,
 			MaxAckPending:  1,
 			FilterSubject:  c.organizationSubject,

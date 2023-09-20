@@ -11,7 +11,7 @@ type ConfigNats struct {
 	Url        string `json:"url,omitempty" env:"URL" envDefault:"nats://localhost:4222"`
 	Nkey       string `json:"-" env:"NKEY"`
 	NkeySeed   string `json:"-" env:"NKEY_SEED"`
-	StreamName string `json:"stream_name" env:"STREAM_NAME" envDefault:"GISMO"`
+	StreamName string `json:"stream_name" env:"STREAM_NAME" envDefault:"gismo"`
 }
 
 type ConfigApi struct {

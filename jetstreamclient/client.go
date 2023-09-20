@@ -1,7 +1,6 @@
 package jetstreamclient
 
 import (
-	"strings"
 	"time"
 
 	"github.com/nats-io/nats.go"
@@ -31,12 +30,11 @@ func New(config *Config) (*Client, error) {
 		return nil, err
 	}
 
-	prefix := strings.ToLower(config.StreamName)
 	cl := &Client{
 		natsConn:            nc,
 		streamName:          config.StreamName,
-		personSubject:       prefix + ".person",
-		organizationSubject: prefix + ".organization",
+		personSubject:       config.StreamName + ".person",
+		organizationSubject: config.StreamName + ".organization",
 		logger:              config.Logger,
 	}
 
@@ -69,12 +67,11 @@ func (c *Client) initStream() error {
 		}
 	}
 
-	prefix := strings.ToLower(c.streamName)
 	consumerConfigs := []nats.ConsumerConfig{
 		{
 			AckPolicy:      nats.AckExplicitPolicy,
 			Durable:        "inboxPerson",
-			DeliverSubject: prefix + ".inboxPersonDeliverSubject",
+			DeliverSubject: c.streamName + ".inboxPersonDeliverSubject",
 			AckWait:        time.Minute,
 			MaxAckPending:  1,
 			FilterSubject:  c.personSubject,
@@ -83,7 +80,7 @@ func (c *Client) initStream() error {
 		{
 			AckPolicy:      nats.AckExplicitPolicy,
 			Durable:        "inboxOrganization",
-			DeliverSubject: prefix + ".inboxOrganizationDeliverSubject",
+			DeliverSubject: c.streamName + ".inboxOrganizationDeliverSubject",
 			AckWait:        time.Minute,
 			MaxAckPending:  1,
 			FilterSubject:  c.organizationSubject,

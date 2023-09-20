@@ -91,24 +91,24 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
   ```
   authorization {
     default_permissions = {}
-    PERSON_SERVICE = {
+    PEOPLE_SERVICE = {
       subscribe = [
         "gismo.person",
         "gismo.organization",
         "inboxOrganizationDeliverSubject",
         "inboxPersonDeliverSubject",
         "_INBOX.>",
-        "$JS.API.STREAM.CREATE.PEOPLE",
-        "$JS.API.STREAM.UPDATE.PEOPLE",
-        "$JS.API.STREAM.INFO.PEOPLE",
-        "$JS.API.STREAM.DELETE.PEOPLE",
-        "$JS.API.CONSUMER.DURABLE.CREATE.PEOPLE.>",
-        "$JS.API.CONSUMER.DELETE.PEOPLE.>",
-        "$JS.API.CONSUMER.INFO.PEOPLE.>"
+        "$JS.API.STREAM.CREATE.gismo",
+        "$JS.API.STREAM.UPDATE.gismo",
+        "$JS.API.STREAM.INFO.gismo",
+        "$JS.API.STREAM.DELETE.gismo",
+        "$JS.API.CONSUMER.DURABLE.CREATE.gismo.>",
+        "$JS.API.CONSUMER.DELETE.gismo.>",
+        "$JS.API.CONSUMER.INFO.gismo.>"
       ]
     }
     users = [
-      { nkey: "<public-key>", permissions: $PERSON_SERVICE }
+      { nkey: "<public-key>", permissions: $PEOPLE_SERVICE }
     ]
   }
   ```
@@ -122,6 +122,14 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
   Keep the private key close to your application.
 
   Nats does not need to know about this.
+
+* `PEOPLE_NATS_STREAM_NAME`
+
+  type: `string`
+
+  description: name of stream in NATS. Stream will be created automatically. Also serves as prefix (with '.' after it) for every subject created on it (including delivery subjects).
+
+  e.g. `gismoDev` creates subjects `gismoDev.person`, `gismoDev.organization` and delivery subjects `gismoDev.inboxPersonDeliverSubject` and `gismoDev.inboxOrganizationDeliverSubject`
 
 * `PEOPLE_LDAP_URL`
 
@@ -162,7 +170,7 @@ $ ./people-service server start
 $ ./people-service inbox listen organization
 ```
 
-* creates NATS stream `GISMO` with subjects `gismo.organization`. If already present, does not try to change it. Expections are:
+* creates NATS stream with name as configured by environment variable `PEOPLE_NATS_STREAM_NAME` with subjects `{streamName}.organization` and `{streamName}.person`. The default stream name is `gismo`. If already present, does not try to change it. Expections are:
 
   * messages must be persisted to disk
 
@@ -184,7 +192,7 @@ $ ./people-service inbox listen organization
     }
     ```
 
-* creates NATS push consumer `inboxOrganization` on stream `GISMO`. If already present, does not try to change it. Expectations are:
+* creates NATS push consumer `inboxOrganization` on stream. If already present, does not try to change it. Expectations are:
 
   * DeliverSubject: `inboxOrganizationDeliverSubject`. This option makes it a push based consumer.
 
@@ -196,9 +204,9 @@ $ ./people-service inbox listen organization
 
   * AckWait: 1 minute. This means that messages are resent after 1 minute when no acknowledgment was received. Putting this too low puts pressure on the processing.
 
-* binds to consumer `inboxOrganization` on stream `GISMO`
+* binds to consumer `inboxOrganization` on stream `{streamName}`
 
-* listens to subject `gismo.organization`
+* listens to subject `{streamName}.organization`
 
 * processes SOAP XML messages in order
 
@@ -212,7 +220,7 @@ $ ./people-service inbox listen organization
 
 * Notes:
 
-  * if GISMO states that the organization is child of a parent organization, and that parent organization does not exist yet, then processing stops (no ack sent). Processing should happen in correct order.
+  * if GISMO states that the organization is child of a parent organization, and that parent organization does not exist yet, then that parent organization is made automatically with only a gismo_id as known attribute
 
 
 # Start NATS consumer person
@@ -221,7 +229,7 @@ $ ./people-service inbox listen organization
 $ ./people-service inbox listen person
 ```
 
-* creates NATS stream `GISMO` with subjects `gismo.person`. If already present, does not try to change it. Expections are:
+* creates NATS stream `{streamName}` with subjects `{streamName}.person`. If already present, does not try to change it. Expections are:
 
   * messages must be persisted to disk
 
@@ -243,7 +251,7 @@ $ ./people-service inbox listen person
     }
     ```
 
-* creates NATS push consumer `inboxPerson` on stream `GISMO`. If already present, does not try to change it. Expectations are:
+* creates NATS push consumer `inboxPerson` on stream `{streamName}`. If already present, does not try to change it. Expectations are:
 
   * DeliverSubject: `inboxPersonDeliverSubject`. This option makes it a push based consumer.
 
@@ -255,9 +263,9 @@ $ ./people-service inbox listen person
 
   * AckWait: 1 minute. This means that messages are resent after 1 minute when no acknowledgment was received. Putting this too low puts pressure on the processing.
 
-* binds to consumer `inboxPerson` on stream `GISMO`
+* binds to consumer `inboxPerson` on stream `{streamName}`
 
-* listens to subject `gismo.person`
+* listens to subject `{streamName}.person`
 
 * processes SOAP XML messages in order
 
@@ -272,9 +280,7 @@ $ ./people-service inbox listen person
 * Notes:
 
   * If GISMO states that a person belongs to an organization that does not exist
-    yet in the database, then processing is stopped, and no ack is sent. Please make
-    sure that organizations are processed first. No attempt is made to store
-    the reported organization gismo identifier, and create the relation later.
+    yet in the database, then an organization is made automatically with that organization's gismo_id as only known attribute.
   * Every GISMO person message needs to have an ugent_id. Without an ugent_id one cannot
     link with the ugent ldap.
 

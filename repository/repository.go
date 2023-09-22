@@ -145,6 +145,7 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	}
 
 	// collect entgo managed fields
+	org.Id = row.PublicID
 	org.DateCreated = &row.DateCreated
 	org.DateUpdated = &row.DateUpdated
 

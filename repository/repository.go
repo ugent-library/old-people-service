@@ -117,7 +117,11 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
 	t.SetOtherID(org.OtherId)
-	t.SetGismoID(org.GismoId)
+	var gismoId *string = nil
+	if org.GismoId != "" {
+		gismoId = &org.GismoId
+	}
+	t.SetNillableGismoID(gismoId)
 	if org.ParentId != "" {
 		parentOrgRow, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentId)).First(ctx)
 		if err != nil {
@@ -160,7 +164,11 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
 	t.SetOtherID(org.OtherId)
-	t.SetGismoID(org.GismoId)
+	var gismoId *string = nil
+	if org.GismoId != "" {
+		gismoId = &org.GismoId
+	}
+	t.SetNillableGismoID(gismoId)
 	t.ClearParent()
 	if org.ParentId != "" {
 		parentOrg, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentId)).First(ctx)

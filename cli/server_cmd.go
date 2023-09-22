@@ -18,13 +18,7 @@ import (
 )
 
 func init() {
-	serverCmd.AddCommand(serverStartCmd)
 	rootCmd.AddCommand(serverCmd)
-}
-
-var serverCmd = &cobra.Command{
-	Use:   "server [command]",
-	Short: "server commands",
 }
 
 type ErrorMessage struct {
@@ -43,9 +37,9 @@ func (s *apiSecurityHandler) HandleApiKey(ctx context.Context, operationName str
 	return ctx, errors.New("unauthorized")
 }
 
-var serverStartCmd = &cobra.Command{
-	Use:   "start",
-	Short: "start the api server",
+var serverCmd = &cobra.Command{
+	Use:   "server",
+	Short: "start the openapi server",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		repo, err := newRepository()
 		if err != nil {

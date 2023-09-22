@@ -161,7 +161,7 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
 # Start the api server (openapi)
 
 ```
-$ ./people-service server start
+$ ./people-service server
 ```
 
 # Start NATS consumer organization

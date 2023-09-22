@@ -40,7 +40,7 @@ services:
       - 3999:3999
     volumes:
       - ./docker/.env:/opt/people-service/.env
-    command: "/bin/sh -c \"cd /opt/people-service && ./people-service server start\""
+    command: "/bin/sh -c \"cd /opt/people-service && ./people-service server\""
 
   # connect to postgres:
   #   connect to docker container

@@ -293,6 +293,52 @@ func (s *IdRefs) init() IdRefs {
 	return m
 }
 
+// NewOptBool returns new OptBool with value set to v.
+func NewOptBool(v bool) OptBool {
+	return OptBool{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptBool is optional bool.
+type OptBool struct {
+	Value bool
+	Set   bool
+}
+
+// IsSet returns true if OptBool was set.
+func (o OptBool) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptBool) Reset() {
+	var v bool
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptBool) SetTo(v bool) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptBool) Get() (v bool, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptBool) Or(d bool) bool {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptDateTime returns new OptDateTime with value set to v.
 func NewOptDateTime(v time.Time) OptDateTime {
 	return OptDateTime{
@@ -479,19 +525,19 @@ func (o OptString) Or(d string) string {
 
 // Ref: #/components/schemas/Organization
 type Organization struct {
-	ID          string    `json:"id"`
-	GismoID     OptString `json:"gismo_id"`
-	DateCreated time.Time `json:"date_created"`
-	DateUpdated time.Time `json:"date_updated"`
-	Type        string    `json:"type"`
-	NameDut     OptString `json:"name_dut"`
-	NameEng     OptString `json:"name_eng"`
-	ParentID    OptString `json:"parent_id"`
-	OtherID     OptIdRefs `json:"other_id"`
+	ID          OptString   `json:"id"`
+	GismoID     OptString   `json:"gismo_id"`
+	DateCreated OptDateTime `json:"date_created"`
+	DateUpdated OptDateTime `json:"date_updated"`
+	Type        OptString   `json:"type"`
+	NameDut     OptString   `json:"name_dut"`
+	NameEng     OptString   `json:"name_eng"`
+	ParentID    OptString   `json:"parent_id"`
+	OtherID     OptIdRefs   `json:"other_id"`
 }
 
 // GetID returns the value of ID.
-func (s *Organization) GetID() string {
+func (s *Organization) GetID() OptString {
 	return s.ID
 }
 
@@ -501,17 +547,17 @@ func (s *Organization) GetGismoID() OptString {
 }
 
 // GetDateCreated returns the value of DateCreated.
-func (s *Organization) GetDateCreated() time.Time {
+func (s *Organization) GetDateCreated() OptDateTime {
 	return s.DateCreated
 }
 
 // GetDateUpdated returns the value of DateUpdated.
-func (s *Organization) GetDateUpdated() time.Time {
+func (s *Organization) GetDateUpdated() OptDateTime {
 	return s.DateUpdated
 }
 
 // GetType returns the value of Type.
-func (s *Organization) GetType() string {
+func (s *Organization) GetType() OptString {
 	return s.Type
 }
 
@@ -536,7 +582,7 @@ func (s *Organization) GetOtherID() OptIdRefs {
 }
 
 // SetID sets the value of ID.
-func (s *Organization) SetID(val string) {
+func (s *Organization) SetID(val OptString) {
 	s.ID = val
 }
 
@@ -546,17 +592,17 @@ func (s *Organization) SetGismoID(val OptString) {
 }
 
 // SetDateCreated sets the value of DateCreated.
-func (s *Organization) SetDateCreated(val time.Time) {
+func (s *Organization) SetDateCreated(val OptDateTime) {
 	s.DateCreated = val
 }
 
 // SetDateUpdated sets the value of DateUpdated.
-func (s *Organization) SetDateUpdated(val time.Time) {
+func (s *Organization) SetDateUpdated(val OptDateTime) {
 	s.DateUpdated = val
 }
 
 // SetType sets the value of Type.
-func (s *Organization) SetType(val string) {
+func (s *Organization) SetType(val OptString) {
 	s.Type = val
 }
 
@@ -609,10 +655,10 @@ func (s *OrganizationListResponse) SetData(val []Organization) {
 // Ref: #/components/schemas/OrganizationRef
 type OrganizationRef struct {
 	ID          string      `json:"id"`
-	DateCreated time.Time   `json:"date_created"`
-	DateUpdated time.Time   `json:"date_updated"`
+	DateCreated OptDateTime `json:"date_created"`
+	DateUpdated OptDateTime `json:"date_updated"`
 	From        time.Time   `json:"from"`
-	Until       OptDateTime `json:"until"`
+	Until       time.Time   `json:"until"`
 }
 
 // GetID returns the value of ID.
@@ -621,12 +667,12 @@ func (s *OrganizationRef) GetID() string {
 }
 
 // GetDateCreated returns the value of DateCreated.
-func (s *OrganizationRef) GetDateCreated() time.Time {
+func (s *OrganizationRef) GetDateCreated() OptDateTime {
 	return s.DateCreated
 }
 
 // GetDateUpdated returns the value of DateUpdated.
-func (s *OrganizationRef) GetDateUpdated() time.Time {
+func (s *OrganizationRef) GetDateUpdated() OptDateTime {
 	return s.DateUpdated
 }
 
@@ -636,7 +682,7 @@ func (s *OrganizationRef) GetFrom() time.Time {
 }
 
 // GetUntil returns the value of Until.
-func (s *OrganizationRef) GetUntil() OptDateTime {
+func (s *OrganizationRef) GetUntil() time.Time {
 	return s.Until
 }
 
@@ -646,12 +692,12 @@ func (s *OrganizationRef) SetID(val string) {
 }
 
 // SetDateCreated sets the value of DateCreated.
-func (s *OrganizationRef) SetDateCreated(val time.Time) {
+func (s *OrganizationRef) SetDateCreated(val OptDateTime) {
 	s.DateCreated = val
 }
 
 // SetDateUpdated sets the value of DateUpdated.
-func (s *OrganizationRef) SetDateUpdated(val time.Time) {
+func (s *OrganizationRef) SetDateUpdated(val OptDateTime) {
 	s.DateUpdated = val
 }
 
@@ -661,17 +707,17 @@ func (s *OrganizationRef) SetFrom(val time.Time) {
 }
 
 // SetUntil sets the value of Until.
-func (s *OrganizationRef) SetUntil(val OptDateTime) {
+func (s *OrganizationRef) SetUntil(val time.Time) {
 	s.Until = val
 }
 
 // Ref: #/components/schemas/Person
 type Person struct {
-	ID                 string            `json:"id"`
+	ID                 OptString         `json:"id"`
 	GismoID            OptString         `json:"gismo_id"`
-	Active             bool              `json:"active"`
-	DateCreated        time.Time         `json:"date_created"`
-	DateUpdated        time.Time         `json:"date_updated"`
+	Active             OptBool           `json:"active"`
+	DateCreated        OptDateTime       `json:"date_created"`
+	DateUpdated        OptDateTime       `json:"date_updated"`
 	FullName           OptString         `json:"full_name"`
 	FirstName          OptString         `json:"first_name"`
 	LastName           OptString         `json:"last_name"`
@@ -692,7 +738,7 @@ type Person struct {
 }
 
 // GetID returns the value of ID.
-func (s *Person) GetID() string {
+func (s *Person) GetID() OptString {
 	return s.ID
 }
 
@@ -702,17 +748,17 @@ func (s *Person) GetGismoID() OptString {
 }
 
 // GetActive returns the value of Active.
-func (s *Person) GetActive() bool {
+func (s *Person) GetActive() OptBool {
 	return s.Active
 }
 
 // GetDateCreated returns the value of DateCreated.
-func (s *Person) GetDateCreated() time.Time {
+func (s *Person) GetDateCreated() OptDateTime {
 	return s.DateCreated
 }
 
 // GetDateUpdated returns the value of DateUpdated.
-func (s *Person) GetDateUpdated() time.Time {
+func (s *Person) GetDateUpdated() OptDateTime {
 	return s.DateUpdated
 }
 
@@ -802,7 +848,7 @@ func (s *Person) GetExpirationDate() OptString {
 }
 
 // SetID sets the value of ID.
-func (s *Person) SetID(val string) {
+func (s *Person) SetID(val OptString) {
 	s.ID = val
 }
 
@@ -812,17 +858,17 @@ func (s *Person) SetGismoID(val OptString) {
 }
 
 // SetActive sets the value of Active.
-func (s *Person) SetActive(val bool) {
+func (s *Person) SetActive(val OptBool) {
 	s.Active = val
 }
 
 // SetDateCreated sets the value of DateCreated.
-func (s *Person) SetDateCreated(val time.Time) {
+func (s *Person) SetDateCreated(val OptDateTime) {
 	s.DateCreated = val
 }
 
 // SetDateUpdated sets the value of DateUpdated.
-func (s *Person) SetDateUpdated(val time.Time) {
+func (s *Person) SetDateUpdated(val OptDateTime) {
 	s.DateUpdated = val
 }
 

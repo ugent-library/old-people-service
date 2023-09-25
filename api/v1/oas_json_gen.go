@@ -889,6 +889,41 @@ func (s *IdRefs) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes bool as json.
+func (o OptBool) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Bool(bool(o.Value))
+}
+
+// Decode decodes bool from json.
+func (o *OptBool) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptBool to nil")
+	}
+	o.Set = true
+	v, err := d.Bool()
+	if err != nil {
+		return err
+	}
+	o.Value = bool(v)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptBool) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptBool) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes time.Time as json.
 func (o OptDateTime) Encode(e *jx.Encoder, format func(*jx.Encoder, time.Time)) {
 	if !o.Set {
@@ -1037,8 +1072,10 @@ func (s *Organization) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *Organization) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		e.Str(s.ID)
+		if s.ID.Set {
+			e.FieldStart("id")
+			s.ID.Encode(e)
+		}
 	}
 	{
 		if s.GismoID.Set {
@@ -1047,16 +1084,22 @@ func (s *Organization) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		e.FieldStart("date_created")
-		json.EncodeDateTime(e, s.DateCreated)
+		if s.DateCreated.Set {
+			e.FieldStart("date_created")
+			s.DateCreated.Encode(e, json.EncodeDateTime)
+		}
 	}
 	{
-		e.FieldStart("date_updated")
-		json.EncodeDateTime(e, s.DateUpdated)
+		if s.DateUpdated.Set {
+			e.FieldStart("date_updated")
+			s.DateUpdated.Encode(e, json.EncodeDateTime)
+		}
 	}
 	{
-		e.FieldStart("type")
-		e.Str(s.Type)
+		if s.Type.Set {
+			e.FieldStart("type")
+			s.Type.Encode(e)
+		}
 	}
 	{
 		if s.NameDut.Set {
@@ -1101,16 +1144,13 @@ func (s *Organization) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode Organization to nil")
 	}
-	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "id":
-			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				v, err := d.Str()
-				s.ID = string(v)
-				if err != nil {
+				s.ID.Reset()
+				if err := s.ID.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -1128,11 +1168,9 @@ func (s *Organization) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"gismo_id\"")
 			}
 		case "date_created":
-			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				v, err := json.DecodeDateTime(d)
-				s.DateCreated = v
-				if err != nil {
+				s.DateCreated.Reset()
+				if err := s.DateCreated.Decode(d, json.DecodeDateTime); err != nil {
 					return err
 				}
 				return nil
@@ -1140,11 +1178,9 @@ func (s *Organization) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"date_created\"")
 			}
 		case "date_updated":
-			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
-				v, err := json.DecodeDateTime(d)
-				s.DateUpdated = v
-				if err != nil {
+				s.DateUpdated.Reset()
+				if err := s.DateUpdated.Decode(d, json.DecodeDateTime); err != nil {
 					return err
 				}
 				return nil
@@ -1152,11 +1188,9 @@ func (s *Organization) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"date_updated\"")
 			}
 		case "type":
-			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
-				v, err := d.Str()
-				s.Type = string(v)
-				if err != nil {
+				s.Type.Reset()
+				if err := s.Type.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -1209,39 +1243,6 @@ func (s *Organization) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode Organization")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [2]uint8{
-		0b00011101,
-		0b00000000,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfOrganization) {
-					name = jsonFieldsNameOfOrganization[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
 	}
 
 	return nil
@@ -1397,22 +1398,24 @@ func (s *OrganizationRef) encodeFields(e *jx.Encoder) {
 		e.Str(s.ID)
 	}
 	{
-		e.FieldStart("date_created")
-		json.EncodeDateTime(e, s.DateCreated)
+		if s.DateCreated.Set {
+			e.FieldStart("date_created")
+			s.DateCreated.Encode(e, json.EncodeDateTime)
+		}
 	}
 	{
-		e.FieldStart("date_updated")
-		json.EncodeDateTime(e, s.DateUpdated)
+		if s.DateUpdated.Set {
+			e.FieldStart("date_updated")
+			s.DateUpdated.Encode(e, json.EncodeDateTime)
+		}
 	}
 	{
 		e.FieldStart("from")
 		json.EncodeDateTime(e, s.From)
 	}
 	{
-		if s.Until.Set {
-			e.FieldStart("until")
-			s.Until.Encode(e, json.EncodeDateTime)
-		}
+		e.FieldStart("until")
+		json.EncodeDateTime(e, s.Until)
 	}
 }
 
@@ -1446,11 +1449,9 @@ func (s *OrganizationRef) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"id\"")
 			}
 		case "date_created":
-			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				v, err := json.DecodeDateTime(d)
-				s.DateCreated = v
-				if err != nil {
+				s.DateCreated.Reset()
+				if err := s.DateCreated.Decode(d, json.DecodeDateTime); err != nil {
 					return err
 				}
 				return nil
@@ -1458,11 +1459,9 @@ func (s *OrganizationRef) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"date_created\"")
 			}
 		case "date_updated":
-			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				v, err := json.DecodeDateTime(d)
-				s.DateUpdated = v
-				if err != nil {
+				s.DateUpdated.Reset()
+				if err := s.DateUpdated.Decode(d, json.DecodeDateTime); err != nil {
 					return err
 				}
 				return nil
@@ -1482,9 +1481,11 @@ func (s *OrganizationRef) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"from\"")
 			}
 		case "until":
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
-				s.Until.Reset()
-				if err := s.Until.Decode(d, json.DecodeDateTime); err != nil {
+				v, err := json.DecodeDateTime(d)
+				s.Until = v
+				if err != nil {
 					return err
 				}
 				return nil
@@ -1501,7 +1502,7 @@ func (s *OrganizationRef) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001111,
+		0b00011001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1557,8 +1558,10 @@ func (s *Person) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *Person) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("id")
-		e.Str(s.ID)
+		if s.ID.Set {
+			e.FieldStart("id")
+			s.ID.Encode(e)
+		}
 	}
 	{
 		if s.GismoID.Set {
@@ -1567,16 +1570,22 @@ func (s *Person) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		e.FieldStart("active")
-		e.Bool(s.Active)
+		if s.Active.Set {
+			e.FieldStart("active")
+			s.Active.Encode(e)
+		}
 	}
 	{
-		e.FieldStart("date_created")
-		json.EncodeDateTime(e, s.DateCreated)
+		if s.DateCreated.Set {
+			e.FieldStart("date_created")
+			s.DateCreated.Encode(e, json.EncodeDateTime)
+		}
 	}
 	{
-		e.FieldStart("date_updated")
-		json.EncodeDateTime(e, s.DateUpdated)
+		if s.DateUpdated.Set {
+			e.FieldStart("date_updated")
+			s.DateUpdated.Encode(e, json.EncodeDateTime)
+		}
 	}
 	{
 		if s.FullName.Set {
@@ -1728,16 +1737,13 @@ func (s *Person) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode Person to nil")
 	}
-	var requiredBitSet [3]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
 		case "id":
-			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				v, err := d.Str()
-				s.ID = string(v)
-				if err != nil {
+				s.ID.Reset()
+				if err := s.ID.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -1755,11 +1761,9 @@ func (s *Person) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"gismo_id\"")
 			}
 		case "active":
-			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				v, err := d.Bool()
-				s.Active = bool(v)
-				if err != nil {
+				s.Active.Reset()
+				if err := s.Active.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -1767,11 +1771,9 @@ func (s *Person) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"active\"")
 			}
 		case "date_created":
-			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
-				v, err := json.DecodeDateTime(d)
-				s.DateCreated = v
-				if err != nil {
+				s.DateCreated.Reset()
+				if err := s.DateCreated.Decode(d, json.DecodeDateTime); err != nil {
 					return err
 				}
 				return nil
@@ -1779,11 +1781,9 @@ func (s *Person) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"date_created\"")
 			}
 		case "date_updated":
-			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
-				v, err := json.DecodeDateTime(d)
-				s.DateUpdated = v
-				if err != nil {
+				s.DateUpdated.Reset()
+				if err := s.DateUpdated.Decode(d, json.DecodeDateTime); err != nil {
 					return err
 				}
 				return nil
@@ -2000,40 +2000,6 @@ func (s *Person) Decode(d *jx.Decoder) error {
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode Person")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [3]uint8{
-		0b00011101,
-		0b00000000,
-		0b00000000,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfPerson) {
-					name = jsonFieldsNameOfPerson[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
 	}
 
 	return nil

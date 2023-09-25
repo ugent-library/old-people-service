@@ -54,6 +54,54 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
+			case 'a': // Prefix: "add-"
+				if l := len("add-"); len(elem) >= l && elem[0:l] == "add-" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case 'o': // Prefix: "organization"
+					if l := len("organization"); len(elem) >= l && elem[0:l] == "organization" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "POST":
+							s.handleAddOrganizationRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "POST")
+						}
+
+						return
+					}
+				case 'p': // Prefix: "person"
+					if l := len("person"); len(elem) >= l && elem[0:l] == "person" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "POST":
+							s.handleAddPersonRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "POST")
+						}
+
+						return
+					}
+				}
 			case 'g': // Prefix: "get-"
 				if l := len("get-"); len(elem) >= l && elem[0:l] == "get-" {
 					elem = elem[l:]
@@ -414,6 +462,60 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
+			case 'a': // Prefix: "add-"
+				if l := len("add-"); len(elem) >= l && elem[0:l] == "add-" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case 'o': // Prefix: "organization"
+					if l := len("organization"); len(elem) >= l && elem[0:l] == "organization" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch method {
+						case "POST":
+							// Leaf: AddOrganization
+							r.name = "AddOrganization"
+							r.operationID = "AddOrganization"
+							r.pathPattern = "/add-organization"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+				case 'p': // Prefix: "person"
+					if l := len("person"); len(elem) >= l && elem[0:l] == "person" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch method {
+						case "POST":
+							// Leaf: AddPerson
+							r.name = "AddPerson"
+							r.operationID = "AddPerson"
+							r.pathPattern = "/add-person"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+				}
 			case 'g': // Prefix: "get-"
 				if l := len("get-"); len(elem) >= l && elem[0:l] == "get-" {
 					elem = elem[l:]

@@ -8,6 +8,28 @@ servers:
   - url: /api/v1
 
 paths:
+  "/add-person":
+    post:
+      summary: "Insert/update a single person record"
+      description: "Insert/update a single person record"
+      operationId: "AddPerson"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddPersonRequest"
+        required: true
+      responses:
+        "200":
+          description: "Created/updated single person record successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Person"
+        default:
+          $ref: "#/components/responses/Error"
+
+
   "/get-person":
     post:
       summary: "Retrieve a single person record"
@@ -177,6 +199,27 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
+  "/add-organization":
+    post:
+      summary: "Insert/update a single organization record"
+      description: "Insert/update a single organization record"
+      operationId: "AddOrganization"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddOrganizationRequest"
+        required: true
+      responses:
+        "200":
+          description: "Created/updated single organization record successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Organization"
+        default:
+          $ref: "#/components/responses/Error"
+
   "/get-organization":
     post:
       summary: "Get single organization record"
@@ -318,11 +361,10 @@ components:
         until:
           type: string
           format: date-time
-      required: [id, date_created, date_updated, from]
+      required: [id, from, until]
 
     Person:
       type: object
-      required: [id, date_created, date_updated, active]
       properties:
         id:
           type: string
@@ -404,7 +446,6 @@ components:
           type: string
         other_id:
           $ref: "#/components/schemas/IdRefs"
-      required: [id, date_created, date_updated, type]
 
     PersonListResponse:
       type: object
@@ -435,6 +476,12 @@ components:
           type: string
           minLength: 1
       required: [id]
+
+    AddPersonRequest:
+      $ref: "#/components/schemas/Person"
+
+    AddOrganizationRequest:
+      $ref: "#/components/schemas/Organization"
 
     GetPersonByOtherIdRequest:
       type: object

@@ -185,6 +185,87 @@ func (s *Service) SuggestOrganizations(ctx context.Context, req *SuggestOrganiza
 	return res, nil
 }
 
+func (s *Service) AddPerson(ctx context.Context, p *Person) (*Person, error) {
+	var person *models.Person
+
+	if p.ID.Set {
+		oldPerson, err := s.repository.GetPerson(ctx, p.ID.Value)
+		if errors.Is(err, models.ErrNotFound) {
+			return nil, fmt.Errorf("cannot find person record %s to update", p.ID.Value)
+		} else if err != nil {
+			return nil, err
+		}
+		person = oldPerson
+	} else {
+		person = models.NewPerson()
+	}
+
+	person.Active = p.Active.Value
+	person.BirthDate = p.BirthDate.Value
+	person.Email = p.Email.Value
+	person.ExpirationDate = p.ExpirationDate.Value
+	person.FirstName = p.FirstName.Value
+	person.LastName = p.LastName.Value
+	person.FullName = p.FullName.Value
+	person.GismoId = p.GismoID.Value
+	person.JobCategory = p.JobCategory
+	person.ObjectClass = p.ObjectClass
+	person.Orcid = p.Orcid.Value
+	person.OrcidToken = p.OrcidToken.Value
+	person.PreferredFirstName = p.PreferredFirstName.Value
+	person.PreferredLastName = p.PreferredLastName.Value
+	person.OtherId = models.IdRefs(p.OtherID.Value)
+	person.Role = p.Role
+	person.Settings = p.Settings.Value
+	person.Title = p.Title.Value
+
+	for _, orgRef := range p.Organization {
+		newOrgRef := models.NewOrganizationRef(orgRef.ID)
+		newOrgRef.From = &orgRef.From
+		newOrgRef.Until = &orgRef.Until
+		person.Organization = append(person.Organization, newOrgRef)
+	}
+
+	if newPerson, err := s.repository.SavePerson(ctx, person); err != nil {
+		return nil, err
+	} else {
+		person = newPerson
+	}
+
+	return mapToExternalPerson(person), nil
+}
+
+func (s *Service) AddOrganization(ctx context.Context, o *Organization) (*Organization, error) {
+	var org *models.Organization
+
+	if o.ID.Set {
+		oldOrg, err := s.repository.GetOrganization(ctx, o.ID.Value)
+		if errors.Is(err, models.ErrNotFound) {
+			return nil, fmt.Errorf("cannot find organization record \"%s\" to update", o.ID.Value)
+		} else if err != nil {
+			return nil, err
+		}
+		org = oldOrg
+	} else {
+		org = models.NewOrganization()
+	}
+
+	org.GismoId = o.GismoID.Value
+	org.NameDut = o.NameDut.Value
+	org.NameEng = o.NameEng.Value
+	org.OtherId = models.IdRefs(o.OtherID.Value)
+	org.ParentId = o.ParentID.Value
+	org.Type = o.Type.Value
+
+	if newOrg, err := s.repository.SaveOrganization(ctx, org); err != nil {
+		return nil, err
+	} else {
+		org = newOrg
+	}
+
+	return mapToExternalOrganization(org), nil
+}
+
 func (s *Service) NewError(ctx context.Context, err error) *ErrorStatusCode {
 	if errors.Is(err, models.ErrNotFound) {
 		return &ErrorStatusCode{
@@ -196,6 +277,15 @@ func (s *Service) NewError(ctx context.Context, err error) *ErrorStatusCode {
 		}
 	}
 	if errors.Is(err, models.ErrMissingArgument) {
+		return &ErrorStatusCode{
+			StatusCode: 400,
+			Response: Error{
+				Code:    400,
+				Message: err.Error(),
+			},
+		}
+	}
+	if errors.Is(err, models.ErrInvalidReference) {
 		return &ErrorStatusCode{
 			StatusCode: 400,
 			Response: Error{
@@ -216,13 +306,13 @@ func (s *Service) NewError(ctx context.Context, err error) *ErrorStatusCode {
 
 func mapToExternalPerson(person *models.Person) *Person {
 	p := &Person{}
-	p.ID = person.Id
-	p.Active = person.Active
+	p.ID = NewOptString(person.Id)
+	p.Active = NewOptBool(person.Active)
 	if person.BirthDate != "" {
 		p.BirthDate = NewOptString(person.BirthDate)
 	}
-	p.DateCreated = *person.DateCreated
-	p.DateUpdated = *person.DateUpdated
+	p.DateCreated = NewOptDateTime(*person.DateCreated)
+	p.DateUpdated = NewOptDateTime(*person.DateUpdated)
 	if person.Email != "" {
 		p.Email = NewOptString(person.Email)
 	}
@@ -258,12 +348,12 @@ func mapToExternalPerson(person *models.Person) *Person {
 	for _, orgRef := range person.Organization {
 		oRef := OrganizationRef{
 			ID:          orgRef.Id,
-			DateCreated: *orgRef.DateCreated,
-			DateUpdated: *orgRef.DateUpdated,
+			DateCreated: NewOptDateTime(*orgRef.DateCreated),
+			DateUpdated: NewOptDateTime(*orgRef.DateUpdated),
 			From:        *orgRef.From,
 		}
 		if orgRef.Until != nil {
-			oRef.Until = NewOptDateTime(*orgRef.Until)
+			oRef.Until = *orgRef.Until
 		}
 		p.Organization = append(p.Organization, oRef)
 	}
@@ -287,12 +377,12 @@ func mapToExternalPerson(person *models.Person) *Person {
 
 func mapToExternalOrganization(org *models.Organization) *Organization {
 	o := &Organization{}
-	o.ID = org.Id
+	o.ID = NewOptString(org.Id)
 	if org.GismoId != "" {
 		o.GismoID = NewOptString(org.GismoId)
 	}
-	o.DateCreated = *org.DateCreated
-	o.DateUpdated = *org.DateUpdated
+	o.DateCreated = NewOptDateTime(*org.DateCreated)
+	o.DateUpdated = NewOptDateTime(*org.DateUpdated)
 	if org.NameDut != "" {
 		o.NameDut = NewOptString(org.NameDut)
 	}
@@ -305,7 +395,7 @@ func mapToExternalOrganization(org *models.Organization) *Organization {
 	if org.ParentId != "" {
 		o.ParentID = NewOptString(org.ParentId)
 	}
-	o.Type = org.Type
+	o.Type = NewOptString(org.Type)
 
 	return o
 }

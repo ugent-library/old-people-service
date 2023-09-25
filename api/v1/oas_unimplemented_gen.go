@@ -13,6 +13,24 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// AddOrganization implements AddOrganization operation.
+//
+// Insert/update a single organization record.
+//
+// POST /add-organization
+func (UnimplementedHandler) AddOrganization(ctx context.Context, req *Organization) (r *Organization, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// AddPerson implements AddPerson operation.
+//
+// Insert/update a single person record.
+//
+// POST /add-person
+func (UnimplementedHandler) AddPerson(ctx context.Context, req *Person) (r *Person, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetOrganization implements GetOrganization operation.
 //
 // Get single organization record.

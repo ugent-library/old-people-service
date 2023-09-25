@@ -127,7 +127,7 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 		if err != nil {
 			var e *ent.NotFoundError
 			if errors.As(err, &e) {
-				return nil, fmt.Errorf("parent organization with public_id %s not found", org.ParentId)
+				return nil, fmt.Errorf("%w: parent organization with public_id %s not found", models.ErrInvalidReference, org.ParentId)
 			} else {
 				return nil, fmt.Errorf("unable to query organizations: %w", err)
 			}
@@ -176,7 +176,7 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 		if err != nil {
 			var e *ent.NotFoundError
 			if errors.As(err, &e) {
-				return nil, fmt.Errorf("parent organization with public_id %s not found", org.ParentId)
+				return nil, fmt.Errorf("%w: parent organization with public_id %s not found", models.ErrInvalidReference, org.ParentId)
 			} else {
 				return nil, fmt.Errorf("unable to query organizations: %w", err)
 			}
@@ -399,7 +399,7 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 			return nil, fmt.Errorf("unable to query organizations: %w", err)
 		}
 		if len(p.Organization) != len(orgs) {
-			return nil, fmt.Errorf("person.organization_id contains invalid organization id's")
+			return nil, fmt.Errorf("%w: person.organization_id contains invalid organization id's", models.ErrInvalidReference)
 		}
 		t.AddOrganizations(orgs...)
 	}
@@ -413,12 +413,8 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 		return nil, fmt.Errorf("unable to commit transaction: %w", err)
 	}
 
-	// collect entgo managed fields
-	p.DateCreated = &row.DateCreated
-	p.DateUpdated = &row.DateUpdated
-	p.Id = row.PublicID
-
-	return p, nil
+	// reload everything because you also added new organization references
+	return repo.GetPerson(ctx, row.PublicID)
 }
 
 func (repo *repository) SetPersonOrcid(ctx context.Context, id string, orcid string) error {
@@ -526,7 +522,7 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 			return nil, err
 		}
 		if len(p.Organization) != len(orgs) {
-			return nil, fmt.Errorf("person.organization_id contains invalid organization id's")
+			return nil, fmt.Errorf("%w: person.organization_id contains invalid organization id's", models.ErrInvalidReference)
 		}
 		t.AddOrganizations(orgs...)
 	}

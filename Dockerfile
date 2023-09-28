@@ -14,3 +14,6 @@ FROM alpine:latest
 WORKDIR /opt/people-service
 
 COPY --from=build /opt/people-service/people-service .
+COPY --from=build /opt/people-service/public public
+CMD mkdir -p api/v1
+COPY --from=build /opt/people-service/api/v1/openapi.yaml /opt/people-service/api/v1/

@@ -79,6 +79,20 @@ var serverCmd = &cobra.Command{
 		})
 		mux.Mount("/swagger/", http.StripPrefix("/swagger/", http.FileServer(http.Dir("public/swagger-ui-5.1.0"))))
 		mux.Mount("/api/v1", http.StripPrefix("/api/v1", apiServer))
+		mux.Get("/info", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(200)
+			bytes, _ := json.Marshal(&struct {
+				Branch string `json:"branch,omitempty"`
+				Commit string `json:"commit,omitempty"`
+				Image  string `json:"image,omitempty"`
+			}{
+				Branch: config.Version.Branch,
+				Commit: config.Version.Commit,
+				Image:  config.Version.Image,
+			})
+			w.Write(bytes)
+		})
 
 		srv := graceful.WithDefaults(&http.Server{
 			Addr:         config.Api.Addr(),

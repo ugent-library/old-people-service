@@ -4,11 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jpillora/ipfilter"
 	"github.com/ogen-go/ogen/ogenerrors"
 	"github.com/ory/graceful"
 	"github.com/spf13/cobra"
@@ -55,6 +58,29 @@ var serverCmd = &cobra.Command{
 		mux.Use(zaphttp.SetLogger(logger.Desugar(), zapchi.RequestID))
 		mux.Use(middleware.RequestLogger(zapchi.LogFormatter()))
 		mux.Use(middleware.Recoverer)
+
+		if config.IPRanges != "" {
+			ipFilter := ipfilter.New(ipfilter.Options{
+				AllowedIPs:     strings.Split(config.IPRanges, ","),
+				BlockByDefault: true,
+			})
+			mux.Use(func(next http.Handler) http.Handler {
+				return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					remoteIP, _, _ := net.SplitHostPort(r.RemoteAddr)
+					if ipFilter.Allowed(remoteIP) {
+						next.ServeHTTP(w, r)
+						return
+					}
+					data, _ := json.Marshal(ErrorMessage{
+						Code:    http.StatusForbidden,
+						Message: "forbidden",
+					})
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusForbidden)
+					w.Write(data)
+				})
+			})
+		}
 
 		apiServer, err := api.NewServer(
 			api.NewService(repo),

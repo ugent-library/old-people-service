@@ -37,6 +37,7 @@ type Config struct {
 	Nats       ConfigNats `json:"nats,omitempty" envPrefix:"PEOPLE_NATS_"`
 	Api        ConfigApi  `json:"api,omitempty" envPrefix:"PEOPLE_API_"`
 	Ldap       ConfigLdap `json:"ldap,omitempty" envPrefix:"PEOPLE_LDAP_"`
+	IPRanges   string     `env:"PEOPLE_IP_RANGES"`
 }
 
 func (ca ConfigApi) Addr() string {

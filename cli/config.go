@@ -11,7 +11,7 @@ type ConfigNats struct {
 	Url        string `env:"URL" envDefault:"nats://localhost:4222"`
 	Nkey       string `env:"NKEY"`
 	NkeySeed   string `env:"NKEY_SEED"`
-	StreamName string `env:"STREAM_NAME" envDefault:"gismo"`
+	StreamName string `env:"STREAM_NAME,notEmpty"`
 }
 
 type ConfigApi struct {

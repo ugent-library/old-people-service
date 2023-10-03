@@ -127,6 +127,8 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
 
   type: `string`
 
+  required: `true`
+
   description: name of stream in NATS. Stream will be created automatically. Also serves as prefix (with '.' after it) for every subject created on it (including delivery subjects).
 
   e.g. `gismoDev` creates subjects `gismoDev.person`, `gismoDev.organization` and delivery subjects `gismoDev.inboxPersonDeliverSubject` and `gismoDev.inboxOrganizationDeliverSubject`

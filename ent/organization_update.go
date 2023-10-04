@@ -15,7 +15,7 @@ import (
 	"github.com/ugent-library/people-service/ent/organizationperson"
 	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/predicate"
-	"github.com/ugent-library/people-service/models"
+	"github.com/ugent-library/people-service/ent/schema"
 )
 
 // OrganizationUpdate is the builder for updating Organization entities.
@@ -113,8 +113,8 @@ func (ou *OrganizationUpdate) ClearNameEng() *OrganizationUpdate {
 }
 
 // SetOtherID sets the "other_id" field.
-func (ou *OrganizationUpdate) SetOtherID(mr models.IdRefs) *OrganizationUpdate {
-	ou.mutation.SetOtherID(mr)
+func (ou *OrganizationUpdate) SetOtherID(sr schema.IdRefs) *OrganizationUpdate {
+	ou.mutation.SetOtherID(sr)
 	return ou
 }
 
@@ -628,8 +628,8 @@ func (ouo *OrganizationUpdateOne) ClearNameEng() *OrganizationUpdateOne {
 }
 
 // SetOtherID sets the "other_id" field.
-func (ouo *OrganizationUpdateOne) SetOtherID(mr models.IdRefs) *OrganizationUpdateOne {
-	ouo.mutation.SetOtherID(mr)
+func (ouo *OrganizationUpdateOne) SetOtherID(sr schema.IdRefs) *OrganizationUpdateOne {
+	ouo.mutation.SetOtherID(sr)
 	return ouo
 }
 

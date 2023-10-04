@@ -1,4 +1,4 @@
-package models
+package schema
 
 type IdRefs map[string][]string
 

@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/ugent-library/people-service/ent/person"
-	"github.com/ugent-library/people-service/models"
+	"github.com/ugent-library/people-service/ent/schema"
 )
 
 // Person is the model entity for the Person schema.
@@ -34,7 +34,7 @@ type Person struct {
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
 	// OtherID holds the value of the "other_id" field.
-	OtherID models.IdRefs `json:"other_id,omitempty"`
+	OtherID schema.IdRefs `json:"other_id,omitempty"`
 	// FirstName holds the value of the "first_name" field.
 	FirstName string `json:"first_name,omitempty"`
 	// FullName holds the value of the "full_name" field.

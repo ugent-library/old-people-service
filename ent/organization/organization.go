@@ -7,7 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/ugent-library/people-service/models"
+	"github.com/ugent-library/people-service/ent/schema"
 )
 
 const (
@@ -107,7 +107,7 @@ var (
 	// DefaultType holds the default value on creation for the "type" field.
 	DefaultType string
 	// DefaultOtherID holds the default value on creation for the "other_id" field.
-	DefaultOtherID models.IdRefs
+	DefaultOtherID schema.IdRefs
 )
 
 // OrderOption defines the ordering options for the Organization queries.

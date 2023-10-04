@@ -7,7 +7,6 @@ import (
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"github.com/ugent-library/people-service/models"
 )
 
 // Person holds the schema definition for the Person entity.
@@ -28,7 +27,7 @@ func (Person) Fields() []ent.Field {
 		field.Bool("active").Default(false),
 		field.String("birth_date").Optional(),
 		field.String("email").Optional(),
-		field.JSON("other_id", models.IdRefs{}).Optional().Default(models.IdRefs{}),
+		field.JSON("other_id", IdRefs{}).Optional().Default(IdRefs{}),
 		field.String("first_name").Optional(),
 		field.String("full_name").Optional(),
 		field.String("last_name").Optional(),

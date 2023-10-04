@@ -2,8 +2,10 @@ package gismo
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/ugent-library/people-service/models"
@@ -27,6 +29,9 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 
 	ctx := context.TODO()
 
+	jsonBytes, _ := json.MarshalIndent(msg, "", "  ")
+	fmt.Fprintf(os.Stderr, "message: %s\n", string(jsonBytes))
+
 	org, err := op.repository.GetOrganizationByGismoId(ctx, msg.ID)
 	if errors.Is(err, models.ErrNotFound) {
 		org = models.NewOrganization()
@@ -38,10 +43,10 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 		now := time.Now()
 		org.NameDut = ""
 		org.NameEng = ""
-		org.OtherId.Clear()
+		org.ClearIdentifier()
 		org.Type = "organization"
 		org.ParentId = ""
-		org.GismoId = msg.ID
+		org.AddIdentifier("gismo_id", msg.ID)
 
 		// only recent values needed: name_dut, name_eng, type
 		// all values needed: ugent_memorialis_id, code, biblio_code
@@ -53,7 +58,7 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 					orgParentByGismo, err := op.repository.GetOrganizationByGismoId(ctx, attr.Value)
 					if errors.Is(err, models.ErrNotFound) {
 						orgParentByGismo := models.NewOrganization()
-						orgParentByGismo.GismoId = attr.Value
+						orgParentByGismo.AddIdentifier("gismo_id", attr.Value)
 						orgParentByGismo, err = op.repository.CreateOrganization(ctx, orgParentByGismo)
 						if err != nil {
 							return nil, fmt.Errorf("%w: unable to create parent organization: %s", models.ErrFatal, err)
@@ -76,11 +81,11 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 			case "type":
 				org.Type = attr.Value
 			case "ugent_memorialis_id":
-				org.OtherId.Add("ugent_memorialis_id", attr.Value)
+				org.AddIdentifier("ugent_memorialis_id", attr.Value)
 			case "code":
-				org.OtherId.Add("ugent_id", attr.Value)
+				org.AddIdentifier("ugent_id", attr.Value)
 			case "biblio_code":
-				org.OtherId.Add("biblio_id", attr.Value)
+				org.AddIdentifier("biblio_id", attr.Value)
 			}
 		}
 

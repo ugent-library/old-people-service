@@ -10,7 +10,7 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
-func (s *GetOrganizationByOtherIdRequest) Validate() error {
+func (s *GetOrganizationByIdRequest) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if err := (validate.String{
@@ -48,8 +48,10 @@ func (s *GetOrganizationByOtherIdRequest) Validate() error {
 	return nil
 }
 
-func (s GetOrganizationByOtherIdRequestType) Validate() error {
+func (s GetOrganizationByIdRequestType) Validate() error {
 	switch s {
+	case "gismo_id":
+		return nil
 	case "ugent_id":
 		return nil
 	case "biblio_id":
@@ -88,7 +90,7 @@ func (s *GetOrganizationRequest) Validate() error {
 	return nil
 }
 
-func (s *GetPersonByOtherIdRequest) Validate() error {
+func (s *GetPersonByIdRequest) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if err := (validate.String{
@@ -126,8 +128,12 @@ func (s *GetPersonByOtherIdRequest) Validate() error {
 	return nil
 }
 
-func (s GetPersonByOtherIdRequestType) Validate() error {
+func (s GetPersonByIdRequestType) Validate() error {
 	switch s {
+	case "orcid":
+		return nil
+	case "gismo_id":
+		return nil
 	case "ugent_id":
 		return nil
 	case "historic_ugent_id":
@@ -170,76 +176,11 @@ func (s *GetPersonRequest) Validate() error {
 	return nil
 }
 
-func (s IdRefs) Validate() error {
-	var failures []validate.FieldError
-	for key, elem := range s {
-		if err := func() error {
-			if elem == nil {
-				return errors.New("nil is invalid value")
-			}
-			return nil
-		}(); err != nil {
-			failures = append(failures, validate.FieldError{
-				Name:  key,
-				Error: err,
-			})
-		}
-	}
-
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-
-func (s *Organization) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if value, ok := s.OtherID.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "other_id",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-
 func (s *OrganizationListResponse) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.Data == nil {
 			return errors.New("nil is invalid value")
-		}
-		var failures []validate.FieldError
-		for i, elem := range s.Data {
-			if err := func() error {
-				if err := elem.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				failures = append(failures, validate.FieldError{
-					Name:  fmt.Sprintf("[%d]", i),
-					Error: err,
-				})
-			}
-		}
-		if len(failures) > 0 {
-			return &validate.Error{Fields: failures}
 		}
 		return nil
 	}(); err != nil {
@@ -254,54 +195,11 @@ func (s *OrganizationListResponse) Validate() error {
 	return nil
 }
 
-func (s *Person) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if value, ok := s.OtherID.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "other_id",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-
 func (s *PersonListResponse) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if s.Data == nil {
 			return errors.New("nil is invalid value")
-		}
-		var failures []validate.FieldError
-		for i, elem := range s.Data {
-			if err := func() error {
-				if err := elem.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				failures = append(failures, validate.FieldError{
-					Name:  fmt.Sprintf("[%d]", i),
-					Error: err,
-				})
-			}
-		}
-		if len(failures) > 0 {
-			return &validate.Error{Fields: failures}
 		}
 		return nil
 	}(); err != nil {

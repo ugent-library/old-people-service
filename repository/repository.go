@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"sort"
 	"time"
 
@@ -50,6 +51,20 @@ func (repo *repository) GetOrganization(ctx context.Context, id string) (*models
 	return repo.orgUnwrap(row), nil
 }
 
+func (repo *repository) GetOrganizationByIdentifier(ctx context.Context, typ string, vals ...string) (*models.Organization, error) {
+	var org *models.Organization
+	var err error
+
+	switch typ {
+	case "gismo_id":
+		org, err = repo.GetOrganizationByGismoId(ctx, vals[0])
+	default:
+		org, err = repo.getOrganizationByAnyOtherId(ctx, typ, vals...)
+	}
+
+	return org, err
+}
+
 func (repo *repository) GetOrganizationByGismoId(ctx context.Context, gismoId string) (*models.Organization, error) {
 	row, err := repo.client.Organization.Query().WithParent().Where(organization.GismoIDEQ(gismoId)).First(ctx)
 	if err != nil {
@@ -82,7 +97,7 @@ func (repo *repository) GetOrganizationsByGismoId(ctx context.Context, gismoIds 
 	return orgs, nil
 }
 
-func (repo *repository) GetOrganizationByAnyOtherId(ctx context.Context, typ string, values ...string) (*models.Organization, error) {
+func (repo *repository) getOrganizationByAnyOtherId(ctx context.Context, typ string, values ...string) (*models.Organization, error) {
 	row, err := repo.client.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
 		s.Where(entsql.ExprP("other_id->$1 ?| $2", typ, values))
 	}).First(ctx)
@@ -97,9 +112,14 @@ func (repo *repository) GetOrganizationByAnyOtherId(ctx context.Context, typ str
 }
 
 func (repo *repository) SaveOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
+	bytes, _ := json.MarshalIndent(org, "", "  ")
+	fmt.Fprintf(os.Stderr, "org to save: %s\n", string(bytes))
+
 	if org.IsStored() {
+		fmt.Fprintf(os.Stderr, "updating org\n")
 		return repo.UpdateOrganization(ctx, org)
 	}
+	fmt.Fprintf(os.Stderr, "creating org\n")
 	return repo.CreateOrganization(ctx, org)
 }
 
@@ -113,15 +133,25 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 
 	t := tx.Organization.Create()
 
+	var gismoId string
+	otherIds := models.IdRefs{}
+	for _, id := range org.Identifier {
+		switch id.PropertyID {
+		case "gismo_id":
+			gismoId = id.Value
+		default:
+			otherIds.Add(id.PropertyID, id.Value)
+		}
+	}
+	var gismoIdRef *string = nil
+	if gismoId != "" {
+		gismoIdRef = &gismoId
+	}
+	t.SetNillableGismoID(gismoIdRef)
+	t.SetOtherID(otherIds)
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
-	t.SetOtherID(org.OtherId)
-	var gismoId *string = nil
-	if org.GismoId != "" {
-		gismoId = &org.GismoId
-	}
-	t.SetNillableGismoID(gismoId)
 	if org.ParentId != "" {
 		parentOrgRow, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentId)).First(ctx)
 		if err != nil {
@@ -161,15 +191,25 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 
 	t := tx.Organization.Update().Where(organization.PublicIDEQ(org.Id))
 
+	var gismoId string
+	otherIds := models.IdRefs{}
+	for _, id := range org.Identifier {
+		switch id.PropertyID {
+		case "gismo_id":
+			gismoId = id.Value
+		default:
+			otherIds.Add(id.PropertyID, id.Value)
+		}
+	}
+	var gismoIdRef *string = nil
+	if gismoId != "" {
+		gismoIdRef = &gismoId
+	}
+	t.SetNillableGismoID(gismoIdRef)
+	t.SetOtherID(otherIds)
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
-	t.SetOtherID(org.OtherId)
-	var gismoId *string = nil
-	if org.GismoId != "" {
-		gismoId = &org.GismoId
-	}
-	t.SetNillableGismoID(gismoId)
 	t.ClearParent()
 	if org.ParentId != "" {
 		parentOrg, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentId)).First(ctx)
@@ -319,14 +359,21 @@ func (repo *repository) orgUnwrap(e *ent.Organization) *models.Organization {
 	}
 	org := &models.Organization{
 		Id:          e.PublicID,
-		GismoId:     gismoId,
 		DateCreated: &e.DateCreated,
 		DateUpdated: &e.DateUpdated,
 		Type:        e.Type,
 		NameDut:     e.NameDut,
 		NameEng:     e.NameEng,
-		OtherId:     models.IdRefs(e.OtherID),
 	}
+	if gismoId != "" {
+		org.AddIdentifier("gismo_id", gismoId)
+	}
+	for key, vals := range e.OtherID {
+		for _, val := range vals {
+			org.AddIdentifier(key, val)
+		}
+	}
+
 	if parentOrg := e.Edges.Parent; parentOrg != nil {
 		org.ParentId = parentOrg.PublicID
 	}
@@ -359,14 +406,8 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetFullName(p.FullName)
 	t.SetTitle(p.Title)
 	t.SetLastName(p.LastName)
-	t.SetOrcid(p.Orcid)
 	t.SetRole(p.Role)
 	t.SetSettings(p.Settings)
-	var gismoId *string = nil
-	if p.GismoId != "" {
-		gismoId = &p.GismoId
-	}
-	t.SetNillableGismoID(gismoId)
 	if len(p.ObjectClass) > 0 {
 		t.SetObjectClass(p.ObjectClass)
 	} else {
@@ -384,7 +425,19 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 		t.SetOrcidToken(eToken)
 	}
 
-	t.SetOtherID(p.OtherId)
+	otherIds := models.IdRefs{}
+	for _, id := range p.Identifier {
+		switch id.PropertyID {
+		case "orcid":
+			t.SetOrcid(id.Value)
+		case "gismo_id":
+			t.SetGismoID(id.Value)
+		default:
+			otherIds.Add(id.PropertyID, id.Value)
+		}
+	}
+
+	t.SetOtherID(otherIds)
 	t.SetPreferredFirstName(p.PreferredFirstName)
 	t.SetPreferredLastName(p.PreferredLastName)
 
@@ -486,14 +539,8 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetFullName(p.FullName)
 	t.SetTitle(p.Title)
 	t.SetLastName(p.LastName)
-	t.SetOrcid(p.Orcid)
 	t.SetRole(p.Role)
 	t.SetSettings(p.Settings)
-	var gismoId *string = nil
-	if p.GismoId != "" {
-		gismoId = &p.GismoId
-	}
-	t.SetNillableGismoID(gismoId)
 	t.SetObjectClass(p.ObjectClass)
 	t.SetExpirationDate(p.ExpirationDate)
 
@@ -507,7 +554,23 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 		t.SetOrcidToken(eToken)
 	}
 
-	t.SetOtherID(p.OtherId)
+	var gismoId *string
+	var orcid string
+	otherIds := models.IdRefs{}
+	for _, id := range p.Identifier {
+		switch id.PropertyID {
+		case "gismo_id":
+			gismoId = &id.Value
+		case "orcid":
+			orcid = id.Value
+		default:
+			otherIds.Add(id.PropertyID, id.Value)
+		}
+	}
+	t.SetOrcid(orcid)
+	t.SetNillableGismoID(gismoId)
+
+	t.SetOtherID(otherIds)
 	t.SetPreferredFirstName(p.PreferredFirstName)
 	t.SetPreferredLastName(p.PreferredLastName)
 	t.ClearOrganizations()
@@ -551,7 +614,27 @@ func (repo *repository) GetPerson(ctx context.Context, id string) (*models.Perso
 	return repo.personUnwrap(row)
 }
 
-func (repo *repository) GetPersonByAnyOtherId(ctx context.Context, typ string, values ...string) (*models.Person, error) {
+func (repo *repository) GetPersonByIdentifier(ctx context.Context, typ string, vals ...string) (*models.Person, error) {
+	var person *models.Person
+	var err error
+
+	switch typ {
+	case "gismo_id":
+		person, err = repo.getPersonByGismoId(ctx, vals[0])
+	case "orcid":
+		person, err = repo.getPersonByORCID(ctx, vals[0])
+	default:
+		person, err = repo.getPersonByAnyOtherId(ctx, typ, vals...)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return person, nil
+}
+
+func (repo *repository) getPersonByAnyOtherId(ctx context.Context, typ string, values ...string) (*models.Person, error) {
 	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(func(s *entsql.Selector) {
 		s.Where(entsql.ExprP("other_id->$1 ?| $2", typ, values))
 	}).First(ctx)
@@ -565,8 +648,20 @@ func (repo *repository) GetPersonByAnyOtherId(ctx context.Context, typ string, v
 	return repo.personUnwrap(row)
 }
 
-func (repo *repository) GetPersonByGismoId(ctx context.Context, gismoId string) (*models.Person, error) {
+func (repo *repository) getPersonByGismoId(ctx context.Context, gismoId string) (*models.Person, error) {
 	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(person.GismoID(gismoId)).First(ctx)
+	if err != nil {
+		var e *ent.NotFoundError
+		if errors.As(err, &e) {
+			return nil, models.ErrNotFound
+		}
+		return nil, err
+	}
+	return repo.personUnwrap(row)
+}
+
+func (repo *repository) getPersonByORCID(ctx context.Context, orcid string) (*models.Person, error) {
+	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(person.Orcid(orcid)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -705,24 +800,17 @@ func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
 		uToken = e.OrcidToken
 	}
 
-	var gismoId string = ""
-	if e.GismoID != nil {
-		gismoId = *e.GismoID
-	}
 	p := &models.Person{
 		Active:             e.Active,
 		BirthDate:          e.BirthDate,
 		DateCreated:        &e.DateCreated,
 		DateUpdated:        &e.DateUpdated,
 		Email:              e.Email,
-		OtherId:            models.IdRefs(e.OtherID),
 		FirstName:          e.FirstName,
 		FullName:           e.FullName,
 		Id:                 e.PublicID,
-		GismoId:            gismoId,
 		LastName:           e.LastName,
 		JobCategory:        e.JobCategory,
-		Orcid:              e.Orcid,
 		OrcidToken:         uToken,
 		Organization:       orgRefs,
 		PreferredLastName:  e.PreferredLastName,
@@ -732,6 +820,19 @@ func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
 		Settings:           e.Settings,
 		ObjectClass:        e.ObjectClass,
 	}
+
+	if e.GismoID != nil && *e.GismoID != "" {
+		p.AddIdentifier("gismo_id", *e.GismoID)
+	}
+	if e.Orcid != "" {
+		p.AddIdentifier("orcid", e.Orcid)
+	}
+	for key, vals := range e.OtherID {
+		for _, val := range vals {
+			p.AddIdentifier(key, val)
+		}
+	}
+
 	return p, nil
 }
 

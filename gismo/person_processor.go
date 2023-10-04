@@ -62,12 +62,11 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 	ctx := context.TODO()
 
 	// clear old values
-	person.GismoId = msg.ID
-	person.OtherId.Clear()
+	person.ClearIdentifier()
+	person.AddIdentifier("gismo_id", msg.ID)
 	person.Email = ""
 	person.FirstName = ""
 	person.LastName = ""
-	person.Orcid = ""
 	person.Organization = nil
 	person.PreferredFirstName = ""
 	person.PreferredLastName = ""
@@ -92,10 +91,10 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 				person.LastName = attr.Value
 			}
 		case "ugent_id":
-			person.OtherId.Add("ugent_id", attr.Value)
-			person.OtherId.Add("historic_ugent_id", attr.Value)
+			person.AddIdentifier("ugent_id", attr.Value)
+			person.AddIdentifier("historic_ugent_id", attr.Value)
 		case "ugent_memorialis_id":
-			person.OtherId.Add("ugent_memorialis_id", attr.Value)
+			person.AddIdentifier("ugent_memorialis_id", attr.Value)
 		case "title":
 			if withinDateRange {
 				person.Title = attr.Value
@@ -115,7 +114,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 			}
 		case "orcid":
 			if withinDateRange {
-				person.Orcid = attr.Value
+				person.AddIdentifier("orcid", attr.Value)
 			}
 		}
 	}
@@ -134,14 +133,14 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 		for _, gismoOrganizationId := range gismoOrganizationIds {
 			var gismoOrg *models.Organization
 			for _, org := range orgsByGismo {
-				if org.GismoId == gismoOrganizationId {
+				if org.GetIdentifierValue("gismo_id") == gismoOrganizationId {
 					gismoOrg = org
 					break
 				}
 			}
 			if gismoOrg == nil {
 				gismoOrg = models.NewOrganization()
-				gismoOrg.GismoId = gismoOrganizationId
+				gismoOrg.AddIdentifier("gismo_id", gismoOrganizationId)
 				gismoOrg, err = pp.repository.SaveOrganization(ctx, gismoOrg)
 				if err != nil {
 					return nil, err
@@ -153,7 +152,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 		var orgRefs []*models.OrganizationRef
 		for _, gismoOrgRef := range gismoOrganizationRefs {
 			for _, org := range orgsByGismo {
-				if gismoOrgRef.Id == org.GismoId {
+				if gismoOrgRef.Id == org.GetIdentifierValue("gismo_id") {
 					oRef := models.NewOrganizationRef(org.Id)
 					oRef.From = gismoOrgRef.From
 					oRef.Until = gismoOrgRef.Until
@@ -179,7 +178,7 @@ func (pp *PersonProcessor) getPersonByMessage(msg *models.Message) (*models.Pers
 	}
 
 	// trial 1: retrieve old person by gismo-id
-	person, err := pp.repository.GetPersonByGismoId(ctx, msg.ID)
+	person, err := pp.repository.GetPersonByIdentifier(ctx, "gismo_id", msg.ID)
 	if err == nil {
 		return person, nil
 	}
@@ -188,7 +187,7 @@ func (pp *PersonProcessor) getPersonByMessage(msg *models.Message) (*models.Pers
 	}
 
 	// trial 2: retrieve old person by ugent-id
-	person, err = pp.repository.GetPersonByAnyOtherId(ctx, "historic_ugent_id", ugentIds...)
+	person, err = pp.repository.GetPersonByIdentifier(ctx, "historic_ugent_id", ugentIds...)
 	if err == nil {
 		return person, nil
 	}
@@ -201,8 +200,9 @@ func (pp *PersonProcessor) getPersonByMessage(msg *models.Message) (*models.Pers
 }
 
 func (pp *PersonProcessor) enrichPersonWithLdap(person *models.Person) (*models.Person, error) {
-	ldapQueryParts := make([]string, 0, len(person.OtherId["historic_ugent_id"]))
-	for _, ugentId := range person.OtherId["historic_ugent_id"] {
+	historicUgentIds := person.GetIdentifierValues("historic_ugent_id")
+	ldapQueryParts := make([]string, 0, len(historicUgentIds))
+	for _, ugentId := range historicUgentIds {
 		ldapQueryParts = append(ldapQueryParts, fmt.Sprintf("(ugentHistoricIDs=%s)", ugentId))
 	}
 	ldapQuery := "(&" + strings.Join(ldapQueryParts, "") + ")"
@@ -226,9 +226,9 @@ func (pp *PersonProcessor) enrichPersonWithLdap(person *models.Person) (*models.
 				case "displayName":
 					person.FullName = val
 				case "ugentBarcode":
-					person.OtherId.Add("ugent_barcode", val)
+					person.AddIdentifier("ugent_barcode", val)
 				case "uid":
-					person.OtherId.Add("ugent_username", val)
+					person.AddIdentifier("ugent_username", val)
 				case "ugentExpirationDate":
 					person.ExpirationDate = val
 				case "objectClass":

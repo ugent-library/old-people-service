@@ -72,14 +72,6 @@ func (s *Server) decodeAddOrganizationRequest(r *http.Request) (
 			}
 			return req, close, err
 		}
-		if err := func() error {
-			if err := request.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return req, close, errors.Wrap(err, "validate")
-		}
 		return &request, close, nil
 	default:
 		return req, close, validate.InvalidContentType(ct)
@@ -142,14 +134,6 @@ func (s *Server) decodeAddPersonRequest(r *http.Request) (
 				Err:         err,
 			}
 			return req, close, err
-		}
-		if err := func() error {
-			if err := request.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return req, close, errors.Wrap(err, "validate")
 		}
 		return &request, close, nil
 	default:
@@ -228,8 +212,8 @@ func (s *Server) decodeGetOrganizationRequest(r *http.Request) (
 	}
 }
 
-func (s *Server) decodeGetOrganizationByOtherIdRequest(r *http.Request) (
-	req *GetOrganizationByOtherIdRequest,
+func (s *Server) decodeGetOrganizationByIdRequest(r *http.Request) (
+	req *GetOrganizationByIdRequest,
 	close func() error,
 	rerr error,
 ) {
@@ -268,7 +252,7 @@ func (s *Server) decodeGetOrganizationByOtherIdRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request GetOrganizationByOtherIdRequest
+		var request GetOrganizationByIdRequest
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -496,8 +480,8 @@ func (s *Server) decodeGetPersonRequest(r *http.Request) (
 	}
 }
 
-func (s *Server) decodeGetPersonByOtherIdRequest(r *http.Request) (
-	req *GetPersonByOtherIdRequest,
+func (s *Server) decodeGetPersonByIdRequest(r *http.Request) (
+	req *GetPersonByIdRequest,
 	close func() error,
 	rerr error,
 ) {
@@ -536,7 +520,7 @@ func (s *Server) decodeGetPersonByOtherIdRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request GetPersonByOtherIdRequest
+		var request GetPersonByIdRequest
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err

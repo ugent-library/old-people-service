@@ -263,7 +263,7 @@ func decodeGetOrganizationResponse(resp *http.Response) (res *Organization, _ er
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetOrganizationByOtherIdResponse(resp *http.Response) (res *Organization, _ error) {
+func decodeGetOrganizationByIdResponse(resp *http.Response) (res *Organization, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -595,7 +595,7 @@ func decodeGetPersonResponse(resp *http.Response) (res *Person, _ error) {
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetPersonByOtherIdResponse(resp *http.Response) (res *Person, _ error) {
+func decodeGetPersonByIdResponse(resp *http.Response) (res *Person, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.

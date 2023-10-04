@@ -485,20 +485,20 @@ func (s *Server) handleGetOrganizationRequest(args [0]string, argsEscaped bool, 
 	}
 }
 
-// handleGetOrganizationByOtherIdRequest handles GetOrganizationByOtherId operation.
+// handleGetOrganizationByIdRequest handles GetOrganizationById operation.
 //
 // Get single organization record by one of its extra identifiers.
 //
-// POST /get-organization-by-other-id
-func (s *Server) handleGetOrganizationByOtherIdRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// POST /get-organization-by-id
+func (s *Server) handleGetOrganizationByIdRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("GetOrganizationByOtherId"),
+		otelogen.OperationID("GetOrganizationById"),
 		semconv.HTTPMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/get-organization-by-other-id"),
+		semconv.HTTPRouteKey.String("/get-organization-by-id"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "GetOrganizationByOtherId",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "GetOrganizationById",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -523,15 +523,15 @@ func (s *Server) handleGetOrganizationByOtherIdRequest(args [0]string, argsEscap
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "GetOrganizationByOtherId",
-			ID:   "GetOrganizationByOtherId",
+			Name: "GetOrganizationById",
+			ID:   "GetOrganizationById",
 		}
 	)
 	{
 		type bitset = [1]uint8
 		var satisfied bitset
 		{
-			sctx, ok, err := s.securityApiKey(ctx, "GetOrganizationByOtherId", r)
+			sctx, ok, err := s.securityApiKey(ctx, "GetOrganizationById", r)
 			if err != nil {
 				err = &ogenerrors.SecurityError{
 					OperationContext: opErrContext,
@@ -571,7 +571,7 @@ func (s *Server) handleGetOrganizationByOtherIdRequest(args [0]string, argsEscap
 			return
 		}
 	}
-	request, close, err := s.decodeGetOrganizationByOtherIdRequest(r)
+	request, close, err := s.decodeGetOrganizationByIdRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
@@ -591,15 +591,15 @@ func (s *Server) handleGetOrganizationByOtherIdRequest(args [0]string, argsEscap
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "GetOrganizationByOtherId",
-			OperationID:   "GetOrganizationByOtherId",
+			OperationName: "GetOrganizationById",
+			OperationID:   "GetOrganizationById",
 			Body:          request,
 			Params:        middleware.Parameters{},
 			Raw:           r,
 		}
 
 		type (
-			Request  = *GetOrganizationByOtherIdRequest
+			Request  = *GetOrganizationByIdRequest
 			Params   = struct{}
 			Response = *Organization
 		)
@@ -612,12 +612,12 @@ func (s *Server) handleGetOrganizationByOtherIdRequest(args [0]string, argsEscap
 			mreq,
 			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetOrganizationByOtherId(ctx, request)
+				response, err = s.h.GetOrganizationById(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetOrganizationByOtherId(ctx, request)
+		response, err = s.h.GetOrganizationById(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -633,7 +633,7 @@ func (s *Server) handleGetOrganizationByOtherIdRequest(args [0]string, argsEscap
 		return
 	}
 
-	if err := encodeGetOrganizationByOtherIdResponse(response, w, span); err != nil {
+	if err := encodeGetOrganizationByIdResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -1105,20 +1105,20 @@ func (s *Server) handleGetPersonRequest(args [0]string, argsEscaped bool, w http
 	}
 }
 
-// handleGetPersonByOtherIdRequest handles GetPersonByOtherId operation.
+// handleGetPersonByIdRequest handles GetPersonById operation.
 //
 // Retrieve a single person record by one of its extra identifiers.
 //
-// POST /get-person-by-other-id
-func (s *Server) handleGetPersonByOtherIdRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// POST /get-person-by-id
+func (s *Server) handleGetPersonByIdRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("GetPersonByOtherId"),
+		otelogen.OperationID("GetPersonById"),
 		semconv.HTTPMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/get-person-by-other-id"),
+		semconv.HTTPRouteKey.String("/get-person-by-id"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "GetPersonByOtherId",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "GetPersonById",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -1143,15 +1143,15 @@ func (s *Server) handleGetPersonByOtherIdRequest(args [0]string, argsEscaped boo
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "GetPersonByOtherId",
-			ID:   "GetPersonByOtherId",
+			Name: "GetPersonById",
+			ID:   "GetPersonById",
 		}
 	)
 	{
 		type bitset = [1]uint8
 		var satisfied bitset
 		{
-			sctx, ok, err := s.securityApiKey(ctx, "GetPersonByOtherId", r)
+			sctx, ok, err := s.securityApiKey(ctx, "GetPersonById", r)
 			if err != nil {
 				err = &ogenerrors.SecurityError{
 					OperationContext: opErrContext,
@@ -1191,7 +1191,7 @@ func (s *Server) handleGetPersonByOtherIdRequest(args [0]string, argsEscaped boo
 			return
 		}
 	}
-	request, close, err := s.decodeGetPersonByOtherIdRequest(r)
+	request, close, err := s.decodeGetPersonByIdRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
@@ -1211,15 +1211,15 @@ func (s *Server) handleGetPersonByOtherIdRequest(args [0]string, argsEscaped boo
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "GetPersonByOtherId",
-			OperationID:   "GetPersonByOtherId",
+			OperationName: "GetPersonById",
+			OperationID:   "GetPersonById",
 			Body:          request,
 			Params:        middleware.Parameters{},
 			Raw:           r,
 		}
 
 		type (
-			Request  = *GetPersonByOtherIdRequest
+			Request  = *GetPersonByIdRequest
 			Params   = struct{}
 			Response = *Person
 		)
@@ -1232,12 +1232,12 @@ func (s *Server) handleGetPersonByOtherIdRequest(args [0]string, argsEscaped boo
 			mreq,
 			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.GetPersonByOtherId(ctx, request)
+				response, err = s.h.GetPersonById(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.GetPersonByOtherId(ctx, request)
+		response, err = s.h.GetPersonById(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -1253,7 +1253,7 @@ func (s *Server) handleGetPersonByOtherIdRequest(args [0]string, argsEscaped boo
 		return
 	}
 
-	if err := encodeGetPersonByOtherIdResponse(response, w, span); err != nil {
+	if err := encodeGetPersonByIdResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return

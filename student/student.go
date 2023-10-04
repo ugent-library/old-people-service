@@ -31,7 +31,7 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 			return err
 		}
 
-		oldPerson, err := si.repository.GetPersonByAnyOtherId(ctx, "historic_ugent_id", newPerson.OtherId["historic_ugent_id"]...)
+		oldPerson, err := si.repository.GetPersonByIdentifier(ctx, "historic_ugent_id", newPerson.GetIdentifierValues("historic_ugent_id")...)
 		if err != nil && !errors.Is(err, models.ErrNotFound) {
 			return err
 		}
@@ -41,6 +41,26 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 				return err
 			}
 		} else {
+			var gismoId string
+			var orcid string
+			for _, id := range oldPerson.Identifier {
+				switch id.PropertyID {
+				case "orcid":
+					orcid = id.Value
+				case "gismo_id":
+					gismoId = id.Value
+				}
+			}
+			oldPerson.Identifier = []models.Identifier{}
+			for _, id := range newPerson.Identifier {
+				oldPerson.AddIdentifier(id.PropertyID, id.Value)
+			}
+			if gismoId != "" {
+				oldPerson.AddIdentifier("gismo_id", gismoId)
+			}
+			if orcid != "" {
+				oldPerson.AddIdentifier("orcid", orcid)
+			}
 			oldPerson.Active = true
 			oldPerson.BirthDate = newPerson.BirthDate
 			oldPerson.Email = newPerson.Email
@@ -49,7 +69,6 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 			oldPerson.FullName = newPerson.FullName
 			oldPerson.JobCategory = newPerson.JobCategory
 			oldPerson.Title = newPerson.Title
-			oldPerson.OtherId = newPerson.OtherId.Dup()
 			oldPerson.ObjectClass = newPerson.ObjectClass
 			oldPerson.ExpirationDate = newPerson.ExpirationDate
 			oldPerson.Organization = newPerson.Organization
@@ -75,15 +94,15 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 		for _, val := range attr.Values {
 			switch attr.Name {
 			case "uid":
-				newPerson.OtherId.Add("ugent_username", val)
+				newPerson.AddIdentifier("ugent_username", val)
 			// contains current active ugentID
 			case "ugentID":
-				newPerson.OtherId.Add("ugent_id", val)
+				newPerson.AddIdentifier("ugent_id", val)
 			// contains ugentID also (at the end)
 			case "ugentHistoricIDs":
-				newPerson.OtherId.Add("historic_ugent_id", val)
+				newPerson.AddIdentifier("historic_ugent_id", val)
 			case "ugentBarcode":
-				newPerson.OtherId.Add("ugent_barcode", val)
+				newPerson.AddIdentifier("ugent_barcode", val)
 			case "ugentPreferredGivenName":
 				newPerson.FirstName = val
 			case "ugentPreferredSn":
@@ -103,7 +122,7 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 			case "ugentExpirationDate":
 				newPerson.ExpirationDate = val
 			case "departmentNumber":
-				realOrg, err := si.repository.GetOrganizationByAnyOtherId(ctx, "ugent_id", val)
+				realOrg, err := si.repository.GetOrganizationByIdentifier(ctx, "ugent_id", val)
 				if errors.Is(err, models.ErrNotFound) {
 					continue
 				} else if err != nil {

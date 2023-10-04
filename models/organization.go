@@ -3,15 +3,14 @@ package models
 import "time"
 
 type Organization struct {
-	Id          string     `json:"id,omitempty"`
-	GismoId     string     `json:"gismo_id,omitempty"`
-	DateCreated *time.Time `json:"date_created,omitempty"`
-	DateUpdated *time.Time `json:"date_updated,omitempty"`
-	Type        string     `json:"type,omitempty"`
-	NameDut     string     `json:"name_dut,omitempty"`
-	NameEng     string     `json:"name_eng,omitempty"`
-	ParentId    string     `json:"parent_id,omitempty"`
-	OtherId     IdRefs     `json:"other_id,omitempty"`
+	Id          string       `json:"id,omitempty"`
+	DateCreated *time.Time   `json:"date_created,omitempty"`
+	DateUpdated *time.Time   `json:"date_updated,omitempty"`
+	Type        string       `json:"type,omitempty"`
+	NameDut     string       `json:"name_dut,omitempty"`
+	NameEng     string       `json:"name_eng,omitempty"`
+	ParentId    string       `json:"parent_id,omitempty"`
+	Identifier  []Identifier `json:"identifier,omitempty"`
 }
 
 func (org *Organization) IsStored() bool {
@@ -20,6 +19,31 @@ func (org *Organization) IsStored() bool {
 
 func NewOrganization() *Organization {
 	org := &Organization{}
-	org.OtherId = IdRefs{}
 	return org
+}
+
+func (org *Organization) AddIdentifier(typ string, val string) {
+	org.Identifier = append(org.Identifier, NewIdentifier(typ, val))
+}
+
+func (org *Organization) ClearIdentifier() {
+	org.Identifier = nil
+}
+
+func (org *Organization) GetIdentifierValues(propertyID string) []string {
+	vals := make([]string, 0, len(org.Identifier))
+	for _, id := range org.Identifier {
+		if id.PropertyID == propertyID {
+			vals = append(vals, id.Value)
+		}
+	}
+	return vals
+}
+
+func (org *Organization) GetIdentifierValue(propertyID string) string {
+	vals := org.GetIdentifierValues(propertyID)
+	if len(vals) > 0 {
+		return vals[0]
+	}
+	return ""
 }

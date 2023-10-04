@@ -50,7 +50,7 @@ func encodeGetOrganizationResponse(response *Organization, w http.ResponseWriter
 	return nil
 }
 
-func encodeGetOrganizationByOtherIdResponse(response *Organization, w http.ResponseWriter, span trace.Span) error {
+func encodeGetOrganizationByIdResponse(response *Organization, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))
@@ -102,7 +102,7 @@ func encodeGetPersonResponse(response *Person, w http.ResponseWriter, span trace
 	return nil
 }
 
-func encodeGetPersonByOtherIdResponse(response *Person, w http.ResponseWriter, span trace.Span) error {
+func encodeGetPersonByIdResponse(response *Person, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	span.SetStatus(codes.Ok, http.StatusText(200))

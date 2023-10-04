@@ -6,7 +6,6 @@ import (
 
 type Person struct {
 	Id                 string             `json:"id,omitempty"`
-	GismoId            string             `json:"gismo_id,omitempty"`
 	Active             bool               `json:"active,omitempty"`
 	DateCreated        *time.Time         `json:"date_created,omitempty"`
 	DateUpdated        *time.Time         `json:"date_updated,omitempty"`
@@ -14,13 +13,12 @@ type Person struct {
 	FirstName          string             `json:"first_name,omitempty"`
 	LastName           string             `json:"last_name,omitempty"`
 	Email              string             `json:"email,omitempty"`
-	Orcid              string             `json:"orcid,omitempty"`
 	OrcidToken         string             `json:"orcid_token,omitempty"`
 	PreferredFirstName string             `json:"preferred_first_name,omitempty"`
 	PreferredLastName  string             `json:"preferred_last_name,omitempty"`
 	BirthDate          string             `json:"birth_date,omitempty"`
 	Title              string             `json:"title,omitempty"`
-	OtherId            IdRefs             `json:"other_id,omitempty"`
+	Identifier         []Identifier       `json:"identifier,omitempty"`
 	Organization       []*OrganizationRef `json:"organization,omitempty"`
 	JobCategory        []string           `json:"job_category,omitempty"`
 	Role               []string           `json:"role,omitempty"`
@@ -35,7 +33,6 @@ func (person *Person) IsStored() bool {
 
 func NewPerson() *Person {
 	p := &Person{}
-	p.OtherId = IdRefs{}
 	return p
 }
 
@@ -45,4 +42,22 @@ func NewOrganizationRef(id string) *OrganizationRef {
 		From:  &BeginningOfTime,
 		Until: &EndOfTime,
 	}
+}
+
+func (p *Person) AddIdentifier(typ string, val string) {
+	p.Identifier = append(p.Identifier, NewIdentifier(typ, val))
+}
+
+func (p *Person) ClearIdentifier() {
+	p.Identifier = nil
+}
+
+func (p *Person) GetIdentifierValues(propertyID string) []string {
+	vals := make([]string, 0, len(p.Identifier))
+	for _, id := range p.Identifier {
+		if id.PropertyID == propertyID {
+			vals = append(vals, id.Value)
+		}
+	}
+	return vals
 }

@@ -26,12 +26,12 @@ type Handler interface {
 	//
 	// POST /get-organization
 	GetOrganization(ctx context.Context, req *GetOrganizationRequest) (*Organization, error)
-	// GetOrganizationByOtherId implements GetOrganizationByOtherId operation.
+	// GetOrganizationById implements GetOrganizationById operation.
 	//
 	// Get single organization record by one of its extra identifiers.
 	//
-	// POST /get-organization-by-other-id
-	GetOrganizationByOtherId(ctx context.Context, req *GetOrganizationByOtherIdRequest) (*Organization, error)
+	// POST /get-organization-by-id
+	GetOrganizationById(ctx context.Context, req *GetOrganizationByIdRequest) (*Organization, error)
 	// GetOrganizations implements GetOrganizations operation.
 	//
 	// Get all organization records.
@@ -50,12 +50,12 @@ type Handler interface {
 	//
 	// POST /get-person
 	GetPerson(ctx context.Context, req *GetPersonRequest) (*Person, error)
-	// GetPersonByOtherId implements GetPersonByOtherId operation.
+	// GetPersonById implements GetPersonById operation.
 	//
 	// Retrieve a single person record by one of its extra identifiers.
 	//
-	// POST /get-person-by-other-id
-	GetPersonByOtherId(ctx context.Context, req *GetPersonByOtherIdRequest) (*Person, error)
+	// POST /get-person-by-id
+	GetPersonById(ctx context.Context, req *GetPersonByIdRequest) (*Person, error)
 	// SetPersonOrcid implements SetPersonOrcid operation.
 	//
 	// Update person ORCID.

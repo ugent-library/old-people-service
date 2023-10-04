@@ -51,16 +51,16 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  "/get-person-by-other-id":
+  "/get-person-by-id":
     post:
       summary: "Retrieve a single person record by one of its extra identifiers"
       description: "Retrieve a single person record by one of its extra identifiers"
-      operationId: "GetPersonByOtherId"
+      operationId: "GetPersonById"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetPersonByOtherIdRequest"
+              $ref: "#/components/schemas/GetPersonByIdRequest"
         required: true
       responses:
         "200":
@@ -241,16 +241,16 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  "/get-organization-by-other-id":
+  "/get-organization-by-id":
     post:
       summary: "Get single organization record by one of its extra identifiers"
       description: "Get single organization record by one of its extra identifiers"
-      operationId: "GetOrganizationByOtherId"
+      operationId: "GetOrganizationById"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetOrganizationByOtherIdRequest"
+              $ref: "#/components/schemas/GetOrganizationByIdRequest"
         required: true
       responses:
         "200":
@@ -337,12 +337,16 @@ components:
         - code
         - message
 
-    IdRefs:
+    Identifier:
       type: object
-      additionalProperties:
-        type: array
-        items:
+      properties:
+        type:
           type: string
+        property_id:
+          type: string
+        value:
+          type: string
+      required: [type, property_id, value]
 
     OrganizationRef:
       type: object
@@ -368,8 +372,6 @@ components:
       properties:
         id:
           type: string
-        gismo_id:
-          type: string
         active:
           type: boolean
         date_created:
@@ -386,8 +388,6 @@ components:
           type: string
         email:
           type: string
-        orcid:
-          type: string
         orcid_token:
           type: string
         preferred_first_name:
@@ -398,8 +398,10 @@ components:
           type: string
         title:
           type: string
-        other_id:
-          $ref: "#/components/schemas/IdRefs"
+        identifier:
+          type: array
+          items:
+            $ref: "#/components/schemas/Identifier"
         organization:
           type: array
           items:
@@ -428,8 +430,6 @@ components:
       properties:
         id:
           type: string
-        gismo_id:
-          type: string
         date_created:
           type: string
           format: date-time
@@ -444,8 +444,10 @@ components:
           type: string
         parent_id:
           type: string
-        other_id:
-          $ref: "#/components/schemas/IdRefs"
+        identifier:
+          type: array
+          items:
+            $ref: "#/components/schemas/Identifier"
 
     PersonListResponse:
       type: object
@@ -483,7 +485,7 @@ components:
     AddOrganizationRequest:
       $ref: "#/components/schemas/Organization"
 
-    GetPersonByOtherIdRequest:
+    GetPersonByIdRequest:
       type: object
       properties:
         id:
@@ -492,6 +494,8 @@ components:
         type:
           type: string
           enum:
+            - orcid
+            - gismo_id
             - ugent_id
             - historic_ugent_id
             - ugent_barcode
@@ -567,7 +571,7 @@ components:
           minLength: 1
       required: [id]
 
-    GetOrganizationByOtherIdRequest:
+    GetOrganizationByIdRequest:
       type: object
       properties:
         id:
@@ -576,6 +580,7 @@ components:
         type:
           type: string
           enum:
+            - gismo_id
             - ugent_id
             - biblio_id
             - ugent_memorialis_id

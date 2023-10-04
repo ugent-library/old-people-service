@@ -131,8 +131,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 					switch elem[0] {
-					case '-': // Prefix: "-by-other-id"
-						if l := len("-by-other-id"); len(elem) >= l && elem[0:l] == "-by-other-id" {
+					case '-': // Prefix: "-by-id"
+						if l := len("-by-id"); len(elem) >= l && elem[0:l] == "-by-id" {
 							elem = elem[l:]
 						} else {
 							break
@@ -142,7 +142,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							// Leaf node.
 							switch r.Method {
 							case "POST":
-								s.handleGetOrganizationByOtherIdRequest([0]string{}, elemIsEscaped, w, r)
+								s.handleGetOrganizationByIdRequest([0]string{}, elemIsEscaped, w, r)
 							default:
 								s.notAllowed(w, r, "POST")
 							}
@@ -215,8 +215,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							return
 						}
 						switch elem[0] {
-						case '-': // Prefix: "-by-other-id"
-							if l := len("-by-other-id"); len(elem) >= l && elem[0:l] == "-by-other-id" {
+						case '-': // Prefix: "-by-id"
+							if l := len("-by-id"); len(elem) >= l && elem[0:l] == "-by-id" {
 								elem = elem[l:]
 							} else {
 								break
@@ -226,7 +226,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								// Leaf node.
 								switch r.Method {
 								case "POST":
-									s.handleGetPersonByOtherIdRequest([0]string{}, elemIsEscaped, w, r)
+									s.handleGetPersonByIdRequest([0]string{}, elemIsEscaped, w, r)
 								default:
 									s.notAllowed(w, r, "POST")
 								}
@@ -548,8 +548,8 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 					}
 					switch elem[0] {
-					case '-': // Prefix: "-by-other-id"
-						if l := len("-by-other-id"); len(elem) >= l && elem[0:l] == "-by-other-id" {
+					case '-': // Prefix: "-by-id"
+						if l := len("-by-id"); len(elem) >= l && elem[0:l] == "-by-id" {
 							elem = elem[l:]
 						} else {
 							break
@@ -558,10 +558,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						if len(elem) == 0 {
 							switch method {
 							case "POST":
-								// Leaf: GetOrganizationByOtherId
-								r.name = "GetOrganizationByOtherId"
-								r.operationID = "GetOrganizationByOtherId"
-								r.pathPattern = "/get-organization-by-other-id"
+								// Leaf: GetOrganizationById
+								r.name = "GetOrganizationById"
+								r.operationID = "GetOrganizationById"
+								r.pathPattern = "/get-organization-by-id"
 								r.args = args
 								r.count = 0
 								return r, true
@@ -644,8 +644,8 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							}
 						}
 						switch elem[0] {
-						case '-': // Prefix: "-by-other-id"
-							if l := len("-by-other-id"); len(elem) >= l && elem[0:l] == "-by-other-id" {
+						case '-': // Prefix: "-by-id"
+							if l := len("-by-id"); len(elem) >= l && elem[0:l] == "-by-id" {
 								elem = elem[l:]
 							} else {
 								break
@@ -654,10 +654,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							if len(elem) == 0 {
 								switch method {
 								case "POST":
-									// Leaf: GetPersonByOtherId
-									r.name = "GetPersonByOtherId"
-									r.operationID = "GetPersonByOtherId"
-									r.pathPattern = "/get-person-by-other-id"
+									// Leaf: GetPersonById
+									r.name = "GetPersonById"
+									r.operationID = "GetPersonById"
+									r.pathPattern = "/get-person-by-id"
 									r.args = args
 									r.count = 0
 									return r, true

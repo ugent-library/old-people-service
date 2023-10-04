@@ -89,15 +89,6 @@ func (c *Client) sendAddOrganization(ctx context.Context, request *Organization)
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("AddOrganization"),
 	}
-	// Validate request before sending.
-	if err := func() error {
-		if err := request.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return res, errors.Wrap(err, "validate")
-	}
 
 	// Run stopwatch.
 	startTime := time.Now()
@@ -204,15 +195,6 @@ func (c *Client) AddPerson(ctx context.Context, request *Person) (*Person, error
 func (c *Client) sendAddPerson(ctx context.Context, request *Person) (res *Person, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("AddPerson"),
-	}
-	// Validate request before sending.
-	if err := func() error {
-		if err := request.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return res, errors.Wrap(err, "validate")
 	}
 
 	// Run stopwatch.
@@ -422,20 +404,20 @@ func (c *Client) sendGetOrganization(ctx context.Context, request *GetOrganizati
 	return result, nil
 }
 
-// GetOrganizationByOtherId invokes GetOrganizationByOtherId operation.
+// GetOrganizationById invokes GetOrganizationById operation.
 //
 // Get single organization record by one of its extra identifiers.
 //
-// POST /get-organization-by-other-id
-func (c *Client) GetOrganizationByOtherId(ctx context.Context, request *GetOrganizationByOtherIdRequest) (*Organization, error) {
-	res, err := c.sendGetOrganizationByOtherId(ctx, request)
+// POST /get-organization-by-id
+func (c *Client) GetOrganizationById(ctx context.Context, request *GetOrganizationByIdRequest) (*Organization, error) {
+	res, err := c.sendGetOrganizationById(ctx, request)
 	_ = res
 	return res, err
 }
 
-func (c *Client) sendGetOrganizationByOtherId(ctx context.Context, request *GetOrganizationByOtherIdRequest) (res *Organization, err error) {
+func (c *Client) sendGetOrganizationById(ctx context.Context, request *GetOrganizationByIdRequest) (res *Organization, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("GetOrganizationByOtherId"),
+		otelogen.OperationID("GetOrganizationById"),
 	}
 	// Validate request before sending.
 	if err := func() error {
@@ -459,7 +441,7 @@ func (c *Client) sendGetOrganizationByOtherId(ctx context.Context, request *GetO
 	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
 
 	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, "GetOrganizationByOtherId",
+	ctx, span := c.cfg.Tracer.Start(ctx, "GetOrganizationById",
 		trace.WithAttributes(otelAttrs...),
 		clientSpanKind,
 	)
@@ -477,7 +459,7 @@ func (c *Client) sendGetOrganizationByOtherId(ctx context.Context, request *GetO
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/get-organization-by-other-id"
+	pathParts[0] = "/get-organization-by-id"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -485,7 +467,7 @@ func (c *Client) sendGetOrganizationByOtherId(ctx context.Context, request *GetO
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
-	if err := encodeGetOrganizationByOtherIdRequest(request, r); err != nil {
+	if err := encodeGetOrganizationByIdRequest(request, r); err != nil {
 		return res, errors.Wrap(err, "encode request")
 	}
 
@@ -494,7 +476,7 @@ func (c *Client) sendGetOrganizationByOtherId(ctx context.Context, request *GetO
 		var satisfied bitset
 		{
 			stage = "Security:ApiKey"
-			switch err := c.securityApiKey(ctx, "GetOrganizationByOtherId", r); {
+			switch err := c.securityApiKey(ctx, "GetOrganizationById", r); {
 			case err == nil: // if NO error
 				satisfied[0] |= 1 << 0
 			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
@@ -530,7 +512,7 @@ func (c *Client) sendGetOrganizationByOtherId(ctx context.Context, request *GetO
 	defer resp.Body.Close()
 
 	stage = "DecodeResponse"
-	result, err := decodeGetOrganizationByOtherIdResponse(resp)
+	result, err := decodeGetOrganizationByIdResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -868,20 +850,20 @@ func (c *Client) sendGetPerson(ctx context.Context, request *GetPersonRequest) (
 	return result, nil
 }
 
-// GetPersonByOtherId invokes GetPersonByOtherId operation.
+// GetPersonById invokes GetPersonById operation.
 //
 // Retrieve a single person record by one of its extra identifiers.
 //
-// POST /get-person-by-other-id
-func (c *Client) GetPersonByOtherId(ctx context.Context, request *GetPersonByOtherIdRequest) (*Person, error) {
-	res, err := c.sendGetPersonByOtherId(ctx, request)
+// POST /get-person-by-id
+func (c *Client) GetPersonById(ctx context.Context, request *GetPersonByIdRequest) (*Person, error) {
+	res, err := c.sendGetPersonById(ctx, request)
 	_ = res
 	return res, err
 }
 
-func (c *Client) sendGetPersonByOtherId(ctx context.Context, request *GetPersonByOtherIdRequest) (res *Person, err error) {
+func (c *Client) sendGetPersonById(ctx context.Context, request *GetPersonByIdRequest) (res *Person, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("GetPersonByOtherId"),
+		otelogen.OperationID("GetPersonById"),
 	}
 	// Validate request before sending.
 	if err := func() error {
@@ -905,7 +887,7 @@ func (c *Client) sendGetPersonByOtherId(ctx context.Context, request *GetPersonB
 	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
 
 	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, "GetPersonByOtherId",
+	ctx, span := c.cfg.Tracer.Start(ctx, "GetPersonById",
 		trace.WithAttributes(otelAttrs...),
 		clientSpanKind,
 	)
@@ -923,7 +905,7 @@ func (c *Client) sendGetPersonByOtherId(ctx context.Context, request *GetPersonB
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/get-person-by-other-id"
+	pathParts[0] = "/get-person-by-id"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -931,7 +913,7 @@ func (c *Client) sendGetPersonByOtherId(ctx context.Context, request *GetPersonB
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
-	if err := encodeGetPersonByOtherIdRequest(request, r); err != nil {
+	if err := encodeGetPersonByIdRequest(request, r); err != nil {
 		return res, errors.Wrap(err, "encode request")
 	}
 
@@ -940,7 +922,7 @@ func (c *Client) sendGetPersonByOtherId(ctx context.Context, request *GetPersonB
 		var satisfied bitset
 		{
 			stage = "Security:ApiKey"
-			switch err := c.securityApiKey(ctx, "GetPersonByOtherId", r); {
+			switch err := c.securityApiKey(ctx, "GetPersonById", r); {
 			case err == nil: // if NO error
 				satisfied[0] |= 1 << 0
 			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
@@ -976,7 +958,7 @@ func (c *Client) sendGetPersonByOtherId(ctx context.Context, request *GetPersonB
 	defer resp.Body.Close()
 
 	stage = "DecodeResponse"
-	result, err := decodeGetPersonByOtherIdResponse(resp)
+	result, err := decodeGetPersonByIdResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

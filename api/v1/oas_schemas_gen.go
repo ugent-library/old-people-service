@@ -79,48 +79,51 @@ func (s *ErrorStatusCode) SetResponse(val Error) {
 	s.Response = val
 }
 
-// Ref: #/components/schemas/GetOrganizationByOtherIdRequest
-type GetOrganizationByOtherIdRequest struct {
-	ID   string                              `json:"id"`
-	Type GetOrganizationByOtherIdRequestType `json:"type"`
+// Ref: #/components/schemas/GetOrganizationByIdRequest
+type GetOrganizationByIdRequest struct {
+	ID   string                         `json:"id"`
+	Type GetOrganizationByIdRequestType `json:"type"`
 }
 
 // GetID returns the value of ID.
-func (s *GetOrganizationByOtherIdRequest) GetID() string {
+func (s *GetOrganizationByIdRequest) GetID() string {
 	return s.ID
 }
 
 // GetType returns the value of Type.
-func (s *GetOrganizationByOtherIdRequest) GetType() GetOrganizationByOtherIdRequestType {
+func (s *GetOrganizationByIdRequest) GetType() GetOrganizationByIdRequestType {
 	return s.Type
 }
 
 // SetID sets the value of ID.
-func (s *GetOrganizationByOtherIdRequest) SetID(val string) {
+func (s *GetOrganizationByIdRequest) SetID(val string) {
 	s.ID = val
 }
 
 // SetType sets the value of Type.
-func (s *GetOrganizationByOtherIdRequest) SetType(val GetOrganizationByOtherIdRequestType) {
+func (s *GetOrganizationByIdRequest) SetType(val GetOrganizationByIdRequestType) {
 	s.Type = val
 }
 
-type GetOrganizationByOtherIdRequestType string
+type GetOrganizationByIdRequestType string
 
 const (
-	GetOrganizationByOtherIdRequestTypeUgentID           GetOrganizationByOtherIdRequestType = "ugent_id"
-	GetOrganizationByOtherIdRequestTypeBiblioID          GetOrganizationByOtherIdRequestType = "biblio_id"
-	GetOrganizationByOtherIdRequestTypeUgentMemorialisID GetOrganizationByOtherIdRequestType = "ugent_memorialis_id"
+	GetOrganizationByIdRequestTypeGismoID           GetOrganizationByIdRequestType = "gismo_id"
+	GetOrganizationByIdRequestTypeUgentID           GetOrganizationByIdRequestType = "ugent_id"
+	GetOrganizationByIdRequestTypeBiblioID          GetOrganizationByIdRequestType = "biblio_id"
+	GetOrganizationByIdRequestTypeUgentMemorialisID GetOrganizationByIdRequestType = "ugent_memorialis_id"
 )
 
 // MarshalText implements encoding.TextMarshaler.
-func (s GetOrganizationByOtherIdRequestType) MarshalText() ([]byte, error) {
+func (s GetOrganizationByIdRequestType) MarshalText() ([]byte, error) {
 	switch s {
-	case GetOrganizationByOtherIdRequestTypeUgentID:
+	case GetOrganizationByIdRequestTypeGismoID:
 		return []byte(s), nil
-	case GetOrganizationByOtherIdRequestTypeBiblioID:
+	case GetOrganizationByIdRequestTypeUgentID:
 		return []byte(s), nil
-	case GetOrganizationByOtherIdRequestTypeUgentMemorialisID:
+	case GetOrganizationByIdRequestTypeBiblioID:
+		return []byte(s), nil
+	case GetOrganizationByIdRequestTypeUgentMemorialisID:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -128,16 +131,19 @@ func (s GetOrganizationByOtherIdRequestType) MarshalText() ([]byte, error) {
 }
 
 // UnmarshalText implements encoding.TextUnmarshaler.
-func (s *GetOrganizationByOtherIdRequestType) UnmarshalText(data []byte) error {
-	switch GetOrganizationByOtherIdRequestType(data) {
-	case GetOrganizationByOtherIdRequestTypeUgentID:
-		*s = GetOrganizationByOtherIdRequestTypeUgentID
+func (s *GetOrganizationByIdRequestType) UnmarshalText(data []byte) error {
+	switch GetOrganizationByIdRequestType(data) {
+	case GetOrganizationByIdRequestTypeGismoID:
+		*s = GetOrganizationByIdRequestTypeGismoID
 		return nil
-	case GetOrganizationByOtherIdRequestTypeBiblioID:
-		*s = GetOrganizationByOtherIdRequestTypeBiblioID
+	case GetOrganizationByIdRequestTypeUgentID:
+		*s = GetOrganizationByIdRequestTypeUgentID
 		return nil
-	case GetOrganizationByOtherIdRequestTypeUgentMemorialisID:
-		*s = GetOrganizationByOtherIdRequestTypeUgentMemorialisID
+	case GetOrganizationByIdRequestTypeBiblioID:
+		*s = GetOrganizationByIdRequestTypeBiblioID
+		return nil
+	case GetOrganizationByIdRequestTypeUgentMemorialisID:
+		*s = GetOrganizationByIdRequestTypeUgentMemorialisID
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -189,54 +195,60 @@ func (s *GetPeopleRequest) SetCursor(val string) {
 	s.Cursor = val
 }
 
-// Ref: #/components/schemas/GetPersonByOtherIdRequest
-type GetPersonByOtherIdRequest struct {
-	ID   string                        `json:"id"`
-	Type GetPersonByOtherIdRequestType `json:"type"`
+// Ref: #/components/schemas/GetPersonByIdRequest
+type GetPersonByIdRequest struct {
+	ID   string                   `json:"id"`
+	Type GetPersonByIdRequestType `json:"type"`
 }
 
 // GetID returns the value of ID.
-func (s *GetPersonByOtherIdRequest) GetID() string {
+func (s *GetPersonByIdRequest) GetID() string {
 	return s.ID
 }
 
 // GetType returns the value of Type.
-func (s *GetPersonByOtherIdRequest) GetType() GetPersonByOtherIdRequestType {
+func (s *GetPersonByIdRequest) GetType() GetPersonByIdRequestType {
 	return s.Type
 }
 
 // SetID sets the value of ID.
-func (s *GetPersonByOtherIdRequest) SetID(val string) {
+func (s *GetPersonByIdRequest) SetID(val string) {
 	s.ID = val
 }
 
 // SetType sets the value of Type.
-func (s *GetPersonByOtherIdRequest) SetType(val GetPersonByOtherIdRequestType) {
+func (s *GetPersonByIdRequest) SetType(val GetPersonByIdRequestType) {
 	s.Type = val
 }
 
-type GetPersonByOtherIdRequestType string
+type GetPersonByIdRequestType string
 
 const (
-	GetPersonByOtherIdRequestTypeUgentID           GetPersonByOtherIdRequestType = "ugent_id"
-	GetPersonByOtherIdRequestTypeHistoricUgentID   GetPersonByOtherIdRequestType = "historic_ugent_id"
-	GetPersonByOtherIdRequestTypeUgentBarcode      GetPersonByOtherIdRequestType = "ugent_barcode"
-	GetPersonByOtherIdRequestTypeUgentUsername     GetPersonByOtherIdRequestType = "ugent_username"
-	GetPersonByOtherIdRequestTypeUgentMemorialisID GetPersonByOtherIdRequestType = "ugent_memorialis_id"
+	GetPersonByIdRequestTypeOrcid             GetPersonByIdRequestType = "orcid"
+	GetPersonByIdRequestTypeGismoID           GetPersonByIdRequestType = "gismo_id"
+	GetPersonByIdRequestTypeUgentID           GetPersonByIdRequestType = "ugent_id"
+	GetPersonByIdRequestTypeHistoricUgentID   GetPersonByIdRequestType = "historic_ugent_id"
+	GetPersonByIdRequestTypeUgentBarcode      GetPersonByIdRequestType = "ugent_barcode"
+	GetPersonByIdRequestTypeUgentUsername     GetPersonByIdRequestType = "ugent_username"
+	GetPersonByIdRequestTypeUgentMemorialisID GetPersonByIdRequestType = "ugent_memorialis_id"
 )
 
 // MarshalText implements encoding.TextMarshaler.
-func (s GetPersonByOtherIdRequestType) MarshalText() ([]byte, error) {
+func (s GetPersonByIdRequestType) MarshalText() ([]byte, error) {
 	switch s {
-	case GetPersonByOtherIdRequestTypeUgentID:
+	case GetPersonByIdRequestTypeOrcid:
 		return []byte(s), nil
-	case GetPersonByOtherIdRequestTypeHistoricUgentID:
+	case GetPersonByIdRequestTypeGismoID:
 		return []byte(s), nil
-	case GetPersonByOtherIdRequestTypeUgentBarcode:
+	case GetPersonByIdRequestTypeUgentID:
 		return []byte(s), nil
-	case GetPersonByOtherIdRequestTypeUgentUsername:
+	case GetPersonByIdRequestTypeHistoricUgentID:
 		return []byte(s), nil
-	case GetPersonByOtherIdRequestTypeUgentMemorialisID:
+	case GetPersonByIdRequestTypeUgentBarcode:
+		return []byte(s), nil
+	case GetPersonByIdRequestTypeUgentUsername:
+		return []byte(s), nil
+	case GetPersonByIdRequestTypeUgentMemorialisID:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -244,22 +256,28 @@ func (s GetPersonByOtherIdRequestType) MarshalText() ([]byte, error) {
 }
 
 // UnmarshalText implements encoding.TextUnmarshaler.
-func (s *GetPersonByOtherIdRequestType) UnmarshalText(data []byte) error {
-	switch GetPersonByOtherIdRequestType(data) {
-	case GetPersonByOtherIdRequestTypeUgentID:
-		*s = GetPersonByOtherIdRequestTypeUgentID
+func (s *GetPersonByIdRequestType) UnmarshalText(data []byte) error {
+	switch GetPersonByIdRequestType(data) {
+	case GetPersonByIdRequestTypeOrcid:
+		*s = GetPersonByIdRequestTypeOrcid
 		return nil
-	case GetPersonByOtherIdRequestTypeHistoricUgentID:
-		*s = GetPersonByOtherIdRequestTypeHistoricUgentID
+	case GetPersonByIdRequestTypeGismoID:
+		*s = GetPersonByIdRequestTypeGismoID
 		return nil
-	case GetPersonByOtherIdRequestTypeUgentBarcode:
-		*s = GetPersonByOtherIdRequestTypeUgentBarcode
+	case GetPersonByIdRequestTypeUgentID:
+		*s = GetPersonByIdRequestTypeUgentID
 		return nil
-	case GetPersonByOtherIdRequestTypeUgentUsername:
-		*s = GetPersonByOtherIdRequestTypeUgentUsername
+	case GetPersonByIdRequestTypeHistoricUgentID:
+		*s = GetPersonByIdRequestTypeHistoricUgentID
 		return nil
-	case GetPersonByOtherIdRequestTypeUgentMemorialisID:
-		*s = GetPersonByOtherIdRequestTypeUgentMemorialisID
+	case GetPersonByIdRequestTypeUgentBarcode:
+		*s = GetPersonByIdRequestTypeUgentBarcode
+		return nil
+	case GetPersonByIdRequestTypeUgentUsername:
+		*s = GetPersonByIdRequestTypeUgentUsername
+		return nil
+	case GetPersonByIdRequestTypeUgentMemorialisID:
+		*s = GetPersonByIdRequestTypeUgentMemorialisID
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -281,16 +299,41 @@ func (s *GetPersonRequest) SetID(val string) {
 	s.ID = val
 }
 
-// Ref: #/components/schemas/IdRefs
-type IdRefs map[string][]string
+// Ref: #/components/schemas/Identifier
+type Identifier struct {
+	Type       string `json:"type"`
+	PropertyID string `json:"property_id"`
+	Value      string `json:"value"`
+}
 
-func (s *IdRefs) init() IdRefs {
-	m := *s
-	if m == nil {
-		m = map[string][]string{}
-		*s = m
-	}
-	return m
+// GetType returns the value of Type.
+func (s *Identifier) GetType() string {
+	return s.Type
+}
+
+// GetPropertyID returns the value of PropertyID.
+func (s *Identifier) GetPropertyID() string {
+	return s.PropertyID
+}
+
+// GetValue returns the value of Value.
+func (s *Identifier) GetValue() string {
+	return s.Value
+}
+
+// SetType sets the value of Type.
+func (s *Identifier) SetType(val string) {
+	s.Type = val
+}
+
+// SetPropertyID sets the value of PropertyID.
+func (s *Identifier) SetPropertyID(val string) {
+	s.PropertyID = val
+}
+
+// SetValue sets the value of Value.
+func (s *Identifier) SetValue(val string) {
+	s.Value = val
 }
 
 // NewOptBool returns new OptBool with value set to v.
@@ -379,52 +422,6 @@ func (o OptDateTime) Get() (v time.Time, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptDateTime) Or(d time.Time) time.Time {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptIdRefs returns new OptIdRefs with value set to v.
-func NewOptIdRefs(v IdRefs) OptIdRefs {
-	return OptIdRefs{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptIdRefs is optional IdRefs.
-type OptIdRefs struct {
-	Value IdRefs
-	Set   bool
-}
-
-// IsSet returns true if OptIdRefs was set.
-func (o OptIdRefs) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptIdRefs) Reset() {
-	var v IdRefs
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptIdRefs) SetTo(v IdRefs) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptIdRefs) Get() (v IdRefs, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptIdRefs) Or(d IdRefs) IdRefs {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -525,25 +522,19 @@ func (o OptString) Or(d string) string {
 
 // Ref: #/components/schemas/Organization
 type Organization struct {
-	ID          OptString   `json:"id"`
-	GismoID     OptString   `json:"gismo_id"`
-	DateCreated OptDateTime `json:"date_created"`
-	DateUpdated OptDateTime `json:"date_updated"`
-	Type        OptString   `json:"type"`
-	NameDut     OptString   `json:"name_dut"`
-	NameEng     OptString   `json:"name_eng"`
-	ParentID    OptString   `json:"parent_id"`
-	OtherID     OptIdRefs   `json:"other_id"`
+	ID          OptString    `json:"id"`
+	DateCreated OptDateTime  `json:"date_created"`
+	DateUpdated OptDateTime  `json:"date_updated"`
+	Type        OptString    `json:"type"`
+	NameDut     OptString    `json:"name_dut"`
+	NameEng     OptString    `json:"name_eng"`
+	ParentID    OptString    `json:"parent_id"`
+	Identifier  []Identifier `json:"identifier"`
 }
 
 // GetID returns the value of ID.
 func (s *Organization) GetID() OptString {
 	return s.ID
-}
-
-// GetGismoID returns the value of GismoID.
-func (s *Organization) GetGismoID() OptString {
-	return s.GismoID
 }
 
 // GetDateCreated returns the value of DateCreated.
@@ -576,19 +567,14 @@ func (s *Organization) GetParentID() OptString {
 	return s.ParentID
 }
 
-// GetOtherID returns the value of OtherID.
-func (s *Organization) GetOtherID() OptIdRefs {
-	return s.OtherID
+// GetIdentifier returns the value of Identifier.
+func (s *Organization) GetIdentifier() []Identifier {
+	return s.Identifier
 }
 
 // SetID sets the value of ID.
 func (s *Organization) SetID(val OptString) {
 	s.ID = val
-}
-
-// SetGismoID sets the value of GismoID.
-func (s *Organization) SetGismoID(val OptString) {
-	s.GismoID = val
 }
 
 // SetDateCreated sets the value of DateCreated.
@@ -621,9 +607,9 @@ func (s *Organization) SetParentID(val OptString) {
 	s.ParentID = val
 }
 
-// SetOtherID sets the value of OtherID.
-func (s *Organization) SetOtherID(val OptIdRefs) {
-	s.OtherID = val
+// SetIdentifier sets the value of Identifier.
+func (s *Organization) SetIdentifier(val []Identifier) {
+	s.Identifier = val
 }
 
 // Ref: #/components/schemas/OrganizationListResponse
@@ -714,7 +700,6 @@ func (s *OrganizationRef) SetUntil(val time.Time) {
 // Ref: #/components/schemas/Person
 type Person struct {
 	ID                 OptString         `json:"id"`
-	GismoID            OptString         `json:"gismo_id"`
 	Active             OptBool           `json:"active"`
 	DateCreated        OptDateTime       `json:"date_created"`
 	DateUpdated        OptDateTime       `json:"date_updated"`
@@ -722,13 +707,12 @@ type Person struct {
 	FirstName          OptString         `json:"first_name"`
 	LastName           OptString         `json:"last_name"`
 	Email              OptString         `json:"email"`
-	Orcid              OptString         `json:"orcid"`
 	OrcidToken         OptString         `json:"orcid_token"`
 	PreferredFirstName OptString         `json:"preferred_first_name"`
 	PreferredLastName  OptString         `json:"preferred_last_name"`
 	BirthDate          OptString         `json:"birth_date"`
 	Title              OptString         `json:"title"`
-	OtherID            OptIdRefs         `json:"other_id"`
+	Identifier         []Identifier      `json:"identifier"`
 	Organization       []OrganizationRef `json:"organization"`
 	JobCategory        []string          `json:"job_category"`
 	Role               []string          `json:"role"`
@@ -740,11 +724,6 @@ type Person struct {
 // GetID returns the value of ID.
 func (s *Person) GetID() OptString {
 	return s.ID
-}
-
-// GetGismoID returns the value of GismoID.
-func (s *Person) GetGismoID() OptString {
-	return s.GismoID
 }
 
 // GetActive returns the value of Active.
@@ -782,11 +761,6 @@ func (s *Person) GetEmail() OptString {
 	return s.Email
 }
 
-// GetOrcid returns the value of Orcid.
-func (s *Person) GetOrcid() OptString {
-	return s.Orcid
-}
-
 // GetOrcidToken returns the value of OrcidToken.
 func (s *Person) GetOrcidToken() OptString {
 	return s.OrcidToken
@@ -812,9 +786,9 @@ func (s *Person) GetTitle() OptString {
 	return s.Title
 }
 
-// GetOtherID returns the value of OtherID.
-func (s *Person) GetOtherID() OptIdRefs {
-	return s.OtherID
+// GetIdentifier returns the value of Identifier.
+func (s *Person) GetIdentifier() []Identifier {
+	return s.Identifier
 }
 
 // GetOrganization returns the value of Organization.
@@ -852,11 +826,6 @@ func (s *Person) SetID(val OptString) {
 	s.ID = val
 }
 
-// SetGismoID sets the value of GismoID.
-func (s *Person) SetGismoID(val OptString) {
-	s.GismoID = val
-}
-
 // SetActive sets the value of Active.
 func (s *Person) SetActive(val OptBool) {
 	s.Active = val
@@ -892,11 +861,6 @@ func (s *Person) SetEmail(val OptString) {
 	s.Email = val
 }
 
-// SetOrcid sets the value of Orcid.
-func (s *Person) SetOrcid(val OptString) {
-	s.Orcid = val
-}
-
 // SetOrcidToken sets the value of OrcidToken.
 func (s *Person) SetOrcidToken(val OptString) {
 	s.OrcidToken = val
@@ -922,9 +886,9 @@ func (s *Person) SetTitle(val OptString) {
 	s.Title = val
 }
 
-// SetOtherID sets the value of OtherID.
-func (s *Person) SetOtherID(val OptIdRefs) {
-	s.OtherID = val
+// SetIdentifier sets the value of Identifier.
+func (s *Person) SetIdentifier(val []Identifier) {
+	s.Identifier = val
 }
 
 // SetOrganization sets the value of Organization.

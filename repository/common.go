@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"ariga.io/atlas/sql/migrate"
 	"entgo.io/ent/dialect"
@@ -57,6 +58,12 @@ func openClient(dsn string) (*ent.Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// TODO: make this configurable
+	db.SetMaxIdleConns(2)
+	db.SetMaxOpenConns(10)
+	db.SetConnMaxLifetime(time.Hour)
+	db.SetConnMaxIdleTime(time.Minute)
 
 	driver := entsql.OpenDB(dialect.Postgres, db)
 	client := ent.NewClient(ent.Driver(driver))

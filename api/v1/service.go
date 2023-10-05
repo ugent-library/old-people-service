@@ -262,7 +262,7 @@ func (s *Service) AddOrganization(ctx context.Context, o *Organization) (*Organi
 
 	org.NameDut = o.NameDut.Value
 	org.NameEng = o.NameEng.Value
-	org.ParentId = o.ParentID.Value
+	org.ParentID = o.ParentID.Value
 	org.Type = o.Type.Value
 
 	for _, identifier := range o.Identifier {
@@ -318,7 +318,7 @@ func (s *Service) NewError(ctx context.Context, err error) *ErrorStatusCode {
 
 func mapToExternalPerson(person *models.Person) *Person {
 	p := &Person{}
-	p.ID = NewOptString(person.Id)
+	p.ID = NewOptString(person.ID)
 	p.Active = NewOptBool(person.Active)
 	if person.BirthDate != "" {
 		p.BirthDate = NewOptString(person.BirthDate)
@@ -384,7 +384,7 @@ func mapToExternalPerson(person *models.Person) *Person {
 
 func mapToExternalOrganization(org *models.Organization) *Organization {
 	o := &Organization{}
-	o.ID = NewOptString(org.Id)
+	o.ID = NewOptString(org.ID)
 	o.DateCreated = NewOptDateTime(*org.DateCreated)
 	o.DateUpdated = NewOptDateTime(*org.DateUpdated)
 	if org.NameDut != "" {
@@ -396,8 +396,8 @@ func mapToExternalOrganization(org *models.Organization) *Organization {
 	for _, id := range org.Identifier {
 		o.Identifier = append(o.Identifier, newIdentifier(id.PropertyID, id.Value))
 	}
-	if org.ParentId != "" {
-		o.ParentID = NewOptString(org.ParentId)
+	if org.ParentID != "" {
+		o.ParentID = NewOptString(org.ParentID)
 	}
 	o.Type = NewOptString(org.Type)
 

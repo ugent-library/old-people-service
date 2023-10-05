@@ -5,7 +5,7 @@ import (
 )
 
 type Person struct {
-	Id                 string             `json:"id,omitempty"`
+	ID                 string             `json:"id,omitempty"`
 	Active             bool               `json:"active,omitempty"`
 	DateCreated        *time.Time         `json:"date_created,omitempty"`
 	DateUpdated        *time.Time         `json:"date_updated,omitempty"`

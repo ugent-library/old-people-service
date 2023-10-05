@@ -45,7 +45,7 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 		org.NameEng = ""
 		org.ClearIdentifier()
 		org.Type = "organization"
-		org.ParentId = ""
+		org.ParentID = ""
 		org.AddIdentifier("gismo_id", msg.ID)
 
 		// only recent values needed: name_dut, name_eng, type
@@ -63,11 +63,11 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 						if err != nil {
 							return nil, fmt.Errorf("%w: unable to create parent organization: %s", models.ErrFatal, err)
 						}
-						org.ParentId = orgParentByGismo.Id
+						org.ParentID = orgParentByGismo.ID
 					} else if err != nil {
 						return nil, fmt.Errorf("%w: unable to query database: %s", models.ErrFatal, err)
 					} else {
-						org.ParentId = orgParentByGismo.Id
+						org.ParentID = orgParentByGismo.ID
 					}
 				}
 			case "name_dut":
@@ -94,7 +94,7 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 		}
 	} else if msg.Source == "gismo.organization.delete" {
 		if org.IsStored() {
-			if err := op.repository.DeleteOrganization(ctx, org.Id); err != nil {
+			if err := op.repository.DeleteOrganization(ctx, org.ID); err != nil {
 				return nil, fmt.Errorf("%w: unable to delete organization record: %s", models.ErrFatal, err)
 			}
 		}

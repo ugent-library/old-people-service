@@ -24,12 +24,12 @@ var importStudentsCmd = &cobra.Command{
 			isNewRecord := !person.IsStored()
 			person, err := repo.SavePerson(context.TODO(), person)
 			if err != nil {
-				return fmt.Errorf("unable to save person %s: %w", person.Id, err)
+				return fmt.Errorf("unable to save person %s: %w", person.ID, err)
 			}
 			if isNewRecord {
-				logger.Infof("successfully created person %s", person.Id)
+				logger.Infof("successfully created person %s", person.ID)
 			} else {
-				logger.Infof("successfully updated person %s", person.Id)
+				logger.Infof("successfully updated person %s", person.ID)
 			}
 			return nil
 		})

@@ -128,7 +128,7 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 				} else if err != nil {
 					return nil, err
 				}
-				newOrgRef := models.NewOrganizationRef(realOrg.Id)
+				newOrgRef := models.NewOrganizationRef(realOrg.ID)
 				newPerson.Organization = append(newPerson.Organization, newOrgRef)
 			}
 		}

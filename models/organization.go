@@ -3,13 +3,13 @@ package models
 import "time"
 
 type Organization struct {
-	Id          string       `json:"id,omitempty"`
+	ID          string       `json:"id,omitempty"`
 	DateCreated *time.Time   `json:"date_created,omitempty"`
 	DateUpdated *time.Time   `json:"date_updated,omitempty"`
 	Type        string       `json:"type,omitempty"`
 	NameDut     string       `json:"name_dut,omitempty"`
 	NameEng     string       `json:"name_eng,omitempty"`
-	ParentId    string       `json:"parent_id,omitempty"`
+	ParentID    string       `json:"parent_id,omitempty"`
 	Identifier  []Identifier `json:"identifier,omitempty"`
 }
 

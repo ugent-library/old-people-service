@@ -153,7 +153,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 		for _, gismoOrgRef := range gismoOrganizationRefs {
 			for _, org := range orgsByGismo {
 				if gismoOrgRef.Id == org.GetIdentifierValue("gismo_id") {
-					oRef := models.NewOrganizationRef(org.Id)
+					oRef := models.NewOrganizationRef(org.ID)
 					oRef.From = gismoOrgRef.From
 					oRef.Until = gismoOrgRef.Until
 					orgRefs = append(orgRefs, oRef)

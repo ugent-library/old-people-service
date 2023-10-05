@@ -153,12 +153,12 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
-	if org.ParentId != "" {
-		parentOrgRow, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentId)).First(ctx)
+	if org.ParentID != "" {
+		parentOrgRow, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentID)).First(ctx)
 		if err != nil {
 			var e *ent.NotFoundError
 			if errors.As(err, &e) {
-				return nil, fmt.Errorf("%w: parent organization with public_id %s not found", models.ErrInvalidReference, org.ParentId)
+				return nil, fmt.Errorf("%w: parent organization with public_id %s not found", models.ErrInvalidReference, org.ParentID)
 			} else {
 				return nil, fmt.Errorf("unable to query organizations: %w", err)
 			}
@@ -176,7 +176,7 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	}
 
 	// collect entgo managed fields
-	org.Id = row.PublicID
+	org.ID = row.PublicID
 	org.DateCreated = &row.DateCreated
 	org.DateUpdated = &row.DateUpdated
 
@@ -190,7 +190,7 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	}
 	defer tx.Rollback()
 
-	t := tx.Organization.Update().Where(organization.PublicIDEQ(org.Id))
+	t := tx.Organization.Update().Where(organization.PublicIDEQ(org.ID))
 
 	var gismoId string
 	otherIds := schema.IdRefs{}
@@ -212,12 +212,12 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
 	t.ClearParent()
-	if org.ParentId != "" {
-		parentOrg, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentId)).First(ctx)
+	if org.ParentID != "" {
+		parentOrg, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentID)).First(ctx)
 		if err != nil {
 			var e *ent.NotFoundError
 			if errors.As(err, &e) {
-				return nil, fmt.Errorf("%w: parent organization with public_id %s not found", models.ErrInvalidReference, org.ParentId)
+				return nil, fmt.Errorf("%w: parent organization with public_id %s not found", models.ErrInvalidReference, org.ParentID)
 			} else {
 				return nil, fmt.Errorf("unable to query organizations: %w", err)
 			}
@@ -231,7 +231,7 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	}
 
 	// load new row (must be found)
-	row, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.Id)).First(ctx)
+	row, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ID)).First(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("unable to query organizations: %w", err)
 	}
@@ -359,7 +359,7 @@ func (repo *repository) orgUnwrap(e *ent.Organization) *models.Organization {
 		gismoId = *e.GismoID
 	}
 	org := &models.Organization{
-		Id:          e.PublicID,
+		ID:          e.PublicID,
 		DateCreated: &e.DateCreated,
 		DateUpdated: &e.DateUpdated,
 		Type:        e.Type,
@@ -376,7 +376,7 @@ func (repo *repository) orgUnwrap(e *ent.Organization) *models.Organization {
 	}
 
 	if parentOrg := e.Edges.Parent; parentOrg != nil {
-		org.ParentId = parentOrg.PublicID
+		org.ParentID = parentOrg.PublicID
 	}
 	return org
 }
@@ -529,7 +529,7 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 	}
 	defer tx.Rollback()
 
-	t := tx.Person.Update().Where(person.PublicIDEQ(p.Id))
+	t := tx.Person.Update().Where(person.PublicIDEQ(p.ID))
 
 	// keep in order; copy to Update if it changes
 	t.SetActive(p.Active)
@@ -599,7 +599,7 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 		return nil, err
 	}
 
-	return repo.GetPerson(ctx, p.Id)
+	return repo.GetPerson(ctx, p.ID)
 }
 
 func (repo *repository) GetPerson(ctx context.Context, id string) (*models.Person, error) {
@@ -809,7 +809,7 @@ func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
 		Email:              e.Email,
 		FirstName:          e.FirstName,
 		FullName:           e.FullName,
-		Id:                 e.PublicID,
+		ID:                 e.PublicID,
 		LastName:           e.LastName,
 		JobCategory:        e.JobCategory,
 		OrcidToken:         uToken,

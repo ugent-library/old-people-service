@@ -26,7 +26,7 @@ func (Organization) Fields() []ent.Field {
 		field.String("type").Default("organization"),
 		field.String("name_dut").Optional(),
 		field.String("name_eng").Optional(),
-		field.JSON("other_id", IdRefs{}).Optional().Default(IdRefs{}),
+		field.JSON("other_id", TypeVals{}).Optional().Default(TypeVals{}),
 		field.Int("parent_id").Optional(),
 	}
 }

@@ -34,7 +34,7 @@ type Person struct {
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
 	// OtherID holds the value of the "other_id" field.
-	OtherID schema.IdRefs `json:"other_id,omitempty"`
+	OtherID schema.TypeVals `json:"other_id,omitempty"`
 	// FirstName holds the value of the "first_name" field.
 	FirstName string `json:"first_name,omitempty"`
 	// FullName holds the value of the "full_name" field.

@@ -122,8 +122,8 @@ func (oc *OrganizationCreate) SetNillableNameEng(s *string) *OrganizationCreate 
 }
 
 // SetOtherID sets the "other_id" field.
-func (oc *OrganizationCreate) SetOtherID(sr schema.IdRefs) *OrganizationCreate {
-	oc.mutation.SetOtherID(sr)
+func (oc *OrganizationCreate) SetOtherID(sv schema.TypeVals) *OrganizationCreate {
+	oc.mutation.SetOtherID(sv)
 	return oc
 }
 

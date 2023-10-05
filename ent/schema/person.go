@@ -27,7 +27,7 @@ func (Person) Fields() []ent.Field {
 		field.Bool("active").Default(false),
 		field.String("birth_date").Optional(),
 		field.String("email").Optional(),
-		field.JSON("other_id", IdRefs{}).Optional().Default(IdRefs{}),
+		field.JSON("other_id", TypeVals{}).Optional().Default(TypeVals{}),
 		field.String("first_name").Optional(),
 		field.String("full_name").Optional(),
 		field.String("last_name").Optional(),

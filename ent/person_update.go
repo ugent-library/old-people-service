@@ -114,8 +114,8 @@ func (pu *PersonUpdate) ClearEmail() *PersonUpdate {
 }
 
 // SetOtherID sets the "other_id" field.
-func (pu *PersonUpdate) SetOtherID(sr schema.IdRefs) *PersonUpdate {
-	pu.mutation.SetOtherID(sr)
+func (pu *PersonUpdate) SetOtherID(sv schema.TypeVals) *PersonUpdate {
+	pu.mutation.SetOtherID(sv)
 	return pu
 }
 
@@ -827,8 +827,8 @@ func (puo *PersonUpdateOne) ClearEmail() *PersonUpdateOne {
 }
 
 // SetOtherID sets the "other_id" field.
-func (puo *PersonUpdateOne) SetOtherID(sr schema.IdRefs) *PersonUpdateOne {
-	puo.mutation.SetOtherID(sr)
+func (puo *PersonUpdateOne) SetOtherID(sv schema.TypeVals) *PersonUpdateOne {
+	puo.mutation.SetOtherID(sv)
 	return puo
 }
 

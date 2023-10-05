@@ -34,7 +34,7 @@ type Organization struct {
 	// NameEng holds the value of the "name_eng" field.
 	NameEng string `json:"name_eng,omitempty"`
 	// OtherID holds the value of the "other_id" field.
-	OtherID schema.IdRefs `json:"other_id,omitempty"`
+	OtherID schema.TypeVals `json:"other_id,omitempty"`
 	// ParentID holds the value of the "parent_id" field.
 	ParentID int `json:"parent_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.

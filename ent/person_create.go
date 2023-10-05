@@ -122,8 +122,8 @@ func (pc *PersonCreate) SetNillableEmail(s *string) *PersonCreate {
 }
 
 // SetOtherID sets the "other_id" field.
-func (pc *PersonCreate) SetOtherID(sr schema.IdRefs) *PersonCreate {
-	pc.mutation.SetOtherID(sr)
+func (pc *PersonCreate) SetOtherID(sv schema.TypeVals) *PersonCreate {
+	pc.mutation.SetOtherID(sv)
 	return pc
 }
 

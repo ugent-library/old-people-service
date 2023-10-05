@@ -113,8 +113,8 @@ func (ou *OrganizationUpdate) ClearNameEng() *OrganizationUpdate {
 }
 
 // SetOtherID sets the "other_id" field.
-func (ou *OrganizationUpdate) SetOtherID(sr schema.IdRefs) *OrganizationUpdate {
-	ou.mutation.SetOtherID(sr)
+func (ou *OrganizationUpdate) SetOtherID(sv schema.TypeVals) *OrganizationUpdate {
+	ou.mutation.SetOtherID(sv)
 	return ou
 }
 
@@ -628,8 +628,8 @@ func (ouo *OrganizationUpdateOne) ClearNameEng() *OrganizationUpdateOne {
 }
 
 // SetOtherID sets the "other_id" field.
-func (ouo *OrganizationUpdateOne) SetOtherID(sr schema.IdRefs) *OrganizationUpdateOne {
-	ouo.mutation.SetOtherID(sr)
+func (ouo *OrganizationUpdateOne) SetOtherID(sv schema.TypeVals) *OrganizationUpdateOne {
+	ouo.mutation.SetOtherID(sv)
 	return ouo
 }
 

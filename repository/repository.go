@@ -129,7 +129,7 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	t := tx.Organization.Create()
 
 	var gismoId string
-	otherIds := schema.IdRefs{}
+	otherIds := schema.TypeVals{}
 	for _, id := range org.Identifier {
 		switch id.PropertyID {
 		case "gismo_id":
@@ -187,7 +187,7 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	t := tx.Organization.Update().Where(organization.PublicIDEQ(org.ID))
 
 	var gismoId string
-	otherIds := schema.IdRefs{}
+	otherIds := schema.TypeVals{}
 	for _, id := range org.Identifier {
 		switch id.PropertyID {
 		case "gismo_id":
@@ -420,7 +420,7 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 		t.SetOrcidToken(eToken)
 	}
 
-	otherIds := schema.IdRefs{}
+	otherIds := schema.TypeVals{}
 	for _, id := range p.Identifier {
 		switch id.PropertyID {
 		case "orcid":
@@ -551,7 +551,7 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 
 	var gismoId *string
 	var orcid string
-	otherIds := schema.IdRefs{}
+	otherIds := schema.TypeVals{}
 	for _, id := range p.Identifier {
 		switch id.PropertyID {
 		case "gismo_id":

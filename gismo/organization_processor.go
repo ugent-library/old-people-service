@@ -2,10 +2,8 @@ package gismo
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/ugent-library/people-service/models"
@@ -28,10 +26,6 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 	}
 
 	ctx := context.TODO()
-
-	jsonBytes, _ := json.MarshalIndent(msg, "", "  ")
-	fmt.Fprintf(os.Stderr, "message: %s\n", string(jsonBytes))
-
 	org, err := op.repository.GetOrganizationByGismoId(ctx, msg.ID)
 	if errors.Is(err, models.ErrNotFound) {
 		org = models.NewOrganization()

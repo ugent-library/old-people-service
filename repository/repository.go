@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"sort"
 	"time"
 
@@ -113,14 +112,9 @@ func (repo *repository) getOrganizationByAnyOtherId(ctx context.Context, typ str
 }
 
 func (repo *repository) SaveOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
-	bytes, _ := json.MarshalIndent(org, "", "  ")
-	fmt.Fprintf(os.Stderr, "org to save: %s\n", string(bytes))
-
 	if org.IsStored() {
-		fmt.Fprintf(os.Stderr, "updating org\n")
 		return repo.UpdateOrganization(ctx, org)
 	}
-	fmt.Fprintf(os.Stderr, "creating org\n")
 	return repo.CreateOrganization(ctx, org)
 }
 

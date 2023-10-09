@@ -115,27 +115,33 @@ func parsePersonMessage(buf []byte) (*models.Message, error) {
 		}
 
 		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/persoon/federated-id/ugent-id", "cfFedId") {
+			startDate := v.StartDate
+			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
 				Name:      "ugent_id",
 				Value:     v.Value,
-				StartDate: &v.StartDate,
-				EndDate:   &v.EndDate,
+				StartDate: &startDate,
+				EndDate:   &endDate,
 			})
 		}
 		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/persoon/federated-id/orcid", "cfFedId") {
+			startDate := v.StartDate
+			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
 				Name:      "orcid",
 				Value:     v.Value,
-				StartDate: &v.StartDate,
-				EndDate:   &v.EndDate,
+				StartDate: &startDate,
+				EndDate:   &endDate,
 			})
 		}
 		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/memorialis", "cfFedId") {
+			startDate := v.StartDate
+			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
 				Name:      "ugent_memorialis_id",
 				Value:     v.Value,
-				StartDate: &v.StartDate,
-				EndDate:   &v.EndDate,
+				StartDate: &startDate,
+				EndDate:   &endDate,
 			})
 		}
 

@@ -64,46 +64,56 @@ func parseOrganizationMessage(buf []byte) (*models.Message, error) {
 		}
 
 		for _, v := range cerifValuesByClassName(doc, "cfOrgUnit_Class", "/be.ugent/organisatie/type/vakgroep", "") {
+			startDate := v.StartDate
+			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
 				Name:      "type",
 				Value:     "department",
-				StartDate: &v.StartDate,
-				EndDate:   &v.EndDate,
+				StartDate: &startDate,
+				EndDate:   &endDate,
 			})
 		}
 		for _, v := range cerifValuesByClassName(doc, "cfOrgUnit_OrgUnit", "/be.ugent/gismo/organisatie-organisatie/type/kind-van", "cfOrgUnitId1") {
+			startDate := v.StartDate
+			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
 				Name:      "parent_id",
 				Value:     v.Value,
-				StartDate: &v.StartDate,
-				EndDate:   &v.EndDate,
+				StartDate: &startDate,
+				EndDate:   &endDate,
 			})
 		}
 		// e.g. 000006047
 		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/memorialis", "cfFedId") {
+			startDate := v.StartDate
+			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
 				Name:      "ugent_memorialis_id",
 				Value:     v.Value,
-				StartDate: &v.StartDate,
-				EndDate:   &v.EndDate,
+				StartDate: &startDate,
+				EndDate:   &endDate,
 			})
 		}
 		// e.g. "WE03V"
 		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/org-code", "cfFedId") {
+			startDate := v.StartDate
+			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
 				Name:      "code",
 				Value:     v.Value,
-				StartDate: &v.StartDate,
-				EndDate:   &v.EndDate,
+				StartDate: &startDate,
+				EndDate:   &endDate,
 			})
 		}
 		// e.g. WE03*
 		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/biblio-code", "cfFedId") {
+			startDate := v.StartDate
+			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
 				Name:      "biblio_code",
 				Value:     v.Value,
-				StartDate: &v.StartDate,
-				EndDate:   &v.EndDate,
+				StartDate: &startDate,
+				EndDate:   &endDate,
 			})
 		}
 

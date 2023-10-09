@@ -299,43 +299,6 @@ func (s *GetPersonRequest) SetID(val string) {
 	s.ID = val
 }
 
-// Ref: #/components/schemas/Identifier
-type Identifier struct {
-	Type       string `json:"type"`
-	PropertyID string `json:"property_id"`
-	Value      string `json:"value"`
-}
-
-// GetType returns the value of Type.
-func (s *Identifier) GetType() string {
-	return s.Type
-}
-
-// GetPropertyID returns the value of PropertyID.
-func (s *Identifier) GetPropertyID() string {
-	return s.PropertyID
-}
-
-// GetValue returns the value of Value.
-func (s *Identifier) GetValue() string {
-	return s.Value
-}
-
-// SetType sets the value of Type.
-func (s *Identifier) SetType(val string) {
-	s.Type = val
-}
-
-// SetPropertyID sets the value of PropertyID.
-func (s *Identifier) SetPropertyID(val string) {
-	s.PropertyID = val
-}
-
-// SetValue sets the value of Value.
-func (s *Identifier) SetValue(val string) {
-	s.Value = val
-}
-
 // NewOptBool returns new OptBool with value set to v.
 func NewOptBool(v bool) OptBool {
 	return OptBool{
@@ -522,14 +485,14 @@ func (o OptString) Or(d string) string {
 
 // Ref: #/components/schemas/Organization
 type Organization struct {
-	ID          OptString    `json:"id"`
-	DateCreated OptDateTime  `json:"date_created"`
-	DateUpdated OptDateTime  `json:"date_updated"`
-	Type        OptString    `json:"type"`
-	NameDut     OptString    `json:"name_dut"`
-	NameEng     OptString    `json:"name_eng"`
-	ParentID    OptString    `json:"parent_id"`
-	Identifier  []Identifier `json:"identifier"`
+	ID          OptString       `json:"id"`
+	DateCreated OptDateTime     `json:"date_created"`
+	DateUpdated OptDateTime     `json:"date_updated"`
+	Type        OptString       `json:"type"`
+	NameDut     OptString       `json:"name_dut"`
+	NameEng     OptString       `json:"name_eng"`
+	ParentID    OptString       `json:"parent_id"`
+	Identifier  []PropertyValue `json:"identifier"`
 }
 
 // GetID returns the value of ID.
@@ -568,7 +531,7 @@ func (s *Organization) GetParentID() OptString {
 }
 
 // GetIdentifier returns the value of Identifier.
-func (s *Organization) GetIdentifier() []Identifier {
+func (s *Organization) GetIdentifier() []PropertyValue {
 	return s.Identifier
 }
 
@@ -608,7 +571,7 @@ func (s *Organization) SetParentID(val OptString) {
 }
 
 // SetIdentifier sets the value of Identifier.
-func (s *Organization) SetIdentifier(val []Identifier) {
+func (s *Organization) SetIdentifier(val []PropertyValue) {
 	s.Identifier = val
 }
 
@@ -699,26 +662,26 @@ func (s *OrganizationRef) SetUntil(val time.Time) {
 
 // Ref: #/components/schemas/Person
 type Person struct {
-	ID                 OptString         `json:"id"`
-	Active             OptBool           `json:"active"`
-	DateCreated        OptDateTime       `json:"date_created"`
-	DateUpdated        OptDateTime       `json:"date_updated"`
-	FullName           OptString         `json:"full_name"`
-	FirstName          OptString         `json:"first_name"`
-	LastName           OptString         `json:"last_name"`
-	Email              OptString         `json:"email"`
-	OrcidToken         OptString         `json:"orcid_token"`
-	PreferredFirstName OptString         `json:"preferred_first_name"`
-	PreferredLastName  OptString         `json:"preferred_last_name"`
-	BirthDate          OptString         `json:"birth_date"`
-	Title              OptString         `json:"title"`
-	Identifier         []Identifier      `json:"identifier"`
-	Organization       []OrganizationRef `json:"organization"`
-	JobCategory        []string          `json:"job_category"`
-	Role               []string          `json:"role"`
-	Settings           OptPersonSettings `json:"settings"`
-	ObjectClass        []string          `json:"object_class"`
-	ExpirationDate     OptString         `json:"expiration_date"`
+	ID                  OptString         `json:"id"`
+	Active              OptBool           `json:"active"`
+	DateCreated         OptDateTime       `json:"date_created"`
+	DateUpdated         OptDateTime       `json:"date_updated"`
+	Name                OptString         `json:"name"`
+	GivenName           OptString         `json:"given_name"`
+	FamilyName          OptString         `json:"family_name"`
+	Email               OptString         `json:"email"`
+	Token               []PropertyValue   `json:"token"`
+	PreferredGivenName  OptString         `json:"preferred_given_name"`
+	PreferredFamilyName OptString         `json:"preferred_family_name"`
+	BirthDate           OptString         `json:"birth_date"`
+	HonorificPrefix     OptString         `json:"honorific_prefix"`
+	Identifier          []PropertyValue   `json:"identifier"`
+	Organization        []OrganizationRef `json:"organization"`
+	JobCategory         []string          `json:"job_category"`
+	Role                []string          `json:"role"`
+	Settings            OptPersonSettings `json:"settings"`
+	ObjectClass         []string          `json:"object_class"`
+	ExpirationDate      OptString         `json:"expiration_date"`
 }
 
 // GetID returns the value of ID.
@@ -741,19 +704,19 @@ func (s *Person) GetDateUpdated() OptDateTime {
 	return s.DateUpdated
 }
 
-// GetFullName returns the value of FullName.
-func (s *Person) GetFullName() OptString {
-	return s.FullName
+// GetName returns the value of Name.
+func (s *Person) GetName() OptString {
+	return s.Name
 }
 
-// GetFirstName returns the value of FirstName.
-func (s *Person) GetFirstName() OptString {
-	return s.FirstName
+// GetGivenName returns the value of GivenName.
+func (s *Person) GetGivenName() OptString {
+	return s.GivenName
 }
 
-// GetLastName returns the value of LastName.
-func (s *Person) GetLastName() OptString {
-	return s.LastName
+// GetFamilyName returns the value of FamilyName.
+func (s *Person) GetFamilyName() OptString {
+	return s.FamilyName
 }
 
 // GetEmail returns the value of Email.
@@ -761,19 +724,19 @@ func (s *Person) GetEmail() OptString {
 	return s.Email
 }
 
-// GetOrcidToken returns the value of OrcidToken.
-func (s *Person) GetOrcidToken() OptString {
-	return s.OrcidToken
+// GetToken returns the value of Token.
+func (s *Person) GetToken() []PropertyValue {
+	return s.Token
 }
 
-// GetPreferredFirstName returns the value of PreferredFirstName.
-func (s *Person) GetPreferredFirstName() OptString {
-	return s.PreferredFirstName
+// GetPreferredGivenName returns the value of PreferredGivenName.
+func (s *Person) GetPreferredGivenName() OptString {
+	return s.PreferredGivenName
 }
 
-// GetPreferredLastName returns the value of PreferredLastName.
-func (s *Person) GetPreferredLastName() OptString {
-	return s.PreferredLastName
+// GetPreferredFamilyName returns the value of PreferredFamilyName.
+func (s *Person) GetPreferredFamilyName() OptString {
+	return s.PreferredFamilyName
 }
 
 // GetBirthDate returns the value of BirthDate.
@@ -781,13 +744,13 @@ func (s *Person) GetBirthDate() OptString {
 	return s.BirthDate
 }
 
-// GetTitle returns the value of Title.
-func (s *Person) GetTitle() OptString {
-	return s.Title
+// GetHonorificPrefix returns the value of HonorificPrefix.
+func (s *Person) GetHonorificPrefix() OptString {
+	return s.HonorificPrefix
 }
 
 // GetIdentifier returns the value of Identifier.
-func (s *Person) GetIdentifier() []Identifier {
+func (s *Person) GetIdentifier() []PropertyValue {
 	return s.Identifier
 }
 
@@ -841,19 +804,19 @@ func (s *Person) SetDateUpdated(val OptDateTime) {
 	s.DateUpdated = val
 }
 
-// SetFullName sets the value of FullName.
-func (s *Person) SetFullName(val OptString) {
-	s.FullName = val
+// SetName sets the value of Name.
+func (s *Person) SetName(val OptString) {
+	s.Name = val
 }
 
-// SetFirstName sets the value of FirstName.
-func (s *Person) SetFirstName(val OptString) {
-	s.FirstName = val
+// SetGivenName sets the value of GivenName.
+func (s *Person) SetGivenName(val OptString) {
+	s.GivenName = val
 }
 
-// SetLastName sets the value of LastName.
-func (s *Person) SetLastName(val OptString) {
-	s.LastName = val
+// SetFamilyName sets the value of FamilyName.
+func (s *Person) SetFamilyName(val OptString) {
+	s.FamilyName = val
 }
 
 // SetEmail sets the value of Email.
@@ -861,19 +824,19 @@ func (s *Person) SetEmail(val OptString) {
 	s.Email = val
 }
 
-// SetOrcidToken sets the value of OrcidToken.
-func (s *Person) SetOrcidToken(val OptString) {
-	s.OrcidToken = val
+// SetToken sets the value of Token.
+func (s *Person) SetToken(val []PropertyValue) {
+	s.Token = val
 }
 
-// SetPreferredFirstName sets the value of PreferredFirstName.
-func (s *Person) SetPreferredFirstName(val OptString) {
-	s.PreferredFirstName = val
+// SetPreferredGivenName sets the value of PreferredGivenName.
+func (s *Person) SetPreferredGivenName(val OptString) {
+	s.PreferredGivenName = val
 }
 
-// SetPreferredLastName sets the value of PreferredLastName.
-func (s *Person) SetPreferredLastName(val OptString) {
-	s.PreferredLastName = val
+// SetPreferredFamilyName sets the value of PreferredFamilyName.
+func (s *Person) SetPreferredFamilyName(val OptString) {
+	s.PreferredFamilyName = val
 }
 
 // SetBirthDate sets the value of BirthDate.
@@ -881,13 +844,13 @@ func (s *Person) SetBirthDate(val OptString) {
 	s.BirthDate = val
 }
 
-// SetTitle sets the value of Title.
-func (s *Person) SetTitle(val OptString) {
-	s.Title = val
+// SetHonorificPrefix sets the value of HonorificPrefix.
+func (s *Person) SetHonorificPrefix(val OptString) {
+	s.HonorificPrefix = val
 }
 
 // SetIdentifier sets the value of Identifier.
-func (s *Person) SetIdentifier(val []Identifier) {
+func (s *Person) SetIdentifier(val []PropertyValue) {
 	s.Identifier = val
 }
 
@@ -956,6 +919,43 @@ func (s *PersonSettings) init() PersonSettings {
 		*s = m
 	}
 	return m
+}
+
+// Ref: #/components/schemas/PropertyValue
+type PropertyValue struct {
+	Type       string `json:"type"`
+	PropertyID string `json:"property_id"`
+	Value      string `json:"value"`
+}
+
+// GetType returns the value of Type.
+func (s *PropertyValue) GetType() string {
+	return s.Type
+}
+
+// GetPropertyID returns the value of PropertyID.
+func (s *PropertyValue) GetPropertyID() string {
+	return s.PropertyID
+}
+
+// GetValue returns the value of Value.
+func (s *PropertyValue) GetValue() string {
+	return s.Value
+}
+
+// SetType sets the value of Type.
+func (s *PropertyValue) SetType(val string) {
+	s.Type = val
+}
+
+// SetPropertyID sets the value of PropertyID.
+func (s *PropertyValue) SetPropertyID(val string) {
+	s.PropertyID = val
+}
+
+// SetValue sets the value of Value.
+func (s *PropertyValue) SetValue(val string) {
+	s.Value = val
 }
 
 // Ref: #/components/schemas/SetPersonOrcidRequest

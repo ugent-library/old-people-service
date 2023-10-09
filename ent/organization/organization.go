@@ -21,16 +21,14 @@ const (
 	FieldDateUpdated = "date_updated"
 	// FieldPublicID holds the string denoting the public_id field in the database.
 	FieldPublicID = "public_id"
-	// FieldGismoID holds the string denoting the gismo_id field in the database.
-	FieldGismoID = "gismo_id"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
 	// FieldNameDut holds the string denoting the name_dut field in the database.
 	FieldNameDut = "name_dut"
 	// FieldNameEng holds the string denoting the name_eng field in the database.
 	FieldNameEng = "name_eng"
-	// FieldOtherID holds the string denoting the other_id field in the database.
-	FieldOtherID = "other_id"
+	// FieldIdentifier holds the string denoting the identifier field in the database.
+	FieldIdentifier = "identifier"
 	// FieldParentID holds the string denoting the parent_id field in the database.
 	FieldParentID = "parent_id"
 	// EdgePeople holds the string denoting the people edge name in mutations.
@@ -71,11 +69,10 @@ var Columns = []string{
 	FieldDateCreated,
 	FieldDateUpdated,
 	FieldPublicID,
-	FieldGismoID,
 	FieldType,
 	FieldNameDut,
 	FieldNameEng,
-	FieldOtherID,
+	FieldIdentifier,
 	FieldParentID,
 }
 
@@ -106,8 +103,8 @@ var (
 	DefaultPublicID func() string
 	// DefaultType holds the default value on creation for the "type" field.
 	DefaultType string
-	// DefaultOtherID holds the default value on creation for the "other_id" field.
-	DefaultOtherID schema.TypeVals
+	// DefaultIdentifier holds the default value on creation for the "identifier" field.
+	DefaultIdentifier schema.TypeVals
 )
 
 // OrderOption defines the ordering options for the Organization queries.
@@ -131,11 +128,6 @@ func ByDateUpdated(opts ...sql.OrderTermOption) OrderOption {
 // ByPublicID orders the results by the public_id field.
 func ByPublicID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPublicID, opts...).ToFunc()
-}
-
-// ByGismoID orders the results by the gismo_id field.
-func ByGismoID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldGismoID, opts...).ToFunc()
 }
 
 // ByType orders the results by the type field.

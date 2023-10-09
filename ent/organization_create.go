@@ -65,20 +65,6 @@ func (oc *OrganizationCreate) SetNillablePublicID(s *string) *OrganizationCreate
 	return oc
 }
 
-// SetGismoID sets the "gismo_id" field.
-func (oc *OrganizationCreate) SetGismoID(s string) *OrganizationCreate {
-	oc.mutation.SetGismoID(s)
-	return oc
-}
-
-// SetNillableGismoID sets the "gismo_id" field if the given value is not nil.
-func (oc *OrganizationCreate) SetNillableGismoID(s *string) *OrganizationCreate {
-	if s != nil {
-		oc.SetGismoID(*s)
-	}
-	return oc
-}
-
 // SetType sets the "type" field.
 func (oc *OrganizationCreate) SetType(s string) *OrganizationCreate {
 	oc.mutation.SetType(s)
@@ -121,9 +107,9 @@ func (oc *OrganizationCreate) SetNillableNameEng(s *string) *OrganizationCreate 
 	return oc
 }
 
-// SetOtherID sets the "other_id" field.
-func (oc *OrganizationCreate) SetOtherID(sv schema.TypeVals) *OrganizationCreate {
-	oc.mutation.SetOtherID(sv)
+// SetIdentifier sets the "identifier" field.
+func (oc *OrganizationCreate) SetIdentifier(sv schema.TypeVals) *OrganizationCreate {
+	oc.mutation.SetIdentifier(sv)
 	return oc
 }
 
@@ -242,9 +228,9 @@ func (oc *OrganizationCreate) defaults() {
 		v := organization.DefaultType
 		oc.mutation.SetType(v)
 	}
-	if _, ok := oc.mutation.OtherID(); !ok {
-		v := organization.DefaultOtherID
-		oc.mutation.SetOtherID(v)
+	if _, ok := oc.mutation.Identifier(); !ok {
+		v := organization.DefaultIdentifier
+		oc.mutation.SetIdentifier(v)
 	}
 }
 
@@ -300,10 +286,6 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 		_spec.SetField(organization.FieldPublicID, field.TypeString, value)
 		_node.PublicID = value
 	}
-	if value, ok := oc.mutation.GismoID(); ok {
-		_spec.SetField(organization.FieldGismoID, field.TypeString, value)
-		_node.GismoID = &value
-	}
 	if value, ok := oc.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 		_node.Type = value
@@ -316,9 +298,9 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 		_spec.SetField(organization.FieldNameEng, field.TypeString, value)
 		_node.NameEng = value
 	}
-	if value, ok := oc.mutation.OtherID(); ok {
-		_spec.SetField(organization.FieldOtherID, field.TypeJSON, value)
-		_node.OtherID = value
+	if value, ok := oc.mutation.Identifier(); ok {
+		_spec.SetField(organization.FieldIdentifier, field.TypeJSON, value)
+		_node.Identifier = value
 	}
 	if nodes := oc.mutation.PeopleIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

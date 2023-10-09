@@ -65,20 +65,6 @@ func (pc *PersonCreate) SetNillablePublicID(s *string) *PersonCreate {
 	return pc
 }
 
-// SetGismoID sets the "gismo_id" field.
-func (pc *PersonCreate) SetGismoID(s string) *PersonCreate {
-	pc.mutation.SetGismoID(s)
-	return pc
-}
-
-// SetNillableGismoID sets the "gismo_id" field if the given value is not nil.
-func (pc *PersonCreate) SetNillableGismoID(s *string) *PersonCreate {
-	if s != nil {
-		pc.SetGismoID(*s)
-	}
-	return pc
-}
-
 // SetActive sets the "active" field.
 func (pc *PersonCreate) SetActive(b bool) *PersonCreate {
 	pc.mutation.SetActive(b)
@@ -121,50 +107,50 @@ func (pc *PersonCreate) SetNillableEmail(s *string) *PersonCreate {
 	return pc
 }
 
-// SetOtherID sets the "other_id" field.
-func (pc *PersonCreate) SetOtherID(sv schema.TypeVals) *PersonCreate {
-	pc.mutation.SetOtherID(sv)
+// SetIdentifier sets the "identifier" field.
+func (pc *PersonCreate) SetIdentifier(sv schema.TypeVals) *PersonCreate {
+	pc.mutation.SetIdentifier(sv)
 	return pc
 }
 
-// SetFirstName sets the "first_name" field.
-func (pc *PersonCreate) SetFirstName(s string) *PersonCreate {
-	pc.mutation.SetFirstName(s)
+// SetGivenName sets the "given_name" field.
+func (pc *PersonCreate) SetGivenName(s string) *PersonCreate {
+	pc.mutation.SetGivenName(s)
 	return pc
 }
 
-// SetNillableFirstName sets the "first_name" field if the given value is not nil.
-func (pc *PersonCreate) SetNillableFirstName(s *string) *PersonCreate {
+// SetNillableGivenName sets the "given_name" field if the given value is not nil.
+func (pc *PersonCreate) SetNillableGivenName(s *string) *PersonCreate {
 	if s != nil {
-		pc.SetFirstName(*s)
+		pc.SetGivenName(*s)
 	}
 	return pc
 }
 
-// SetFullName sets the "full_name" field.
-func (pc *PersonCreate) SetFullName(s string) *PersonCreate {
-	pc.mutation.SetFullName(s)
+// SetName sets the "name" field.
+func (pc *PersonCreate) SetName(s string) *PersonCreate {
+	pc.mutation.SetName(s)
 	return pc
 }
 
-// SetNillableFullName sets the "full_name" field if the given value is not nil.
-func (pc *PersonCreate) SetNillableFullName(s *string) *PersonCreate {
+// SetNillableName sets the "name" field if the given value is not nil.
+func (pc *PersonCreate) SetNillableName(s *string) *PersonCreate {
 	if s != nil {
-		pc.SetFullName(*s)
+		pc.SetName(*s)
 	}
 	return pc
 }
 
-// SetLastName sets the "last_name" field.
-func (pc *PersonCreate) SetLastName(s string) *PersonCreate {
-	pc.mutation.SetLastName(s)
+// SetFamilyName sets the "family_name" field.
+func (pc *PersonCreate) SetFamilyName(s string) *PersonCreate {
+	pc.mutation.SetFamilyName(s)
 	return pc
 }
 
-// SetNillableLastName sets the "last_name" field if the given value is not nil.
-func (pc *PersonCreate) SetNillableLastName(s *string) *PersonCreate {
+// SetNillableFamilyName sets the "family_name" field if the given value is not nil.
+func (pc *PersonCreate) SetNillableFamilyName(s *string) *PersonCreate {
 	if s != nil {
-		pc.SetLastName(*s)
+		pc.SetFamilyName(*s)
 	}
 	return pc
 }
@@ -175,72 +161,44 @@ func (pc *PersonCreate) SetJobCategory(s []string) *PersonCreate {
 	return pc
 }
 
-// SetOrcid sets the "orcid" field.
-func (pc *PersonCreate) SetOrcid(s string) *PersonCreate {
-	pc.mutation.SetOrcid(s)
+// SetPreferredGivenName sets the "preferred_given_name" field.
+func (pc *PersonCreate) SetPreferredGivenName(s string) *PersonCreate {
+	pc.mutation.SetPreferredGivenName(s)
 	return pc
 }
 
-// SetNillableOrcid sets the "orcid" field if the given value is not nil.
-func (pc *PersonCreate) SetNillableOrcid(s *string) *PersonCreate {
+// SetNillablePreferredGivenName sets the "preferred_given_name" field if the given value is not nil.
+func (pc *PersonCreate) SetNillablePreferredGivenName(s *string) *PersonCreate {
 	if s != nil {
-		pc.SetOrcid(*s)
+		pc.SetPreferredGivenName(*s)
 	}
 	return pc
 }
 
-// SetOrcidToken sets the "orcid_token" field.
-func (pc *PersonCreate) SetOrcidToken(s string) *PersonCreate {
-	pc.mutation.SetOrcidToken(s)
+// SetPreferredFamilyName sets the "preferred_family_name" field.
+func (pc *PersonCreate) SetPreferredFamilyName(s string) *PersonCreate {
+	pc.mutation.SetPreferredFamilyName(s)
 	return pc
 }
 
-// SetNillableOrcidToken sets the "orcid_token" field if the given value is not nil.
-func (pc *PersonCreate) SetNillableOrcidToken(s *string) *PersonCreate {
+// SetNillablePreferredFamilyName sets the "preferred_family_name" field if the given value is not nil.
+func (pc *PersonCreate) SetNillablePreferredFamilyName(s *string) *PersonCreate {
 	if s != nil {
-		pc.SetOrcidToken(*s)
+		pc.SetPreferredFamilyName(*s)
 	}
 	return pc
 }
 
-// SetPreferredFirstName sets the "preferred_first_name" field.
-func (pc *PersonCreate) SetPreferredFirstName(s string) *PersonCreate {
-	pc.mutation.SetPreferredFirstName(s)
+// SetHonorificPrefix sets the "honorific_prefix" field.
+func (pc *PersonCreate) SetHonorificPrefix(s string) *PersonCreate {
+	pc.mutation.SetHonorificPrefix(s)
 	return pc
 }
 
-// SetNillablePreferredFirstName sets the "preferred_first_name" field if the given value is not nil.
-func (pc *PersonCreate) SetNillablePreferredFirstName(s *string) *PersonCreate {
+// SetNillableHonorificPrefix sets the "honorific_prefix" field if the given value is not nil.
+func (pc *PersonCreate) SetNillableHonorificPrefix(s *string) *PersonCreate {
 	if s != nil {
-		pc.SetPreferredFirstName(*s)
-	}
-	return pc
-}
-
-// SetPreferredLastName sets the "preferred_last_name" field.
-func (pc *PersonCreate) SetPreferredLastName(s string) *PersonCreate {
-	pc.mutation.SetPreferredLastName(s)
-	return pc
-}
-
-// SetNillablePreferredLastName sets the "preferred_last_name" field if the given value is not nil.
-func (pc *PersonCreate) SetNillablePreferredLastName(s *string) *PersonCreate {
-	if s != nil {
-		pc.SetPreferredLastName(*s)
-	}
-	return pc
-}
-
-// SetTitle sets the "title" field.
-func (pc *PersonCreate) SetTitle(s string) *PersonCreate {
-	pc.mutation.SetTitle(s)
-	return pc
-}
-
-// SetNillableTitle sets the "title" field if the given value is not nil.
-func (pc *PersonCreate) SetNillableTitle(s *string) *PersonCreate {
-	if s != nil {
-		pc.SetTitle(*s)
+		pc.SetHonorificPrefix(*s)
 	}
 	return pc
 }
@@ -274,6 +232,12 @@ func (pc *PersonCreate) SetNillableExpirationDate(s *string) *PersonCreate {
 	if s != nil {
 		pc.SetExpirationDate(*s)
 	}
+	return pc
+}
+
+// SetToken sets the "token" field.
+func (pc *PersonCreate) SetToken(sv schema.TypeVals) *PersonCreate {
+	pc.mutation.SetToken(sv)
 	return pc
 }
 
@@ -358,9 +322,9 @@ func (pc *PersonCreate) defaults() {
 		v := person.DefaultActive
 		pc.mutation.SetActive(v)
 	}
-	if _, ok := pc.mutation.OtherID(); !ok {
-		v := person.DefaultOtherID
-		pc.mutation.SetOtherID(v)
+	if _, ok := pc.mutation.Identifier(); !ok {
+		v := person.DefaultIdentifier
+		pc.mutation.SetIdentifier(v)
 	}
 	if _, ok := pc.mutation.JobCategory(); !ok {
 		v := person.DefaultJobCategory
@@ -377,6 +341,10 @@ func (pc *PersonCreate) defaults() {
 	if _, ok := pc.mutation.ObjectClass(); !ok {
 		v := person.DefaultObjectClass
 		pc.mutation.SetObjectClass(v)
+	}
+	if _, ok := pc.mutation.Token(); !ok {
+		v := person.DefaultToken
+		pc.mutation.SetToken(v)
 	}
 }
 
@@ -432,10 +400,6 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 		_spec.SetField(person.FieldPublicID, field.TypeString, value)
 		_node.PublicID = value
 	}
-	if value, ok := pc.mutation.GismoID(); ok {
-		_spec.SetField(person.FieldGismoID, field.TypeString, value)
-		_node.GismoID = &value
-	}
 	if value, ok := pc.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)
 		_node.Active = value
@@ -448,45 +412,37 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 		_spec.SetField(person.FieldEmail, field.TypeString, value)
 		_node.Email = value
 	}
-	if value, ok := pc.mutation.OtherID(); ok {
-		_spec.SetField(person.FieldOtherID, field.TypeJSON, value)
-		_node.OtherID = value
+	if value, ok := pc.mutation.Identifier(); ok {
+		_spec.SetField(person.FieldIdentifier, field.TypeJSON, value)
+		_node.Identifier = value
 	}
-	if value, ok := pc.mutation.FirstName(); ok {
-		_spec.SetField(person.FieldFirstName, field.TypeString, value)
-		_node.FirstName = value
+	if value, ok := pc.mutation.GivenName(); ok {
+		_spec.SetField(person.FieldGivenName, field.TypeString, value)
+		_node.GivenName = value
 	}
-	if value, ok := pc.mutation.FullName(); ok {
-		_spec.SetField(person.FieldFullName, field.TypeString, value)
-		_node.FullName = value
+	if value, ok := pc.mutation.Name(); ok {
+		_spec.SetField(person.FieldName, field.TypeString, value)
+		_node.Name = value
 	}
-	if value, ok := pc.mutation.LastName(); ok {
-		_spec.SetField(person.FieldLastName, field.TypeString, value)
-		_node.LastName = value
+	if value, ok := pc.mutation.FamilyName(); ok {
+		_spec.SetField(person.FieldFamilyName, field.TypeString, value)
+		_node.FamilyName = value
 	}
 	if value, ok := pc.mutation.JobCategory(); ok {
 		_spec.SetField(person.FieldJobCategory, field.TypeJSON, value)
 		_node.JobCategory = value
 	}
-	if value, ok := pc.mutation.Orcid(); ok {
-		_spec.SetField(person.FieldOrcid, field.TypeString, value)
-		_node.Orcid = value
+	if value, ok := pc.mutation.PreferredGivenName(); ok {
+		_spec.SetField(person.FieldPreferredGivenName, field.TypeString, value)
+		_node.PreferredGivenName = value
 	}
-	if value, ok := pc.mutation.OrcidToken(); ok {
-		_spec.SetField(person.FieldOrcidToken, field.TypeString, value)
-		_node.OrcidToken = value
+	if value, ok := pc.mutation.PreferredFamilyName(); ok {
+		_spec.SetField(person.FieldPreferredFamilyName, field.TypeString, value)
+		_node.PreferredFamilyName = value
 	}
-	if value, ok := pc.mutation.PreferredFirstName(); ok {
-		_spec.SetField(person.FieldPreferredFirstName, field.TypeString, value)
-		_node.PreferredFirstName = value
-	}
-	if value, ok := pc.mutation.PreferredLastName(); ok {
-		_spec.SetField(person.FieldPreferredLastName, field.TypeString, value)
-		_node.PreferredLastName = value
-	}
-	if value, ok := pc.mutation.Title(); ok {
-		_spec.SetField(person.FieldTitle, field.TypeString, value)
-		_node.Title = value
+	if value, ok := pc.mutation.HonorificPrefix(); ok {
+		_spec.SetField(person.FieldHonorificPrefix, field.TypeString, value)
+		_node.HonorificPrefix = value
 	}
 	if value, ok := pc.mutation.Role(); ok {
 		_spec.SetField(person.FieldRole, field.TypeJSON, value)
@@ -503,6 +459,10 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.ExpirationDate(); ok {
 		_spec.SetField(person.FieldExpirationDate, field.TypeString, value)
 		_node.ExpirationDate = value
+	}
+	if value, ok := pc.mutation.Token(); ok {
+		_spec.SetField(person.FieldToken, field.TypeJSON, value)
+		_node.Token = value
 	}
 	if nodes := pc.mutation.OrganizationsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

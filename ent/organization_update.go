@@ -38,26 +38,6 @@ func (ou *OrganizationUpdate) SetDateUpdated(t time.Time) *OrganizationUpdate {
 	return ou
 }
 
-// SetGismoID sets the "gismo_id" field.
-func (ou *OrganizationUpdate) SetGismoID(s string) *OrganizationUpdate {
-	ou.mutation.SetGismoID(s)
-	return ou
-}
-
-// SetNillableGismoID sets the "gismo_id" field if the given value is not nil.
-func (ou *OrganizationUpdate) SetNillableGismoID(s *string) *OrganizationUpdate {
-	if s != nil {
-		ou.SetGismoID(*s)
-	}
-	return ou
-}
-
-// ClearGismoID clears the value of the "gismo_id" field.
-func (ou *OrganizationUpdate) ClearGismoID() *OrganizationUpdate {
-	ou.mutation.ClearGismoID()
-	return ou
-}
-
 // SetType sets the "type" field.
 func (ou *OrganizationUpdate) SetType(s string) *OrganizationUpdate {
 	ou.mutation.SetType(s)
@@ -112,15 +92,15 @@ func (ou *OrganizationUpdate) ClearNameEng() *OrganizationUpdate {
 	return ou
 }
 
-// SetOtherID sets the "other_id" field.
-func (ou *OrganizationUpdate) SetOtherID(sv schema.TypeVals) *OrganizationUpdate {
-	ou.mutation.SetOtherID(sv)
+// SetIdentifier sets the "identifier" field.
+func (ou *OrganizationUpdate) SetIdentifier(sv schema.TypeVals) *OrganizationUpdate {
+	ou.mutation.SetIdentifier(sv)
 	return ou
 }
 
-// ClearOtherID clears the value of the "other_id" field.
-func (ou *OrganizationUpdate) ClearOtherID() *OrganizationUpdate {
-	ou.mutation.ClearOtherID()
+// ClearIdentifier clears the value of the "identifier" field.
+func (ou *OrganizationUpdate) ClearIdentifier() *OrganizationUpdate {
+	ou.mutation.ClearIdentifier()
 	return ou
 }
 
@@ -322,12 +302,6 @@ func (ou *OrganizationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ou.mutation.DateUpdated(); ok {
 		_spec.SetField(organization.FieldDateUpdated, field.TypeTime, value)
 	}
-	if value, ok := ou.mutation.GismoID(); ok {
-		_spec.SetField(organization.FieldGismoID, field.TypeString, value)
-	}
-	if ou.mutation.GismoIDCleared() {
-		_spec.ClearField(organization.FieldGismoID, field.TypeString)
-	}
 	if value, ok := ou.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 	}
@@ -343,11 +317,11 @@ func (ou *OrganizationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if ou.mutation.NameEngCleared() {
 		_spec.ClearField(organization.FieldNameEng, field.TypeString)
 	}
-	if value, ok := ou.mutation.OtherID(); ok {
-		_spec.SetField(organization.FieldOtherID, field.TypeJSON, value)
+	if value, ok := ou.mutation.Identifier(); ok {
+		_spec.SetField(organization.FieldIdentifier, field.TypeJSON, value)
 	}
-	if ou.mutation.OtherIDCleared() {
-		_spec.ClearField(organization.FieldOtherID, field.TypeJSON)
+	if ou.mutation.IdentifierCleared() {
+		_spec.ClearField(organization.FieldIdentifier, field.TypeJSON)
 	}
 	if ou.mutation.PeopleCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -553,26 +527,6 @@ func (ouo *OrganizationUpdateOne) SetDateUpdated(t time.Time) *OrganizationUpdat
 	return ouo
 }
 
-// SetGismoID sets the "gismo_id" field.
-func (ouo *OrganizationUpdateOne) SetGismoID(s string) *OrganizationUpdateOne {
-	ouo.mutation.SetGismoID(s)
-	return ouo
-}
-
-// SetNillableGismoID sets the "gismo_id" field if the given value is not nil.
-func (ouo *OrganizationUpdateOne) SetNillableGismoID(s *string) *OrganizationUpdateOne {
-	if s != nil {
-		ouo.SetGismoID(*s)
-	}
-	return ouo
-}
-
-// ClearGismoID clears the value of the "gismo_id" field.
-func (ouo *OrganizationUpdateOne) ClearGismoID() *OrganizationUpdateOne {
-	ouo.mutation.ClearGismoID()
-	return ouo
-}
-
 // SetType sets the "type" field.
 func (ouo *OrganizationUpdateOne) SetType(s string) *OrganizationUpdateOne {
 	ouo.mutation.SetType(s)
@@ -627,15 +581,15 @@ func (ouo *OrganizationUpdateOne) ClearNameEng() *OrganizationUpdateOne {
 	return ouo
 }
 
-// SetOtherID sets the "other_id" field.
-func (ouo *OrganizationUpdateOne) SetOtherID(sv schema.TypeVals) *OrganizationUpdateOne {
-	ouo.mutation.SetOtherID(sv)
+// SetIdentifier sets the "identifier" field.
+func (ouo *OrganizationUpdateOne) SetIdentifier(sv schema.TypeVals) *OrganizationUpdateOne {
+	ouo.mutation.SetIdentifier(sv)
 	return ouo
 }
 
-// ClearOtherID clears the value of the "other_id" field.
-func (ouo *OrganizationUpdateOne) ClearOtherID() *OrganizationUpdateOne {
-	ouo.mutation.ClearOtherID()
+// ClearIdentifier clears the value of the "identifier" field.
+func (ouo *OrganizationUpdateOne) ClearIdentifier() *OrganizationUpdateOne {
+	ouo.mutation.ClearIdentifier()
 	return ouo
 }
 
@@ -867,12 +821,6 @@ func (ouo *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizat
 	if value, ok := ouo.mutation.DateUpdated(); ok {
 		_spec.SetField(organization.FieldDateUpdated, field.TypeTime, value)
 	}
-	if value, ok := ouo.mutation.GismoID(); ok {
-		_spec.SetField(organization.FieldGismoID, field.TypeString, value)
-	}
-	if ouo.mutation.GismoIDCleared() {
-		_spec.ClearField(organization.FieldGismoID, field.TypeString)
-	}
 	if value, ok := ouo.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 	}
@@ -888,11 +836,11 @@ func (ouo *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizat
 	if ouo.mutation.NameEngCleared() {
 		_spec.ClearField(organization.FieldNameEng, field.TypeString)
 	}
-	if value, ok := ouo.mutation.OtherID(); ok {
-		_spec.SetField(organization.FieldOtherID, field.TypeJSON, value)
+	if value, ok := ouo.mutation.Identifier(); ok {
+		_spec.SetField(organization.FieldIdentifier, field.TypeJSON, value)
 	}
-	if ouo.mutation.OtherIDCleared() {
-		_spec.ClearField(organization.FieldOtherID, field.TypeJSON)
+	if ouo.mutation.IdentifierCleared() {
+		_spec.ClearField(organization.FieldIdentifier, field.TypeJSON)
 	}
 	if ouo.mutation.PeopleCleared() {
 		edge := &sqlgraph.EdgeSpec{

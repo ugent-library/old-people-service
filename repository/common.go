@@ -134,7 +134,7 @@ func customSchemaChanges(next schema.Applier) schema.Applier {
 		ALTER TABLE organization
 		ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS
 		(
-			to_tsvector('simple', jsonb_path_query_array(other_id,'$.**{2}')) ||
+			to_tsvector('simple', jsonb_path_query_array(identifier,'$.**{2}')) ||
 			to_tsvector('simple', public_id) ||
 			to_tsvector('usimple',name_dut) ||
 			to_tsvector('usimple', name_eng)
@@ -143,9 +143,16 @@ func customSchemaChanges(next schema.Applier) schema.Applier {
 		LOCK table person IN EXCLUSIVE MODE;
 		ALTER TABLE person
 			ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS (
-				to_tsvector('usimple',full_name)
+				to_tsvector('usimple',name)
 			) STORED;
 		CREATE INDEX IF NOT EXISTS person_ts_idx ON person USING GIN(ts);
+		CREATE INDEX IF NOT EXISTS organization_identifier_gismo_id_gin ON organization USING GIN((identifier->'gismo_id') jsonb_ops);
+		CREATE INDEX IF NOT EXISTS organization_identifier_ugent_id_gin ON organization USING GIN((identifier->'ugent_id') jsonb_ops);
+		CREATE INDEX IF NOT EXISTS organization_identifier_biblio_id_gin ON organization USING GIN((identifier->'biblio_id') jsonb_ops);
+		CREATE INDEX IF NOT EXISTS organization_identifier_ugent_memorialis_id_gin ON organization USING GIN((identifier->'ugent_memorialis_id') jsonb_ops);
+		CREATE INDEX IF NOT EXISTS person_identifier_ugent_username_gin ON person USING GIN((identifier->'ugent_username') jsonb_ops);
+		CREATE INDEX IF NOT EXISTS person_identifier_ugent_id_gin ON person USING GIN((identifier->'ugent_id') jsonb_ops);
+		CREATE INDEX IF NOT EXISTS person_identifier_historic_ugent_id_gin ON person USING GIN((identifier->'historic_ugent_id') jsonb_ops);
 		COMMIT;
 		`
 

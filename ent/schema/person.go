@@ -23,33 +23,24 @@ func (Person) Annotations() []schema.Annotation {
 // Fields of the Person.
 func (Person) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("gismo_id").Optional().Unique().Nillable(),
 		field.Bool("active").Default(false),
 		field.String("birth_date").Optional(),
 		field.String("email").Optional(),
-		field.JSON("other_id", TypeVals{}).Optional().Default(TypeVals{}),
-		field.String("first_name").Optional(),
-		field.String("full_name").Optional(),
-		field.String("last_name").Optional(),
+		field.JSON("identifier", TypeVals{}).Optional().Default(TypeVals{}),
+		field.String("given_name").Optional(),
+		field.String("name").Optional(),
+		field.String("family_name").Optional(),
 		field.Strings("job_category").Optional().Default([]string{}),
-		field.String("orcid").Optional(),
-		field.String("orcid_token").Optional(),
-		field.String("preferred_first_name").Optional(),
-		field.String("preferred_last_name").Optional(),
-		field.String("title").Optional(),
+		field.String("preferred_given_name").Optional(),
+		field.String("preferred_family_name").Optional(),
+		field.String("honorific_prefix").Optional(),
 		field.Strings("role").Optional().Default([]string{}),
 		field.JSON("settings", map[string]string{}).Optional().Default(map[string]string{}),
 		field.Strings("object_class").Optional().Default([]string{}),
 		field.String("expiration_date").Optional(),
+		field.JSON("token", TypeVals{}).Optional().Default(TypeVals{}),
 	}
 }
-
-/*
-alter table person add column ts tsvector generated always as (to_tsvector('simple',full_name)) stored;
-
-alter table organization add column ts tsvector generated always as (to_tsvector('simple', jsonb_path_query_array(other_id, '$[*].id'))) stored;
-
-*/
 
 func (Person) Mixin() []ent.Mixin {
 	return []ent.Mixin{
@@ -67,13 +58,13 @@ func (Person) Edges() []ent.Edge {
 }
 
 // note: Unique() on field already creates an index!
+// TODO: add unique to identifier->value?
 func (Person) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("active"),
-		index.Fields("orcid"),
 		index.Fields("email"),
-		index.Fields("first_name"),
-		index.Fields("last_name"),
-		index.Fields("full_name"),
+		index.Fields("given_name"),
+		index.Fields("family_name"),
+		index.Fields("name"),
 	}
 }

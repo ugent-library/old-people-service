@@ -827,136 +827,6 @@ func (s *GetPersonRequest) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode implements json.Marshaler.
-func (s *Identifier) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *Identifier) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("type")
-		e.Str(s.Type)
-	}
-	{
-		e.FieldStart("property_id")
-		e.Str(s.PropertyID)
-	}
-	{
-		e.FieldStart("value")
-		e.Str(s.Value)
-	}
-}
-
-var jsonFieldsNameOfIdentifier = [3]string{
-	0: "type",
-	1: "property_id",
-	2: "value",
-}
-
-// Decode decodes Identifier from json.
-func (s *Identifier) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode Identifier to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "type":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Str()
-				s.Type = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"type\"")
-			}
-		case "property_id":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				v, err := d.Str()
-				s.PropertyID = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"property_id\"")
-			}
-		case "value":
-			requiredBitSet[0] |= 1 << 2
-			if err := func() error {
-				v, err := d.Str()
-				s.Value = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"value\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode Identifier")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00000111,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfIdentifier) {
-					name = jsonFieldsNameOfIdentifier[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *Identifier) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *Identifier) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode encodes bool as json.
 func (o OptBool) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -1250,9 +1120,9 @@ func (s *Organization) Decode(d *jx.Decoder) error {
 			}
 		case "identifier":
 			if err := func() error {
-				s.Identifier = make([]Identifier, 0)
+				s.Identifier = make([]PropertyValue, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem Identifier
+					var elem PropertyValue
 					if err := elem.Decode(d); err != nil {
 						return err
 					}
@@ -1610,21 +1480,21 @@ func (s *Person) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.FullName.Set {
-			e.FieldStart("full_name")
-			s.FullName.Encode(e)
+		if s.Name.Set {
+			e.FieldStart("name")
+			s.Name.Encode(e)
 		}
 	}
 	{
-		if s.FirstName.Set {
-			e.FieldStart("first_name")
-			s.FirstName.Encode(e)
+		if s.GivenName.Set {
+			e.FieldStart("given_name")
+			s.GivenName.Encode(e)
 		}
 	}
 	{
-		if s.LastName.Set {
-			e.FieldStart("last_name")
-			s.LastName.Encode(e)
+		if s.FamilyName.Set {
+			e.FieldStart("family_name")
+			s.FamilyName.Encode(e)
 		}
 	}
 	{
@@ -1634,21 +1504,25 @@ func (s *Person) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.OrcidToken.Set {
-			e.FieldStart("orcid_token")
-			s.OrcidToken.Encode(e)
+		if s.Token != nil {
+			e.FieldStart("token")
+			e.ArrStart()
+			for _, elem := range s.Token {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
 		}
 	}
 	{
-		if s.PreferredFirstName.Set {
-			e.FieldStart("preferred_first_name")
-			s.PreferredFirstName.Encode(e)
+		if s.PreferredGivenName.Set {
+			e.FieldStart("preferred_given_name")
+			s.PreferredGivenName.Encode(e)
 		}
 	}
 	{
-		if s.PreferredLastName.Set {
-			e.FieldStart("preferred_last_name")
-			s.PreferredLastName.Encode(e)
+		if s.PreferredFamilyName.Set {
+			e.FieldStart("preferred_family_name")
+			s.PreferredFamilyName.Encode(e)
 		}
 	}
 	{
@@ -1658,9 +1532,9 @@ func (s *Person) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.Title.Set {
-			e.FieldStart("title")
-			s.Title.Encode(e)
+		if s.HonorificPrefix.Set {
+			e.FieldStart("honorific_prefix")
+			s.HonorificPrefix.Encode(e)
 		}
 	}
 	{
@@ -1732,15 +1606,15 @@ var jsonFieldsNameOfPerson = [20]string{
 	1:  "active",
 	2:  "date_created",
 	3:  "date_updated",
-	4:  "full_name",
-	5:  "first_name",
-	6:  "last_name",
+	4:  "name",
+	5:  "given_name",
+	6:  "family_name",
 	7:  "email",
-	8:  "orcid_token",
-	9:  "preferred_first_name",
-	10: "preferred_last_name",
+	8:  "token",
+	9:  "preferred_given_name",
+	10: "preferred_family_name",
 	11: "birth_date",
-	12: "title",
+	12: "honorific_prefix",
 	13: "identifier",
 	14: "organization",
 	15: "job_category",
@@ -1798,35 +1672,35 @@ func (s *Person) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"date_updated\"")
 			}
-		case "full_name":
+		case "name":
 			if err := func() error {
-				s.FullName.Reset()
-				if err := s.FullName.Decode(d); err != nil {
+				s.Name.Reset()
+				if err := s.Name.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"full_name\"")
+				return errors.Wrap(err, "decode field \"name\"")
 			}
-		case "first_name":
+		case "given_name":
 			if err := func() error {
-				s.FirstName.Reset()
-				if err := s.FirstName.Decode(d); err != nil {
+				s.GivenName.Reset()
+				if err := s.GivenName.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"first_name\"")
+				return errors.Wrap(err, "decode field \"given_name\"")
 			}
-		case "last_name":
+		case "family_name":
 			if err := func() error {
-				s.LastName.Reset()
-				if err := s.LastName.Decode(d); err != nil {
+				s.FamilyName.Reset()
+				if err := s.FamilyName.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"last_name\"")
+				return errors.Wrap(err, "decode field \"family_name\"")
 			}
 		case "email":
 			if err := func() error {
@@ -1838,35 +1712,42 @@ func (s *Person) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"email\"")
 			}
-		case "orcid_token":
+		case "token":
 			if err := func() error {
-				s.OrcidToken.Reset()
-				if err := s.OrcidToken.Decode(d); err != nil {
+				s.Token = make([]PropertyValue, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem PropertyValue
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Token = append(s.Token, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"orcid_token\"")
+				return errors.Wrap(err, "decode field \"token\"")
 			}
-		case "preferred_first_name":
+		case "preferred_given_name":
 			if err := func() error {
-				s.PreferredFirstName.Reset()
-				if err := s.PreferredFirstName.Decode(d); err != nil {
+				s.PreferredGivenName.Reset()
+				if err := s.PreferredGivenName.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"preferred_first_name\"")
+				return errors.Wrap(err, "decode field \"preferred_given_name\"")
 			}
-		case "preferred_last_name":
+		case "preferred_family_name":
 			if err := func() error {
-				s.PreferredLastName.Reset()
-				if err := s.PreferredLastName.Decode(d); err != nil {
+				s.PreferredFamilyName.Reset()
+				if err := s.PreferredFamilyName.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"preferred_last_name\"")
+				return errors.Wrap(err, "decode field \"preferred_family_name\"")
 			}
 		case "birth_date":
 			if err := func() error {
@@ -1878,21 +1759,21 @@ func (s *Person) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"birth_date\"")
 			}
-		case "title":
+		case "honorific_prefix":
 			if err := func() error {
-				s.Title.Reset()
-				if err := s.Title.Decode(d); err != nil {
+				s.HonorificPrefix.Reset()
+				if err := s.HonorificPrefix.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"title\"")
+				return errors.Wrap(err, "decode field \"honorific_prefix\"")
 			}
 		case "identifier":
 			if err := func() error {
-				s.Identifier = make([]Identifier, 0)
+				s.Identifier = make([]PropertyValue, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem Identifier
+					var elem PropertyValue
 					if err := elem.Decode(d); err != nil {
 						return err
 					}
@@ -2198,6 +2079,136 @@ func (s PersonSettings) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *PersonSettings) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *PropertyValue) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *PropertyValue) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("type")
+		e.Str(s.Type)
+	}
+	{
+		e.FieldStart("property_id")
+		e.Str(s.PropertyID)
+	}
+	{
+		e.FieldStart("value")
+		e.Str(s.Value)
+	}
+}
+
+var jsonFieldsNameOfPropertyValue = [3]string{
+	0: "type",
+	1: "property_id",
+	2: "value",
+}
+
+// Decode decodes PropertyValue from json.
+func (s *PropertyValue) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode PropertyValue to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "type":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.Type = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		case "property_id":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.PropertyID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"property_id\"")
+			}
+		case "value":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.Value = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"value\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode PropertyValue")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfPropertyValue) {
+					name = jsonFieldsNameOfPropertyValue[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *PropertyValue) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *PropertyValue) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

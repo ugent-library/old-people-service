@@ -205,29 +205,27 @@ func (s *Service) AddPerson(ctx context.Context, p *Person) (*Person, error) {
 	person.BirthDate = p.BirthDate.Value
 	person.Email = p.Email.Value
 	person.ExpirationDate = p.ExpirationDate.Value
-	person.FirstName = p.FirstName.Value
-	person.LastName = p.LastName.Value
-	person.FullName = p.FullName.Value
+	person.GivenName = p.GivenName.Value
+	person.FamilyName = p.FamilyName.Value
+	person.Name = p.Name.Value
 	person.JobCategory = p.JobCategory
 	person.ObjectClass = p.ObjectClass
-	person.OrcidToken = p.OrcidToken.Value
-	person.PreferredFirstName = p.PreferredFirstName.Value
-	person.PreferredLastName = p.PreferredLastName.Value
+	person.ClearToken()
+	for _, token := range p.Token {
+		person.AddToken(token.PropertyID, token.Value)
+	}
+	person.PreferredGivenName = p.PreferredGivenName.Value
+	person.PreferredFamilyName = p.PreferredFamilyName.Value
 	person.Role = p.Role
 	person.Settings = p.Settings.Value
-	person.Title = p.Title.Value
+	person.HonorificPrefix = p.HonorificPrefix.Value
 
+	person.ClearIdentifier()
 	for _, identifier := range p.Identifier {
-		switch identifier.PropertyID {
-		case "gismo_id":
-			person.AddIdentifier("orcid", identifier.Value)
-		case "orcid":
-			person.AddIdentifier("orcid", identifier.Value)
-		default:
-			person.AddIdentifier(identifier.PropertyID, identifier.Value)
-		}
+		person.AddIdentifier(identifier.PropertyID, identifier.Value)
 	}
 
+	person.Organization = nil
 	for _, orgRef := range p.Organization {
 		newOrgRef := models.NewOrganizationRef(orgRef.ID)
 		newOrgRef.From = &orgRef.From
@@ -265,6 +263,7 @@ func (s *Service) AddOrganization(ctx context.Context, o *Organization) (*Organi
 	org.ParentID = o.ParentID.Value
 	org.Type = o.Type.Value
 
+	org.ClearIdentifier()
 	for _, identifier := range o.Identifier {
 		org.AddIdentifier(identifier.PropertyID, identifier.Value)
 	}
@@ -331,26 +330,27 @@ func mapToExternalPerson(person *models.Person) *Person {
 	if person.ExpirationDate != "" {
 		p.ExpirationDate = NewOptString(person.ExpirationDate)
 	}
-	if person.FirstName != "" {
-		p.FirstName = NewOptString(person.FirstName)
+	if person.GivenName != "" {
+		p.GivenName = NewOptString(person.GivenName)
 	}
-	if person.LastName != "" {
-		p.LastName = NewOptString(person.LastName)
+	if person.FamilyName != "" {
+		p.FamilyName = NewOptString(person.FamilyName)
 	}
-	if person.FullName != "" {
-		p.FullName = NewOptString(person.FullName)
+	if person.Name != "" {
+		p.Name = NewOptString(person.Name)
 	}
-	if person.PreferredFirstName != "" {
-		p.PreferredFirstName = NewOptString(person.PreferredFirstName)
+	if person.PreferredGivenName != "" {
+		p.PreferredGivenName = NewOptString(person.PreferredGivenName)
 	}
-	if person.PreferredLastName != "" {
-		p.PreferredLastName = NewOptString(person.PreferredLastName)
+	if person.PreferredFamilyName != "" {
+		p.PreferredFamilyName = NewOptString(person.PreferredFamilyName)
 	}
 	p.JobCategory = append(p.JobCategory, person.JobCategory...)
 	p.ObjectClass = append(p.ObjectClass, person.ObjectClass...)
-	if person.OrcidToken != "" {
-		p.OrcidToken = NewOptString(person.OrcidToken)
+	for _, token := range person.Token {
+		p.Token = append(p.Token, newPropertyValue(token.PropertyID, token.Value))
 	}
+
 	for _, orgRef := range person.Organization {
 		oRef := OrganizationRef{
 			ID:          orgRef.Id,
@@ -364,7 +364,7 @@ func mapToExternalPerson(person *models.Person) *Person {
 		p.Organization = append(p.Organization, oRef)
 	}
 	for _, id := range person.Identifier {
-		p.Identifier = append(p.Identifier, newIdentifier(id.PropertyID, id.Value))
+		p.Identifier = append(p.Identifier, newPropertyValue(id.PropertyID, id.Value))
 	}
 
 	p.Role = append(p.Role, person.Role...)
@@ -375,8 +375,8 @@ func mapToExternalPerson(person *models.Person) *Person {
 		}
 		p.Settings = NewOptPersonSettings(pSettings)
 	}
-	if person.Title != "" {
-		p.Title = NewOptString(person.Title)
+	if person.HonorificPrefix != "" {
+		p.HonorificPrefix = NewOptString(person.HonorificPrefix)
 	}
 
 	return p
@@ -394,7 +394,7 @@ func mapToExternalOrganization(org *models.Organization) *Organization {
 		o.NameEng = NewOptString(org.NameEng)
 	}
 	for _, id := range org.Identifier {
-		o.Identifier = append(o.Identifier, newIdentifier(id.PropertyID, id.Value))
+		o.Identifier = append(o.Identifier, newPropertyValue(id.PropertyID, id.Value))
 	}
 	if org.ParentID != "" {
 		o.ParentID = NewOptString(org.ParentID)
@@ -404,10 +404,10 @@ func mapToExternalOrganization(org *models.Organization) *Organization {
 	return o
 }
 
-func newIdentifier(key string, val string) Identifier {
-	return Identifier{
+func newPropertyValue(propertyID string, value string) PropertyValue {
+	return PropertyValue{
 		Type:       "PropertyValue",
-		PropertyID: key,
-		Value:      val,
+		PropertyID: propertyID,
+		Value:      value,
 	}
 }

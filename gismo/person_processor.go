@@ -43,7 +43,7 @@ func (pp *PersonProcessor) Process(buf []byte) (*models.Message, error) {
 		return nil, err
 	}
 
-	// enrich person with ugent ldap attributes
+	// enrich person with ugent ldap attributes -> TODO: very slow
 	person, err = pp.enrichPersonWithLdap(person)
 	if err != nil {
 		return nil, err
@@ -65,12 +65,12 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 	person.ClearIdentifier()
 	person.AddIdentifier("gismo_id", msg.ID)
 	person.Email = ""
-	person.FirstName = ""
-	person.LastName = ""
+	person.GivenName = ""
+	person.FamilyName = ""
 	person.Organization = nil
-	person.PreferredFirstName = ""
-	person.PreferredLastName = ""
-	person.Title = ""
+	person.PreferredGivenName = ""
+	person.PreferredFamilyName = ""
+	person.HonorificPrefix = ""
 	person.Organization = nil
 	var gismoOrganizationRefs []*models.OrganizationRef
 
@@ -82,35 +82,44 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 			if withinDateRange {
 				person.Email = strings.ToLower(attr.Value)
 			}
-		case "first_name":
+		case "given_name":
 			if withinDateRange {
-				person.FirstName = attr.Value
+				person.GivenName = attr.Value
 			}
-		case "last_name":
+		case "family_name":
 			if withinDateRange {
-				person.LastName = attr.Value
+				person.FamilyName = attr.Value
 			}
 		case "ugent_id":
 			person.AddIdentifier("ugent_id", attr.Value)
 			person.AddIdentifier("historic_ugent_id", attr.Value)
 		case "ugent_memorialis_id":
 			person.AddIdentifier("ugent_memorialis_id", attr.Value)
-		case "title":
+		case "honorific_prefix":
 			if withinDateRange {
-				person.Title = attr.Value
+				person.HonorificPrefix = attr.Value
 			}
 		case "organization_id":
-			orgRef := models.NewOrganizationRef(attr.Value)
-			orgRef.From = attr.StartDate
-			orgRef.Until = attr.EndDate
-			gismoOrganizationRefs = append(gismoOrganizationRefs, orgRef)
-		case "preferred_first_name":
-			if withinDateRange {
-				person.PreferredFirstName = attr.Value
+			// sometimes double entries
+			found := false
+			for _, orgRef := range gismoOrganizationRefs {
+				if orgRef.Id == attr.Value {
+					found = true
+				}
 			}
-		case "preferred_last_name":
+			if !found {
+				orgRef := models.NewOrganizationRef(attr.Value)
+				orgRef.From = attr.StartDate
+				orgRef.Until = attr.EndDate
+				gismoOrganizationRefs = append(gismoOrganizationRefs, orgRef)
+			}
+		case "preferred_given_name":
 			if withinDateRange {
-				person.PreferredLastName = attr.Value
+				person.PreferredGivenName = attr.Value
+			}
+		case "preferred_family_name":
+			if withinDateRange {
+				person.PreferredFamilyName = attr.Value
 			}
 		case "orcid":
 			if withinDateRange {
@@ -124,9 +133,9 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 		for _, orgRef := range gismoOrganizationRefs {
 			gismoOrganizationIds = append(gismoOrganizationIds, orgRef.Id)
 		}
-		orgsByGismo, err := pp.repository.GetOrganizationsByGismoId(ctx, gismoOrganizationIds...)
+		orgsByGismo, err := pp.repository.GetOrganizationsByIdentifier(ctx, "gismo_id", gismoOrganizationIds...)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%w: unable to fetch affiliated organization records: %s", models.ErrFatal, err)
 		}
 
 		// create dummy organizations when organization is not yet known
@@ -143,7 +152,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 				gismoOrg.AddIdentifier("gismo_id", gismoOrganizationId)
 				gismoOrg, err = pp.repository.SaveOrganization(ctx, gismoOrg)
 				if err != nil {
-					return nil, err
+					return nil, fmt.Errorf("%w: unable to save affiliated organization for person: %s", models.ErrFatal, err)
 				}
 				orgsByGismo = append(orgsByGismo, gismoOrg)
 			}
@@ -172,7 +181,7 @@ func (pp *PersonProcessor) getPersonByMessage(msg *models.Message) (*models.Pers
 	now := time.Now()
 
 	// Without ugentId no linking possible
-	ugentIds := msg.GetAttributesAt("ugent_id", now)
+	ugentIds := UniqStrings(msg.GetAttributesAt("ugent_id", now))
 	if len(ugentIds) == 0 {
 		return nil, fmt.Errorf("%w: missing ugent_id in message %s", models.ErrSkipped, msg.ID)
 	}
@@ -224,7 +233,7 @@ func (pp *PersonProcessor) enrichPersonWithLdap(person *models.Person) (*models.
 			for _, val := range attr.Values {
 				switch attr.Name {
 				case "displayName":
-					person.FullName = val
+					person.Name = val
 				case "ugentBarcode":
 					person.AddIdentifier("ugent_barcode", val)
 				case "uid":

@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 	"github.com/ugent-library/people-service/models"
 )
 
@@ -69,5 +70,12 @@ func (OrganizationPerson) Edges() []ent.Edge {
 				OnDelete: entsql.Cascade,
 			}).
 			Required().Field("organization_id"),
+	}
+}
+
+func (OrganizationPerson) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("person_id"),
+		index.Fields("organization_id"),
 	}
 }

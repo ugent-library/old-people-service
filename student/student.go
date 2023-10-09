@@ -51,7 +51,7 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 					gismoId = id.Value
 				}
 			}
-			oldPerson.Identifier = []models.Identifier{}
+			oldPerson.ClearIdentifier()
 			for _, id := range newPerson.Identifier {
 				oldPerson.AddIdentifier(id.PropertyID, id.Value)
 			}
@@ -64,11 +64,11 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 			oldPerson.Active = true
 			oldPerson.BirthDate = newPerson.BirthDate
 			oldPerson.Email = newPerson.Email
-			oldPerson.FirstName = newPerson.FirstName
-			oldPerson.LastName = newPerson.LastName
-			oldPerson.FullName = newPerson.FullName
+			oldPerson.GivenName = newPerson.GivenName
+			oldPerson.FamilyName = newPerson.FamilyName
+			oldPerson.Name = newPerson.Name
 			oldPerson.JobCategory = newPerson.JobCategory
-			oldPerson.Title = newPerson.Title
+			oldPerson.HonorificPrefix = newPerson.HonorificPrefix
 			oldPerson.ObjectClass = newPerson.ObjectClass
 			oldPerson.ExpirationDate = newPerson.ExpirationDate
 			oldPerson.Organization = newPerson.Organization
@@ -95,20 +95,18 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 			switch attr.Name {
 			case "uid":
 				newPerson.AddIdentifier("ugent_username", val)
-			// contains current active ugentID
 			case "ugentID":
 				newPerson.AddIdentifier("ugent_id", val)
-			// contains ugentID also (at the end)
 			case "ugentHistoricIDs":
 				newPerson.AddIdentifier("historic_ugent_id", val)
 			case "ugentBarcode":
 				newPerson.AddIdentifier("ugent_barcode", val)
 			case "ugentPreferredGivenName":
-				newPerson.FirstName = val
+				newPerson.GivenName = val
 			case "ugentPreferredSn":
-				newPerson.LastName = val
+				newPerson.FamilyName = val
 			case "displayName":
-				newPerson.FullName = val
+				newPerson.Name = val
 			case "ugentBirthDate":
 				newPerson.BirthDate = val
 			case "mail":
@@ -116,13 +114,14 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 			case "ugentJobCategory":
 				newPerson.JobCategory = append(newPerson.JobCategory, val)
 			case "ugentAddressingTitle":
-				newPerson.Title = val
+				newPerson.HonorificPrefix = val
 			case "objectClass":
 				newPerson.ObjectClass = append(newPerson.ObjectClass, val)
 			case "ugentExpirationDate":
 				newPerson.ExpirationDate = val
 			case "departmentNumber":
 				realOrg, err := si.repository.GetOrganizationByIdentifier(ctx, "ugent_id", val)
+				// ignore for now. Maybe tomorrow on the next run
 				if errors.Is(err, models.ErrNotFound) {
 					continue
 				} else if err != nil {

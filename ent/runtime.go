@@ -37,13 +37,13 @@ func init() {
 	// organization.DefaultPublicID holds the default value on creation for the public_id field.
 	organization.DefaultPublicID = organizationDescPublicID.Default.(func() string)
 	// organizationDescType is the schema descriptor for type field.
-	organizationDescType := organizationFields[1].Descriptor()
+	organizationDescType := organizationFields[0].Descriptor()
 	// organization.DefaultType holds the default value on creation for the type field.
 	organization.DefaultType = organizationDescType.Default.(string)
-	// organizationDescOtherID is the schema descriptor for other_id field.
-	organizationDescOtherID := organizationFields[4].Descriptor()
-	// organization.DefaultOtherID holds the default value on creation for the other_id field.
-	organization.DefaultOtherID = organizationDescOtherID.Default.(schema.TypeVals)
+	// organizationDescIdentifier is the schema descriptor for identifier field.
+	organizationDescIdentifier := organizationFields[3].Descriptor()
+	// organization.DefaultIdentifier holds the default value on creation for the identifier field.
+	organization.DefaultIdentifier = organizationDescIdentifier.Default.(schema.TypeVals)
 	organizationpersonMixin := schema.OrganizationPerson{}.Mixin()
 	organizationpersonMixinFields0 := organizationpersonMixin[0].Fields()
 	_ = organizationpersonMixinFields0
@@ -91,27 +91,31 @@ func init() {
 	// person.DefaultPublicID holds the default value on creation for the public_id field.
 	person.DefaultPublicID = personDescPublicID.Default.(func() string)
 	// personDescActive is the schema descriptor for active field.
-	personDescActive := personFields[1].Descriptor()
+	personDescActive := personFields[0].Descriptor()
 	// person.DefaultActive holds the default value on creation for the active field.
 	person.DefaultActive = personDescActive.Default.(bool)
-	// personDescOtherID is the schema descriptor for other_id field.
-	personDescOtherID := personFields[4].Descriptor()
-	// person.DefaultOtherID holds the default value on creation for the other_id field.
-	person.DefaultOtherID = personDescOtherID.Default.(schema.TypeVals)
+	// personDescIdentifier is the schema descriptor for identifier field.
+	personDescIdentifier := personFields[3].Descriptor()
+	// person.DefaultIdentifier holds the default value on creation for the identifier field.
+	person.DefaultIdentifier = personDescIdentifier.Default.(schema.TypeVals)
 	// personDescJobCategory is the schema descriptor for job_category field.
-	personDescJobCategory := personFields[8].Descriptor()
+	personDescJobCategory := personFields[7].Descriptor()
 	// person.DefaultJobCategory holds the default value on creation for the job_category field.
 	person.DefaultJobCategory = personDescJobCategory.Default.([]string)
 	// personDescRole is the schema descriptor for role field.
-	personDescRole := personFields[14].Descriptor()
+	personDescRole := personFields[11].Descriptor()
 	// person.DefaultRole holds the default value on creation for the role field.
 	person.DefaultRole = personDescRole.Default.([]string)
 	// personDescSettings is the schema descriptor for settings field.
-	personDescSettings := personFields[15].Descriptor()
+	personDescSettings := personFields[12].Descriptor()
 	// person.DefaultSettings holds the default value on creation for the settings field.
 	person.DefaultSettings = personDescSettings.Default.(map[string]string)
 	// personDescObjectClass is the schema descriptor for object_class field.
-	personDescObjectClass := personFields[16].Descriptor()
+	personDescObjectClass := personFields[13].Descriptor()
 	// person.DefaultObjectClass holds the default value on creation for the object_class field.
 	person.DefaultObjectClass = personDescObjectClass.Default.([]string)
+	// personDescToken is the schema descriptor for token field.
+	personDescToken := personFields[15].Descriptor()
+	// person.DefaultToken holds the default value on creation for the token field.
+	person.DefaultToken = personDescToken.Default.(schema.TypeVals)
 }

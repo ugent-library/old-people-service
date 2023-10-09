@@ -26,7 +26,7 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 	}
 
 	ctx := context.TODO()
-	org, err := op.repository.GetOrganizationByGismoId(ctx, msg.ID)
+	org, err := op.repository.GetOrganizationByIdentifier(ctx, "gismo_id", msg.ID)
 	if errors.Is(err, models.ErrNotFound) {
 		org = models.NewOrganization()
 	} else if err != nil {
@@ -37,9 +37,9 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 		now := time.Now()
 		org.NameDut = ""
 		org.NameEng = ""
-		org.ClearIdentifier()
 		org.Type = "organization"
 		org.ParentID = ""
+		org.ClearIdentifier()
 		org.AddIdentifier("gismo_id", msg.ID)
 
 		// only recent values needed: name_dut, name_eng, type
@@ -49,7 +49,7 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 			switch attr.Name {
 			case "parent_id":
 				if withinDateRange {
-					orgParentByGismo, err := op.repository.GetOrganizationByGismoId(ctx, attr.Value)
+					orgParentByGismo, err := op.repository.GetOrganizationByIdentifier(ctx, "gismo_id", attr.Value)
 					if errors.Is(err, models.ErrNotFound) {
 						orgParentByGismo := models.NewOrganization()
 						orgParentByGismo.AddIdentifier("gismo_id", attr.Value)

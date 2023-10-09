@@ -25,34 +25,28 @@ type Person struct {
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// PublicID holds the value of the "public_id" field.
 	PublicID string `json:"public_id,omitempty"`
-	// GismoID holds the value of the "gismo_id" field.
-	GismoID *string `json:"gismo_id,omitempty"`
 	// Active holds the value of the "active" field.
 	Active bool `json:"active,omitempty"`
 	// BirthDate holds the value of the "birth_date" field.
 	BirthDate string `json:"birth_date,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
-	// OtherID holds the value of the "other_id" field.
-	OtherID schema.TypeVals `json:"other_id,omitempty"`
-	// FirstName holds the value of the "first_name" field.
-	FirstName string `json:"first_name,omitempty"`
-	// FullName holds the value of the "full_name" field.
-	FullName string `json:"full_name,omitempty"`
-	// LastName holds the value of the "last_name" field.
-	LastName string `json:"last_name,omitempty"`
+	// Identifier holds the value of the "identifier" field.
+	Identifier schema.TypeVals `json:"identifier,omitempty"`
+	// GivenName holds the value of the "given_name" field.
+	GivenName string `json:"given_name,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// FamilyName holds the value of the "family_name" field.
+	FamilyName string `json:"family_name,omitempty"`
 	// JobCategory holds the value of the "job_category" field.
 	JobCategory []string `json:"job_category,omitempty"`
-	// Orcid holds the value of the "orcid" field.
-	Orcid string `json:"orcid,omitempty"`
-	// OrcidToken holds the value of the "orcid_token" field.
-	OrcidToken string `json:"orcid_token,omitempty"`
-	// PreferredFirstName holds the value of the "preferred_first_name" field.
-	PreferredFirstName string `json:"preferred_first_name,omitempty"`
-	// PreferredLastName holds the value of the "preferred_last_name" field.
-	PreferredLastName string `json:"preferred_last_name,omitempty"`
-	// Title holds the value of the "title" field.
-	Title string `json:"title,omitempty"`
+	// PreferredGivenName holds the value of the "preferred_given_name" field.
+	PreferredGivenName string `json:"preferred_given_name,omitempty"`
+	// PreferredFamilyName holds the value of the "preferred_family_name" field.
+	PreferredFamilyName string `json:"preferred_family_name,omitempty"`
+	// HonorificPrefix holds the value of the "honorific_prefix" field.
+	HonorificPrefix string `json:"honorific_prefix,omitempty"`
 	// Role holds the value of the "role" field.
 	Role []string `json:"role,omitempty"`
 	// Settings holds the value of the "settings" field.
@@ -61,6 +55,8 @@ type Person struct {
 	ObjectClass []string `json:"object_class,omitempty"`
 	// ExpirationDate holds the value of the "expiration_date" field.
 	ExpirationDate string `json:"expiration_date,omitempty"`
+	// Token holds the value of the "token" field.
+	Token schema.TypeVals `json:"token,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PersonQuery when eager-loading is set.
 	Edges        PersonEdges `json:"edges"`
@@ -101,13 +97,13 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case person.FieldOtherID, person.FieldJobCategory, person.FieldRole, person.FieldSettings, person.FieldObjectClass:
+		case person.FieldIdentifier, person.FieldJobCategory, person.FieldRole, person.FieldSettings, person.FieldObjectClass, person.FieldToken:
 			values[i] = new([]byte)
 		case person.FieldActive:
 			values[i] = new(sql.NullBool)
 		case person.FieldID:
 			values[i] = new(sql.NullInt64)
-		case person.FieldPublicID, person.FieldGismoID, person.FieldBirthDate, person.FieldEmail, person.FieldFirstName, person.FieldFullName, person.FieldLastName, person.FieldOrcid, person.FieldOrcidToken, person.FieldPreferredFirstName, person.FieldPreferredLastName, person.FieldTitle, person.FieldExpirationDate:
+		case person.FieldPublicID, person.FieldBirthDate, person.FieldEmail, person.FieldGivenName, person.FieldName, person.FieldFamilyName, person.FieldPreferredGivenName, person.FieldPreferredFamilyName, person.FieldHonorificPrefix, person.FieldExpirationDate:
 			values[i] = new(sql.NullString)
 		case person.FieldDateCreated, person.FieldDateUpdated:
 			values[i] = new(sql.NullTime)
@@ -150,13 +146,6 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pe.PublicID = value.String
 			}
-		case person.FieldGismoID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field gismo_id", values[i])
-			} else if value.Valid {
-				pe.GismoID = new(string)
-				*pe.GismoID = value.String
-			}
 		case person.FieldActive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field active", values[i])
@@ -175,31 +164,31 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pe.Email = value.String
 			}
-		case person.FieldOtherID:
+		case person.FieldIdentifier:
 			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field other_id", values[i])
+				return fmt.Errorf("unexpected type %T for field identifier", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &pe.OtherID); err != nil {
-					return fmt.Errorf("unmarshal field other_id: %w", err)
+				if err := json.Unmarshal(*value, &pe.Identifier); err != nil {
+					return fmt.Errorf("unmarshal field identifier: %w", err)
 				}
 			}
-		case person.FieldFirstName:
+		case person.FieldGivenName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field first_name", values[i])
+				return fmt.Errorf("unexpected type %T for field given_name", values[i])
 			} else if value.Valid {
-				pe.FirstName = value.String
+				pe.GivenName = value.String
 			}
-		case person.FieldFullName:
+		case person.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field full_name", values[i])
+				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				pe.FullName = value.String
+				pe.Name = value.String
 			}
-		case person.FieldLastName:
+		case person.FieldFamilyName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field last_name", values[i])
+				return fmt.Errorf("unexpected type %T for field family_name", values[i])
 			} else if value.Valid {
-				pe.LastName = value.String
+				pe.FamilyName = value.String
 			}
 		case person.FieldJobCategory:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -209,35 +198,23 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field job_category: %w", err)
 				}
 			}
-		case person.FieldOrcid:
+		case person.FieldPreferredGivenName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field orcid", values[i])
+				return fmt.Errorf("unexpected type %T for field preferred_given_name", values[i])
 			} else if value.Valid {
-				pe.Orcid = value.String
+				pe.PreferredGivenName = value.String
 			}
-		case person.FieldOrcidToken:
+		case person.FieldPreferredFamilyName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field orcid_token", values[i])
+				return fmt.Errorf("unexpected type %T for field preferred_family_name", values[i])
 			} else if value.Valid {
-				pe.OrcidToken = value.String
+				pe.PreferredFamilyName = value.String
 			}
-		case person.FieldPreferredFirstName:
+		case person.FieldHonorificPrefix:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field preferred_first_name", values[i])
+				return fmt.Errorf("unexpected type %T for field honorific_prefix", values[i])
 			} else if value.Valid {
-				pe.PreferredFirstName = value.String
-			}
-		case person.FieldPreferredLastName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field preferred_last_name", values[i])
-			} else if value.Valid {
-				pe.PreferredLastName = value.String
-			}
-		case person.FieldTitle:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field title", values[i])
-			} else if value.Valid {
-				pe.Title = value.String
+				pe.HonorificPrefix = value.String
 			}
 		case person.FieldRole:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -268,6 +245,14 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field expiration_date", values[i])
 			} else if value.Valid {
 				pe.ExpirationDate = value.String
+			}
+		case person.FieldToken:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field token", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pe.Token); err != nil {
+					return fmt.Errorf("unmarshal field token: %w", err)
+				}
 			}
 		default:
 			pe.selectValues.Set(columns[i], values[i])
@@ -324,11 +309,6 @@ func (pe *Person) String() string {
 	builder.WriteString("public_id=")
 	builder.WriteString(pe.PublicID)
 	builder.WriteString(", ")
-	if v := pe.GismoID; v != nil {
-		builder.WriteString("gismo_id=")
-		builder.WriteString(*v)
-	}
-	builder.WriteString(", ")
 	builder.WriteString("active=")
 	builder.WriteString(fmt.Sprintf("%v", pe.Active))
 	builder.WriteString(", ")
@@ -338,35 +318,29 @@ func (pe *Person) String() string {
 	builder.WriteString("email=")
 	builder.WriteString(pe.Email)
 	builder.WriteString(", ")
-	builder.WriteString("other_id=")
-	builder.WriteString(fmt.Sprintf("%v", pe.OtherID))
+	builder.WriteString("identifier=")
+	builder.WriteString(fmt.Sprintf("%v", pe.Identifier))
 	builder.WriteString(", ")
-	builder.WriteString("first_name=")
-	builder.WriteString(pe.FirstName)
+	builder.WriteString("given_name=")
+	builder.WriteString(pe.GivenName)
 	builder.WriteString(", ")
-	builder.WriteString("full_name=")
-	builder.WriteString(pe.FullName)
+	builder.WriteString("name=")
+	builder.WriteString(pe.Name)
 	builder.WriteString(", ")
-	builder.WriteString("last_name=")
-	builder.WriteString(pe.LastName)
+	builder.WriteString("family_name=")
+	builder.WriteString(pe.FamilyName)
 	builder.WriteString(", ")
 	builder.WriteString("job_category=")
 	builder.WriteString(fmt.Sprintf("%v", pe.JobCategory))
 	builder.WriteString(", ")
-	builder.WriteString("orcid=")
-	builder.WriteString(pe.Orcid)
+	builder.WriteString("preferred_given_name=")
+	builder.WriteString(pe.PreferredGivenName)
 	builder.WriteString(", ")
-	builder.WriteString("orcid_token=")
-	builder.WriteString(pe.OrcidToken)
+	builder.WriteString("preferred_family_name=")
+	builder.WriteString(pe.PreferredFamilyName)
 	builder.WriteString(", ")
-	builder.WriteString("preferred_first_name=")
-	builder.WriteString(pe.PreferredFirstName)
-	builder.WriteString(", ")
-	builder.WriteString("preferred_last_name=")
-	builder.WriteString(pe.PreferredLastName)
-	builder.WriteString(", ")
-	builder.WriteString("title=")
-	builder.WriteString(pe.Title)
+	builder.WriteString("honorific_prefix=")
+	builder.WriteString(pe.HonorificPrefix)
 	builder.WriteString(", ")
 	builder.WriteString("role=")
 	builder.WriteString(fmt.Sprintf("%v", pe.Role))
@@ -379,6 +353,9 @@ func (pe *Person) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("expiration_date=")
 	builder.WriteString(pe.ExpirationDate)
+	builder.WriteString(", ")
+	builder.WriteString("token=")
+	builder.WriteString(fmt.Sprintf("%v", pe.Token))
 	builder.WriteByte(')')
 	return builder.String()
 }

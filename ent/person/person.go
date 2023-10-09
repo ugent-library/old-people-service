@@ -21,34 +21,28 @@ const (
 	FieldDateUpdated = "date_updated"
 	// FieldPublicID holds the string denoting the public_id field in the database.
 	FieldPublicID = "public_id"
-	// FieldGismoID holds the string denoting the gismo_id field in the database.
-	FieldGismoID = "gismo_id"
 	// FieldActive holds the string denoting the active field in the database.
 	FieldActive = "active"
 	// FieldBirthDate holds the string denoting the birth_date field in the database.
 	FieldBirthDate = "birth_date"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
-	// FieldOtherID holds the string denoting the other_id field in the database.
-	FieldOtherID = "other_id"
-	// FieldFirstName holds the string denoting the first_name field in the database.
-	FieldFirstName = "first_name"
-	// FieldFullName holds the string denoting the full_name field in the database.
-	FieldFullName = "full_name"
-	// FieldLastName holds the string denoting the last_name field in the database.
-	FieldLastName = "last_name"
+	// FieldIdentifier holds the string denoting the identifier field in the database.
+	FieldIdentifier = "identifier"
+	// FieldGivenName holds the string denoting the given_name field in the database.
+	FieldGivenName = "given_name"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
+	// FieldFamilyName holds the string denoting the family_name field in the database.
+	FieldFamilyName = "family_name"
 	// FieldJobCategory holds the string denoting the job_category field in the database.
 	FieldJobCategory = "job_category"
-	// FieldOrcid holds the string denoting the orcid field in the database.
-	FieldOrcid = "orcid"
-	// FieldOrcidToken holds the string denoting the orcid_token field in the database.
-	FieldOrcidToken = "orcid_token"
-	// FieldPreferredFirstName holds the string denoting the preferred_first_name field in the database.
-	FieldPreferredFirstName = "preferred_first_name"
-	// FieldPreferredLastName holds the string denoting the preferred_last_name field in the database.
-	FieldPreferredLastName = "preferred_last_name"
-	// FieldTitle holds the string denoting the title field in the database.
-	FieldTitle = "title"
+	// FieldPreferredGivenName holds the string denoting the preferred_given_name field in the database.
+	FieldPreferredGivenName = "preferred_given_name"
+	// FieldPreferredFamilyName holds the string denoting the preferred_family_name field in the database.
+	FieldPreferredFamilyName = "preferred_family_name"
+	// FieldHonorificPrefix holds the string denoting the honorific_prefix field in the database.
+	FieldHonorificPrefix = "honorific_prefix"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
 	// FieldSettings holds the string denoting the settings field in the database.
@@ -57,6 +51,8 @@ const (
 	FieldObjectClass = "object_class"
 	// FieldExpirationDate holds the string denoting the expiration_date field in the database.
 	FieldExpirationDate = "expiration_date"
+	// FieldToken holds the string denoting the token field in the database.
+	FieldToken = "token"
 	// EdgeOrganizations holds the string denoting the organizations edge name in mutations.
 	EdgeOrganizations = "organizations"
 	// EdgeOrganizationPerson holds the string denoting the organization_person edge name in mutations.
@@ -83,24 +79,22 @@ var Columns = []string{
 	FieldDateCreated,
 	FieldDateUpdated,
 	FieldPublicID,
-	FieldGismoID,
 	FieldActive,
 	FieldBirthDate,
 	FieldEmail,
-	FieldOtherID,
-	FieldFirstName,
-	FieldFullName,
-	FieldLastName,
+	FieldIdentifier,
+	FieldGivenName,
+	FieldName,
+	FieldFamilyName,
 	FieldJobCategory,
-	FieldOrcid,
-	FieldOrcidToken,
-	FieldPreferredFirstName,
-	FieldPreferredLastName,
-	FieldTitle,
+	FieldPreferredGivenName,
+	FieldPreferredFamilyName,
+	FieldHonorificPrefix,
 	FieldRole,
 	FieldSettings,
 	FieldObjectClass,
 	FieldExpirationDate,
+	FieldToken,
 }
 
 var (
@@ -130,8 +124,8 @@ var (
 	DefaultPublicID func() string
 	// DefaultActive holds the default value on creation for the "active" field.
 	DefaultActive bool
-	// DefaultOtherID holds the default value on creation for the "other_id" field.
-	DefaultOtherID schema.TypeVals
+	// DefaultIdentifier holds the default value on creation for the "identifier" field.
+	DefaultIdentifier schema.TypeVals
 	// DefaultJobCategory holds the default value on creation for the "job_category" field.
 	DefaultJobCategory []string
 	// DefaultRole holds the default value on creation for the "role" field.
@@ -140,6 +134,8 @@ var (
 	DefaultSettings map[string]string
 	// DefaultObjectClass holds the default value on creation for the "object_class" field.
 	DefaultObjectClass []string
+	// DefaultToken holds the default value on creation for the "token" field.
+	DefaultToken schema.TypeVals
 )
 
 // OrderOption defines the ordering options for the Person queries.
@@ -165,11 +161,6 @@ func ByPublicID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPublicID, opts...).ToFunc()
 }
 
-// ByGismoID orders the results by the gismo_id field.
-func ByGismoID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldGismoID, opts...).ToFunc()
-}
-
 // ByActive orders the results by the active field.
 func ByActive(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldActive, opts...).ToFunc()
@@ -185,44 +176,34 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
 }
 
-// ByFirstName orders the results by the first_name field.
-func ByFirstName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFirstName, opts...).ToFunc()
+// ByGivenName orders the results by the given_name field.
+func ByGivenName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGivenName, opts...).ToFunc()
 }
 
-// ByFullName orders the results by the full_name field.
-func ByFullName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFullName, opts...).ToFunc()
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
-// ByLastName orders the results by the last_name field.
-func ByLastName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLastName, opts...).ToFunc()
+// ByFamilyName orders the results by the family_name field.
+func ByFamilyName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFamilyName, opts...).ToFunc()
 }
 
-// ByOrcid orders the results by the orcid field.
-func ByOrcid(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOrcid, opts...).ToFunc()
+// ByPreferredGivenName orders the results by the preferred_given_name field.
+func ByPreferredGivenName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPreferredGivenName, opts...).ToFunc()
 }
 
-// ByOrcidToken orders the results by the orcid_token field.
-func ByOrcidToken(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOrcidToken, opts...).ToFunc()
+// ByPreferredFamilyName orders the results by the preferred_family_name field.
+func ByPreferredFamilyName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPreferredFamilyName, opts...).ToFunc()
 }
 
-// ByPreferredFirstName orders the results by the preferred_first_name field.
-func ByPreferredFirstName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPreferredFirstName, opts...).ToFunc()
-}
-
-// ByPreferredLastName orders the results by the preferred_last_name field.
-func ByPreferredLastName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPreferredLastName, opts...).ToFunc()
-}
-
-// ByTitle orders the results by the title field.
-func ByTitle(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTitle, opts...).ToFunc()
+// ByHonorificPrefix orders the results by the honorific_prefix field.
+func ByHonorificPrefix(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHonorificPrefix, opts...).ToFunc()
 }
 
 // ByExpirationDate orders the results by the expiration_date field.

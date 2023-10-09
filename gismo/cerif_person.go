@@ -64,7 +64,7 @@ func parsePersonMessage(buf []byte) (*models.Message, error) {
 			}
 			if n := xmlquery.FindOne(nameNode, "cfFamilyNames"); n != nil {
 				msg.Attributes = append(msg.Attributes, models.Attribute{
-					Name:      "last_name",
+					Name:      "family_name",
 					Value:     strings.TrimSpace(n.InnerText()),
 					StartDate: &startDate,
 					EndDate:   &endDate,
@@ -72,7 +72,7 @@ func parsePersonMessage(buf []byte) (*models.Message, error) {
 			}
 			if n := xmlquery.FindOne(nameNode, "cfFirstNames"); n != nil {
 				msg.Attributes = append(msg.Attributes, models.Attribute{
-					Name:      "first_name",
+					Name:      "given_name",
 					Value:     strings.TrimSpace(n.InnerText()),
 					StartDate: &startDate,
 					EndDate:   &endDate,
@@ -80,7 +80,7 @@ func parsePersonMessage(buf []byte) (*models.Message, error) {
 			}
 			if n := xmlquery.FindOne(nameNode, "ugTitles"); n != nil {
 				msg.Attributes = append(msg.Attributes, models.Attribute{
-					Name:      "title",
+					Name:      "honorific_prefix",
 					Value:     strings.TrimSpace(n.InnerText()),
 					StartDate: &startDate,
 					EndDate:   &endDate,
@@ -98,7 +98,7 @@ func parsePersonMessage(buf []byte) (*models.Message, error) {
 			}
 			if n := xmlquery.FindOne(nameNode, "cfFamilyNames"); n != nil {
 				msg.Attributes = append(msg.Attributes, models.Attribute{
-					Name:      "preferred_last_name",
+					Name:      "preferred_family_name",
 					Value:     strings.TrimSpace(n.InnerText()),
 					StartDate: &startDate,
 					EndDate:   &endDate,
@@ -106,7 +106,7 @@ func parsePersonMessage(buf []byte) (*models.Message, error) {
 			}
 			if n := xmlquery.FindOne(nameNode, "cfFirstNames"); n != nil {
 				msg.Attributes = append(msg.Attributes, models.Attribute{
-					Name:      "preferred_first_name",
+					Name:      "preferred_given_name",
 					Value:     strings.TrimSpace(n.InnerText()),
 					StartDate: &startDate,
 					EndDate:   &endDate,

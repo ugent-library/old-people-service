@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -52,54 +53,8 @@ func (repo *repository) GetOrganization(ctx context.Context, id string) (*models
 }
 
 func (repo *repository) GetOrganizationByIdentifier(ctx context.Context, typ string, vals ...string) (*models.Organization, error) {
-	var org *models.Organization
-	var err error
-
-	switch typ {
-	case "gismo_id":
-		org, err = repo.GetOrganizationByGismoId(ctx, vals[0])
-	default:
-		org, err = repo.getOrganizationByAnyOtherId(ctx, typ, vals...)
-	}
-
-	return org, err
-}
-
-func (repo *repository) GetOrganizationByGismoId(ctx context.Context, gismoId string) (*models.Organization, error) {
-	row, err := repo.client.Organization.Query().WithParent().Where(organization.GismoIDEQ(gismoId)).First(ctx)
-	if err != nil {
-		var e *ent.NotFoundError
-		if errors.As(err, &e) {
-			return nil, models.ErrNotFound
-		}
-		return nil, err
-	}
-	return repo.orgUnwrap(row), nil
-}
-
-func (repo *repository) GetOrganizationsByGismoId(ctx context.Context, gismoIds ...string) ([]*models.Organization, error) {
-	rows, err := repo.client.Organization.Query().WithParent().Where(
-		organization.GismoIDIn(gismoIds...),
-	).Order(func(s *entsql.Selector) {
-		orderStr := fmt.Sprintf("array_position($%d, gismo_id)", len(gismoIds)+1)
-		s.OrderExpr(entsql.ExprP(orderStr, gismoIds))
-	}).All(ctx)
-
-	if err != nil {
-		return nil, err
-	}
-
-	orgs := make([]*models.Organization, 0, len(rows))
-	for _, row := range rows {
-		orgs = append(orgs, repo.orgUnwrap(row))
-	}
-
-	return orgs, nil
-}
-
-func (repo *repository) getOrganizationByAnyOtherId(ctx context.Context, typ string, values ...string) (*models.Organization, error) {
 	row, err := repo.client.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
-		s.Where(entsql.ExprP("other_id->$1 ?| $2", typ, values))
+		s.Where(entsql.ExprP("identifier->$1 ?| $2", typ, vals))
 	}).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
@@ -111,6 +66,23 @@ func (repo *repository) getOrganizationByAnyOtherId(ctx context.Context, typ str
 	return repo.orgUnwrap(row), nil
 }
 
+func (repo *repository) GetOrganizationsByIdentifier(ctx context.Context, typ string, vals ...string) ([]*models.Organization, error) {
+	rows, err := repo.client.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
+		s.Where(entsql.ExprP("identifier->$1 ?| $2", typ, vals))
+	}).All(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+	// TODO: order by array_position cannot work on array itself. Find another way
+	orgs := make([]*models.Organization, 0, len(rows))
+	for _, row := range rows {
+		orgs = append(orgs, repo.orgUnwrap(row))
+	}
+
+	return orgs, nil
+}
+
 func (repo *repository) SaveOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
 	if org.IsStored() {
 		return repo.UpdateOrganization(ctx, org)
@@ -120,30 +92,19 @@ func (repo *repository) SaveOrganization(ctx context.Context, org *models.Organi
 
 func (repo *repository) CreateOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
 	// date fields filled by schema
-	tx, txErr := repo.client.Tx(ctx)
-	if txErr != nil {
-		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
+	tx, err := repo.client.Tx(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unable to start transaction: %w", err)
 	}
 	defer tx.Rollback()
 
 	t := tx.Organization.Create()
 
-	var gismoId string
-	otherIds := schema.TypeVals{}
+	identifiers := schema.TypeVals{}
 	for _, id := range org.Identifier {
-		switch id.PropertyID {
-		case "gismo_id":
-			gismoId = id.Value
-		default:
-			otherIds.Add(id.PropertyID, id.Value)
-		}
+		identifiers.Add(id.PropertyID, id.Value)
 	}
-	var gismoIdRef *string = nil
-	if gismoId != "" {
-		gismoIdRef = &gismoId
-	}
-	t.SetNillableGismoID(gismoIdRef)
-	t.SetOtherID(otherIds)
+	t.SetIdentifier(identifiers)
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
@@ -178,30 +139,19 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 }
 
 func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Organization) (*models.Organization, error) {
-	tx, txErr := repo.client.Tx(ctx)
-	if txErr != nil {
-		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
+	tx, err := repo.client.Tx(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unable to start transaction: %w", err)
 	}
 	defer tx.Rollback()
 
 	t := tx.Organization.Update().Where(organization.PublicIDEQ(org.ID))
 
-	var gismoId string
-	otherIds := schema.TypeVals{}
+	identifiers := schema.TypeVals{}
 	for _, id := range org.Identifier {
-		switch id.PropertyID {
-		case "gismo_id":
-			gismoId = id.Value
-		default:
-			otherIds.Add(id.PropertyID, id.Value)
-		}
+		identifiers.Add(id.PropertyID, id.Value)
 	}
-	var gismoIdRef *string = nil
-	if gismoId != "" {
-		gismoIdRef = &gismoId
-	}
-	t.SetNillableGismoID(gismoIdRef)
-	t.SetOtherID(otherIds)
+	t.SetIdentifier(identifiers)
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
@@ -348,10 +298,6 @@ func (repo *repository) getOrganizations(ctx context.Context, cursor setCursor) 
 }
 
 func (repo *repository) orgUnwrap(e *ent.Organization) *models.Organization {
-	var gismoId string = ""
-	if e.GismoID != nil {
-		gismoId = *e.GismoID
-	}
 	org := &models.Organization{
 		ID:          e.PublicID,
 		DateCreated: &e.DateCreated,
@@ -360,10 +306,8 @@ func (repo *repository) orgUnwrap(e *ent.Organization) *models.Organization {
 		NameDut:     e.NameDut,
 		NameEng:     e.NameEng,
 	}
-	if gismoId != "" {
-		org.AddIdentifier("gismo_id", gismoId)
-	}
-	for key, vals := range e.OtherID {
+
+	for key, vals := range e.Identifier {
 		for _, val := range vals {
 			org.AddIdentifier(key, val)
 		}
@@ -384,9 +328,9 @@ func (repo *repository) SavePerson(ctx context.Context, p *models.Person) (*mode
 
 func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*models.Person, error) {
 	// date fields filled by schema
-	tx, txErr := repo.client.Tx(ctx)
-	if txErr != nil {
-		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
+	tx, err := repo.client.Tx(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unable to start transaction: %w", err)
 	}
 	defer tx.Rollback()
 
@@ -397,10 +341,10 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetBirthDate(p.BirthDate)
 	t.SetJobCategory(p.JobCategory)
 	t.SetEmail(p.Email)
-	t.SetFirstName(p.FirstName)
-	t.SetFullName(p.FullName)
-	t.SetTitle(p.Title)
-	t.SetLastName(p.LastName)
+	t.SetGivenName(p.GivenName)
+	t.SetName(p.Name)
+	t.SetHonorificPrefix(p.HonorificPrefix)
+	t.SetFamilyName(p.FamilyName)
 	t.SetRole(p.Role)
 	t.SetSettings(p.Settings)
 	if len(p.ObjectClass) > 0 {
@@ -410,31 +354,23 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 	}
 	t.SetExpirationDate(p.ExpirationDate)
 
-	if p.OrcidToken == "" {
-		t.SetOrcidToken("")
-	} else {
-		eToken, eTokenErr := encryptMessage(repo.secret, p.OrcidToken)
-		if eTokenErr != nil {
-			return nil, fmt.Errorf("unable to encrypt orcid_token: %w", eTokenErr)
+	tokens := schema.TypeVals{}
+	for _, token := range p.Token {
+		eToken, err := encryptMessage(repo.secret, token.Value)
+		if err != nil {
+			return nil, fmt.Errorf("unable to encrypt %s: %w", token.PropertyID, err)
 		}
-		t.SetOrcidToken(eToken)
+		tokens.Add(token.PropertyID, eToken)
 	}
+	t.SetToken(tokens)
 
-	otherIds := schema.TypeVals{}
+	identifiers := schema.TypeVals{}
 	for _, id := range p.Identifier {
-		switch id.PropertyID {
-		case "orcid":
-			t.SetOrcid(id.Value)
-		case "gismo_id":
-			t.SetGismoID(id.Value)
-		default:
-			otherIds.Add(id.PropertyID, id.Value)
-		}
+		identifiers.Add(id.PropertyID, id.Value)
 	}
-
-	t.SetOtherID(otherIds)
-	t.SetPreferredFirstName(p.PreferredFirstName)
-	t.SetPreferredLastName(p.PreferredLastName)
+	t.SetIdentifier(identifiers)
+	t.SetPreferredGivenName(p.PreferredGivenName)
+	t.SetPreferredFamilyName(p.PreferredFamilyName)
 
 	if len(p.Organization) > 0 {
 		var organizationId []string
@@ -447,7 +383,7 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 			return nil, fmt.Errorf("unable to query organizations: %w", err)
 		}
 		if len(p.Organization) != len(orgs) {
-			return nil, fmt.Errorf("%w: person.organization_id contains invalid organization id's", models.ErrInvalidReference)
+			return nil, fmt.Errorf("%w: 's", models.ErrInvalidReference)
 		}
 		t.AddOrganizations(orgs...)
 	}
@@ -466,60 +402,84 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 }
 
 func (repo *repository) SetPersonOrcid(ctx context.Context, id string, orcid string) error {
-	nUpdated, updateErr := repo.client.
-		Person.
-		Update().
-		Where(person.PublicIDEQ(id)).
-		SetOrcid(orcid).
-		Save(ctx)
+	var sqlRes sql.Result
+	var err error
 
-	if updateErr != nil {
-		return updateErr
+	if orcid == "" {
+		sqlRes, err = repo.client.Person.ExecContext(
+			ctx,
+			"UPDATE person SET date_updated = $1, identifier = identifier - 'orcid'  WHERE public_id = $2",
+			time.Now(),
+			id,
+		)
+	} else {
+		jsonb, _ := json.Marshal(schema.TypeVals{}.Add("orcid", orcid))
+		sqlRes, err = repo.client.Person.ExecContext(
+			ctx,
+			"UPDATE person SET date_updated = $1, identifier = identifier || $2::jsonb WHERE public_id = $3",
+			time.Now(),
+			string(jsonb),
+			id,
+		)
+	}
+	if err != nil {
+		return err
 	}
 
+	nUpdated, err := sqlRes.RowsAffected()
+	if err != nil {
+		return err
+	}
 	if nUpdated == 0 {
 		return models.ErrNotFound
 	}
-
 	return nil
 }
 
 func (repo *repository) SetPersonOrcidToken(ctx context.Context, id string, orcidToken string) error {
 	var uToken string
-	var uTokenErr error
+	var err error
+	var sqlRes sql.Result
 
 	if orcidToken == "" {
-		uToken = ""
+		sqlRes, err = repo.client.Person.ExecContext(
+			ctx,
+			"UPDATE person SET date_updated = $1, token = token - 'orcid' WHERE public_id = $2",
+			time.Now(),
+			id,
+		)
 	} else {
-		uToken, uTokenErr = encryptMessage(repo.secret, orcidToken)
+		uToken, err = encryptMessage(repo.secret, orcidToken)
+		if err != nil {
+			return fmt.Errorf("unable to encrypt orcid_token: %w", err)
+		}
+		jsonb, _ := json.Marshal(schema.TypeVals{}.Add("orcid", uToken))
+		sqlRes, err = repo.client.Person.ExecContext(
+			ctx,
+			"UPDATE person SET date_updated = $1, token = token || $2::jsonb WHERE public_id = $3",
+			time.Now(),
+			string(jsonb),
+			id,
+		)
 	}
 
-	if uTokenErr != nil {
-		return fmt.Errorf("unable to encrypt orcid_token: %w", uTokenErr)
+	if err != nil {
+		return err
 	}
-
-	nUpdated, updateErr := repo.client.
-		Person.
-		Update().
-		Where(person.PublicIDEQ(id)).
-		SetOrcidToken(uToken).
-		Save(ctx)
-
-	if updateErr != nil {
-		return updateErr
+	nUpdated, err := sqlRes.RowsAffected()
+	if err != nil {
+		return err
 	}
-
 	if nUpdated == 0 {
 		return models.ErrNotFound
 	}
-
 	return nil
 }
 
 func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*models.Person, error) {
-	tx, txErr := repo.client.Tx(ctx)
-	if txErr != nil {
-		return nil, fmt.Errorf("unable to start transaction: %w", txErr)
+	tx, err := repo.client.Tx(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unable to start transaction: %w", err)
 	}
 	defer tx.Rollback()
 
@@ -530,44 +490,32 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetBirthDate(p.BirthDate)
 	t.SetJobCategory(p.JobCategory)
 	t.SetEmail(p.Email)
-	t.SetFirstName(p.FirstName)
-	t.SetFullName(p.FullName)
-	t.SetTitle(p.Title)
-	t.SetLastName(p.LastName)
+	t.SetGivenName(p.GivenName)
+	t.SetName(p.Name)
+	t.SetHonorificPrefix(p.HonorificPrefix)
+	t.SetFamilyName(p.FamilyName)
 	t.SetRole(p.Role)
 	t.SetSettings(p.Settings)
 	t.SetObjectClass(p.ObjectClass)
 	t.SetExpirationDate(p.ExpirationDate)
 
-	if p.OrcidToken == "" {
-		t.SetOrcidToken("")
-	} else {
-		eToken, eTokenErr := encryptMessage(repo.secret, p.OrcidToken)
-		if eTokenErr != nil {
-			return nil, fmt.Errorf("unable to encrypt orcid_token: %w", eTokenErr)
+	tokens := schema.TypeVals{}
+	for _, token := range p.Token {
+		eToken, err := encryptMessage(repo.secret, token.Value)
+		if err != nil {
+			return nil, fmt.Errorf("unable to encrypt %s: %w", token.PropertyID, err)
 		}
-		t.SetOrcidToken(eToken)
+		tokens.Add(token.PropertyID, eToken)
 	}
+	t.SetToken(tokens)
 
-	var gismoId *string
-	var orcid string
-	otherIds := schema.TypeVals{}
+	identifiers := schema.TypeVals{}
 	for _, id := range p.Identifier {
-		switch id.PropertyID {
-		case "gismo_id":
-			gismoId = &id.Value
-		case "orcid":
-			orcid = id.Value
-		default:
-			otherIds.Add(id.PropertyID, id.Value)
-		}
+		identifiers.Add(id.PropertyID, id.Value)
 	}
-	t.SetOrcid(orcid)
-	t.SetNillableGismoID(gismoId)
-
-	t.SetOtherID(otherIds)
-	t.SetPreferredFirstName(p.PreferredFirstName)
-	t.SetPreferredLastName(p.PreferredLastName)
+	t.SetIdentifier(identifiers)
+	t.SetPreferredGivenName(p.PreferredGivenName)
+	t.SetPreferredFamilyName(p.PreferredFamilyName)
 	t.ClearOrganizations()
 	if len(p.Organization) > 0 {
 		var organizationId []string
@@ -610,53 +558,9 @@ func (repo *repository) GetPerson(ctx context.Context, id string) (*models.Perso
 }
 
 func (repo *repository) GetPersonByIdentifier(ctx context.Context, typ string, vals ...string) (*models.Person, error) {
-	var person *models.Person
-	var err error
-
-	switch typ {
-	case "gismo_id":
-		person, err = repo.getPersonByGismoId(ctx, vals[0])
-	case "orcid":
-		person, err = repo.getPersonByORCID(ctx, vals[0])
-	default:
-		person, err = repo.getPersonByAnyOtherId(ctx, typ, vals...)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return person, nil
-}
-
-func (repo *repository) getPersonByAnyOtherId(ctx context.Context, typ string, values ...string) (*models.Person, error) {
 	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(func(s *entsql.Selector) {
-		s.Where(entsql.ExprP("other_id->$1 ?| $2", typ, values))
+		s.Where(entsql.ExprP("identifier->$1 ?| $2", typ, vals))
 	}).First(ctx)
-	if err != nil {
-		var e *ent.NotFoundError
-		if errors.As(err, &e) {
-			return nil, models.ErrNotFound
-		}
-		return nil, err
-	}
-	return repo.personUnwrap(row)
-}
-
-func (repo *repository) getPersonByGismoId(ctx context.Context, gismoId string) (*models.Person, error) {
-	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(person.GismoID(gismoId)).First(ctx)
-	if err != nil {
-		var e *ent.NotFoundError
-		if errors.As(err, &e) {
-			return nil, models.ErrNotFound
-		}
-		return nil, err
-	}
-	return repo.personUnwrap(row)
-}
-
-func (repo *repository) getPersonByORCID(ctx context.Context, orcid string) (*models.Person, error) {
-	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(person.Orcid(orcid)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -784,45 +688,42 @@ func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
 		return orgRefs[i].DateCreated.Before(*orgRefs[j].DateCreated)
 	})
 
-	var uToken string
-	var uTokenErr error
-	if e.OrcidToken != "" {
-		uToken, uTokenErr = decryptMessage(repo.secret, e.OrcidToken)
-		if uTokenErr != nil {
-			return nil, fmt.Errorf("unable to decrypt orcid_token: %w", uTokenErr)
+	var tokens []models.Token
+	for typ, eTokenVals := range e.Token {
+		for _, eTokenVal := range eTokenVals {
+			rawTokenVal, err := decryptMessage(repo.secret, eTokenVal)
+			if err != nil {
+				return nil, fmt.Errorf("unable to decrypt % token: %w", typ, err)
+			}
+			tokens = append(tokens, models.Token{
+				PropertyID: typ,
+				Value:      rawTokenVal,
+			})
 		}
-	} else {
-		uToken = e.OrcidToken
 	}
 
 	p := &models.Person{
-		Active:             e.Active,
-		BirthDate:          e.BirthDate,
-		DateCreated:        &e.DateCreated,
-		DateUpdated:        &e.DateUpdated,
-		Email:              e.Email,
-		FirstName:          e.FirstName,
-		FullName:           e.FullName,
-		ID:                 e.PublicID,
-		LastName:           e.LastName,
-		JobCategory:        e.JobCategory,
-		OrcidToken:         uToken,
-		Organization:       orgRefs,
-		PreferredLastName:  e.PreferredLastName,
-		PreferredFirstName: e.PreferredFirstName,
-		Title:              e.Title,
-		Role:               e.Role,
-		Settings:           e.Settings,
-		ObjectClass:        e.ObjectClass,
+		Active:              e.Active,
+		BirthDate:           e.BirthDate,
+		DateCreated:         &e.DateCreated,
+		DateUpdated:         &e.DateUpdated,
+		Email:               e.Email,
+		GivenName:           e.GivenName,
+		Name:                e.Name,
+		ID:                  e.PublicID,
+		FamilyName:          e.FamilyName,
+		JobCategory:         e.JobCategory,
+		Token:               tokens,
+		Organization:        orgRefs,
+		PreferredFamilyName: e.PreferredFamilyName,
+		PreferredGivenName:  e.PreferredGivenName,
+		HonorificPrefix:     e.HonorificPrefix,
+		Role:                e.Role,
+		Settings:            e.Settings,
+		ObjectClass:         e.ObjectClass,
 	}
 
-	if e.GismoID != nil && *e.GismoID != "" {
-		p.AddIdentifier("gismo_id", *e.GismoID)
-	}
-	if e.Orcid != "" {
-		p.AddIdentifier("orcid", e.Orcid)
-	}
-	for key, vals := range e.OtherID {
+	for key, vals := range e.Identifier {
 		for _, val := range vals {
 			p.AddIdentifier(key, val)
 		}

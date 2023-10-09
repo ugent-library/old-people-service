@@ -337,7 +337,7 @@ components:
         - code
         - message
 
-    Identifier:
+    PropertyValue:
       type: object
       properties:
         type:
@@ -380,28 +380,30 @@ components:
         date_updated:
           type: string
           format: date-time
-        full_name:
+        name:
           type: string
-        first_name:
+        given_name:
           type: string
-        last_name:
+        family_name:
           type: string
         email:
           type: string
-        orcid_token:
+        token:
+          type: array
+          items:
+            $ref: "#/components/schemas/PropertyValue"
+        preferred_given_name:
           type: string
-        preferred_first_name:
-          type: string
-        preferred_last_name:
+        preferred_family_name:
           type: string
         birth_date:
           type: string
-        title:
+        honorific_prefix:
           type: string
         identifier:
           type: array
           items:
-            $ref: "#/components/schemas/Identifier"
+            $ref: "#/components/schemas/PropertyValue"
         organization:
           type: array
           items:
@@ -447,7 +449,7 @@ components:
         identifier:
           type: array
           items:
-            $ref: "#/components/schemas/Identifier"
+            $ref: "#/components/schemas/PropertyValue"
 
     PersonListResponse:
       type: object

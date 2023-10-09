@@ -52,9 +52,7 @@ var serverCmd = &cobra.Command{
 		mux := chi.NewMux()
 
 		mux.Use(middleware.RequestID)
-		if config.Production {
-			mux.Use(middleware.RealIP)
-		}
+		mux.Use(middleware.RealIP)
 		mux.Use(zaphttp.SetLogger(logger.Desugar(), zapchi.RequestID))
 		mux.Use(middleware.RequestLogger(zapchi.LogFormatter()))
 		mux.Use(middleware.Recoverer)

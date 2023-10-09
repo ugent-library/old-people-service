@@ -153,6 +153,7 @@ func customSchemaChanges(next schema.Applier) schema.Applier {
 		CREATE INDEX IF NOT EXISTS person_identifier_ugent_username_gin ON person USING GIN((identifier->'ugent_username') jsonb_ops);
 		CREATE INDEX IF NOT EXISTS person_identifier_ugent_id_gin ON person USING GIN((identifier->'ugent_id') jsonb_ops);
 		CREATE INDEX IF NOT EXISTS person_identifier_historic_ugent_id_gin ON person USING GIN((identifier->'historic_ugent_id') jsonb_ops);
+		CREATE INDEX IF NOT EXISTS person_identifier_old_biblio_id_gin ON person USING GIN((identifier->'old_biblio_id') jsonb_ops);
 		COMMIT;
 		`
 

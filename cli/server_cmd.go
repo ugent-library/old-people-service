@@ -108,15 +108,7 @@ var serverCmd = &cobra.Command{
 		mux.Get("/info", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(200)
-			bytes, _ := json.Marshal(&struct {
-				Branch string `json:"branch,omitempty"`
-				Commit string `json:"commit,omitempty"`
-				Image  string `json:"image,omitempty"`
-			}{
-				Branch: config.Version.Branch,
-				Commit: config.Version.Commit,
-				Image:  config.Version.Image,
-			})
+			bytes, _ := json.Marshal(&version)
 			w.Write(bytes)
 		})
 

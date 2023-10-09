@@ -27,17 +27,12 @@ type ConfigLdap struct {
 }
 
 type Config struct {
-	Version struct {
-		Branch string `env:"SOURCE_BRANCH"`
-		Commit string `env:"SOURCE_COMMIT"`
-		Image  string `env:"IMAGE_NAME"`
-	}
-	Production bool       `env:"PEOPLE_PRODUCTION"`
-	Db         ConfigDb   `envPrefix:"PEOPLE_DB_"`
-	Nats       ConfigNats `envPrefix:"PEOPLE_NATS_"`
-	Api        ConfigApi  `envPrefix:"PEOPLE_API_"`
-	Ldap       ConfigLdap `envPrefix:"PEOPLE_LDAP_"`
-	IPRanges   string     `env:"PEOPLE_IP_RANGES"`
+	Production bool       `env:"PRODUCTION"`
+	Db         ConfigDb   `envPrefix:"DB_"`
+	Nats       ConfigNats `envPrefix:"NATS_"`
+	Api        ConfigApi  `envPrefix:"API_"`
+	Ldap       ConfigLdap `envPrefix:"LDAP_"`
+	IPRanges   string     `env:"IP_RANGES"`
 }
 
 func (ca ConfigApi) Addr() string {

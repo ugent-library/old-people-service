@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	config Config
+	config  Config
+	version Version
 )
 
 var logger *zap.SugaredLogger
@@ -20,14 +21,20 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	cobra.OnInitialize(initConfig, initLogger)
+	cobra.OnInitialize(initVersion, initConfig, initLogger)
 	cobra.OnFinalize(func() {
 		logger.Sync()
 	})
 }
 
 func initConfig() {
-	cobra.CheckErr(env.Parse(&config))
+	cobra.CheckErr(env.ParseWithOptions(&config, env.Options{
+		Prefix: "PEOPLE_",
+	}))
+}
+
+func initVersion() {
+	cobra.CheckErr(env.Parse(&version))
 }
 
 func initLogger() {

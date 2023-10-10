@@ -20,6 +20,13 @@ import (
 	"github.com/ugent-library/people-service/models"
 )
 
+const (
+	personPageLimit          = 200
+	organizationPageLimit    = 200
+	organizationSuggestLimit = 10
+	personSuggestLimit       = 10
+)
+
 type repository struct {
 	client *ent.Client
 	secret []byte
@@ -227,7 +234,7 @@ func (repo *repository) SuggestOrganizations(ctx context.Context, query string) 
 		s.Where(
 			entsql.ExprP(tsQuery, tsQueryArgs...),
 		)
-	}).Limit(10).All(ctx)
+	}).Limit(organizationSuggestLimit).All(ctx)
 
 	if err != nil {
 		return nil, err
@@ -279,9 +286,8 @@ func (repo *repository) GetMoreOrganizations(ctx context.Context, tokenValue str
 }
 
 func (repo *repository) getOrganizations(ctx context.Context, cursor setCursor) ([]*models.Organization, setCursor, error) {
-	limit := 100
 	newCursor := setCursor{}
-	rows, err := repo.client.Organization.Query().Where(organization.IDGT(cursor.LastID)).Order(ent.Asc(organization.FieldID)).WithParent().Limit(limit).All(ctx)
+	rows, err := repo.client.Organization.Query().Where(organization.IDGT(cursor.LastID)).Order(ent.Asc(organization.FieldID)).WithParent().Limit(organizationPageLimit).All(ctx)
 	if err != nil {
 		return nil, newCursor, err
 	}
@@ -621,7 +627,7 @@ func (repo *repository) SuggestPeople(ctx context.Context, query string) ([]*mod
 		"SELECT id, ts_rank(ts, %s) as rank FROM person WHERE ts @@ %s ORDER BY rank DESC LIMIT %d",
 		tsQuery,
 		tsQuery,
-		10,
+		personSuggestLimit,
 	)
 	rows, err := repo.client.QueryContext(ctx, sqlQuery, tsQueryArgs...)
 
@@ -834,9 +840,8 @@ func (repo *repository) GetMorePeople(ctx context.Context, tokenValue string) ([
 }
 
 func (repo *repository) getPeople(ctx context.Context, cursor setCursor) ([]*models.Person, setCursor, error) {
-	limit := 100
 	newCursor := setCursor{}
-	rows, err := repo.client.Person.Query().Where(person.IDGT(cursor.LastID)).Order(ent.Asc(person.FieldID)).WithOrganizations().WithOrganizationPerson().Limit(limit).All(ctx)
+	rows, err := repo.client.Person.Query().Where(person.IDGT(cursor.LastID)).Order(ent.Asc(person.FieldID)).WithOrganizations().WithOrganizationPerson().Limit(personPageLimit).All(ctx)
 	if err != nil {
 		return nil, newCursor, err
 	}

@@ -64,7 +64,12 @@ var serverCmd = &cobra.Command{
 			})
 			mux.Use(func(next http.Handler) http.Handler {
 				return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					remoteIP, _, _ := net.SplitHostPort(r.RemoteAddr)
+					remoteIP := r.Header.Get("X-Real-IP")
+					// middleware realip set RemoteAddr to ip address only (no :port), so below split leaves an empty string
+					if remoteIP == "" {
+						rip, _, _ := net.SplitHostPort(r.RemoteAddr)
+						remoteIP = rip
+					}
 					if ipFilter.Allowed(remoteIP) {
 						next.ServeHTTP(w, r)
 						return

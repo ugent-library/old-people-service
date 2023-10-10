@@ -247,9 +247,12 @@ func (repo *repository) GetOrganizations(ctx context.Context) ([]*models.Organiz
 		return nil, "", err
 	}
 
-	encodedCursor, err := repo.encodeCursor(newCursor)
-	if err != nil {
-		return nil, "", err
+	var encodedCursor string
+	if newCursor.LastID > 0 {
+		encodedCursor, err = repo.encodeCursor(newCursor)
+		if err != nil {
+			return nil, "", err
+		}
 	}
 	return organizations, encodedCursor, nil
 }
@@ -264,10 +267,14 @@ func (repo *repository) GetMoreOrganizations(ctx context.Context, tokenValue str
 		return nil, "", err
 	}
 
-	encodedCursor, err := repo.encodeCursor(newCursor)
-	if err != nil {
-		return nil, "", err
+	var encodedCursor string
+	if newCursor.LastID > 0 {
+		encodedCursor, err = repo.encodeCursor(newCursor)
+		if err != nil {
+			return nil, "", err
+		}
 	}
+
 	return organizations, encodedCursor, nil
 }
 
@@ -277,6 +284,9 @@ func (repo *repository) getOrganizations(ctx context.Context, cursor setCursor) 
 	rows, err := repo.client.Organization.Query().Where(organization.IDGT(cursor.LastID)).Order(ent.Asc(organization.FieldID)).WithParent().Limit(limit).All(ctx)
 	if err != nil {
 		return nil, newCursor, err
+	}
+	if len(rows) == 0 {
+		return []*models.Organization{}, setCursor{}, nil
 	}
 
 	total, err := repo.client.Organization.Query().Count(ctx)
@@ -792,9 +802,12 @@ func (repo *repository) GetPeople(ctx context.Context) ([]*models.Person, string
 		return nil, "", err
 	}
 
-	encodedCursor, err := repo.encodeCursor(newCursor)
-	if err != nil {
-		return nil, "", err
+	var encodedCursor string
+	if newCursor.LastID > 0 {
+		encodedCursor, err = repo.encodeCursor(newCursor)
+		if err != nil {
+			return nil, "", err
+		}
 	}
 	return people, encodedCursor, nil
 }
@@ -810,9 +823,12 @@ func (repo *repository) GetMorePeople(ctx context.Context, tokenValue string) ([
 		return nil, "", err
 	}
 
-	encodedCursor, err := repo.encodeCursor(newCursor)
-	if err != nil {
-		return nil, "", err
+	var encodedCursor string
+	if newCursor.LastID > 0 {
+		encodedCursor, err = repo.encodeCursor(newCursor)
+		if err != nil {
+			return nil, "", err
+		}
 	}
 	return people, encodedCursor, nil
 }
@@ -823,6 +839,9 @@ func (repo *repository) getPeople(ctx context.Context, cursor setCursor) ([]*mod
 	rows, err := repo.client.Person.Query().Where(person.IDGT(cursor.LastID)).Order(ent.Asc(person.FieldID)).WithOrganizations().WithOrganizationPerson().Limit(limit).All(ctx)
 	if err != nil {
 		return nil, newCursor, err
+	}
+	if len(rows) == 0 {
+		return []*models.Person{}, setCursor{}, nil
 	}
 
 	people := make([]*models.Person, 0, len(rows))

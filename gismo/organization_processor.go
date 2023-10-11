@@ -20,7 +20,7 @@ func NewOrganizationProcessor(repo models.Repository) *OrganizationProcessor {
 }
 
 func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
-	msg, err := parseOrganizationMessage(buf)
+	msg, err := ParseOrganizationMessage(buf)
 	if err != nil {
 		return nil, err
 	}

@@ -7,16 +7,15 @@ import (
 	"time"
 
 	"github.com/antchfx/xmlquery"
+	"github.com/ugent-library/cerifutil"
 	"github.com/ugent-library/people-service/models"
 )
 
-func parseOrganizationMessage(buf []byte) (*models.Message, error) {
-	doc, err := xmlquery.Parse(bytes.NewReader(buf))
+func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
+	doc, err := cerifutil.Parse(bytes.NewReader(buf))
 	if err != nil {
 		return nil, err
 	}
-
-	removeNamespace(doc)
 
 	node := xmlquery.FindOne(doc, "//cfOrgUnit")
 
@@ -63,7 +62,7 @@ func parseOrganizationMessage(buf []byte) (*models.Message, error) {
 			})
 		}
 
-		for _, v := range cerifValuesByClassName(doc, "cfOrgUnit_Class", "/be.ugent/organisatie/type/vakgroep", "") {
+		for _, v := range cerifutil.ValuesByClassName(doc, "cfOrgUnit_Class", "/be.ugent/organisatie/type/vakgroep", "") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -73,7 +72,7 @@ func parseOrganizationMessage(buf []byte) (*models.Message, error) {
 				EndDate:   &endDate,
 			})
 		}
-		for _, v := range cerifValuesByClassName(doc, "cfOrgUnit_OrgUnit", "/be.ugent/gismo/organisatie-organisatie/type/kind-van", "cfOrgUnitId1") {
+		for _, v := range cerifutil.ValuesByClassName(doc, "cfOrgUnit_OrgUnit", "/be.ugent/gismo/organisatie-organisatie/type/kind-van", "cfOrgUnitId1") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -84,7 +83,7 @@ func parseOrganizationMessage(buf []byte) (*models.Message, error) {
 			})
 		}
 		// e.g. 000006047
-		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/memorialis", "cfFedId") {
+		for _, v := range cerifutil.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/memorialis", "cfFedId") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -95,7 +94,7 @@ func parseOrganizationMessage(buf []byte) (*models.Message, error) {
 			})
 		}
 		// e.g. "WE03V"
-		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/org-code", "cfFedId") {
+		for _, v := range cerifutil.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/org-code", "cfFedId") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -106,7 +105,7 @@ func parseOrganizationMessage(buf []byte) (*models.Message, error) {
 			})
 		}
 		// e.g. WE03*
-		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/biblio-code", "cfFedId") {
+		for _, v := range cerifutil.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/biblio-code", "cfFedId") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{

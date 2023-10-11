@@ -7,16 +7,15 @@ import (
 	"time"
 
 	"github.com/antchfx/xmlquery"
+	"github.com/ugent-library/cerifutil"
 	"github.com/ugent-library/people-service/models"
 )
 
-func parsePersonMessage(buf []byte) (*models.Message, error) {
-	doc, err := xmlquery.Parse(bytes.NewReader(buf))
+func ParsePersonMessage(buf []byte) (*models.Message, error) {
+	doc, err := cerifutil.Parse(bytes.NewReader(buf))
 	if err != nil {
 		return nil, err
 	}
-
-	removeNamespace(doc)
 
 	node := xmlquery.FindOne(doc, "//cfPers")
 
@@ -53,7 +52,7 @@ func parsePersonMessage(buf []byte) (*models.Message, error) {
 	} else {
 		msg.Source = "gismo.person.update"
 
-		for _, nameNode := range cerifNodesByClassName(doc, "cfPersName_Pers", "/be.ugent/gismo/persoon/persoonsnaam/type/officiele-naam") {
+		for _, nameNode := range cerifutil.NodesByClassName(doc, "cfPersName_Pers", "/be.ugent/gismo/persoon/persoonsnaam/type/officiele-naam") {
 			startDate, err := time.Parse(time.RFC3339, strings.TrimSpace(xmlquery.FindOne(nameNode, "cfStartDate").InnerText()))
 			if err != nil {
 				return nil, err
@@ -87,7 +86,7 @@ func parsePersonMessage(buf []byte) (*models.Message, error) {
 				})
 			}
 		}
-		for _, nameNode := range cerifNodesByClassName(doc, "cfPersName_Pers", "/be.ugent/gismo/persoon/persoonsnaam/type/voorkeursweergave") {
+		for _, nameNode := range cerifutil.NodesByClassName(doc, "cfPersName_Pers", "/be.ugent/gismo/persoon/persoonsnaam/type/voorkeursweergave") {
 			startDate, err := time.Parse(time.RFC3339, strings.TrimSpace(xmlquery.FindOne(nameNode, "cfStartDate").InnerText()))
 			if err != nil {
 				return nil, err
@@ -114,7 +113,7 @@ func parsePersonMessage(buf []byte) (*models.Message, error) {
 			}
 		}
 
-		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/persoon/federated-id/ugent-id", "cfFedId") {
+		for _, v := range cerifutil.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/persoon/federated-id/ugent-id", "cfFedId") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -124,7 +123,7 @@ func parsePersonMessage(buf []byte) (*models.Message, error) {
 				EndDate:   &endDate,
 			})
 		}
-		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/persoon/federated-id/orcid", "cfFedId") {
+		for _, v := range cerifutil.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/persoon/federated-id/orcid", "cfFedId") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -134,7 +133,7 @@ func parsePersonMessage(buf []byte) (*models.Message, error) {
 				EndDate:   &endDate,
 			})
 		}
-		for _, v := range cerifValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/memorialis", "cfFedId") {
+		for _, v := range cerifutil.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/memorialis", "cfFedId") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{

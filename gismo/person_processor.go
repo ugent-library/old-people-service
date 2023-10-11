@@ -25,7 +25,7 @@ func NewPersonProcessor(repo models.Repository, ugentLdapClient *ugentldap.Clien
 }
 
 func (pp *PersonProcessor) Process(buf []byte) (*models.Message, error) {
-	msg, err := parsePersonMessage(buf)
+	msg, err := ParsePersonMessage(buf)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,6 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 	person.PreferredGivenName = ""
 	person.PreferredFamilyName = ""
 	person.HonorificPrefix = ""
-	person.Organization = nil
 	var gismoOrganizationRefs []*models.OrganizationRef
 
 	// add attributes from GISMO

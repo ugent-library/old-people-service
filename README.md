@@ -160,6 +160,46 @@ or store them in file `.env` in the root of your folder (important: exclude `exp
 
   required: `true`
 
+# Run database migrations
+
+Before starting the application you should run any pending database migrations.
+
+For this we use [atlas](https://atlasgo.io/), which can be installed via homebrew on your MAC:
+
+```
+brew install ariga/tap/atlas
+```
+
+Or manually
+
+```
+curl -sSf https://atlasgo.sh | sh
+```
+
+Atlas is a database migration tool, that is used both for generating the necessary
+sql migration files (during development), and for managing the state of the running database (in production).
+
+Copy the example file `atlas.hcl.example` to `atlas.hcl` and update where necessary
+
+Now run `atlas migrate apply --env local` to apply any pending migrations
+
+If you change anything to your entgo schema, run this atlas command:
+
+```
+atlas migrate diff <migration-name> --env local
+```
+
+This will generate new sql files in folder `ent/migrate/migrations`
+You can update these by hand, but be sure to run `atlas hash --env local` afterwards
+to update the checksum file `atlas.sum`
+
+Due to some [inconveniences](https://github.com/ariga/atlas/issues/2158) we can only use atlas during development, in order to generate migration files.
+These are stored in `ent/migrate/migrations`
+
+In production we use [tern](https://github.com/jackc/tern). Make sure
+that directories `ent/migrate/migrations` (for atlas) and `etc/migrations` (for tern) are kept in sync. And note that tern uses a different naming for sql
+files (prefix is a padded number instead of a timestamp)
+
 # Start the api server (openapi)
 
 ```

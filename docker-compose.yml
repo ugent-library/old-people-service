@@ -2,6 +2,14 @@ version: '3.5'
 
 # requirement: run "docker build -t people-service ." in order to create image people-service
 services:
+  dbmigrate:
+    image: ugenlib/people-service-tern
+    container_name: people_service_tern
+    env_file: docker/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   people_service_inbox_person:
     image: ugentlib/people-service:latest
     container_name: people_service_inbox_person
@@ -11,6 +19,8 @@ services:
       # nats docker image has no shell to check health
       nats:
         condition: service_started
+      dbmigrate:
+        condition: service_completed_successfully
     volumes:
       - ./docker/.env:/opt/people-service/.env
     command: "/bin/sh -c \"cd /opt/people-service && ./people-service inbox listen person\""
@@ -24,6 +34,8 @@ services:
       # nats docker image has no shell to check health
       nats:
         condition: service_started
+      dbmigrate:
+        condition: service_completed_successfully
     volumes:
       - ./docker/.env:/opt/people-service/.env
     command: "/bin/sh -c \"cd /opt/people-service && ./people-service inbox listen organization\""
@@ -34,6 +46,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      dbmigrate:
+        condition: service_completed_successfully
     expose:
       - 3999
     ports:

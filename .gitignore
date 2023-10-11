@@ -27,3 +27,6 @@ node_modules
 
 # build file
 /people-service
+
+/atlas.hcl
+/tern.conf

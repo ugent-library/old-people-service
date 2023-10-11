@@ -1,0 +1,20 @@
+env "local" {
+  // Declare where the schema definition resides.
+  // Also supported: ["file://multi.hcl", "file://schema.hcl"].
+  src = "ent://ent/schema"
+
+  // Define the URL of the database which is managed
+  // in this environment.
+  url = "postgres://people:people@localhost:5432/people?sslmode=disable"
+
+  dev = "docker://postgres/14/people?search_path=public"
+
+  migration {
+    // URL where the migration directory resides.
+    dir = "file://ent/migrate/migrations"
+
+    // An optional format of the migration directory:
+    // atlas (default) | flyway | liquibase | goose | golang-migrate | dbmate
+    format = atlas
+  }
+}

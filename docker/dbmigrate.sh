@@ -5,5 +5,10 @@ if [ -z "$PGDSN" ];then
     exit 1
 fi
 
+if [ "z$NOMAD_ALLOC_INDEX" != "z0" ]; then
+    echo "not on primary node, ignoring migration"
+    exit 0
+fi
+
 tern status --conn-string "$PGDSN" || exit 1
 tern migrate --conn-string "$PGDSN" || exit 1

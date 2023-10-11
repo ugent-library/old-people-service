@@ -346,3 +346,111 @@ $ docker compose up
 ```
 
 Docker compose uses that image `people-service`
+
+# Update flow organizations
+
+## incoming message via NATS consumer
+
+Any nats message on subject `${PEOPLE_NATS_STREAM_NAME}.organization` is processed
+by the command `people-service inbox listen organization`. Expected is a CERIF XML
+blob. The message translates this XML into a list of attributes (with start and end date), and assigns them to a new/existing organization record with the following rules:
+
+* if there is a record that matches the gismo identifier, then it is loaded. Otherwise a new record is created.
+
+* if the incoming message has as action `DELETE`, then the record is deleted. Other actions are treated as an upsert.
+
+* Existing attributes `name_dut`, `name_dut`, `parent_id`, `type` and `identifier` are cleared before assigning attributes. So every update from GISMO should send all attributes. No merging happens.
+
+* gismo identifier is added to list of external identifiers (column `identifier`) ALWAYS
+
+* `parent_id` is added if current date is between start and end date. To assign this, the parent organization is searched by its gismo identifier and assigned as such. When not found, it is created with only the gismo identifier (dummy record). Later updates should fill this parent record with more information
+
+* `name_dut` is added if current date is between start and end date. 
+
+* `name_eng` is added if current date is between start and end date. 
+
+* `type` is added ALWAYS
+
+* `ugent_memorialis_id` is added ALWAYS to `identifier->'ugent_memorialis_id'`
+
+* `code` is added ALWAYS to `identifier->'ugent_id'`
+
+* `biblio_code` is added ALWAYS to `identifier->'biblio_id'`
+
+Problems:
+
+* There may be more than one attribute `parent_id`. Above code solves this by only using those attributes that are still within range. But for deprecated organizations (like our older departments) that means that they do not have a parent organization. e.g. LW06
+
+## call to openapi `/api/v1/add-organization`
+
+Any call to the the openapi handler `/api/v1/add-organization` overwrites
+the existing record. Note that only updates that contain an `id` are considered
+updates, and those without as new records (for who a new id is minted).
+
+Any call to this handler should happen rarely.
+
+The route via the nats consumer is preferred.
+
+# Update flow people
+
+## incoming message via NATS consumer
+
+Any nats message on subject `${PEOPLE_NATS_STREAM_NAME}.person` is processed
+by the command `people-service inbox listen person`. Expected is a CERIF XML
+blob. The message translates this XML into a list of attributes (with start and end date), and assigns them to a new/existing person record with the following rules:
+
+* if there is a record that matches the gismo identifier or any of the provided historic_ugent_id's, then it is loaded. Otherwise a new record is created.
+
+* every message requires one or more historic_ugent_id's. Without this we cannot student records that were inserted previously via the student importer (via ldap) and that have no gismo identifier yet.
+
+* Existing attributes `email`, `given_name`, `family_name`, `name`, `preferred_given_name`, `preferred_family_name`, `organization`, `honorific_prefix` and `identifier` are cleared before assigning attributes. So every update from GISMO should send all attributes. No merging happens. For every `organization` mentioned, it makes sure that a organization record with that gismo id exists in the table for organizations, even if it means making a dummy record. That person is linked to the list of provided organizations.
+
+* The person record is enriched with attributes from the ugent ldap (if any). If no ldap entry can be found, the attribute `active` is set to `false`. The following attributes are set from ldap:
+  * `identifier->'ugent_username'`
+  * `identifier->'ugent_barcode'`
+  * `name`
+  * `object_class`
+  * `expiration_date`. 
+
+Problems:
+
+* a call to openapi handler `/api/v1/set-person-orcid` may also set orcid, and can be cleared by the next incoming message from gismo
+
+## nightly cron job that upserts student records
+
+A nightly cron job reads student record from the ugent ldap
+
+and inserts/updates person records. Matching on existing records
+
+is done by matching on identifier `historic_ugent_id`.
+
+The following attributes are overwritten:
+
+* `identifier->'ugent_username'`
+* `identifier->'ugent_id'`
+* `identifier->'historic_ugent_id'`
+* `identifier->'ugent_barcode'`
+* `given_name`
+* `family_name`
+* `name`
+* `birth_date`
+* `email`
+* `job_category`
+* `honorific_prefix`
+* `object_class`
+* `expiration_date`
+* `organization`. 
+
+Note that if no organization be found based on `identifier->'ugent'` then no (dummy) organization record is made for it. In that case the attribute is ignored.
+
+## nightly cron job that deactivates expired person records
+
+All person records with column `expiration_date` set to a non zero value,
+
+and whose expiration date has passed, are deactivated, by setting column
+
+`active` to `false`. The expiration date is cleared also.
+
+Expiration dates are taken from the ugent ldap entry.
+
+## call to openapi `/api/v1/add-person`

@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ugent-library/people-service/ent/organization"
+	"github.com/ugent-library/people-service/ent/organizationparent"
 	"github.com/ugent-library/people-service/ent/organizationperson"
 	"github.com/ugent-library/people-service/ent/person"
 
@@ -28,6 +29,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Organization is the client for interacting with the Organization builders.
 	Organization *OrganizationClient
+	// OrganizationParent is the client for interacting with the OrganizationParent builders.
+	OrganizationParent *OrganizationParentClient
 	// OrganizationPerson is the client for interacting with the OrganizationPerson builders.
 	OrganizationPerson *OrganizationPersonClient
 	// Person is the client for interacting with the Person builders.
@@ -46,6 +49,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Organization = NewOrganizationClient(c.config)
+	c.OrganizationParent = NewOrganizationParentClient(c.config)
 	c.OrganizationPerson = NewOrganizationPersonClient(c.config)
 	c.Person = NewPersonClient(c.config)
 }
@@ -131,6 +135,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:                ctx,
 		config:             cfg,
 		Organization:       NewOrganizationClient(cfg),
+		OrganizationParent: NewOrganizationParentClient(cfg),
 		OrganizationPerson: NewOrganizationPersonClient(cfg),
 		Person:             NewPersonClient(cfg),
 	}, nil
@@ -153,6 +158,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:                ctx,
 		config:             cfg,
 		Organization:       NewOrganizationClient(cfg),
+		OrganizationParent: NewOrganizationParentClient(cfg),
 		OrganizationPerson: NewOrganizationPersonClient(cfg),
 		Person:             NewPersonClient(cfg),
 	}, nil
@@ -184,6 +190,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Organization.Use(hooks...)
+	c.OrganizationParent.Use(hooks...)
 	c.OrganizationPerson.Use(hooks...)
 	c.Person.Use(hooks...)
 }
@@ -192,6 +199,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Organization.Intercept(interceptors...)
+	c.OrganizationParent.Intercept(interceptors...)
 	c.OrganizationPerson.Intercept(interceptors...)
 	c.Person.Intercept(interceptors...)
 }
@@ -201,6 +209,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *OrganizationMutation:
 		return c.Organization.mutate(ctx, m)
+	case *OrganizationParentMutation:
+		return c.OrganizationParent.mutate(ctx, m)
 	case *OrganizationPersonMutation:
 		return c.OrganizationPerson.mutate(ctx, m)
 	case *PersonMutation:
@@ -319,38 +329,6 @@ func (c *OrganizationClient) QueryPeople(o *Organization) *PersonQuery {
 	return query
 }
 
-// QueryParent queries the parent edge of a Organization.
-func (c *OrganizationClient) QueryParent(o *Organization) *OrganizationQuery {
-	query := (&OrganizationClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := o.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(organization.Table, organization.FieldID, id),
-			sqlgraph.To(organization.Table, organization.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, organization.ParentTable, organization.ParentColumn),
-		)
-		fromV = sqlgraph.Neighbors(o.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryChildren queries the children edge of a Organization.
-func (c *OrganizationClient) QueryChildren(o *Organization) *OrganizationQuery {
-	query := (&OrganizationClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := o.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(organization.Table, organization.FieldID, id),
-			sqlgraph.To(organization.Table, organization.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, organization.ChildrenTable, organization.ChildrenColumn),
-		)
-		fromV = sqlgraph.Neighbors(o.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryOrganizationPerson queries the organization_person edge of a Organization.
 func (c *OrganizationClient) QueryOrganizationPerson(o *Organization) *OrganizationPersonQuery {
 	query := (&OrganizationPersonClient{config: c.config}).Query()
@@ -389,6 +367,124 @@ func (c *OrganizationClient) mutate(ctx context.Context, m *OrganizationMutation
 		return (&OrganizationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Organization mutation op: %q", m.Op())
+	}
+}
+
+// OrganizationParentClient is a client for the OrganizationParent schema.
+type OrganizationParentClient struct {
+	config
+}
+
+// NewOrganizationParentClient returns a client for the OrganizationParent from the given config.
+func NewOrganizationParentClient(c config) *OrganizationParentClient {
+	return &OrganizationParentClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `organizationparent.Hooks(f(g(h())))`.
+func (c *OrganizationParentClient) Use(hooks ...Hook) {
+	c.hooks.OrganizationParent = append(c.hooks.OrganizationParent, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `organizationparent.Intercept(f(g(h())))`.
+func (c *OrganizationParentClient) Intercept(interceptors ...Interceptor) {
+	c.inters.OrganizationParent = append(c.inters.OrganizationParent, interceptors...)
+}
+
+// Create returns a builder for creating a OrganizationParent entity.
+func (c *OrganizationParentClient) Create() *OrganizationParentCreate {
+	mutation := newOrganizationParentMutation(c.config, OpCreate)
+	return &OrganizationParentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of OrganizationParent entities.
+func (c *OrganizationParentClient) CreateBulk(builders ...*OrganizationParentCreate) *OrganizationParentCreateBulk {
+	return &OrganizationParentCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for OrganizationParent.
+func (c *OrganizationParentClient) Update() *OrganizationParentUpdate {
+	mutation := newOrganizationParentMutation(c.config, OpUpdate)
+	return &OrganizationParentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *OrganizationParentClient) UpdateOne(op *OrganizationParent) *OrganizationParentUpdateOne {
+	mutation := newOrganizationParentMutation(c.config, OpUpdateOne, withOrganizationParent(op))
+	return &OrganizationParentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *OrganizationParentClient) UpdateOneID(id int) *OrganizationParentUpdateOne {
+	mutation := newOrganizationParentMutation(c.config, OpUpdateOne, withOrganizationParentID(id))
+	return &OrganizationParentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for OrganizationParent.
+func (c *OrganizationParentClient) Delete() *OrganizationParentDelete {
+	mutation := newOrganizationParentMutation(c.config, OpDelete)
+	return &OrganizationParentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *OrganizationParentClient) DeleteOne(op *OrganizationParent) *OrganizationParentDeleteOne {
+	return c.DeleteOneID(op.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *OrganizationParentClient) DeleteOneID(id int) *OrganizationParentDeleteOne {
+	builder := c.Delete().Where(organizationparent.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &OrganizationParentDeleteOne{builder}
+}
+
+// Query returns a query builder for OrganizationParent.
+func (c *OrganizationParentClient) Query() *OrganizationParentQuery {
+	return &OrganizationParentQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeOrganizationParent},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a OrganizationParent entity by its id.
+func (c *OrganizationParentClient) Get(ctx context.Context, id int) (*OrganizationParent, error) {
+	return c.Query().Where(organizationparent.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *OrganizationParentClient) GetX(ctx context.Context, id int) *OrganizationParent {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *OrganizationParentClient) Hooks() []Hook {
+	return c.hooks.OrganizationParent
+}
+
+// Interceptors returns the client interceptors.
+func (c *OrganizationParentClient) Interceptors() []Interceptor {
+	return c.inters.OrganizationParent
+}
+
+func (c *OrganizationParentClient) mutate(ctx context.Context, m *OrganizationParentMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&OrganizationParentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&OrganizationParentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&OrganizationParentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&OrganizationParentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown OrganizationParent mutation op: %q", m.Op())
 	}
 }
 
@@ -695,10 +791,10 @@ func (c *PersonClient) mutate(ctx context.Context, m *PersonMutation) (Value, er
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Organization, OrganizationPerson, Person []ent.Hook
+		Organization, OrganizationParent, OrganizationPerson, Person []ent.Hook
 	}
 	inters struct {
-		Organization, OrganizationPerson, Person []ent.Interceptor
+		Organization, OrganizationParent, OrganizationPerson, Person []ent.Interceptor
 	}
 )
 

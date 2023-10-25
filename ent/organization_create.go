@@ -113,20 +113,6 @@ func (oc *OrganizationCreate) SetIdentifier(sv schema.TypeVals) *OrganizationCre
 	return oc
 }
 
-// SetParentID sets the "parent_id" field.
-func (oc *OrganizationCreate) SetParentID(i int) *OrganizationCreate {
-	oc.mutation.SetParentID(i)
-	return oc
-}
-
-// SetNillableParentID sets the "parent_id" field if the given value is not nil.
-func (oc *OrganizationCreate) SetNillableParentID(i *int) *OrganizationCreate {
-	if i != nil {
-		oc.SetParentID(*i)
-	}
-	return oc
-}
-
 // AddPersonIDs adds the "people" edge to the Person entity by IDs.
 func (oc *OrganizationCreate) AddPersonIDs(ids ...int) *OrganizationCreate {
 	oc.mutation.AddPersonIDs(ids...)
@@ -140,26 +126,6 @@ func (oc *OrganizationCreate) AddPeople(p ...*Person) *OrganizationCreate {
 		ids[i] = p[i].ID
 	}
 	return oc.AddPersonIDs(ids...)
-}
-
-// SetParent sets the "parent" edge to the Organization entity.
-func (oc *OrganizationCreate) SetParent(o *Organization) *OrganizationCreate {
-	return oc.SetParentID(o.ID)
-}
-
-// AddChildIDs adds the "children" edge to the Organization entity by IDs.
-func (oc *OrganizationCreate) AddChildIDs(ids ...int) *OrganizationCreate {
-	oc.mutation.AddChildIDs(ids...)
-	return oc
-}
-
-// AddChildren adds the "children" edges to the Organization entity.
-func (oc *OrganizationCreate) AddChildren(o ...*Organization) *OrganizationCreate {
-	ids := make([]int, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return oc.AddChildIDs(ids...)
 }
 
 // AddOrganizationPersonIDs adds the "organization_person" edge to the OrganizationPerson entity by IDs.
@@ -320,39 +286,6 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := oc.mutation.ParentIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   organization.ParentTable,
-			Columns: []string{organization.ParentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.ParentID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := oc.mutation.ChildrenIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   organization.ChildrenTable,
-			Columns: []string{organization.ChildrenColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := oc.mutation.OrganizationPersonIDs(); len(nodes) > 0 {

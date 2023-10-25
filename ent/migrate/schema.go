@@ -19,31 +19,45 @@ var (
 		{Name: "name_dut", Type: field.TypeString, Nullable: true},
 		{Name: "name_eng", Type: field.TypeString, Nullable: true},
 		{Name: "identifier", Type: field.TypeJSON, Nullable: true},
-		{Name: "parent_id", Type: field.TypeInt, Nullable: true},
 	}
 	// OrganizationTable holds the schema information for the "organization" table.
 	OrganizationTable = &schema.Table{
 		Name:       "organization",
 		Columns:    OrganizationColumns,
 		PrimaryKey: []*schema.Column{OrganizationColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "organization_organization_children",
-				Columns:    []*schema.Column{OrganizationColumns[8]},
-				RefColumns: []*schema.Column{OrganizationColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "organization_type",
 				Unique:  false,
 				Columns: []*schema.Column{OrganizationColumns[4]},
 			},
+		},
+	}
+	// OrganizationParentColumns holds the columns for the "organization_parent" table.
+	OrganizationParentColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "date_created", Type: field.TypeTime},
+		{Name: "date_updated", Type: field.TypeTime},
+		{Name: "parent_organization_id", Type: field.TypeInt},
+		{Name: "organization_id", Type: field.TypeInt},
+		{Name: "from", Type: field.TypeTime},
+		{Name: "until", Type: field.TypeTime},
+	}
+	// OrganizationParentTable holds the schema information for the "organization_parent" table.
+	OrganizationParentTable = &schema.Table{
+		Name:       "organization_parent",
+		Columns:    OrganizationParentColumns,
+		PrimaryKey: []*schema.Column{OrganizationParentColumns[0]},
+		Indexes: []*schema.Index{
 			{
-				Name:    "organization_parent_id",
+				Name:    "organizationparent_parent_organization_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrganizationColumns[8]},
+				Columns: []*schema.Column{OrganizationParentColumns[3]},
+			},
+			{
+				Name:    "organizationparent_organization_id",
+				Unique:  false,
+				Columns: []*schema.Column{OrganizationParentColumns[4]},
 			},
 		},
 	}
@@ -153,15 +167,18 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		OrganizationTable,
+		OrganizationParentTable,
 		OrganizationPersonTable,
 		PersonTable,
 	}
 )
 
 func init() {
-	OrganizationTable.ForeignKeys[0].RefTable = OrganizationTable
 	OrganizationTable.Annotation = &entsql.Annotation{
 		Table: "organization",
+	}
+	OrganizationParentTable.Annotation = &entsql.Annotation{
+		Table: "organization_parent",
 	}
 	OrganizationPersonTable.ForeignKeys[0].RefTable = PersonTable
 	OrganizationPersonTable.ForeignKeys[1].RefTable = OrganizationTable

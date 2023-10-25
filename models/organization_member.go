@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type OrganizationRef struct {
+type OrganizationMember struct {
 	Id          string     `json:"id,omitempty"`
 	DateCreated *time.Time `json:"date_created,omitempty"`
 	DateUpdated *time.Time `json:"date_updated,omitempty"`

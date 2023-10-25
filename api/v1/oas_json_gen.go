@@ -1012,9 +1012,13 @@ func (s *Organization) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.ParentID.Set {
-			e.FieldStart("parent_id")
-			s.ParentID.Encode(e)
+		if s.Parent != nil {
+			e.FieldStart("parent")
+			e.ArrStart()
+			for _, elem := range s.Parent {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
 		}
 	}
 	{
@@ -1036,7 +1040,7 @@ var jsonFieldsNameOfOrganization = [8]string{
 	3: "type",
 	4: "name_dut",
 	5: "name_eng",
-	6: "parent_id",
+	6: "parent",
 	7: "identifier",
 }
 
@@ -1108,15 +1112,22 @@ func (s *Organization) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"name_eng\"")
 			}
-		case "parent_id":
+		case "parent":
 			if err := func() error {
-				s.ParentID.Reset()
-				if err := s.ParentID.Decode(d); err != nil {
+				s.Parent = make([]OrganizationParent, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem OrganizationParent
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Parent = append(s.Parent, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"parent_id\"")
+				return errors.Wrap(err, "decode field \"parent\"")
 			}
 		case "identifier":
 			if err := func() error {
@@ -1283,14 +1294,14 @@ func (s *OrganizationListResponse) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *OrganizationRef) Encode(e *jx.Encoder) {
+func (s *OrganizationMember) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *OrganizationRef) encodeFields(e *jx.Encoder) {
+func (s *OrganizationMember) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("id")
 		e.Str(s.ID)
@@ -1317,7 +1328,7 @@ func (s *OrganizationRef) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfOrganizationRef = [5]string{
+var jsonFieldsNameOfOrganizationMember = [5]string{
 	0: "id",
 	1: "date_created",
 	2: "date_updated",
@@ -1325,10 +1336,10 @@ var jsonFieldsNameOfOrganizationRef = [5]string{
 	4: "until",
 }
 
-// Decode decodes OrganizationRef from json.
-func (s *OrganizationRef) Decode(d *jx.Decoder) error {
+// Decode decodes OrganizationMember from json.
+func (s *OrganizationMember) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode OrganizationRef to nil")
+		return errors.New("invalid: unable to decode OrganizationMember to nil")
 	}
 	var requiredBitSet [1]uint8
 
@@ -1395,7 +1406,7 @@ func (s *OrganizationRef) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode OrganizationRef")
+		return errors.Wrap(err, "decode OrganizationMember")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -1412,8 +1423,8 @@ func (s *OrganizationRef) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfOrganizationRef) {
-					name = jsonFieldsNameOfOrganizationRef[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfOrganizationMember) {
+					name = jsonFieldsNameOfOrganizationMember[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -1434,14 +1445,178 @@ func (s *OrganizationRef) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *OrganizationRef) MarshalJSON() ([]byte, error) {
+func (s *OrganizationMember) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OrganizationRef) UnmarshalJSON(data []byte) error {
+func (s *OrganizationMember) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *OrganizationParent) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *OrganizationParent) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("id")
+		e.Str(s.ID)
+	}
+	{
+		if s.DateCreated.Set {
+			e.FieldStart("date_created")
+			s.DateCreated.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.DateUpdated.Set {
+			e.FieldStart("date_updated")
+			s.DateUpdated.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		e.FieldStart("from")
+		json.EncodeDateTime(e, s.From)
+	}
+	{
+		e.FieldStart("until")
+		json.EncodeDateTime(e, s.Until)
+	}
+}
+
+var jsonFieldsNameOfOrganizationParent = [5]string{
+	0: "id",
+	1: "date_created",
+	2: "date_updated",
+	3: "from",
+	4: "until",
+}
+
+// Decode decodes OrganizationParent from json.
+func (s *OrganizationParent) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode OrganizationParent to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.ID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "date_created":
+			if err := func() error {
+				s.DateCreated.Reset()
+				if err := s.DateCreated.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"date_created\"")
+			}
+		case "date_updated":
+			if err := func() error {
+				s.DateUpdated.Reset()
+				if err := s.DateUpdated.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"date_updated\"")
+			}
+		case "from":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := json.DecodeDateTime(d)
+				s.From = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"from\"")
+			}
+		case "until":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				v, err := json.DecodeDateTime(d)
+				s.Until = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"until\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode OrganizationParent")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00011001,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfOrganizationParent) {
+					name = jsonFieldsNameOfOrganizationParent[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *OrganizationParent) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OrganizationParent) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -1788,9 +1963,9 @@ func (s *Person) Decode(d *jx.Decoder) error {
 			}
 		case "organization":
 			if err := func() error {
-				s.Organization = make([]OrganizationRef, 0)
+				s.Organization = make([]OrganizationMember, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem OrganizationRef
+					var elem OrganizationMember
 					if err := elem.Decode(d); err != nil {
 						return err
 					}

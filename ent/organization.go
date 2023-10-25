@@ -33,8 +33,6 @@ type Organization struct {
 	NameEng string `json:"name_eng,omitempty"`
 	// Identifier holds the value of the "identifier" field.
 	Identifier schema.TypeVals `json:"identifier,omitempty"`
-	// ParentID holds the value of the "parent_id" field.
-	ParentID int `json:"parent_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the OrganizationQuery when eager-loading is set.
 	Edges        OrganizationEdges `json:"edges"`
@@ -45,15 +43,11 @@ type Organization struct {
 type OrganizationEdges struct {
 	// People holds the value of the people edge.
 	People []*Person `json:"people,omitempty"`
-	// Parent holds the value of the parent edge.
-	Parent *Organization `json:"parent,omitempty"`
-	// Children holds the value of the children edge.
-	Children []*Organization `json:"children,omitempty"`
 	// OrganizationPerson holds the value of the organization_person edge.
 	OrganizationPerson []*OrganizationPerson `json:"organization_person,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [2]bool
 }
 
 // PeopleOrErr returns the People value or an error if the edge
@@ -65,32 +59,10 @@ func (e OrganizationEdges) PeopleOrErr() ([]*Person, error) {
 	return nil, &NotLoadedError{edge: "people"}
 }
 
-// ParentOrErr returns the Parent value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e OrganizationEdges) ParentOrErr() (*Organization, error) {
-	if e.loadedTypes[1] {
-		if e.Parent == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: organization.Label}
-		}
-		return e.Parent, nil
-	}
-	return nil, &NotLoadedError{edge: "parent"}
-}
-
-// ChildrenOrErr returns the Children value or an error if the edge
-// was not loaded in eager-loading.
-func (e OrganizationEdges) ChildrenOrErr() ([]*Organization, error) {
-	if e.loadedTypes[2] {
-		return e.Children, nil
-	}
-	return nil, &NotLoadedError{edge: "children"}
-}
-
 // OrganizationPersonOrErr returns the OrganizationPerson value or an error if the edge
 // was not loaded in eager-loading.
 func (e OrganizationEdges) OrganizationPersonOrErr() ([]*OrganizationPerson, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[1] {
 		return e.OrganizationPerson, nil
 	}
 	return nil, &NotLoadedError{edge: "organization_person"}
@@ -103,7 +75,7 @@ func (*Organization) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case organization.FieldIdentifier:
 			values[i] = new([]byte)
-		case organization.FieldID, organization.FieldParentID:
+		case organization.FieldID:
 			values[i] = new(sql.NullInt64)
 		case organization.FieldPublicID, organization.FieldType, organization.FieldNameDut, organization.FieldNameEng:
 			values[i] = new(sql.NullString)
@@ -174,12 +146,6 @@ func (o *Organization) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field identifier: %w", err)
 				}
 			}
-		case organization.FieldParentID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field parent_id", values[i])
-			} else if value.Valid {
-				o.ParentID = int(value.Int64)
-			}
 		default:
 			o.selectValues.Set(columns[i], values[i])
 		}
@@ -196,16 +162,6 @@ func (o *Organization) Value(name string) (ent.Value, error) {
 // QueryPeople queries the "people" edge of the Organization entity.
 func (o *Organization) QueryPeople() *PersonQuery {
 	return NewOrganizationClient(o.config).QueryPeople(o)
-}
-
-// QueryParent queries the "parent" edge of the Organization entity.
-func (o *Organization) QueryParent() *OrganizationQuery {
-	return NewOrganizationClient(o.config).QueryParent(o)
-}
-
-// QueryChildren queries the "children" edge of the Organization entity.
-func (o *Organization) QueryChildren() *OrganizationQuery {
-	return NewOrganizationClient(o.config).QueryChildren(o)
 }
 
 // QueryOrganizationPerson queries the "organization_person" edge of the Organization entity.
@@ -256,9 +212,6 @@ func (o *Organization) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("identifier=")
 	builder.WriteString(fmt.Sprintf("%v", o.Identifier))
-	builder.WriteString(", ")
-	builder.WriteString("parent_id=")
-	builder.WriteString(fmt.Sprintf("%v", o.ParentID))
 	builder.WriteByte(')')
 	return builder.String()
 }

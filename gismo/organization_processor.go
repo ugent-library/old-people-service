@@ -38,7 +38,7 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 		org.NameDut = ""
 		org.NameEng = ""
 		org.Type = "organization"
-		org.ParentID = ""
+		org.Parent = nil
 		org.ClearIdentifier()
 		org.AddIdentifier("gismo_id", msg.ID)
 
@@ -48,22 +48,29 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 			withinDateRange := attr.ValidAt(now)
 			switch attr.Name {
 			case "parent_id":
-				if withinDateRange {
-					orgParentByGismo, err := op.repository.GetOrganizationByIdentifier(ctx, "gismo_id", attr.Value)
-					if errors.Is(err, models.ErrNotFound) {
-						orgParentByGismo := models.NewOrganization()
-						orgParentByGismo.AddIdentifier("gismo_id", attr.Value)
-						orgParentByGismo, err = op.repository.CreateOrganization(ctx, orgParentByGismo)
-						if err != nil {
-							return nil, fmt.Errorf("%w: unable to create parent organization: %s", models.ErrFatal, err)
-						}
-						org.ParentID = orgParentByGismo.ID
-					} else if err != nil {
-						return nil, fmt.Errorf("%w: unable to query database: %s", models.ErrFatal, err)
-					} else {
-						org.ParentID = orgParentByGismo.ID
+				orgParentByGismo, err := op.repository.GetOrganizationByIdentifier(ctx, "gismo_id", attr.Value)
+				if errors.Is(err, models.ErrNotFound) {
+					orgParentByGismo := models.NewOrganization()
+					orgParentByGismo.AddIdentifier("gismo_id", attr.Value)
+					orgParentByGismo, err = op.repository.CreateOrganization(ctx, orgParentByGismo)
+					if err != nil {
+						return nil, fmt.Errorf("%w: unable to create parent organization: %s", models.ErrFatal, err)
 					}
+					org.Parent = append(org.Parent, models.OrganizationParent{
+						Id:    orgParentByGismo.ID,
+						From:  attr.StartDate,
+						Until: attr.EndDate,
+					})
+				} else if err != nil {
+					return nil, fmt.Errorf("%w: unable to query database: %s", models.ErrFatal, err)
+				} else {
+					org.Parent = append(org.Parent, models.OrganizationParent{
+						Id:    orgParentByGismo.ID,
+						From:  attr.StartDate,
+						Until: attr.EndDate,
+					})
 				}
+
 			case "name_dut":
 				if withinDateRange {
 					org.NameDut = attr.Value

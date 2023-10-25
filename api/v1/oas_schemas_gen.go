@@ -485,14 +485,14 @@ func (o OptString) Or(d string) string {
 
 // Ref: #/components/schemas/Organization
 type Organization struct {
-	ID          OptString       `json:"id"`
-	DateCreated OptDateTime     `json:"date_created"`
-	DateUpdated OptDateTime     `json:"date_updated"`
-	Type        OptString       `json:"type"`
-	NameDut     OptString       `json:"name_dut"`
-	NameEng     OptString       `json:"name_eng"`
-	ParentID    OptString       `json:"parent_id"`
-	Identifier  []PropertyValue `json:"identifier"`
+	ID          OptString            `json:"id"`
+	DateCreated OptDateTime          `json:"date_created"`
+	DateUpdated OptDateTime          `json:"date_updated"`
+	Type        OptString            `json:"type"`
+	NameDut     OptString            `json:"name_dut"`
+	NameEng     OptString            `json:"name_eng"`
+	Parent      []OrganizationParent `json:"parent"`
+	Identifier  []PropertyValue      `json:"identifier"`
 }
 
 // GetID returns the value of ID.
@@ -525,9 +525,9 @@ func (s *Organization) GetNameEng() OptString {
 	return s.NameEng
 }
 
-// GetParentID returns the value of ParentID.
-func (s *Organization) GetParentID() OptString {
-	return s.ParentID
+// GetParent returns the value of Parent.
+func (s *Organization) GetParent() []OrganizationParent {
+	return s.Parent
 }
 
 // GetIdentifier returns the value of Identifier.
@@ -565,9 +565,9 @@ func (s *Organization) SetNameEng(val OptString) {
 	s.NameEng = val
 }
 
-// SetParentID sets the value of ParentID.
-func (s *Organization) SetParentID(val OptString) {
-	s.ParentID = val
+// SetParent sets the value of Parent.
+func (s *Organization) SetParent(val []OrganizationParent) {
+	s.Parent = val
 }
 
 // SetIdentifier sets the value of Identifier.
@@ -601,8 +601,8 @@ func (s *OrganizationListResponse) SetData(val []Organization) {
 	s.Data = val
 }
 
-// Ref: #/components/schemas/OrganizationRef
-type OrganizationRef struct {
+// Ref: #/components/schemas/OrganizationMember
+type OrganizationMember struct {
 	ID          string      `json:"id"`
 	DateCreated OptDateTime `json:"date_created"`
 	DateUpdated OptDateTime `json:"date_updated"`
@@ -611,77 +611,136 @@ type OrganizationRef struct {
 }
 
 // GetID returns the value of ID.
-func (s *OrganizationRef) GetID() string {
+func (s *OrganizationMember) GetID() string {
 	return s.ID
 }
 
 // GetDateCreated returns the value of DateCreated.
-func (s *OrganizationRef) GetDateCreated() OptDateTime {
+func (s *OrganizationMember) GetDateCreated() OptDateTime {
 	return s.DateCreated
 }
 
 // GetDateUpdated returns the value of DateUpdated.
-func (s *OrganizationRef) GetDateUpdated() OptDateTime {
+func (s *OrganizationMember) GetDateUpdated() OptDateTime {
 	return s.DateUpdated
 }
 
 // GetFrom returns the value of From.
-func (s *OrganizationRef) GetFrom() time.Time {
+func (s *OrganizationMember) GetFrom() time.Time {
 	return s.From
 }
 
 // GetUntil returns the value of Until.
-func (s *OrganizationRef) GetUntil() time.Time {
+func (s *OrganizationMember) GetUntil() time.Time {
 	return s.Until
 }
 
 // SetID sets the value of ID.
-func (s *OrganizationRef) SetID(val string) {
+func (s *OrganizationMember) SetID(val string) {
 	s.ID = val
 }
 
 // SetDateCreated sets the value of DateCreated.
-func (s *OrganizationRef) SetDateCreated(val OptDateTime) {
+func (s *OrganizationMember) SetDateCreated(val OptDateTime) {
 	s.DateCreated = val
 }
 
 // SetDateUpdated sets the value of DateUpdated.
-func (s *OrganizationRef) SetDateUpdated(val OptDateTime) {
+func (s *OrganizationMember) SetDateUpdated(val OptDateTime) {
 	s.DateUpdated = val
 }
 
 // SetFrom sets the value of From.
-func (s *OrganizationRef) SetFrom(val time.Time) {
+func (s *OrganizationMember) SetFrom(val time.Time) {
 	s.From = val
 }
 
 // SetUntil sets the value of Until.
-func (s *OrganizationRef) SetUntil(val time.Time) {
+func (s *OrganizationMember) SetUntil(val time.Time) {
+	s.Until = val
+}
+
+// Ref: #/components/schemas/OrganizationParent
+type OrganizationParent struct {
+	ID          string      `json:"id"`
+	DateCreated OptDateTime `json:"date_created"`
+	DateUpdated OptDateTime `json:"date_updated"`
+	From        time.Time   `json:"from"`
+	Until       time.Time   `json:"until"`
+}
+
+// GetID returns the value of ID.
+func (s *OrganizationParent) GetID() string {
+	return s.ID
+}
+
+// GetDateCreated returns the value of DateCreated.
+func (s *OrganizationParent) GetDateCreated() OptDateTime {
+	return s.DateCreated
+}
+
+// GetDateUpdated returns the value of DateUpdated.
+func (s *OrganizationParent) GetDateUpdated() OptDateTime {
+	return s.DateUpdated
+}
+
+// GetFrom returns the value of From.
+func (s *OrganizationParent) GetFrom() time.Time {
+	return s.From
+}
+
+// GetUntil returns the value of Until.
+func (s *OrganizationParent) GetUntil() time.Time {
+	return s.Until
+}
+
+// SetID sets the value of ID.
+func (s *OrganizationParent) SetID(val string) {
+	s.ID = val
+}
+
+// SetDateCreated sets the value of DateCreated.
+func (s *OrganizationParent) SetDateCreated(val OptDateTime) {
+	s.DateCreated = val
+}
+
+// SetDateUpdated sets the value of DateUpdated.
+func (s *OrganizationParent) SetDateUpdated(val OptDateTime) {
+	s.DateUpdated = val
+}
+
+// SetFrom sets the value of From.
+func (s *OrganizationParent) SetFrom(val time.Time) {
+	s.From = val
+}
+
+// SetUntil sets the value of Until.
+func (s *OrganizationParent) SetUntil(val time.Time) {
 	s.Until = val
 }
 
 // Ref: #/components/schemas/Person
 type Person struct {
-	ID                  OptString         `json:"id"`
-	Active              OptBool           `json:"active"`
-	DateCreated         OptDateTime       `json:"date_created"`
-	DateUpdated         OptDateTime       `json:"date_updated"`
-	Name                OptString         `json:"name"`
-	GivenName           OptString         `json:"given_name"`
-	FamilyName          OptString         `json:"family_name"`
-	Email               OptString         `json:"email"`
-	Token               []PropertyValue   `json:"token"`
-	PreferredGivenName  OptString         `json:"preferred_given_name"`
-	PreferredFamilyName OptString         `json:"preferred_family_name"`
-	BirthDate           OptString         `json:"birth_date"`
-	HonorificPrefix     OptString         `json:"honorific_prefix"`
-	Identifier          []PropertyValue   `json:"identifier"`
-	Organization        []OrganizationRef `json:"organization"`
-	JobCategory         []string          `json:"job_category"`
-	Role                []string          `json:"role"`
-	Settings            OptPersonSettings `json:"settings"`
-	ObjectClass         []string          `json:"object_class"`
-	ExpirationDate      OptString         `json:"expiration_date"`
+	ID                  OptString            `json:"id"`
+	Active              OptBool              `json:"active"`
+	DateCreated         OptDateTime          `json:"date_created"`
+	DateUpdated         OptDateTime          `json:"date_updated"`
+	Name                OptString            `json:"name"`
+	GivenName           OptString            `json:"given_name"`
+	FamilyName          OptString            `json:"family_name"`
+	Email               OptString            `json:"email"`
+	Token               []PropertyValue      `json:"token"`
+	PreferredGivenName  OptString            `json:"preferred_given_name"`
+	PreferredFamilyName OptString            `json:"preferred_family_name"`
+	BirthDate           OptString            `json:"birth_date"`
+	HonorificPrefix     OptString            `json:"honorific_prefix"`
+	Identifier          []PropertyValue      `json:"identifier"`
+	Organization        []OrganizationMember `json:"organization"`
+	JobCategory         []string             `json:"job_category"`
+	Role                []string             `json:"role"`
+	Settings            OptPersonSettings    `json:"settings"`
+	ObjectClass         []string             `json:"object_class"`
+	ExpirationDate      OptString            `json:"expiration_date"`
 }
 
 // GetID returns the value of ID.
@@ -755,7 +814,7 @@ func (s *Person) GetIdentifier() []PropertyValue {
 }
 
 // GetOrganization returns the value of Organization.
-func (s *Person) GetOrganization() []OrganizationRef {
+func (s *Person) GetOrganization() []OrganizationMember {
 	return s.Organization
 }
 
@@ -855,7 +914,7 @@ func (s *Person) SetIdentifier(val []PropertyValue) {
 }
 
 // SetOrganization sets the value of Organization.
-func (s *Person) SetOrganization(val []OrganizationRef) {
+func (s *Person) SetOrganization(val []OrganizationMember) {
 	s.Organization = val
 }
 

@@ -21,6 +21,18 @@ func (f OrganizationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrganizationMutation", m)
 }
 
+// The OrganizationParentFunc type is an adapter to allow the use of ordinary
+// function as OrganizationParent mutator.
+type OrganizationParentFunc func(context.Context, *ent.OrganizationParentMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OrganizationParentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OrganizationParentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrganizationParentMutation", m)
+}
+
 // The OrganizationPersonFunc type is an adapter to allow the use of ordinary
 // function as OrganizationPerson mutator.
 type OrganizationPersonFunc func(context.Context, *ent.OrganizationPersonMutation) (ent.Value, error)

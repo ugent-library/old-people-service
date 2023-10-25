@@ -25,8 +25,6 @@ type OrganizationQuery struct {
 	inters                 []Interceptor
 	predicates             []predicate.Organization
 	withPeople             *PersonQuery
-	withParent             *OrganizationQuery
-	withChildren           *OrganizationQuery
 	withOrganizationPerson *OrganizationPersonQuery
 	modifiers              []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
@@ -80,50 +78,6 @@ func (oq *OrganizationQuery) QueryPeople() *PersonQuery {
 			sqlgraph.From(organization.Table, organization.FieldID, selector),
 			sqlgraph.To(person.Table, person.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, organization.PeopleTable, organization.PeoplePrimaryKey...),
-		)
-		fromU = sqlgraph.SetNeighbors(oq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryParent chains the current query on the "parent" edge.
-func (oq *OrganizationQuery) QueryParent() *OrganizationQuery {
-	query := (&OrganizationClient{config: oq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := oq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := oq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(organization.Table, organization.FieldID, selector),
-			sqlgraph.To(organization.Table, organization.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, organization.ParentTable, organization.ParentColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(oq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryChildren chains the current query on the "children" edge.
-func (oq *OrganizationQuery) QueryChildren() *OrganizationQuery {
-	query := (&OrganizationClient{config: oq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := oq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := oq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(organization.Table, organization.FieldID, selector),
-			sqlgraph.To(organization.Table, organization.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, organization.ChildrenTable, organization.ChildrenColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(oq.driver.Dialect(), step)
 		return fromU, nil
@@ -346,8 +300,6 @@ func (oq *OrganizationQuery) Clone() *OrganizationQuery {
 		inters:                 append([]Interceptor{}, oq.inters...),
 		predicates:             append([]predicate.Organization{}, oq.predicates...),
 		withPeople:             oq.withPeople.Clone(),
-		withParent:             oq.withParent.Clone(),
-		withChildren:           oq.withChildren.Clone(),
 		withOrganizationPerson: oq.withOrganizationPerson.Clone(),
 		// clone intermediate query.
 		sql:  oq.sql.Clone(),
@@ -363,28 +315,6 @@ func (oq *OrganizationQuery) WithPeople(opts ...func(*PersonQuery)) *Organizatio
 		opt(query)
 	}
 	oq.withPeople = query
-	return oq
-}
-
-// WithParent tells the query-builder to eager-load the nodes that are connected to
-// the "parent" edge. The optional arguments are used to configure the query builder of the edge.
-func (oq *OrganizationQuery) WithParent(opts ...func(*OrganizationQuery)) *OrganizationQuery {
-	query := (&OrganizationClient{config: oq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	oq.withParent = query
-	return oq
-}
-
-// WithChildren tells the query-builder to eager-load the nodes that are connected to
-// the "children" edge. The optional arguments are used to configure the query builder of the edge.
-func (oq *OrganizationQuery) WithChildren(opts ...func(*OrganizationQuery)) *OrganizationQuery {
-	query := (&OrganizationClient{config: oq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	oq.withChildren = query
 	return oq
 }
 
@@ -477,10 +407,8 @@ func (oq *OrganizationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	var (
 		nodes       = []*Organization{}
 		_spec       = oq.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [2]bool{
 			oq.withPeople != nil,
-			oq.withParent != nil,
-			oq.withChildren != nil,
 			oq.withOrganizationPerson != nil,
 		}
 	)
@@ -509,19 +437,6 @@ func (oq *OrganizationQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		if err := oq.loadPeople(ctx, query, nodes,
 			func(n *Organization) { n.Edges.People = []*Person{} },
 			func(n *Organization, e *Person) { n.Edges.People = append(n.Edges.People, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := oq.withParent; query != nil {
-		if err := oq.loadParent(ctx, query, nodes, nil,
-			func(n *Organization, e *Organization) { n.Edges.Parent = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := oq.withChildren; query != nil {
-		if err := oq.loadChildren(ctx, query, nodes,
-			func(n *Organization) { n.Edges.Children = []*Organization{} },
-			func(n *Organization, e *Organization) { n.Edges.Children = append(n.Edges.Children, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -598,62 +513,6 @@ func (oq *OrganizationQuery) loadPeople(ctx context.Context, query *PersonQuery,
 	}
 	return nil
 }
-func (oq *OrganizationQuery) loadParent(ctx context.Context, query *OrganizationQuery, nodes []*Organization, init func(*Organization), assign func(*Organization, *Organization)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Organization)
-	for i := range nodes {
-		fk := nodes[i].ParentID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(organization.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "parent_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (oq *OrganizationQuery) loadChildren(ctx context.Context, query *OrganizationQuery, nodes []*Organization, init func(*Organization), assign func(*Organization, *Organization)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Organization)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.Where(predicate.Organization(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(organization.ChildrenColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.ParentID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "parent_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
 func (oq *OrganizationQuery) loadOrganizationPerson(ctx context.Context, query *OrganizationPersonQuery, nodes []*Organization, init func(*Organization), assign func(*Organization, *OrganizationPerson)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Organization)
@@ -709,9 +568,6 @@ func (oq *OrganizationQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != organization.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if oq.withParent != nil {
-			_spec.Node.AddColumnOnce(organization.FieldParentID)
 		}
 	}
 	if ps := oq.predicates; len(ps) > 0 {

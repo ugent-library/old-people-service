@@ -1,26 +1,16 @@
 package schema
 
 import (
-	"time"
-
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	"github.com/ugent-library/people-service/models"
 )
 
 type OrganizationPerson struct {
 	ent.Schema
-}
-
-var genBeginningOfTime = func() time.Time {
-	return models.BeginningOfTime
-}
-var genEndOfTime = func() time.Time {
-	return models.EndOfTime
 }
 
 func (OrganizationPerson) Annotations() []schema.Annotation {
@@ -50,7 +40,7 @@ func (OrganizationPerson) Edges() []ent.Edge {
 
 		cf. https://github.com/ent/ent/issues/2964
 
-		without "Required" per field entgo claims that
+		without "Unique" per field entgo claims that
 		"person_id" is not holding a foreign key
 
 		It will generate a unique index though on the combination

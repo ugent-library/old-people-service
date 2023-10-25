@@ -5,26 +5,26 @@ import (
 )
 
 type Person struct {
-	ID                  string             `json:"id,omitempty"`
-	Active              bool               `json:"active,omitempty"`
-	DateCreated         *time.Time         `json:"date_created,omitempty"`
-	DateUpdated         *time.Time         `json:"date_updated,omitempty"`
-	Name                string             `json:"name,omitempty"`
-	GivenName           string             `json:"given_name,omitempty"`
-	FamilyName          string             `json:"family_name,omitempty"`
-	Email               string             `json:"email,omitempty"`
-	Token               []Token            `json:"token"`
-	PreferredGivenName  string             `json:"preferred_given_name,omitempty"`
-	PreferredFamilyName string             `json:"preferred_family_name,omitempty"`
-	BirthDate           string             `json:"birth_date,omitempty"`
-	HonorificPrefix     string             `json:"honorific_prefix,omitempty"`
-	Identifier          []Identifier       `json:"identifier,omitempty"`
-	Organization        []*OrganizationRef `json:"organization,omitempty"`
-	JobCategory         []string           `json:"job_category,omitempty"`
-	Role                []string           `json:"role,omitempty"`
-	Settings            map[string]string  `json:"settings,omitempty"`
-	ObjectClass         []string           `json:"object_class,omitempty"`
-	ExpirationDate      string             `json:"expiration_date,omitempty"`
+	ID                  string                `json:"id,omitempty"`
+	Active              bool                  `json:"active,omitempty"`
+	DateCreated         *time.Time            `json:"date_created,omitempty"`
+	DateUpdated         *time.Time            `json:"date_updated,omitempty"`
+	Name                string                `json:"name,omitempty"`
+	GivenName           string                `json:"given_name,omitempty"`
+	FamilyName          string                `json:"family_name,omitempty"`
+	Email               string                `json:"email,omitempty"`
+	Token               []Token               `json:"token"`
+	PreferredGivenName  string                `json:"preferred_given_name,omitempty"`
+	PreferredFamilyName string                `json:"preferred_family_name,omitempty"`
+	BirthDate           string                `json:"birth_date,omitempty"`
+	HonorificPrefix     string                `json:"honorific_prefix,omitempty"`
+	Identifier          []Identifier          `json:"identifier,omitempty"`
+	Organization        []*OrganizationMember `json:"organization,omitempty"`
+	JobCategory         []string              `json:"job_category,omitempty"`
+	Role                []string              `json:"role,omitempty"`
+	Settings            map[string]string     `json:"settings,omitempty"`
+	ObjectClass         []string              `json:"object_class,omitempty"`
+	ExpirationDate      string                `json:"expiration_date,omitempty"`
 }
 
 func (person *Person) IsStored() bool {
@@ -36,8 +36,8 @@ func NewPerson() *Person {
 	return p
 }
 
-func NewOrganizationRef(id string) *OrganizationRef {
-	return &OrganizationRef{
+func NewOrganizationMember(id string) *OrganizationMember {
+	return &OrganizationMember{
 		Id:    id,
 		From:  &BeginningOfTime,
 		Until: &EndOfTime,

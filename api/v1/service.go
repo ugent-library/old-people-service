@@ -226,10 +226,10 @@ func (s *Service) AddPerson(ctx context.Context, p *Person) (*Person, error) {
 	}
 
 	person.Organization = nil
-	for _, orgRef := range p.Organization {
-		newOrgRef := models.NewOrganizationRef(orgRef.ID)
-		newOrgRef.From = &orgRef.From
-		newOrgRef.Until = &orgRef.Until
+	for _, orgMember := range p.Organization {
+		newOrgRef := models.NewOrganizationMember(orgMember.ID)
+		newOrgRef.From = &orgMember.From
+		newOrgRef.Until = &orgMember.Until
 		person.Organization = append(person.Organization, newOrgRef)
 	}
 
@@ -260,7 +260,13 @@ func (s *Service) AddOrganization(ctx context.Context, o *Organization) (*Organi
 
 	org.NameDut = o.NameDut.Value
 	org.NameEng = o.NameEng.Value
-	org.ParentID = o.ParentID.Value
+	for _, parent := range o.Parent {
+		org.Parent = append(org.Parent, models.OrganizationParent{
+			Id:    parent.ID,
+			From:  &parent.From,
+			Until: &parent.Until,
+		})
+	}
 	org.Type = o.Type.Value
 
 	org.ClearIdentifier()
@@ -351,15 +357,15 @@ func mapToExternalPerson(person *models.Person) *Person {
 		p.Token = append(p.Token, newPropertyValue(token.PropertyID, token.Value))
 	}
 
-	for _, orgRef := range person.Organization {
-		oRef := OrganizationRef{
-			ID:          orgRef.Id,
-			DateCreated: NewOptDateTime(*orgRef.DateCreated),
-			DateUpdated: NewOptDateTime(*orgRef.DateUpdated),
-			From:        *orgRef.From,
+	for _, orgMember := range person.Organization {
+		oRef := OrganizationMember{
+			ID:          orgMember.Id,
+			DateCreated: NewOptDateTime(*orgMember.DateCreated),
+			DateUpdated: NewOptDateTime(*orgMember.DateUpdated),
+			From:        *orgMember.From,
 		}
-		if orgRef.Until != nil {
-			oRef.Until = *orgRef.Until
+		if orgMember.Until != nil {
+			oRef.Until = *orgMember.Until
 		}
 		p.Organization = append(p.Organization, oRef)
 	}
@@ -396,8 +402,14 @@ func mapToExternalOrganization(org *models.Organization) *Organization {
 	for _, id := range org.Identifier {
 		o.Identifier = append(o.Identifier, newPropertyValue(id.PropertyID, id.Value))
 	}
-	if org.ParentID != "" {
-		o.ParentID = NewOptString(org.ParentID)
+	for _, organizationParent := range org.Parent {
+		o.Parent = append(o.Parent, OrganizationParent{
+			ID:          organizationParent.Id,
+			From:        *organizationParent.From,
+			Until:       *organizationParent.Until,
+			DateCreated: NewOptDateTime(*organizationParent.DateCreated),
+			DateUpdated: NewOptDateTime(*organizationParent.DateUpdated),
+		})
 	}
 	o.Type = NewOptString(org.Type)
 

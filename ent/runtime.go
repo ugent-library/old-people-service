@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ugent-library/people-service/ent/organization"
+	"github.com/ugent-library/people-service/ent/organizationparent"
 	"github.com/ugent-library/people-service/ent/organizationperson"
 	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/schema"
@@ -44,6 +45,31 @@ func init() {
 	organizationDescIdentifier := organizationFields[3].Descriptor()
 	// organization.DefaultIdentifier holds the default value on creation for the identifier field.
 	organization.DefaultIdentifier = organizationDescIdentifier.Default.(schema.TypeVals)
+	organizationparentMixin := schema.OrganizationParent{}.Mixin()
+	organizationparentMixinFields0 := organizationparentMixin[0].Fields()
+	_ = organizationparentMixinFields0
+	organizationparentFields := schema.OrganizationParent{}.Fields()
+	_ = organizationparentFields
+	// organizationparentDescDateCreated is the schema descriptor for date_created field.
+	organizationparentDescDateCreated := organizationparentMixinFields0[0].Descriptor()
+	// organizationparent.DefaultDateCreated holds the default value on creation for the date_created field.
+	organizationparent.DefaultDateCreated = organizationparentDescDateCreated.Default.(func() time.Time)
+	// organizationparentDescDateUpdated is the schema descriptor for date_updated field.
+	organizationparentDescDateUpdated := organizationparentMixinFields0[1].Descriptor()
+	// organizationparent.DefaultDateUpdated holds the default value on creation for the date_updated field.
+	organizationparent.DefaultDateUpdated = organizationparentDescDateUpdated.Default.(func() time.Time)
+	// organizationparent.UpdateDefaultDateUpdated holds the default value on update for the date_updated field.
+	organizationparent.UpdateDefaultDateUpdated = organizationparentDescDateUpdated.UpdateDefault.(func() time.Time)
+	// organizationparentDescFrom is the schema descriptor for from field.
+	organizationparentDescFrom := organizationparentFields[2].Descriptor()
+	// organizationparent.DefaultFrom holds the default value on creation for the from field.
+	organizationparent.DefaultFrom = organizationparentDescFrom.Default.(func() time.Time)
+	// organizationparentDescUntil is the schema descriptor for until field.
+	organizationparentDescUntil := organizationparentFields[3].Descriptor()
+	// organizationparent.DefaultUntil holds the default value on creation for the until field.
+	organizationparent.DefaultUntil = organizationparentDescUntil.Default.(func() time.Time)
+	// organizationparent.UpdateDefaultUntil holds the default value on update for the until field.
+	organizationparent.UpdateDefaultUntil = organizationparentDescUntil.UpdateDefault.(func() time.Time)
 	organizationpersonMixin := schema.OrganizationPerson{}.Mixin()
 	organizationpersonMixinFields0 := organizationpersonMixin[0].Fields()
 	_ = organizationpersonMixinFields0

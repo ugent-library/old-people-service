@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-ldap/ldap/v3"
+	"github.com/samber/lo"
 	"github.com/ugent-library/people-service/models"
 	"github.com/ugent-library/people-service/ugentldap"
 )
@@ -71,7 +72,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 	person.PreferredGivenName = ""
 	person.PreferredFamilyName = ""
 	person.HonorificPrefix = ""
-	var gismoOrganizationRefs []*models.OrganizationRef
+	var gismoOrganizationRefs []*models.OrganizationMember
 
 	// add attributes from GISMO
 	for _, attr := range msg.Attributes {
@@ -107,7 +108,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 				}
 			}
 			if !found {
-				orgRef := models.NewOrganizationRef(attr.Value)
+				orgRef := models.NewOrganizationMember(attr.Value)
 				orgRef.From = attr.StartDate
 				orgRef.Until = attr.EndDate
 				gismoOrganizationRefs = append(gismoOrganizationRefs, orgRef)
@@ -157,14 +158,14 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 			}
 		}
 
-		var orgRefs []*models.OrganizationRef
-		for _, gismoOrgRef := range gismoOrganizationRefs {
+		var orgRefs []*models.OrganizationMember
+		for _, gismoOrgMember := range gismoOrganizationRefs {
 			for _, org := range orgsByGismo {
-				if gismoOrgRef.Id == org.GetIdentifierValue("gismo_id") {
-					oRef := models.NewOrganizationRef(org.ID)
-					oRef.From = gismoOrgRef.From
-					oRef.Until = gismoOrgRef.Until
-					orgRefs = append(orgRefs, oRef)
+				if gismoOrgMember.Id == org.GetIdentifierValue("gismo_id") {
+					oMember := models.NewOrganizationMember(org.ID)
+					oMember.From = gismoOrgMember.From
+					oMember.Until = gismoOrgMember.Until
+					orgRefs = append(orgRefs, oMember)
 					break
 				}
 			}
@@ -180,7 +181,7 @@ func (pp *PersonProcessor) getPersonByMessage(msg *models.Message) (*models.Pers
 	now := time.Now()
 
 	// Without ugentId no linking possible
-	ugentIds := UniqStrings(msg.GetAttributesAt("ugent_id", now))
+	ugentIds := lo.Uniq(msg.GetAttributesAt("ugent_id", now))
 	if len(ugentIds) == 0 {
 		return nil, fmt.Errorf("%w: missing ugent_id in message %s", models.ErrSkipped, msg.ID)
 	}

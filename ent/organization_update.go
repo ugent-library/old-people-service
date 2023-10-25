@@ -104,26 +104,6 @@ func (ou *OrganizationUpdate) ClearIdentifier() *OrganizationUpdate {
 	return ou
 }
 
-// SetParentID sets the "parent_id" field.
-func (ou *OrganizationUpdate) SetParentID(i int) *OrganizationUpdate {
-	ou.mutation.SetParentID(i)
-	return ou
-}
-
-// SetNillableParentID sets the "parent_id" field if the given value is not nil.
-func (ou *OrganizationUpdate) SetNillableParentID(i *int) *OrganizationUpdate {
-	if i != nil {
-		ou.SetParentID(*i)
-	}
-	return ou
-}
-
-// ClearParentID clears the value of the "parent_id" field.
-func (ou *OrganizationUpdate) ClearParentID() *OrganizationUpdate {
-	ou.mutation.ClearParentID()
-	return ou
-}
-
 // AddPersonIDs adds the "people" edge to the Person entity by IDs.
 func (ou *OrganizationUpdate) AddPersonIDs(ids ...int) *OrganizationUpdate {
 	ou.mutation.AddPersonIDs(ids...)
@@ -137,26 +117,6 @@ func (ou *OrganizationUpdate) AddPeople(p ...*Person) *OrganizationUpdate {
 		ids[i] = p[i].ID
 	}
 	return ou.AddPersonIDs(ids...)
-}
-
-// SetParent sets the "parent" edge to the Organization entity.
-func (ou *OrganizationUpdate) SetParent(o *Organization) *OrganizationUpdate {
-	return ou.SetParentID(o.ID)
-}
-
-// AddChildIDs adds the "children" edge to the Organization entity by IDs.
-func (ou *OrganizationUpdate) AddChildIDs(ids ...int) *OrganizationUpdate {
-	ou.mutation.AddChildIDs(ids...)
-	return ou
-}
-
-// AddChildren adds the "children" edges to the Organization entity.
-func (ou *OrganizationUpdate) AddChildren(o ...*Organization) *OrganizationUpdate {
-	ids := make([]int, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return ou.AddChildIDs(ids...)
 }
 
 // AddOrganizationPersonIDs adds the "organization_person" edge to the OrganizationPerson entity by IDs.
@@ -198,33 +158,6 @@ func (ou *OrganizationUpdate) RemovePeople(p ...*Person) *OrganizationUpdate {
 		ids[i] = p[i].ID
 	}
 	return ou.RemovePersonIDs(ids...)
-}
-
-// ClearParent clears the "parent" edge to the Organization entity.
-func (ou *OrganizationUpdate) ClearParent() *OrganizationUpdate {
-	ou.mutation.ClearParent()
-	return ou
-}
-
-// ClearChildren clears all "children" edges to the Organization entity.
-func (ou *OrganizationUpdate) ClearChildren() *OrganizationUpdate {
-	ou.mutation.ClearChildren()
-	return ou
-}
-
-// RemoveChildIDs removes the "children" edge to Organization entities by IDs.
-func (ou *OrganizationUpdate) RemoveChildIDs(ids ...int) *OrganizationUpdate {
-	ou.mutation.RemoveChildIDs(ids...)
-	return ou
-}
-
-// RemoveChildren removes "children" edges to Organization entities.
-func (ou *OrganizationUpdate) RemoveChildren(o ...*Organization) *OrganizationUpdate {
-	ids := make([]int, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return ou.RemoveChildIDs(ids...)
 }
 
 // ClearOrganizationPerson clears all "organization_person" edges to the OrganizationPerson entity.
@@ -380,80 +313,6 @@ func (ou *OrganizationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		edge.Target.Fields = specE.Fields
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if ou.mutation.ParentCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   organization.ParentTable,
-			Columns: []string{organization.ParentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.ParentIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   organization.ParentTable,
-			Columns: []string{organization.ParentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ou.mutation.ChildrenCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   organization.ChildrenTable,
-			Columns: []string{organization.ChildrenColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.RemovedChildrenIDs(); len(nodes) > 0 && !ou.mutation.ChildrenCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   organization.ChildrenTable,
-			Columns: []string{organization.ChildrenColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.ChildrenIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   organization.ChildrenTable,
-			Columns: []string{organization.ChildrenColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
 	if ou.mutation.OrganizationPersonCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -593,26 +452,6 @@ func (ouo *OrganizationUpdateOne) ClearIdentifier() *OrganizationUpdateOne {
 	return ouo
 }
 
-// SetParentID sets the "parent_id" field.
-func (ouo *OrganizationUpdateOne) SetParentID(i int) *OrganizationUpdateOne {
-	ouo.mutation.SetParentID(i)
-	return ouo
-}
-
-// SetNillableParentID sets the "parent_id" field if the given value is not nil.
-func (ouo *OrganizationUpdateOne) SetNillableParentID(i *int) *OrganizationUpdateOne {
-	if i != nil {
-		ouo.SetParentID(*i)
-	}
-	return ouo
-}
-
-// ClearParentID clears the value of the "parent_id" field.
-func (ouo *OrganizationUpdateOne) ClearParentID() *OrganizationUpdateOne {
-	ouo.mutation.ClearParentID()
-	return ouo
-}
-
 // AddPersonIDs adds the "people" edge to the Person entity by IDs.
 func (ouo *OrganizationUpdateOne) AddPersonIDs(ids ...int) *OrganizationUpdateOne {
 	ouo.mutation.AddPersonIDs(ids...)
@@ -626,26 +465,6 @@ func (ouo *OrganizationUpdateOne) AddPeople(p ...*Person) *OrganizationUpdateOne
 		ids[i] = p[i].ID
 	}
 	return ouo.AddPersonIDs(ids...)
-}
-
-// SetParent sets the "parent" edge to the Organization entity.
-func (ouo *OrganizationUpdateOne) SetParent(o *Organization) *OrganizationUpdateOne {
-	return ouo.SetParentID(o.ID)
-}
-
-// AddChildIDs adds the "children" edge to the Organization entity by IDs.
-func (ouo *OrganizationUpdateOne) AddChildIDs(ids ...int) *OrganizationUpdateOne {
-	ouo.mutation.AddChildIDs(ids...)
-	return ouo
-}
-
-// AddChildren adds the "children" edges to the Organization entity.
-func (ouo *OrganizationUpdateOne) AddChildren(o ...*Organization) *OrganizationUpdateOne {
-	ids := make([]int, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return ouo.AddChildIDs(ids...)
 }
 
 // AddOrganizationPersonIDs adds the "organization_person" edge to the OrganizationPerson entity by IDs.
@@ -687,33 +506,6 @@ func (ouo *OrganizationUpdateOne) RemovePeople(p ...*Person) *OrganizationUpdate
 		ids[i] = p[i].ID
 	}
 	return ouo.RemovePersonIDs(ids...)
-}
-
-// ClearParent clears the "parent" edge to the Organization entity.
-func (ouo *OrganizationUpdateOne) ClearParent() *OrganizationUpdateOne {
-	ouo.mutation.ClearParent()
-	return ouo
-}
-
-// ClearChildren clears all "children" edges to the Organization entity.
-func (ouo *OrganizationUpdateOne) ClearChildren() *OrganizationUpdateOne {
-	ouo.mutation.ClearChildren()
-	return ouo
-}
-
-// RemoveChildIDs removes the "children" edge to Organization entities by IDs.
-func (ouo *OrganizationUpdateOne) RemoveChildIDs(ids ...int) *OrganizationUpdateOne {
-	ouo.mutation.RemoveChildIDs(ids...)
-	return ouo
-}
-
-// RemoveChildren removes "children" edges to Organization entities.
-func (ouo *OrganizationUpdateOne) RemoveChildren(o ...*Organization) *OrganizationUpdateOne {
-	ids := make([]int, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return ouo.RemoveChildIDs(ids...)
 }
 
 // ClearOrganizationPerson clears all "organization_person" edges to the OrganizationPerson entity.
@@ -897,80 +689,6 @@ func (ouo *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizat
 		createE.defaults()
 		_, specE := createE.createSpec()
 		edge.Target.Fields = specE.Fields
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ouo.mutation.ParentCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   organization.ParentTable,
-			Columns: []string{organization.ParentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.ParentIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   organization.ParentTable,
-			Columns: []string{organization.ParentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ouo.mutation.ChildrenCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   organization.ChildrenTable,
-			Columns: []string{organization.ChildrenColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.RemovedChildrenIDs(); len(nodes) > 0 && !ouo.mutation.ChildrenCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   organization.ChildrenTable,
-			Columns: []string{organization.ChildrenColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.ChildrenIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   organization.ChildrenTable,
-			Columns: []string{organization.ChildrenColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if ouo.mutation.OrganizationPersonCleared() {

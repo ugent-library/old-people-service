@@ -26,7 +26,6 @@ func (Organization) Fields() []ent.Field {
 		field.String("name_dut").Optional(),
 		field.String("name_eng").Optional(),
 		field.JSON("identifier", TypeVals{}).Optional().Default(TypeVals{}),
-		field.Int("parent_id").Optional(),
 	}
 }
 
@@ -35,10 +34,6 @@ func (Organization) Edges() []ent.Edge {
 		edge.From("people", Person.Type).
 			Ref("organizations").
 			Through("organization_person", OrganizationPerson.Type),
-		edge.To("children", Organization.Type).
-			From("parent").
-			Field("parent_id").
-			Unique(),
 	}
 }
 
@@ -52,6 +47,5 @@ func (Organization) Mixin() []ent.Mixin {
 func (Organization) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("type"),
-		index.Fields("parent_id"),
 	}
 }

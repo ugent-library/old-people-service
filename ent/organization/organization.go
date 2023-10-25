@@ -29,14 +29,8 @@ const (
 	FieldNameEng = "name_eng"
 	// FieldIdentifier holds the string denoting the identifier field in the database.
 	FieldIdentifier = "identifier"
-	// FieldParentID holds the string denoting the parent_id field in the database.
-	FieldParentID = "parent_id"
 	// EdgePeople holds the string denoting the people edge name in mutations.
 	EdgePeople = "people"
-	// EdgeParent holds the string denoting the parent edge name in mutations.
-	EdgeParent = "parent"
-	// EdgeChildren holds the string denoting the children edge name in mutations.
-	EdgeChildren = "children"
 	// EdgeOrganizationPerson holds the string denoting the organization_person edge name in mutations.
 	EdgeOrganizationPerson = "organization_person"
 	// Table holds the table name of the organization in the database.
@@ -46,14 +40,6 @@ const (
 	// PeopleInverseTable is the table name for the Person entity.
 	// It exists in this package in order to avoid circular dependency with the "person" package.
 	PeopleInverseTable = "person"
-	// ParentTable is the table that holds the parent relation/edge.
-	ParentTable = "organization"
-	// ParentColumn is the table column denoting the parent relation/edge.
-	ParentColumn = "parent_id"
-	// ChildrenTable is the table that holds the children relation/edge.
-	ChildrenTable = "organization"
-	// ChildrenColumn is the table column denoting the children relation/edge.
-	ChildrenColumn = "parent_id"
 	// OrganizationPersonTable is the table that holds the organization_person relation/edge.
 	OrganizationPersonTable = "organization_person"
 	// OrganizationPersonInverseTable is the table name for the OrganizationPerson entity.
@@ -73,7 +59,6 @@ var Columns = []string{
 	FieldNameDut,
 	FieldNameEng,
 	FieldIdentifier,
-	FieldParentID,
 }
 
 var (
@@ -145,11 +130,6 @@ func ByNameEng(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNameEng, opts...).ToFunc()
 }
 
-// ByParentID orders the results by the parent_id field.
-func ByParentID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldParentID, opts...).ToFunc()
-}
-
 // ByPeopleCount orders the results by people count.
 func ByPeopleCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -161,27 +141,6 @@ func ByPeopleCount(opts ...sql.OrderTermOption) OrderOption {
 func ByPeople(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newPeopleStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByParentField orders the results by parent field.
-func ByParentField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newParentStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByChildrenCount orders the results by children count.
-func ByChildrenCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newChildrenStep(), opts...)
-	}
-}
-
-// ByChildren orders the results by children terms.
-func ByChildren(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newChildrenStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -203,20 +162,6 @@ func newPeopleStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PeopleInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, true, PeopleTable, PeoplePrimaryKey...),
-	)
-}
-func newParentStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(Table, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ParentTable, ParentColumn),
-	)
-}
-func newChildrenStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(Table, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, ChildrenTable, ChildrenColumn),
 	)
 }
 func newOrganizationPersonStep() *sqlgraph.Step {

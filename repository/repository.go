@@ -11,10 +11,13 @@ import (
 	"time"
 
 	entsql "entgo.io/ent/dialect/sql"
+	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v5"
+	"github.com/samber/lo"
 	"github.com/ugent-library/crypt"
 	"github.com/ugent-library/people-service/ent"
 	"github.com/ugent-library/people-service/ent/organization"
+	"github.com/ugent-library/people-service/ent/organizationparent"
 	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/schema"
 	"github.com/ugent-library/people-service/models"
@@ -36,6 +39,12 @@ type setCursor struct {
 	LastID int `json:"l"`
 }
 
+type organizationParent struct {
+	models.OrganizationParent
+	organizationID       int
+	parentOrganizationID int
+}
+
 func NewRepository(config *Config) (*repository, error) {
 	client, err := openClient(config.DbUrl)
 	if err != nil {
@@ -47,8 +56,59 @@ func NewRepository(config *Config) (*repository, error) {
 	}, nil
 }
 
+func (repo *repository) getOrganizationParents(ctx context.Context, ids ...int) ([]organizationParent, error) {
+	query := `
+SELECT "organization_id",
+       "parent_organization_id",
+	   "from",
+	   "until",
+	   "date_created",
+	   "date_updated",
+	   (SELECT "public_id" FROM "organization" WHERE "id" = op.parent_organization_id) parent_organization_public_id
+FROM "organization_parent" op
+WHERE "organization_id" = any($1)
+ORDER by "from" ASC
+	`
+	pgIds := pgtype.Int4Array{}
+	pgIds.Set(ids)
+	rows, err := repo.client.QueryContext(
+		ctx,
+		query,
+		pgIds,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	organizationParents := []organizationParent{}
+
+	for rows.Next() {
+		op := organizationParent{}
+		err := rows.Scan(
+			&op.organizationID,
+			&op.parentOrganizationID,
+			&op.From,
+			&op.Until,
+			&op.DateCreated,
+			&op.DateUpdated,
+			&op.Id,
+		)
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		organizationParents = append(organizationParents, op)
+	}
+
+	return organizationParents, nil
+}
+
 func (repo *repository) GetOrganization(ctx context.Context, id string) (*models.Organization, error) {
-	row, err := repo.client.Organization.Query().WithParent().Where(organization.PublicIDEQ(id)).First(ctx)
+	row, err := repo.client.Organization.Query().Where(organization.PublicIDEQ(id)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -56,11 +116,17 @@ func (repo *repository) GetOrganization(ctx context.Context, id string) (*models
 		}
 		return nil, err
 	}
-	return repo.orgUnwrap(row), nil
+
+	organizationParents, err := repo.getOrganizationParents(ctx, row.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.orgUnwrap(row, organizationParents), nil
 }
 
 func (repo *repository) GetOrganizationByIdentifier(ctx context.Context, typ string, vals ...string) (*models.Organization, error) {
-	row, err := repo.client.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
+	row, err := repo.client.Organization.Query().Where(func(s *entsql.Selector) {
 		s.Where(entsql.ExprP("identifier->$1 ?| $2", typ, vals))
 	}).First(ctx)
 	if err != nil {
@@ -70,23 +136,46 @@ func (repo *repository) GetOrganizationByIdentifier(ctx context.Context, typ str
 		}
 		return nil, err
 	}
-	return repo.orgUnwrap(row), nil
+
+	organizationParents, err := repo.getOrganizationParents(ctx, row.ID)
+	if err != nil {
+		return nil, err
+	}
+	return repo.orgUnwrap(row, organizationParents), nil
 }
 
 func (repo *repository) GetOrganizationsByIdentifier(ctx context.Context, typ string, vals ...string) ([]*models.Organization, error) {
-	rows, err := repo.client.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
+	rows, err := repo.client.Organization.Query().Where(func(s *entsql.Selector) {
 		s.Where(entsql.ExprP("identifier->$1 ?| $2", typ, vals))
 	}).All(ctx)
 
 	if err != nil {
 		return nil, err
 	}
-	// TODO: order by array_position cannot work on array itself. Find another way
-	orgs := make([]*models.Organization, 0, len(rows))
+
+	organizationIds := []int{}
 	for _, row := range rows {
-		orgs = append(orgs, repo.orgUnwrap(row))
+		organizationIds = append(organizationIds, row.ID)
 	}
 
+	allOrganizationParents, err := repo.getOrganizationParents(ctx, organizationIds...)
+	if err != nil {
+		return nil, err
+	}
+
+	orgs := make([]*models.Organization, 0, len(rows))
+	for _, row := range rows {
+		organizationParents := []organizationParent{}
+		for _, organizationParent := range allOrganizationParents {
+			if organizationParent.organizationID == row.ID {
+				organizationParents = append(organizationParents, organizationParent)
+				break
+			}
+		}
+		orgs = append(orgs, repo.orgUnwrap(row, organizationParents))
+	}
+
+	// TODO: order by array_position cannot work on array itself. Find another way
 	return orgs, nil
 }
 
@@ -115,22 +204,40 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
-	if org.ParentID != "" {
-		parentOrgRow, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentID)).First(ctx)
-		if err != nil {
-			var e *ent.NotFoundError
-			if errors.As(err, &e) {
-				return nil, fmt.Errorf("%w: parent organization with public_id %s not found", models.ErrInvalidReference, org.ParentID)
-			} else {
-				return nil, fmt.Errorf("unable to query organizations: %w", err)
-			}
-		}
-		t.SetParent(parentOrgRow)
-	}
 
 	row, err := t.Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("unable to save organization: %w", err)
+	}
+
+	parentOrganizationPublicIds := []string{}
+	for _, parent := range org.Parent {
+		parentOrganizationPublicIds = append(parentOrganizationPublicIds, parent.Id)
+	}
+	parentOrganizationPublicIds = lo.Uniq(parentOrganizationPublicIds)
+	parentOrganizationRows, err := repo.client.Organization.Query().Where(organization.PublicIDIn(parentOrganizationPublicIds...)).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if len(parentOrganizationRows) != len(parentOrganizationPublicIds) {
+		return nil, models.ErrInvalidReference
+	}
+
+	for _, parent := range org.Parent {
+		tParent := tx.OrganizationParent.Create()
+		tParent.SetFrom(*parent.From)
+		tParent.SetUntil(*parent.Until)
+		tParent.SetOrganizationID(row.ID)
+		for _, parentOrganizationRow := range parentOrganizationRows {
+			if parentOrganizationRow.PublicID == parent.Id {
+				tParent.SetParentOrganizationID(parentOrganizationRow.ID)
+				break
+			}
+		}
+		_, err := tParent.Save(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -141,6 +248,20 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	org.ID = row.PublicID
 	org.DateCreated = &row.DateCreated
 	org.DateUpdated = &row.DateUpdated
+
+	organizationParents, err := repo.getOrganizationParents(ctx, row.ID)
+	if err != nil {
+		return nil, err
+	}
+	for _, organizationParent := range organizationParents {
+		org.Parent = append(org.Parent, models.OrganizationParent{
+			Id:          organizationParent.Id,
+			DateCreated: organizationParent.DateCreated,
+			DateUpdated: organizationParent.DateUpdated,
+			From:        organizationParent.From,
+			Until:       organizationParent.Until,
+		})
+	}
 
 	return org, nil
 }
@@ -162,20 +283,6 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	t.SetType(org.Type)
-	t.ClearParent()
-	if org.ParentID != "" {
-		parentOrg, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ParentID)).First(ctx)
-		if err != nil {
-			var e *ent.NotFoundError
-			if errors.As(err, &e) {
-				return nil, fmt.Errorf("%w: parent organization with public_id %s not found", models.ErrInvalidReference, org.ParentID)
-			} else {
-				return nil, fmt.Errorf("unable to query organizations: %w", err)
-			}
-		} else {
-			t.SetParent(parentOrg)
-		}
-	}
 
 	if _, err := t.Save(ctx); err != nil {
 		return nil, fmt.Errorf("unable to save organization: %w", err)
@@ -187,11 +294,50 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 		return nil, fmt.Errorf("unable to query organizations: %w", err)
 	}
 
+	// add parents
+	_, err = tx.OrganizationParent.Delete().Where(organizationparent.OrganizationIDEQ(row.ID)).Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	parentOrganizationPublicIds := []string{}
+	for _, parent := range org.Parent {
+		parentOrganizationPublicIds = append(parentOrganizationPublicIds, parent.Id)
+	}
+	parentOrganizationPublicIds = lo.Uniq(parentOrganizationPublicIds)
+	parentOrganizationRows, err := repo.client.Organization.Query().Where(organization.PublicIDIn(parentOrganizationPublicIds...)).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if len(parentOrganizationRows) != len(parentOrganizationPublicIds) {
+		return nil, models.ErrInvalidReference
+	}
+	for _, parent := range org.Parent {
+		tParent := tx.OrganizationParent.Create()
+		tParent.SetFrom(*parent.From)
+		tParent.SetUntil(*parent.Until)
+		tParent.SetOrganizationID(row.ID)
+		for _, parentOrganizationRow := range parentOrganizationRows {
+			if parentOrganizationRow.PublicID == parent.Id {
+				tParent.SetParentOrganizationID(parentOrganizationRow.ID)
+				break
+			}
+		}
+		_, err := tParent.Save(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	if err := tx.Commit(); err != nil {
 		return nil, fmt.Errorf("unable to commit transaction: %w", err)
 	}
 
-	return repo.orgUnwrap(row), nil
+	organizationParents, err := repo.getOrganizationParents(ctx, row.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.orgUnwrap(row, organizationParents), nil
 }
 
 func (repo *repository) DeleteOrganization(ctx context.Context, id string) error {
@@ -230,7 +376,7 @@ func (repo *repository) EachOrganization(ctx context.Context, cb func(*models.Or
 func (repo *repository) SuggestOrganizations(ctx context.Context, query string) ([]*models.Organization, error) {
 	tsQuery, tsQueryArgs := toTSQuery(query)
 	tsQuery = "ts @@ " + tsQuery
-	rows, err := repo.client.Organization.Query().WithParent().Where(func(s *entsql.Selector) {
+	rows, err := repo.client.Organization.Query().Where(func(s *entsql.Selector) {
 		s.Where(
 			entsql.ExprP(tsQuery, tsQueryArgs...),
 		)
@@ -240,9 +386,26 @@ func (repo *repository) SuggestOrganizations(ctx context.Context, query string) 
 		return nil, err
 	}
 
+	organizationIds := []int{}
+	for _, row := range rows {
+		organizationIds = append(organizationIds, row.ID)
+	}
+	organizationIds = lo.Uniq(organizationIds)
+
+	allOrganizationParents, err := repo.getOrganizationParents(ctx, organizationIds...)
+	if err != nil {
+		return nil, err
+	}
+
 	orgs := make([]*models.Organization, 0, len(rows))
 	for _, row := range rows {
-		orgs = append(orgs, repo.orgUnwrap(row))
+		organizationParents := []organizationParent{}
+		for _, organizationParent := range allOrganizationParents {
+			if row.ID == organizationParent.organizationID {
+				organizationParents = append(organizationParents, organizationParent)
+			}
+		}
+		orgs = append(orgs, repo.orgUnwrap(row, organizationParents))
 	}
 
 	return orgs, nil
@@ -287,7 +450,7 @@ func (repo *repository) GetMoreOrganizations(ctx context.Context, tokenValue str
 
 func (repo *repository) getOrganizations(ctx context.Context, cursor setCursor) ([]*models.Organization, setCursor, error) {
 	newCursor := setCursor{}
-	rows, err := repo.client.Organization.Query().Where(organization.IDGT(cursor.LastID)).Order(ent.Asc(organization.FieldID)).WithParent().Limit(organizationPageLimit).All(ctx)
+	rows, err := repo.client.Organization.Query().Where(organization.IDGT(cursor.LastID)).Order(ent.Asc(organization.FieldID)).Limit(organizationPageLimit).All(ctx)
 	if err != nil {
 		return nil, newCursor, err
 	}
@@ -306,32 +469,56 @@ func (repo *repository) getOrganizations(ctx context.Context, cursor setCursor) 
 		}
 	}
 
+	organizationIds := []int{}
+	for _, row := range rows {
+		organizationIds = append(organizationIds, row.ID)
+	}
+	organizationIds = lo.Uniq(organizationIds)
+
+	allOrganizationParents, err := repo.getOrganizationParents(ctx, organizationIds...)
+	if err != nil {
+		return nil, newCursor, err
+	}
+
 	orgs := make([]*models.Organization, 0, len(rows))
 	for _, row := range rows {
-		orgs = append(orgs, repo.orgUnwrap(row))
+		organizationParents := []organizationParent{}
+		for _, organizationParent := range allOrganizationParents {
+			if row.ID == organizationParent.organizationID {
+				organizationParents = append(organizationParents, organizationParent)
+			}
+		}
+		orgs = append(orgs, repo.orgUnwrap(row, organizationParents))
 	}
 	return orgs, newCursor, nil
 }
 
-func (repo *repository) orgUnwrap(e *ent.Organization) *models.Organization {
+func (repo *repository) orgUnwrap(organizationRow *ent.Organization, organizationParents []organizationParent) *models.Organization {
 	org := &models.Organization{
-		ID:          e.PublicID,
-		DateCreated: &e.DateCreated,
-		DateUpdated: &e.DateUpdated,
-		Type:        e.Type,
-		NameDut:     e.NameDut,
-		NameEng:     e.NameEng,
+		ID:          organizationRow.PublicID,
+		DateCreated: &organizationRow.DateCreated,
+		DateUpdated: &organizationRow.DateUpdated,
+		Type:        organizationRow.Type,
+		NameDut:     organizationRow.NameDut,
+		NameEng:     organizationRow.NameEng,
 	}
 
-	for key, vals := range e.Identifier {
+	for key, vals := range organizationRow.Identifier {
 		for _, val := range vals {
 			org.AddIdentifier(key, val)
 		}
 	}
 
-	if parentOrg := e.Edges.Parent; parentOrg != nil {
-		org.ParentID = parentOrg.PublicID
+	for _, organizationParent := range organizationParents {
+		org.Parent = append(org.Parent, models.OrganizationParent{
+			Id:          organizationParent.Id,
+			DateCreated: organizationParent.DateCreated,
+			DateUpdated: organizationParent.DateUpdated,
+			From:        organizationParent.From,
+			Until:       organizationParent.Until,
+		})
 	}
+
 	return org
 }
 
@@ -684,7 +871,7 @@ func (repo *repository) SuggestPeople(ctx context.Context, query string) ([]*mod
 }
 
 func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
-	var orgRefs []*models.OrganizationRef
+	var orgRefs []*models.OrganizationMember
 	for _, orgRow := range e.Edges.Organizations {
 		var thisOrgPersonRow *ent.OrganizationPerson
 		for _, orgPersonRow := range e.Edges.OrganizationPerson {
@@ -693,7 +880,7 @@ func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
 				break
 			}
 		}
-		orgRef := models.NewOrganizationRef(orgRow.PublicID)
+		orgRef := models.NewOrganizationMember(orgRow.PublicID)
 		orgRef.DateCreated = &thisOrgPersonRow.DateCreated
 		orgRef.DateUpdated = &thisOrgPersonRow.DateUpdated
 		orgRef.From = &thisOrgPersonRow.From

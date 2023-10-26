@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 )
@@ -34,38 +33,13 @@ func (OrganizationPerson) Mixin() []ent.Mixin {
 	}
 }
 
-func (OrganizationPerson) Edges() []ent.Edge {
-	/*
-		Not sure why this works
-
-		cf. https://github.com/ent/ent/issues/2964
-
-		without "Unique" per field entgo claims that
-		"person_id" is not holding a foreign key
-
-		It will generate a unique index though on the combination
-		of person_id and organization_id, not on each separately,
-		from some reason.
-	*/
-	return []ent.Edge{
-		edge.To("people", Person.Type).
-			Unique().
-			Annotations(entsql.Annotation{
-				OnDelete: entsql.Cascade,
-			}).
-			Required().Field("person_id"),
-		edge.To("organizations", Organization.Type).
-			Unique().
-			Annotations(entsql.Annotation{
-				OnDelete: entsql.Cascade,
-			}).
-			Required().Field("organization_id"),
-	}
-}
-
+// Note: cannot model M2M with duplicate entries in entgo
+// see https://github.com/ent/ent/issues/2964
+// see migration file for additional checks
 func (OrganizationPerson) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("person_id"),
 		index.Fields("organization_id"),
+		index.Fields("person_id", "organization_id", "from").Unique(),
 	}
 }

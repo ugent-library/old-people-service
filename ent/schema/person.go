@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 )
@@ -49,16 +48,6 @@ func (Person) Mixin() []ent.Mixin {
 	}
 }
 
-// Edges of the Person.
-func (Person) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.To("organizations", Organization.Type).
-			Through("organization_person", OrganizationPerson.Type),
-	}
-}
-
-// note: Unique() on field already creates an index!
-// TODO: add unique to identifier->value?
 func (Person) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("active"),

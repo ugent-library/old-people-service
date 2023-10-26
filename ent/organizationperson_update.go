@@ -11,9 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ugent-library/people-service/ent/organization"
 	"github.com/ugent-library/people-service/ent/organizationperson"
-	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/predicate"
 )
 
@@ -39,13 +37,27 @@ func (opu *OrganizationPersonUpdate) SetDateUpdated(t time.Time) *OrganizationPe
 
 // SetOrganizationID sets the "organization_id" field.
 func (opu *OrganizationPersonUpdate) SetOrganizationID(i int) *OrganizationPersonUpdate {
+	opu.mutation.ResetOrganizationID()
 	opu.mutation.SetOrganizationID(i)
+	return opu
+}
+
+// AddOrganizationID adds i to the "organization_id" field.
+func (opu *OrganizationPersonUpdate) AddOrganizationID(i int) *OrganizationPersonUpdate {
+	opu.mutation.AddOrganizationID(i)
 	return opu
 }
 
 // SetPersonID sets the "person_id" field.
 func (opu *OrganizationPersonUpdate) SetPersonID(i int) *OrganizationPersonUpdate {
+	opu.mutation.ResetPersonID()
 	opu.mutation.SetPersonID(i)
+	return opu
+}
+
+// AddPersonID adds i to the "person_id" field.
+func (opu *OrganizationPersonUpdate) AddPersonID(i int) *OrganizationPersonUpdate {
+	opu.mutation.AddPersonID(i)
 	return opu
 }
 
@@ -69,43 +81,9 @@ func (opu *OrganizationPersonUpdate) SetUntil(t time.Time) *OrganizationPersonUp
 	return opu
 }
 
-// SetPeopleID sets the "people" edge to the Person entity by ID.
-func (opu *OrganizationPersonUpdate) SetPeopleID(id int) *OrganizationPersonUpdate {
-	opu.mutation.SetPeopleID(id)
-	return opu
-}
-
-// SetPeople sets the "people" edge to the Person entity.
-func (opu *OrganizationPersonUpdate) SetPeople(p *Person) *OrganizationPersonUpdate {
-	return opu.SetPeopleID(p.ID)
-}
-
-// SetOrganizationsID sets the "organizations" edge to the Organization entity by ID.
-func (opu *OrganizationPersonUpdate) SetOrganizationsID(id int) *OrganizationPersonUpdate {
-	opu.mutation.SetOrganizationsID(id)
-	return opu
-}
-
-// SetOrganizations sets the "organizations" edge to the Organization entity.
-func (opu *OrganizationPersonUpdate) SetOrganizations(o *Organization) *OrganizationPersonUpdate {
-	return opu.SetOrganizationsID(o.ID)
-}
-
 // Mutation returns the OrganizationPersonMutation object of the builder.
 func (opu *OrganizationPersonUpdate) Mutation() *OrganizationPersonMutation {
 	return opu.mutation
-}
-
-// ClearPeople clears the "people" edge to the Person entity.
-func (opu *OrganizationPersonUpdate) ClearPeople() *OrganizationPersonUpdate {
-	opu.mutation.ClearPeople()
-	return opu
-}
-
-// ClearOrganizations clears the "organizations" edge to the Organization entity.
-func (opu *OrganizationPersonUpdate) ClearOrganizations() *OrganizationPersonUpdate {
-	opu.mutation.ClearOrganizations()
-	return opu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -148,17 +126,6 @@ func (opu *OrganizationPersonUpdate) defaults() {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (opu *OrganizationPersonUpdate) check() error {
-	if _, ok := opu.mutation.PeopleID(); opu.mutation.PeopleCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "OrganizationPerson.people"`)
-	}
-	if _, ok := opu.mutation.OrganizationsID(); opu.mutation.OrganizationsCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "OrganizationPerson.organizations"`)
-	}
-	return nil
-}
-
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (opu *OrganizationPersonUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *OrganizationPersonUpdate {
 	opu.modifiers = append(opu.modifiers, modifiers...)
@@ -166,9 +133,6 @@ func (opu *OrganizationPersonUpdate) Modify(modifiers ...func(u *sql.UpdateBuild
 }
 
 func (opu *OrganizationPersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := opu.check(); err != nil {
-		return n, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(organizationperson.Table, organizationperson.Columns, sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt))
 	if ps := opu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -180,69 +144,23 @@ func (opu *OrganizationPersonUpdate) sqlSave(ctx context.Context) (n int, err er
 	if value, ok := opu.mutation.DateUpdated(); ok {
 		_spec.SetField(organizationperson.FieldDateUpdated, field.TypeTime, value)
 	}
+	if value, ok := opu.mutation.OrganizationID(); ok {
+		_spec.SetField(organizationperson.FieldOrganizationID, field.TypeInt, value)
+	}
+	if value, ok := opu.mutation.AddedOrganizationID(); ok {
+		_spec.AddField(organizationperson.FieldOrganizationID, field.TypeInt, value)
+	}
+	if value, ok := opu.mutation.PersonID(); ok {
+		_spec.SetField(organizationperson.FieldPersonID, field.TypeInt, value)
+	}
+	if value, ok := opu.mutation.AddedPersonID(); ok {
+		_spec.AddField(organizationperson.FieldPersonID, field.TypeInt, value)
+	}
 	if value, ok := opu.mutation.From(); ok {
 		_spec.SetField(organizationperson.FieldFrom, field.TypeTime, value)
 	}
 	if value, ok := opu.mutation.Until(); ok {
 		_spec.SetField(organizationperson.FieldUntil, field.TypeTime, value)
-	}
-	if opu.mutation.PeopleCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   organizationperson.PeopleTable,
-			Columns: []string{organizationperson.PeopleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := opu.mutation.PeopleIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   organizationperson.PeopleTable,
-			Columns: []string{organizationperson.PeopleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if opu.mutation.OrganizationsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   organizationperson.OrganizationsTable,
-			Columns: []string{organizationperson.OrganizationsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := opu.mutation.OrganizationsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   organizationperson.OrganizationsTable,
-			Columns: []string{organizationperson.OrganizationsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(opu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, opu.driver, _spec); err != nil {
@@ -274,13 +192,27 @@ func (opuo *OrganizationPersonUpdateOne) SetDateUpdated(t time.Time) *Organizati
 
 // SetOrganizationID sets the "organization_id" field.
 func (opuo *OrganizationPersonUpdateOne) SetOrganizationID(i int) *OrganizationPersonUpdateOne {
+	opuo.mutation.ResetOrganizationID()
 	opuo.mutation.SetOrganizationID(i)
+	return opuo
+}
+
+// AddOrganizationID adds i to the "organization_id" field.
+func (opuo *OrganizationPersonUpdateOne) AddOrganizationID(i int) *OrganizationPersonUpdateOne {
+	opuo.mutation.AddOrganizationID(i)
 	return opuo
 }
 
 // SetPersonID sets the "person_id" field.
 func (opuo *OrganizationPersonUpdateOne) SetPersonID(i int) *OrganizationPersonUpdateOne {
+	opuo.mutation.ResetPersonID()
 	opuo.mutation.SetPersonID(i)
+	return opuo
+}
+
+// AddPersonID adds i to the "person_id" field.
+func (opuo *OrganizationPersonUpdateOne) AddPersonID(i int) *OrganizationPersonUpdateOne {
+	opuo.mutation.AddPersonID(i)
 	return opuo
 }
 
@@ -304,43 +236,9 @@ func (opuo *OrganizationPersonUpdateOne) SetUntil(t time.Time) *OrganizationPers
 	return opuo
 }
 
-// SetPeopleID sets the "people" edge to the Person entity by ID.
-func (opuo *OrganizationPersonUpdateOne) SetPeopleID(id int) *OrganizationPersonUpdateOne {
-	opuo.mutation.SetPeopleID(id)
-	return opuo
-}
-
-// SetPeople sets the "people" edge to the Person entity.
-func (opuo *OrganizationPersonUpdateOne) SetPeople(p *Person) *OrganizationPersonUpdateOne {
-	return opuo.SetPeopleID(p.ID)
-}
-
-// SetOrganizationsID sets the "organizations" edge to the Organization entity by ID.
-func (opuo *OrganizationPersonUpdateOne) SetOrganizationsID(id int) *OrganizationPersonUpdateOne {
-	opuo.mutation.SetOrganizationsID(id)
-	return opuo
-}
-
-// SetOrganizations sets the "organizations" edge to the Organization entity.
-func (opuo *OrganizationPersonUpdateOne) SetOrganizations(o *Organization) *OrganizationPersonUpdateOne {
-	return opuo.SetOrganizationsID(o.ID)
-}
-
 // Mutation returns the OrganizationPersonMutation object of the builder.
 func (opuo *OrganizationPersonUpdateOne) Mutation() *OrganizationPersonMutation {
 	return opuo.mutation
-}
-
-// ClearPeople clears the "people" edge to the Person entity.
-func (opuo *OrganizationPersonUpdateOne) ClearPeople() *OrganizationPersonUpdateOne {
-	opuo.mutation.ClearPeople()
-	return opuo
-}
-
-// ClearOrganizations clears the "organizations" edge to the Organization entity.
-func (opuo *OrganizationPersonUpdateOne) ClearOrganizations() *OrganizationPersonUpdateOne {
-	opuo.mutation.ClearOrganizations()
-	return opuo
 }
 
 // Where appends a list predicates to the OrganizationPersonUpdate builder.
@@ -396,17 +294,6 @@ func (opuo *OrganizationPersonUpdateOne) defaults() {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (opuo *OrganizationPersonUpdateOne) check() error {
-	if _, ok := opuo.mutation.PeopleID(); opuo.mutation.PeopleCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "OrganizationPerson.people"`)
-	}
-	if _, ok := opuo.mutation.OrganizationsID(); opuo.mutation.OrganizationsCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "OrganizationPerson.organizations"`)
-	}
-	return nil
-}
-
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (opuo *OrganizationPersonUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *OrganizationPersonUpdateOne {
 	opuo.modifiers = append(opuo.modifiers, modifiers...)
@@ -414,9 +301,6 @@ func (opuo *OrganizationPersonUpdateOne) Modify(modifiers ...func(u *sql.UpdateB
 }
 
 func (opuo *OrganizationPersonUpdateOne) sqlSave(ctx context.Context) (_node *OrganizationPerson, err error) {
-	if err := opuo.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(organizationperson.Table, organizationperson.Columns, sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt))
 	id, ok := opuo.mutation.ID()
 	if !ok {
@@ -445,69 +329,23 @@ func (opuo *OrganizationPersonUpdateOne) sqlSave(ctx context.Context) (_node *Or
 	if value, ok := opuo.mutation.DateUpdated(); ok {
 		_spec.SetField(organizationperson.FieldDateUpdated, field.TypeTime, value)
 	}
+	if value, ok := opuo.mutation.OrganizationID(); ok {
+		_spec.SetField(organizationperson.FieldOrganizationID, field.TypeInt, value)
+	}
+	if value, ok := opuo.mutation.AddedOrganizationID(); ok {
+		_spec.AddField(organizationperson.FieldOrganizationID, field.TypeInt, value)
+	}
+	if value, ok := opuo.mutation.PersonID(); ok {
+		_spec.SetField(organizationperson.FieldPersonID, field.TypeInt, value)
+	}
+	if value, ok := opuo.mutation.AddedPersonID(); ok {
+		_spec.AddField(organizationperson.FieldPersonID, field.TypeInt, value)
+	}
 	if value, ok := opuo.mutation.From(); ok {
 		_spec.SetField(organizationperson.FieldFrom, field.TypeTime, value)
 	}
 	if value, ok := opuo.mutation.Until(); ok {
 		_spec.SetField(organizationperson.FieldUntil, field.TypeTime, value)
-	}
-	if opuo.mutation.PeopleCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   organizationperson.PeopleTable,
-			Columns: []string{organizationperson.PeopleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := opuo.mutation.PeopleIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   organizationperson.PeopleTable,
-			Columns: []string{organizationperson.PeopleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if opuo.mutation.OrganizationsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   organizationperson.OrganizationsTable,
-			Columns: []string{organizationperson.OrganizationsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := opuo.mutation.OrganizationsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   organizationperson.OrganizationsTable,
-			Columns: []string{organizationperson.OrganizationsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(opuo.modifiers...)
 	_node = &OrganizationPerson{config: opuo.config}

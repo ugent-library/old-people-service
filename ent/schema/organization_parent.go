@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/schema/index"
 )
 
+// TODO: give constraints and indexes more sane names
 type OrganizationParent struct {
 	ent.Schema
 }
@@ -36,10 +37,10 @@ func (OrganizationParent) Mixin() []ent.Mixin {
 // Note: cannot model M2M with duplicate entries in entgo
 // see https://github.com/ent/ent/issues/2964
 // see migration file for additional checks
-
 func (OrganizationParent) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("parent_organization_id"),
 		index.Fields("organization_id"),
+		index.Fields("parent_organization_id", "organization_id", "from").Unique(),
 	}
 }

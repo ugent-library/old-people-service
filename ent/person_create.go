@@ -10,8 +10,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ugent-library/people-service/ent/organization"
-	"github.com/ugent-library/people-service/ent/organizationperson"
 	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/schema"
 )
@@ -241,36 +239,6 @@ func (pc *PersonCreate) SetToken(sv schema.TypeVals) *PersonCreate {
 	return pc
 }
 
-// AddOrganizationIDs adds the "organizations" edge to the Organization entity by IDs.
-func (pc *PersonCreate) AddOrganizationIDs(ids ...int) *PersonCreate {
-	pc.mutation.AddOrganizationIDs(ids...)
-	return pc
-}
-
-// AddOrganizations adds the "organizations" edges to the Organization entity.
-func (pc *PersonCreate) AddOrganizations(o ...*Organization) *PersonCreate {
-	ids := make([]int, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return pc.AddOrganizationIDs(ids...)
-}
-
-// AddOrganizationPersonIDs adds the "organization_person" edge to the OrganizationPerson entity by IDs.
-func (pc *PersonCreate) AddOrganizationPersonIDs(ids ...int) *PersonCreate {
-	pc.mutation.AddOrganizationPersonIDs(ids...)
-	return pc
-}
-
-// AddOrganizationPerson adds the "organization_person" edges to the OrganizationPerson entity.
-func (pc *PersonCreate) AddOrganizationPerson(o ...*OrganizationPerson) *PersonCreate {
-	ids := make([]int, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return pc.AddOrganizationPersonIDs(ids...)
-}
-
 // Mutation returns the PersonMutation object of the builder.
 func (pc *PersonCreate) Mutation() *PersonMutation {
 	return pc.mutation
@@ -463,42 +431,6 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.Token(); ok {
 		_spec.SetField(person.FieldToken, field.TypeJSON, value)
 		_node.Token = value
-	}
-	if nodes := pc.mutation.OrganizationsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   person.OrganizationsTable,
-			Columns: person.OrganizationsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		createE := &OrganizationPersonCreate{config: pc.config, mutation: newOrganizationPersonMutation(pc.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := pc.mutation.OrganizationPersonIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   person.OrganizationPersonTable,
-			Columns: []string{person.OrganizationPersonColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

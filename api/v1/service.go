@@ -227,10 +227,10 @@ func (s *Service) AddPerson(ctx context.Context, p *Person) (*Person, error) {
 
 	person.Organization = nil
 	for _, orgMember := range p.Organization {
-		newOrgRef := models.NewOrganizationMember(orgMember.ID)
-		newOrgRef.From = &orgMember.From
-		newOrgRef.Until = &orgMember.Until
-		person.Organization = append(person.Organization, newOrgRef)
+		newOrgMember := models.NewOrganizationMember(orgMember.ID)
+		newOrgMember.From = &orgMember.From
+		newOrgMember.Until = &orgMember.Until
+		person.Organization = append(person.Organization, newOrgMember)
 	}
 
 	if newPerson, err := s.repository.SavePerson(ctx, person); err != nil {
@@ -258,6 +258,7 @@ func (s *Service) AddOrganization(ctx context.Context, o *Organization) (*Organi
 		org = models.NewOrganization()
 	}
 
+	org.Acronym = o.Acronym.Value
 	org.NameDut = o.NameDut.Value
 	org.NameEng = o.NameEng.Value
 	for _, parent := range o.Parent {
@@ -393,6 +394,9 @@ func mapToExternalOrganization(org *models.Organization) *Organization {
 	o.ID = NewOptString(org.ID)
 	o.DateCreated = NewOptDateTime(*org.DateCreated)
 	o.DateUpdated = NewOptDateTime(*org.DateUpdated)
+	if org.Acronym != "" {
+		o.Acronym = NewOptString(org.Acronym)
+	}
 	if org.NameDut != "" {
 		o.NameDut = NewOptString(org.NameDut)
 	}

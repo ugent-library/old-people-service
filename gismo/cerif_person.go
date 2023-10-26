@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/antchfx/xmlquery"
-	"github.com/ugent-library/cerifutil"
+	"github.com/ugent-library/people-service/cerif"
 	"github.com/ugent-library/people-service/models"
 )
 
 func ParsePersonMessage(buf []byte) (*models.Message, error) {
-	doc, err := cerifutil.Parse(bytes.NewReader(buf))
+	doc, err := cerif.Parse(bytes.NewReader(buf))
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 	} else {
 		msg.Source = "gismo.person.update"
 
-		for _, nameNode := range cerifutil.NodesByClassName(doc, "cfPersName_Pers", "/be.ugent/gismo/persoon/persoonsnaam/type/officiele-naam") {
+		for _, nameNode := range cerif.NodesByClassName(doc, "cfPersName_Pers", "/be.ugent/gismo/persoon/persoonsnaam/type/officiele-naam") {
 			startDate, err := time.Parse(time.RFC3339, strings.TrimSpace(xmlquery.FindOne(nameNode, "cfStartDate").InnerText()))
 			if err != nil {
 				return nil, err
@@ -86,7 +86,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 				})
 			}
 		}
-		for _, nameNode := range cerifutil.NodesByClassName(doc, "cfPersName_Pers", "/be.ugent/gismo/persoon/persoonsnaam/type/voorkeursweergave") {
+		for _, nameNode := range cerif.NodesByClassName(doc, "cfPersName_Pers", "/be.ugent/gismo/persoon/persoonsnaam/type/voorkeursweergave") {
 			startDate, err := time.Parse(time.RFC3339, strings.TrimSpace(xmlquery.FindOne(nameNode, "cfStartDate").InnerText()))
 			if err != nil {
 				return nil, err
@@ -113,7 +113,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 			}
 		}
 
-		for _, v := range cerifutil.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/persoon/federated-id/ugent-id", "cfFedId") {
+		for _, v := range cerif.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/persoon/federated-id/ugent-id", "cfFedId") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -123,7 +123,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 				EndDate:   &endDate,
 			})
 		}
-		for _, v := range cerifutil.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/persoon/federated-id/orcid", "cfFedId") {
+		for _, v := range cerif.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/persoon/federated-id/orcid", "cfFedId") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -133,7 +133,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 				EndDate:   &endDate,
 			})
 		}
-		for _, v := range cerifutil.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/memorialis", "cfFedId") {
+		for _, v := range cerif.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/memorialis", "cfFedId") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -163,7 +163,16 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 			})
 		}
 
+		// only use hr-affiliation (other are: hr-mandaat for example)
+		hrAffiliationClassID := cerif.ClassID(doc, "/be.ugent/gismo/persoon-organisatie/affiliatie/type/hr-affiliatie")
+
 		for _, persAddrNode := range xmlquery.Find(node, "cfPers_OrgUnit") {
+			classId := xmlquery.FindOne(persAddrNode, "./cfClassId").InnerText()
+
+			if hrAffiliationClassID != classId {
+				continue
+			}
+
 			startDate, err := time.Parse(time.RFC3339, strings.TrimSpace(xmlquery.FindOne(persAddrNode, "cfStartDate").InnerText()))
 			if err != nil {
 				return nil, err

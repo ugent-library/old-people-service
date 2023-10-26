@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
-	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 )
@@ -23,17 +22,10 @@ func (Organization) Fields() []ent.Field {
 	// field "id" is implied
 	return []ent.Field{
 		field.String("type").Default("organization"),
+		field.String("acronym").Optional(),
 		field.String("name_dut").Optional(),
 		field.String("name_eng").Optional(),
 		field.JSON("identifier", TypeVals{}).Optional().Default(TypeVals{}),
-	}
-}
-
-func (Organization) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.From("people", Person.Type).
-			Ref("organizations").
-			Through("organization_person", OrganizationPerson.Type),
 	}
 }
 
@@ -47,5 +39,6 @@ func (Organization) Mixin() []ent.Mixin {
 func (Organization) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("type"),
+		index.Fields("acronym"),
 	}
 }

@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"sort"
 	"time"
 
 	entsql "entgo.io/ent/dialect/sql"
@@ -18,6 +17,7 @@ import (
 	"github.com/ugent-library/people-service/ent"
 	"github.com/ugent-library/people-service/ent/organization"
 	"github.com/ugent-library/people-service/ent/organizationparent"
+	"github.com/ugent-library/people-service/ent/organizationperson"
 	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/schema"
 	"github.com/ugent-library/people-service/models"
@@ -45,6 +45,12 @@ type organizationParent struct {
 	parentOrganizationID int
 }
 
+type organizationMember struct {
+	models.OrganizationMember
+	organizationID int
+	personID       int
+}
+
 func NewRepository(config *Config) (*repository, error) {
 	client, err := openClient(config.DbUrl)
 	if err != nil {
@@ -54,6 +60,57 @@ func NewRepository(config *Config) (*repository, error) {
 		client: client,
 		secret: []byte(config.AesKey),
 	}, nil
+}
+
+func (repo *repository) getOrganizationMembers(ctx context.Context, ids ...int) ([]organizationMember, error) {
+	query := `
+SELECT "organization_id",
+       "person_id",
+	   "from",
+	   "until",
+	   "date_created",
+	   "date_updated",
+	   (SELECT "public_id" FROM "organization" WHERE "id" = op.organization_id) organization_public_id
+FROM "organization_person" op
+WHERE "person_id" = any($1)
+ORDER by "from" ASC
+	`
+	pgIds := pgtype.Int4Array{}
+	pgIds.Set(ids)
+	rows, err := repo.client.QueryContext(
+		ctx,
+		query,
+		pgIds,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	organizationMembers := []organizationMember{}
+
+	for rows.Next() {
+		om := organizationMember{}
+		err := rows.Scan(
+			&om.organizationID,
+			&om.personID,
+			&om.From,
+			&om.Until,
+			&om.DateCreated,
+			&om.DateUpdated,
+			&om.Id,
+		)
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		organizationMembers = append(organizationMembers, om)
+	}
+
+	return organizationMembers, nil
 }
 
 func (repo *repository) getOrganizationParents(ctx context.Context, ids ...int) ([]organizationParent, error) {
@@ -169,7 +226,6 @@ func (repo *repository) GetOrganizationsByIdentifier(ctx context.Context, typ st
 		for _, organizationParent := range allOrganizationParents {
 			if organizationParent.organizationID == row.ID {
 				organizationParents = append(organizationParents, organizationParent)
-				break
 			}
 		}
 		orgs = append(orgs, repo.orgUnwrap(row, organizationParents))
@@ -203,7 +259,12 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	t.SetIdentifier(identifiers)
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
-	t.SetType(org.Type)
+	var typ *string
+	if org.Type != "" {
+		typ = &org.Type
+	}
+	t.SetNillableType(typ)
+	t.SetAcronym(org.Acronym)
 
 	row, err := t.Save(ctx)
 	if err != nil {
@@ -282,7 +343,12 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	t.SetIdentifier(identifiers)
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
-	t.SetType(org.Type)
+	var typ *string
+	if org.Type != "" {
+		typ = &org.Type
+	}
+	t.SetNillableType(typ)
+	t.SetAcronym(org.Acronym)
 
 	if _, err := t.Save(ctx); err != nil {
 		return nil, fmt.Errorf("unable to save organization: %w", err)
@@ -295,6 +361,7 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	}
 
 	// add parents
+	// TODO: really needed to delete relations?
 	_, err = tx.OrganizationParent.Delete().Where(organizationparent.OrganizationIDEQ(row.ID)).Exec(ctx)
 	if err != nil {
 		return nil, err
@@ -501,6 +568,7 @@ func (repo *repository) orgUnwrap(organizationRow *ent.Organization, organizatio
 		Type:        organizationRow.Type,
 		NameDut:     organizationRow.NameDut,
 		NameEng:     organizationRow.NameEng,
+		Acronym:     organizationRow.Acronym,
 	}
 
 	for key, vals := range organizationRow.Identifier {
@@ -575,32 +643,45 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetPreferredGivenName(p.PreferredGivenName)
 	t.SetPreferredFamilyName(p.PreferredFamilyName)
 
-	if len(p.Organization) > 0 {
-		var organizationId []string
-		for _, orgRef := range p.Organization {
-			organizationId = append(organizationId, orgRef.Id)
-		}
-		// TODO: crashes with segmentation violation error when org does not exist
-		orgs, err := tx.Organization.Query().Where(organization.PublicIDIn(organizationId...)).All(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("unable to query organizations: %w", err)
-		}
-		if len(p.Organization) != len(orgs) {
-			return nil, fmt.Errorf("%w: 's", models.ErrInvalidReference)
-		}
-		t.AddOrganizations(orgs...)
-	}
-
 	row, err := t.Save(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(p.Organization) > 0 {
+		var organizationPublicIds []string
+		for _, orgMember := range p.Organization {
+			organizationPublicIds = append(organizationPublicIds, orgMember.Id)
+		}
+		organizationPublicIds = lo.Uniq(organizationPublicIds)
+		orgRows, err := tx.Organization.Query().Where(organization.PublicIDIn(organizationPublicIds...)).All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if len(organizationPublicIds) != len(orgRows) {
+			return nil, fmt.Errorf("%w: person.organization_id contains invalid organization id's", models.ErrInvalidReference)
+		}
+		for _, organizationMember := range p.Organization {
+			top := tx.OrganizationPerson.Create()
+			top.SetFrom(*organizationMember.From)
+			top.SetUntil(*organizationMember.Until)
+			top.SetPersonID(row.ID)
+			for _, orgRow := range orgRows {
+				if orgRow.PublicID == organizationMember.Id {
+					top.SetOrganizationID(orgRow.ID)
+					break
+				}
+			}
+			if _, err = top.Save(ctx); err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	if err := tx.Commit(); err != nil {
 		return nil, fmt.Errorf("unable to commit transaction: %w", err)
 	}
 
-	// reload everything because you also added new organization references
 	return repo.GetPerson(ctx, row.PublicID)
 }
 
@@ -688,7 +769,6 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 
 	t := tx.Person.Update().Where(person.PublicIDEQ(p.ID))
 
-	// keep in order; copy to Update if it changes
 	t.SetActive(p.Active)
 	t.SetBirthDate(p.BirthDate)
 	t.SetJobCategory(p.JobCategory)
@@ -719,21 +799,44 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetIdentifier(identifiers)
 	t.SetPreferredGivenName(p.PreferredGivenName)
 	t.SetPreferredFamilyName(p.PreferredFamilyName)
-	t.ClearOrganizations()
+
+	personRow, err := tx.Person.Query().Where(person.PublicIDEQ(p.ID)).First(ctx)
+	if err != nil {
+		return nil, err
+	}
+	_, err = tx.OrganizationPerson.Delete().Where(organizationperson.PersonIDEQ(personRow.ID)).Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	if len(p.Organization) > 0 {
-		var organizationId []string
-		for _, orgRef := range p.Organization {
-			organizationId = append(organizationId, orgRef.Id)
+		var organizationPublicIds []string
+		for _, orgMember := range p.Organization {
+			organizationPublicIds = append(organizationPublicIds, orgMember.Id)
 		}
-		// TODO: crashes with segmentation violation error when org does not exist
-		orgs, err := tx.Organization.Query().Where(organization.PublicIDIn(organizationId...)).All(ctx)
+		organizationPublicIds = lo.Uniq(organizationPublicIds)
+		orgRows, err := tx.Organization.Query().Where(organization.PublicIDIn(organizationPublicIds...)).All(ctx)
 		if err != nil {
 			return nil, err
 		}
-		if len(p.Organization) != len(orgs) {
+		if len(organizationPublicIds) != len(orgRows) {
 			return nil, fmt.Errorf("%w: person.organization_id contains invalid organization id's", models.ErrInvalidReference)
 		}
-		t.AddOrganizations(orgs...)
+		for _, organizationMember := range p.Organization {
+			top := tx.OrganizationPerson.Create()
+			top.SetFrom(*organizationMember.From)
+			top.SetUntil(*organizationMember.Until)
+			top.SetPersonID(personRow.ID)
+			for _, orgRow := range orgRows {
+				if orgRow.PublicID == organizationMember.Id {
+					top.SetOrganizationID(orgRow.ID)
+					break
+				}
+			}
+			if _, err = top.Save(ctx); err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	if _, err := t.Save(ctx); err != nil {
@@ -748,7 +851,7 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 }
 
 func (repo *repository) GetPerson(ctx context.Context, id string) (*models.Person, error) {
-	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(person.PublicIDEQ(id)).First(ctx)
+	row, err := repo.client.Person.Query().Where(person.PublicIDEQ(id)).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
 		if errors.As(err, &e) {
@@ -757,11 +860,16 @@ func (repo *repository) GetPerson(ctx context.Context, id string) (*models.Perso
 		return nil, err
 	}
 
-	return repo.personUnwrap(row)
+	personOrganizations, err := repo.getOrganizationMembers(ctx, row.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.personUnwrap(row, personOrganizations)
 }
 
 func (repo *repository) GetPersonByIdentifier(ctx context.Context, typ string, vals ...string) (*models.Person, error) {
-	row, err := repo.client.Person.Query().WithOrganizations().WithOrganizationPerson().Where(func(s *entsql.Selector) {
+	row, err := repo.client.Person.Query().Where(func(s *entsql.Selector) {
 		s.Where(entsql.ExprP("identifier->$1 ?| $2", typ, vals))
 	}).First(ctx)
 	if err != nil {
@@ -771,7 +879,13 @@ func (repo *repository) GetPersonByIdentifier(ctx context.Context, typ string, v
 		}
 		return nil, err
 	}
-	return repo.personUnwrap(row)
+
+	personOrganizations, err := repo.getOrganizationMembers(ctx, row.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.personUnwrap(row, personOrganizations)
 }
 
 func (repo *repository) DeletePerson(ctx context.Context, id string) error {
@@ -844,8 +958,6 @@ func (repo *repository) SuggestPeople(ctx context.Context, query string) ([]*mod
 	records, err := repo.client.
 		Person.
 		Query().
-		WithOrganizations().
-		WithOrganizationPerson().
 		Where(person.IDIn(ids...)).
 		Order(func(s *entsql.Selector) {
 			orderStr := fmt.Sprintf("array_position($%d, id)", len(ids)+1)
@@ -857,46 +969,51 @@ func (repo *repository) SuggestPeople(ctx context.Context, query string) ([]*mod
 		return nil, err
 	}
 
-	persons := make([]*models.Person, 0, len(records))
+	allPersonIds := make([]int, 0, len(records))
+	for _, record := range records {
+		allPersonIds = append(allPersonIds, record.ID)
+	}
+	allPersonOrganizationMembers, err := repo.getOrganizationMembers(ctx, allPersonIds...)
+	if err != nil {
+		return nil, err
+	}
+
+	people := make([]*models.Person, 0, len(records))
 
 	for _, record := range records {
-		if person, err := repo.personUnwrap(record); err != nil {
-			return nil, err
-		} else {
-			persons = append(persons, person)
-		}
-	}
-
-	return persons, nil
-}
-
-func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
-	var orgRefs []*models.OrganizationMember
-	for _, orgRow := range e.Edges.Organizations {
-		var thisOrgPersonRow *ent.OrganizationPerson
-		for _, orgPersonRow := range e.Edges.OrganizationPerson {
-			if orgPersonRow.OrganizationID == orgRow.ID {
-				thisOrgPersonRow = orgPersonRow
-				break
+		currentOrganizationMembers := []organizationMember{}
+		for _, organizationMember := range allPersonOrganizationMembers {
+			if organizationMember.personID == record.ID {
+				currentOrganizationMembers = append(currentOrganizationMembers, organizationMember)
 			}
 		}
-		orgRef := models.NewOrganizationMember(orgRow.PublicID)
-		orgRef.DateCreated = &thisOrgPersonRow.DateCreated
-		orgRef.DateUpdated = &thisOrgPersonRow.DateUpdated
-		orgRef.From = &thisOrgPersonRow.From
-		orgRef.Until = &thisOrgPersonRow.Until
-		orgRefs = append(orgRefs, orgRef)
+		if person, err := repo.personUnwrap(record, currentOrganizationMembers); err != nil {
+			return nil, err
+		} else {
+			people = append(people, person)
+		}
 	}
-	sort.SliceStable(orgRefs, func(i, j int) bool {
-		return orgRefs[i].DateCreated.Before(*orgRefs[j].DateCreated)
-	})
+
+	return people, nil
+}
+
+func (repo *repository) personUnwrap(entPerson *ent.Person, internalOrganizationMembers []organizationMember) (*models.Person, error) {
+	var organizationMembers []*models.OrganizationMember
+	for _, iorgMember := range internalOrganizationMembers {
+		orgMember := models.NewOrganizationMember(iorgMember.Id)
+		orgMember.DateCreated = iorgMember.DateCreated
+		orgMember.DateUpdated = iorgMember.DateUpdated
+		orgMember.From = iorgMember.From
+		orgMember.Until = iorgMember.Until
+		organizationMembers = append(organizationMembers, orgMember)
+	}
 
 	var tokens []models.Token
-	for typ, eTokenVals := range e.Token {
+	for typ, eTokenVals := range entPerson.Token {
 		for _, eTokenVal := range eTokenVals {
 			rawTokenVal, err := decryptMessage(repo.secret, eTokenVal)
 			if err != nil {
-				return nil, fmt.Errorf("unable to decrypt % token: %w", typ, err)
+				return nil, fmt.Errorf("unable to decrypt %s token: %w", typ, err)
 			}
 			tokens = append(tokens, models.Token{
 				PropertyID: typ,
@@ -906,27 +1023,27 @@ func (repo *repository) personUnwrap(e *ent.Person) (*models.Person, error) {
 	}
 
 	p := &models.Person{
-		Active:              e.Active,
-		BirthDate:           e.BirthDate,
-		DateCreated:         &e.DateCreated,
-		DateUpdated:         &e.DateUpdated,
-		Email:               e.Email,
-		GivenName:           e.GivenName,
-		Name:                e.Name,
-		ID:                  e.PublicID,
-		FamilyName:          e.FamilyName,
-		JobCategory:         e.JobCategory,
+		Active:              entPerson.Active,
+		BirthDate:           entPerson.BirthDate,
+		DateCreated:         &entPerson.DateCreated,
+		DateUpdated:         &entPerson.DateUpdated,
+		Email:               entPerson.Email,
+		GivenName:           entPerson.GivenName,
+		Name:                entPerson.Name,
+		ID:                  entPerson.PublicID,
+		FamilyName:          entPerson.FamilyName,
+		JobCategory:         entPerson.JobCategory,
 		Token:               tokens,
-		Organization:        orgRefs,
-		PreferredFamilyName: e.PreferredFamilyName,
-		PreferredGivenName:  e.PreferredGivenName,
-		HonorificPrefix:     e.HonorificPrefix,
-		Role:                e.Role,
-		Settings:            e.Settings,
-		ObjectClass:         e.ObjectClass,
+		Organization:        organizationMembers,
+		PreferredFamilyName: entPerson.PreferredFamilyName,
+		PreferredGivenName:  entPerson.PreferredGivenName,
+		HonorificPrefix:     entPerson.HonorificPrefix,
+		Role:                entPerson.Role,
+		Settings:            entPerson.Settings,
+		ObjectClass:         entPerson.ObjectClass,
 	}
 
-	for key, vals := range e.Identifier {
+	for key, vals := range entPerson.Identifier {
 		for _, val := range vals {
 			p.AddIdentifier(key, val)
 		}
@@ -1028,7 +1145,7 @@ func (repo *repository) GetMorePeople(ctx context.Context, tokenValue string) ([
 
 func (repo *repository) getPeople(ctx context.Context, cursor setCursor) ([]*models.Person, setCursor, error) {
 	newCursor := setCursor{}
-	rows, err := repo.client.Person.Query().Where(person.IDGT(cursor.LastID)).Order(ent.Asc(person.FieldID)).WithOrganizations().WithOrganizationPerson().Limit(personPageLimit).All(ctx)
+	rows, err := repo.client.Person.Query().Where(person.IDGT(cursor.LastID)).Order(ent.Asc(person.FieldID)).Limit(personPageLimit).All(ctx)
 	if err != nil {
 		return nil, newCursor, err
 	}
@@ -1036,9 +1153,25 @@ func (repo *repository) getPeople(ctx context.Context, cursor setCursor) ([]*mod
 		return []*models.Person{}, setCursor{}, nil
 	}
 
+	allPersonIds := make([]int, 0, len(rows))
+	for _, row := range rows {
+		allPersonIds = append(allPersonIds, row.ID)
+	}
+
+	allPersonOrganizationMembers, err := repo.getOrganizationMembers(ctx, allPersonIds...)
+	if err != nil {
+		return nil, newCursor, err
+	}
+
 	people := make([]*models.Person, 0, len(rows))
 	for _, row := range rows {
-		person, e := repo.personUnwrap(row)
+		currentPersonOrganizationMembers := []organizationMember{}
+		for _, personOrganizationMember := range allPersonOrganizationMembers {
+			if personOrganizationMember.personID == row.ID {
+				currentPersonOrganizationMembers = append(currentPersonOrganizationMembers, personOrganizationMember)
+			}
+		}
+		person, e := repo.personUnwrap(row, currentPersonOrganizationMembers)
 		if e != nil {
 			return nil, newCursor, e
 		}

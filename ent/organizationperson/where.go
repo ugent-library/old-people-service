@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ugent-library/people-service/ent/predicate"
 )
 
@@ -185,6 +184,26 @@ func OrganizationIDNotIn(vs ...int) predicate.OrganizationPerson {
 	return predicate.OrganizationPerson(sql.FieldNotIn(FieldOrganizationID, vs...))
 }
 
+// OrganizationIDGT applies the GT predicate on the "organization_id" field.
+func OrganizationIDGT(v int) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldGT(FieldOrganizationID, v))
+}
+
+// OrganizationIDGTE applies the GTE predicate on the "organization_id" field.
+func OrganizationIDGTE(v int) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldGTE(FieldOrganizationID, v))
+}
+
+// OrganizationIDLT applies the LT predicate on the "organization_id" field.
+func OrganizationIDLT(v int) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldLT(FieldOrganizationID, v))
+}
+
+// OrganizationIDLTE applies the LTE predicate on the "organization_id" field.
+func OrganizationIDLTE(v int) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldLTE(FieldOrganizationID, v))
+}
+
 // PersonIDEQ applies the EQ predicate on the "person_id" field.
 func PersonIDEQ(v int) predicate.OrganizationPerson {
 	return predicate.OrganizationPerson(sql.FieldEQ(FieldPersonID, v))
@@ -203,6 +222,26 @@ func PersonIDIn(vs ...int) predicate.OrganizationPerson {
 // PersonIDNotIn applies the NotIn predicate on the "person_id" field.
 func PersonIDNotIn(vs ...int) predicate.OrganizationPerson {
 	return predicate.OrganizationPerson(sql.FieldNotIn(FieldPersonID, vs...))
+}
+
+// PersonIDGT applies the GT predicate on the "person_id" field.
+func PersonIDGT(v int) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldGT(FieldPersonID, v))
+}
+
+// PersonIDGTE applies the GTE predicate on the "person_id" field.
+func PersonIDGTE(v int) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldGTE(FieldPersonID, v))
+}
+
+// PersonIDLT applies the LT predicate on the "person_id" field.
+func PersonIDLT(v int) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldLT(FieldPersonID, v))
+}
+
+// PersonIDLTE applies the LTE predicate on the "person_id" field.
+func PersonIDLTE(v int) predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldLTE(FieldPersonID, v))
 }
 
 // FromEQ applies the EQ predicate on the "from" field.
@@ -283,52 +322,6 @@ func UntilLT(v time.Time) predicate.OrganizationPerson {
 // UntilLTE applies the LTE predicate on the "until" field.
 func UntilLTE(v time.Time) predicate.OrganizationPerson {
 	return predicate.OrganizationPerson(sql.FieldLTE(FieldUntil, v))
-}
-
-// HasPeople applies the HasEdge predicate on the "people" edge.
-func HasPeople() predicate.OrganizationPerson {
-	return predicate.OrganizationPerson(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, PeopleTable, PeopleColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasPeopleWith applies the HasEdge predicate on the "people" edge with a given conditions (other predicates).
-func HasPeopleWith(preds ...predicate.Person) predicate.OrganizationPerson {
-	return predicate.OrganizationPerson(func(s *sql.Selector) {
-		step := newPeopleStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasOrganizations applies the HasEdge predicate on the "organizations" edge.
-func HasOrganizations() predicate.OrganizationPerson {
-	return predicate.OrganizationPerson(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, OrganizationsTable, OrganizationsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasOrganizationsWith applies the HasEdge predicate on the "organizations" edge with a given conditions (other predicates).
-func HasOrganizationsWith(preds ...predicate.Organization) predicate.OrganizationPerson {
-	return predicate.OrganizationPerson(func(s *sql.Selector) {
-		step := newOrganizationsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
 }
 
 // And groups predicates with the AND operator between them.

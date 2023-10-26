@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ugent-library/people-service/ent/schema"
 )
 
@@ -53,24 +52,8 @@ const (
 	FieldExpirationDate = "expiration_date"
 	// FieldToken holds the string denoting the token field in the database.
 	FieldToken = "token"
-	// EdgeOrganizations holds the string denoting the organizations edge name in mutations.
-	EdgeOrganizations = "organizations"
-	// EdgeOrganizationPerson holds the string denoting the organization_person edge name in mutations.
-	EdgeOrganizationPerson = "organization_person"
 	// Table holds the table name of the person in the database.
 	Table = "person"
-	// OrganizationsTable is the table that holds the organizations relation/edge. The primary key declared below.
-	OrganizationsTable = "organization_person"
-	// OrganizationsInverseTable is the table name for the Organization entity.
-	// It exists in this package in order to avoid circular dependency with the "organization" package.
-	OrganizationsInverseTable = "organization"
-	// OrganizationPersonTable is the table that holds the organization_person relation/edge.
-	OrganizationPersonTable = "organization_person"
-	// OrganizationPersonInverseTable is the table name for the OrganizationPerson entity.
-	// It exists in this package in order to avoid circular dependency with the "organizationperson" package.
-	OrganizationPersonInverseTable = "organization_person"
-	// OrganizationPersonColumn is the table column denoting the organization_person relation/edge.
-	OrganizationPersonColumn = "person_id"
 )
 
 // Columns holds all SQL columns for person fields.
@@ -96,12 +79,6 @@ var Columns = []string{
 	FieldExpirationDate,
 	FieldToken,
 }
-
-var (
-	// OrganizationsPrimaryKey and OrganizationsColumn2 are the table columns denoting the
-	// primary key for the organizations relation (M2M).
-	OrganizationsPrimaryKey = []string{"person_id", "organization_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -209,46 +186,4 @@ func ByHonorificPrefix(opts ...sql.OrderTermOption) OrderOption {
 // ByExpirationDate orders the results by the expiration_date field.
 func ByExpirationDate(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldExpirationDate, opts...).ToFunc()
-}
-
-// ByOrganizationsCount orders the results by organizations count.
-func ByOrganizationsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newOrganizationsStep(), opts...)
-	}
-}
-
-// ByOrganizations orders the results by organizations terms.
-func ByOrganizations(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newOrganizationsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByOrganizationPersonCount orders the results by organization_person count.
-func ByOrganizationPersonCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newOrganizationPersonStep(), opts...)
-	}
-}
-
-// ByOrganizationPerson orders the results by organization_person terms.
-func ByOrganizationPerson(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newOrganizationPersonStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-func newOrganizationsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(OrganizationsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, OrganizationsTable, OrganizationsPrimaryKey...),
-	)
-}
-func newOrganizationPersonStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(OrganizationPersonInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, true, OrganizationPersonTable, OrganizationPersonColumn),
-	)
 }

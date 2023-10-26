@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ugent-library/people-service/ent/predicate"
 )
 
@@ -73,6 +72,11 @@ func PublicID(v string) predicate.Organization {
 // Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
 func Type(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldEQ(FieldType, v))
+}
+
+// Acronym applies equality check predicate on the "acronym" field. It's identical to AcronymEQ.
+func Acronym(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldAcronym, v))
 }
 
 // NameDut applies equality check predicate on the "name_dut" field. It's identical to NameDutEQ.
@@ -295,6 +299,81 @@ func TypeContainsFold(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldContainsFold(FieldType, v))
 }
 
+// AcronymEQ applies the EQ predicate on the "acronym" field.
+func AcronymEQ(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEQ(FieldAcronym, v))
+}
+
+// AcronymNEQ applies the NEQ predicate on the "acronym" field.
+func AcronymNEQ(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldNEQ(FieldAcronym, v))
+}
+
+// AcronymIn applies the In predicate on the "acronym" field.
+func AcronymIn(vs ...string) predicate.Organization {
+	return predicate.Organization(sql.FieldIn(FieldAcronym, vs...))
+}
+
+// AcronymNotIn applies the NotIn predicate on the "acronym" field.
+func AcronymNotIn(vs ...string) predicate.Organization {
+	return predicate.Organization(sql.FieldNotIn(FieldAcronym, vs...))
+}
+
+// AcronymGT applies the GT predicate on the "acronym" field.
+func AcronymGT(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldGT(FieldAcronym, v))
+}
+
+// AcronymGTE applies the GTE predicate on the "acronym" field.
+func AcronymGTE(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldGTE(FieldAcronym, v))
+}
+
+// AcronymLT applies the LT predicate on the "acronym" field.
+func AcronymLT(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldLT(FieldAcronym, v))
+}
+
+// AcronymLTE applies the LTE predicate on the "acronym" field.
+func AcronymLTE(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldLTE(FieldAcronym, v))
+}
+
+// AcronymContains applies the Contains predicate on the "acronym" field.
+func AcronymContains(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldContains(FieldAcronym, v))
+}
+
+// AcronymHasPrefix applies the HasPrefix predicate on the "acronym" field.
+func AcronymHasPrefix(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldHasPrefix(FieldAcronym, v))
+}
+
+// AcronymHasSuffix applies the HasSuffix predicate on the "acronym" field.
+func AcronymHasSuffix(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldHasSuffix(FieldAcronym, v))
+}
+
+// AcronymIsNil applies the IsNil predicate on the "acronym" field.
+func AcronymIsNil() predicate.Organization {
+	return predicate.Organization(sql.FieldIsNull(FieldAcronym))
+}
+
+// AcronymNotNil applies the NotNil predicate on the "acronym" field.
+func AcronymNotNil() predicate.Organization {
+	return predicate.Organization(sql.FieldNotNull(FieldAcronym))
+}
+
+// AcronymEqualFold applies the EqualFold predicate on the "acronym" field.
+func AcronymEqualFold(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldEqualFold(FieldAcronym, v))
+}
+
+// AcronymContainsFold applies the ContainsFold predicate on the "acronym" field.
+func AcronymContainsFold(v string) predicate.Organization {
+	return predicate.Organization(sql.FieldContainsFold(FieldAcronym, v))
+}
+
 // NameDutEQ applies the EQ predicate on the "name_dut" field.
 func NameDutEQ(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldEQ(FieldNameDut, v))
@@ -453,52 +532,6 @@ func IdentifierIsNil() predicate.Organization {
 // IdentifierNotNil applies the NotNil predicate on the "identifier" field.
 func IdentifierNotNil() predicate.Organization {
 	return predicate.Organization(sql.FieldNotNull(FieldIdentifier))
-}
-
-// HasPeople applies the HasEdge predicate on the "people" edge.
-func HasPeople() predicate.Organization {
-	return predicate.Organization(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, PeopleTable, PeoplePrimaryKey...),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasPeopleWith applies the HasEdge predicate on the "people" edge with a given conditions (other predicates).
-func HasPeopleWith(preds ...predicate.Person) predicate.Organization {
-	return predicate.Organization(func(s *sql.Selector) {
-		step := newPeopleStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasOrganizationPerson applies the HasEdge predicate on the "organization_person" edge.
-func HasOrganizationPerson() predicate.Organization {
-	return predicate.Organization(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, OrganizationPersonTable, OrganizationPersonColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasOrganizationPersonWith applies the HasEdge predicate on the "organization_person" edge with a given conditions (other predicates).
-func HasOrganizationPersonWith(preds ...predicate.OrganizationPerson) predicate.Organization {
-	return predicate.Organization(func(s *sql.Selector) {
-		step := newOrganizationPersonStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
 }
 
 // And groups predicates with the AND operator between them.

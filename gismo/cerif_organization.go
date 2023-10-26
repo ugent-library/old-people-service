@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/antchfx/xmlquery"
-	"github.com/ugent-library/cerifutil"
+	"github.com/ugent-library/people-service/cerif"
 	"github.com/ugent-library/people-service/models"
 )
 
 func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
-	doc, err := cerifutil.Parse(bytes.NewReader(buf))
+	doc, err := cerif.Parse(bytes.NewReader(buf))
 	if err != nil {
 		return nil, err
 	}
@@ -45,6 +45,16 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 	} else {
 		msg.Source = "gismo.organization.update"
 
+		acronymNode := xmlquery.FindOne(node, "cfAcro")
+		if acronymNode != nil {
+			msg.Attributes = append(msg.Attributes, models.Attribute{
+				Name:      "acronym",
+				Value:     strings.TrimSpace(acronymNode.InnerText()),
+				StartDate: &models.BeginningOfTime,
+				EndDate:   &models.EndOfTime,
+			})
+		}
+
 		for _, n := range xmlquery.Find(node, "./cfName") {
 			t1, err := time.Parse(time.RFC3339, n.SelectAttr("cfStartDate"))
 			if err != nil {
@@ -62,7 +72,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 			})
 		}
 
-		for _, v := range cerifutil.ValuesByClassName(doc, "cfOrgUnit_Class", "/be.ugent/organisatie/type/vakgroep", "") {
+		for _, v := range cerif.ValuesByClassName(doc, "cfOrgUnit_Class", "/be.ugent/organisatie/type/vakgroep", "") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -72,7 +82,27 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 				EndDate:   &endDate,
 			})
 		}
-		for _, v := range cerifutil.ValuesByClassName(doc, "cfOrgUnit_OrgUnit", "/be.ugent/gismo/organisatie-organisatie/type/kind-van", "cfOrgUnitId1") {
+		for _, v := range cerif.ValuesByClassName(doc, "cfOrgUnit_Class", "/be.ugent/organisatie/type/faculteit", "") {
+			startDate := v.StartDate
+			endDate := v.EndDate
+			msg.Attributes = append(msg.Attributes, models.Attribute{
+				Name:      "type",
+				Value:     "faculty",
+				StartDate: &startDate,
+				EndDate:   &endDate,
+			})
+		}
+		for _, v := range cerif.ValuesByClassName(doc, "cfOrgUnit_Class", "/be.ugent/organisatie/type/universiteit", "") {
+			startDate := v.StartDate
+			endDate := v.EndDate
+			msg.Attributes = append(msg.Attributes, models.Attribute{
+				Name:      "type",
+				Value:     "university",
+				StartDate: &startDate,
+				EndDate:   &endDate,
+			})
+		}
+		for _, v := range cerif.ValuesByClassName(doc, "cfOrgUnit_OrgUnit", "/be.ugent/gismo/organisatie-organisatie/type/kind-van", "cfOrgUnitId1") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -83,7 +113,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 			})
 		}
 		// e.g. 000006047
-		for _, v := range cerifutil.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/memorialis", "cfFedId") {
+		for _, v := range cerif.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/memorialis", "cfFedId") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -94,7 +124,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 			})
 		}
 		// e.g. "WE03V"
-		for _, v := range cerifutil.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/org-code", "cfFedId") {
+		for _, v := range cerif.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/org-code", "cfFedId") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{
@@ -105,7 +135,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 			})
 		}
 		// e.g. WE03*
-		for _, v := range cerifutil.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/biblio-code", "cfFedId") {
+		for _, v := range cerif.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/biblio-code", "cfFedId") {
 			startDate := v.StartDate
 			endDate := v.EndDate
 			msg.Attributes = append(msg.Attributes, models.Attribute{

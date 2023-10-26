@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -26,26 +25,8 @@ const (
 	FieldFrom = "from"
 	// FieldUntil holds the string denoting the until field in the database.
 	FieldUntil = "until"
-	// EdgePeople holds the string denoting the people edge name in mutations.
-	EdgePeople = "people"
-	// EdgeOrganizations holds the string denoting the organizations edge name in mutations.
-	EdgeOrganizations = "organizations"
 	// Table holds the table name of the organizationperson in the database.
 	Table = "organization_person"
-	// PeopleTable is the table that holds the people relation/edge.
-	PeopleTable = "organization_person"
-	// PeopleInverseTable is the table name for the Person entity.
-	// It exists in this package in order to avoid circular dependency with the "person" package.
-	PeopleInverseTable = "person"
-	// PeopleColumn is the table column denoting the people relation/edge.
-	PeopleColumn = "person_id"
-	// OrganizationsTable is the table that holds the organizations relation/edge.
-	OrganizationsTable = "organization_person"
-	// OrganizationsInverseTable is the table name for the Organization entity.
-	// It exists in this package in order to avoid circular dependency with the "organization" package.
-	OrganizationsInverseTable = "organization"
-	// OrganizationsColumn is the table column denoting the organizations relation/edge.
-	OrganizationsColumn = "organization_id"
 )
 
 // Columns holds all SQL columns for organizationperson fields.
@@ -120,32 +101,4 @@ func ByFrom(opts ...sql.OrderTermOption) OrderOption {
 // ByUntil orders the results by the until field.
 func ByUntil(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUntil, opts...).ToFunc()
-}
-
-// ByPeopleField orders the results by people field.
-func ByPeopleField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPeopleStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByOrganizationsField orders the results by organizations field.
-func ByOrganizationsField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newOrganizationsStep(), sql.OrderByField(field, opts...))
-	}
-}
-func newPeopleStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PeopleInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, PeopleTable, PeopleColumn),
-	)
-}
-func newOrganizationsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(OrganizationsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, OrganizationsTable, OrganizationsColumn),
-	)
 }

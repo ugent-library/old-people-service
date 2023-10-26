@@ -489,6 +489,7 @@ type Organization struct {
 	DateCreated OptDateTime          `json:"date_created"`
 	DateUpdated OptDateTime          `json:"date_updated"`
 	Type        OptString            `json:"type"`
+	Acronym     OptString            `json:"acronym"`
 	NameDut     OptString            `json:"name_dut"`
 	NameEng     OptString            `json:"name_eng"`
 	Parent      []OrganizationParent `json:"parent"`
@@ -513,6 +514,11 @@ func (s *Organization) GetDateUpdated() OptDateTime {
 // GetType returns the value of Type.
 func (s *Organization) GetType() OptString {
 	return s.Type
+}
+
+// GetAcronym returns the value of Acronym.
+func (s *Organization) GetAcronym() OptString {
+	return s.Acronym
 }
 
 // GetNameDut returns the value of NameDut.
@@ -553,6 +559,11 @@ func (s *Organization) SetDateUpdated(val OptDateTime) {
 // SetType sets the value of Type.
 func (s *Organization) SetType(val OptString) {
 	s.Type = val
+}
+
+// SetAcronym sets the value of Acronym.
+func (s *Organization) SetAcronym(val OptString) {
+	s.Acronym = val
 }
 
 // SetNameDut sets the value of NameDut.

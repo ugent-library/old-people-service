@@ -72,8 +72,9 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 	person.PreferredGivenName = ""
 	person.PreferredFamilyName = ""
 	person.HonorificPrefix = ""
-	var gismoOrganizationRefs []*models.OrganizationMember
+	var gismoOrganizationMembers []*models.OrganizationMember
 
+	// TODO: evaluate what to keep always
 	// add attributes from GISMO
 	for _, attr := range msg.Attributes {
 		withinDateRange := attr.ValidAt(now)
@@ -100,19 +101,11 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 				person.HonorificPrefix = attr.Value
 			}
 		case "organization_id":
-			// sometimes double entries
-			found := false
-			for _, orgRef := range gismoOrganizationRefs {
-				if orgRef.Id == attr.Value {
-					found = true
-				}
-			}
-			if !found {
-				orgRef := models.NewOrganizationMember(attr.Value)
-				orgRef.From = attr.StartDate
-				orgRef.Until = attr.EndDate
-				gismoOrganizationRefs = append(gismoOrganizationRefs, orgRef)
-			}
+			// duplicates expected (historical)
+			orgMember := models.NewOrganizationMember(attr.Value)
+			orgMember.From = attr.StartDate
+			orgMember.Until = attr.EndDate
+			gismoOrganizationMembers = append(gismoOrganizationMembers, orgMember)
 		case "preferred_given_name":
 			if withinDateRange {
 				person.PreferredGivenName = attr.Value
@@ -128,11 +121,12 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 		}
 	}
 
-	if len(gismoOrganizationRefs) > 0 {
+	if len(gismoOrganizationMembers) > 0 {
 		var gismoOrganizationIds []string
-		for _, orgRef := range gismoOrganizationRefs {
-			gismoOrganizationIds = append(gismoOrganizationIds, orgRef.Id)
+		for _, orgMember := range gismoOrganizationMembers {
+			gismoOrganizationIds = append(gismoOrganizationIds, orgMember.Id)
 		}
+		gismoOrganizationIds = lo.Uniq(gismoOrganizationIds)
 		orgsByGismo, err := pp.repository.GetOrganizationsByIdentifier(ctx, "gismo_id", gismoOrganizationIds...)
 		if err != nil {
 			return nil, fmt.Errorf("%w: unable to fetch affiliated organization records: %s", models.ErrFatal, err)
@@ -158,19 +152,19 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 			}
 		}
 
-		var orgRefs []*models.OrganizationMember
-		for _, gismoOrgMember := range gismoOrganizationRefs {
+		var organizationMembers []*models.OrganizationMember
+		for _, gismoOrgMember := range gismoOrganizationMembers {
 			for _, org := range orgsByGismo {
 				if gismoOrgMember.Id == org.GetIdentifierValue("gismo_id") {
 					oMember := models.NewOrganizationMember(org.ID)
 					oMember.From = gismoOrgMember.From
 					oMember.Until = gismoOrgMember.Until
-					orgRefs = append(orgRefs, oMember)
+					organizationMembers = append(organizationMembers, oMember)
 					break
 				}
 			}
 		}
-		person.Organization = orgRefs
+		person.Organization = organizationMembers
 	}
 
 	return person, nil

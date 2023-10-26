@@ -459,6 +459,8 @@ components:
           format: date-time
         type:
           type: string
+        acronym:
+          type: string
         name_dut:
           type: string
         name_eng:

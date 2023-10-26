@@ -16,6 +16,7 @@ var (
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "public_id", Type: field.TypeString, Unique: true},
 		{Name: "type", Type: field.TypeString, Default: "organization"},
+		{Name: "acronym", Type: field.TypeString, Nullable: true},
 		{Name: "name_dut", Type: field.TypeString, Nullable: true},
 		{Name: "name_eng", Type: field.TypeString, Nullable: true},
 		{Name: "identifier", Type: field.TypeJSON, Nullable: true},
@@ -30,6 +31,11 @@ var (
 				Name:    "organization_type",
 				Unique:  false,
 				Columns: []*schema.Column{OrganizationColumns[4]},
+			},
+			{
+				Name:    "organization_acronym",
+				Unique:  false,
+				Columns: []*schema.Column{OrganizationColumns[5]},
 			},
 		},
 	}
@@ -59,6 +65,11 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{OrganizationParentColumns[4]},
 			},
+			{
+				Name:    "organizationparent_parent_organization_id_organization_id_from",
+				Unique:  true,
+				Columns: []*schema.Column{OrganizationParentColumns[3], OrganizationParentColumns[4], OrganizationParentColumns[5]},
+			},
 		},
 	}
 	// OrganizationPersonColumns holds the columns for the "organization_person" table.
@@ -66,45 +77,31 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
+		{Name: "organization_id", Type: field.TypeInt},
+		{Name: "person_id", Type: field.TypeInt},
 		{Name: "from", Type: field.TypeTime},
 		{Name: "until", Type: field.TypeTime},
-		{Name: "person_id", Type: field.TypeInt},
-		{Name: "organization_id", Type: field.TypeInt},
 	}
 	// OrganizationPersonTable holds the schema information for the "organization_person" table.
 	OrganizationPersonTable = &schema.Table{
 		Name:       "organization_person",
 		Columns:    OrganizationPersonColumns,
 		PrimaryKey: []*schema.Column{OrganizationPersonColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "organization_person_person_people",
-				Columns:    []*schema.Column{OrganizationPersonColumns[5]},
-				RefColumns: []*schema.Column{PersonColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "organization_person_organization_organizations",
-				Columns:    []*schema.Column{OrganizationPersonColumns[6]},
-				RefColumns: []*schema.Column{OrganizationColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "organizationperson_person_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrganizationPersonColumns[5]},
+				Columns: []*schema.Column{OrganizationPersonColumns[4]},
 			},
 			{
 				Name:    "organizationperson_organization_id",
 				Unique:  false,
-				Columns: []*schema.Column{OrganizationPersonColumns[6]},
+				Columns: []*schema.Column{OrganizationPersonColumns[3]},
 			},
 			{
-				Name:    "organizationperson_person_id_organization_id",
+				Name:    "organizationperson_person_id_organization_id_from",
 				Unique:  true,
-				Columns: []*schema.Column{OrganizationPersonColumns[5], OrganizationPersonColumns[6]},
+				Columns: []*schema.Column{OrganizationPersonColumns[4], OrganizationPersonColumns[3], OrganizationPersonColumns[5]},
 			},
 		},
 	}
@@ -180,8 +177,6 @@ func init() {
 	OrganizationParentTable.Annotation = &entsql.Annotation{
 		Table: "organization_parent",
 	}
-	OrganizationPersonTable.ForeignKeys[0].RefTable = PersonTable
-	OrganizationPersonTable.ForeignKeys[1].RefTable = OrganizationTable
 	OrganizationPersonTable.Annotation = &entsql.Annotation{
 		Table: "organization_person",
 	}

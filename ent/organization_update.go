@@ -12,8 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people-service/ent/organization"
-	"github.com/ugent-library/people-service/ent/organizationperson"
-	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/predicate"
 	"github.com/ugent-library/people-service/ent/schema"
 )
@@ -49,6 +47,26 @@ func (ou *OrganizationUpdate) SetNillableType(s *string) *OrganizationUpdate {
 	if s != nil {
 		ou.SetType(*s)
 	}
+	return ou
+}
+
+// SetAcronym sets the "acronym" field.
+func (ou *OrganizationUpdate) SetAcronym(s string) *OrganizationUpdate {
+	ou.mutation.SetAcronym(s)
+	return ou
+}
+
+// SetNillableAcronym sets the "acronym" field if the given value is not nil.
+func (ou *OrganizationUpdate) SetNillableAcronym(s *string) *OrganizationUpdate {
+	if s != nil {
+		ou.SetAcronym(*s)
+	}
+	return ou
+}
+
+// ClearAcronym clears the value of the "acronym" field.
+func (ou *OrganizationUpdate) ClearAcronym() *OrganizationUpdate {
+	ou.mutation.ClearAcronym()
 	return ou
 }
 
@@ -104,81 +122,9 @@ func (ou *OrganizationUpdate) ClearIdentifier() *OrganizationUpdate {
 	return ou
 }
 
-// AddPersonIDs adds the "people" edge to the Person entity by IDs.
-func (ou *OrganizationUpdate) AddPersonIDs(ids ...int) *OrganizationUpdate {
-	ou.mutation.AddPersonIDs(ids...)
-	return ou
-}
-
-// AddPeople adds the "people" edges to the Person entity.
-func (ou *OrganizationUpdate) AddPeople(p ...*Person) *OrganizationUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ou.AddPersonIDs(ids...)
-}
-
-// AddOrganizationPersonIDs adds the "organization_person" edge to the OrganizationPerson entity by IDs.
-func (ou *OrganizationUpdate) AddOrganizationPersonIDs(ids ...int) *OrganizationUpdate {
-	ou.mutation.AddOrganizationPersonIDs(ids...)
-	return ou
-}
-
-// AddOrganizationPerson adds the "organization_person" edges to the OrganizationPerson entity.
-func (ou *OrganizationUpdate) AddOrganizationPerson(o ...*OrganizationPerson) *OrganizationUpdate {
-	ids := make([]int, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return ou.AddOrganizationPersonIDs(ids...)
-}
-
 // Mutation returns the OrganizationMutation object of the builder.
 func (ou *OrganizationUpdate) Mutation() *OrganizationMutation {
 	return ou.mutation
-}
-
-// ClearPeople clears all "people" edges to the Person entity.
-func (ou *OrganizationUpdate) ClearPeople() *OrganizationUpdate {
-	ou.mutation.ClearPeople()
-	return ou
-}
-
-// RemovePersonIDs removes the "people" edge to Person entities by IDs.
-func (ou *OrganizationUpdate) RemovePersonIDs(ids ...int) *OrganizationUpdate {
-	ou.mutation.RemovePersonIDs(ids...)
-	return ou
-}
-
-// RemovePeople removes "people" edges to Person entities.
-func (ou *OrganizationUpdate) RemovePeople(p ...*Person) *OrganizationUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ou.RemovePersonIDs(ids...)
-}
-
-// ClearOrganizationPerson clears all "organization_person" edges to the OrganizationPerson entity.
-func (ou *OrganizationUpdate) ClearOrganizationPerson() *OrganizationUpdate {
-	ou.mutation.ClearOrganizationPerson()
-	return ou
-}
-
-// RemoveOrganizationPersonIDs removes the "organization_person" edge to OrganizationPerson entities by IDs.
-func (ou *OrganizationUpdate) RemoveOrganizationPersonIDs(ids ...int) *OrganizationUpdate {
-	ou.mutation.RemoveOrganizationPersonIDs(ids...)
-	return ou
-}
-
-// RemoveOrganizationPerson removes "organization_person" edges to OrganizationPerson entities.
-func (ou *OrganizationUpdate) RemoveOrganizationPerson(o ...*OrganizationPerson) *OrganizationUpdate {
-	ids := make([]int, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return ou.RemoveOrganizationPersonIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -238,6 +184,12 @@ func (ou *OrganizationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ou.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 	}
+	if value, ok := ou.mutation.Acronym(); ok {
+		_spec.SetField(organization.FieldAcronym, field.TypeString, value)
+	}
+	if ou.mutation.AcronymCleared() {
+		_spec.ClearField(organization.FieldAcronym, field.TypeString)
+	}
 	if value, ok := ou.mutation.NameDut(); ok {
 		_spec.SetField(organization.FieldNameDut, field.TypeString, value)
 	}
@@ -255,108 +207,6 @@ func (ou *OrganizationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if ou.mutation.IdentifierCleared() {
 		_spec.ClearField(organization.FieldIdentifier, field.TypeJSON)
-	}
-	if ou.mutation.PeopleCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   organization.PeopleTable,
-			Columns: organization.PeoplePrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
-			},
-		}
-		createE := &OrganizationPersonCreate{config: ou.config, mutation: newOrganizationPersonMutation(ou.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.RemovedPeopleIDs(); len(nodes) > 0 && !ou.mutation.PeopleCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   organization.PeopleTable,
-			Columns: organization.PeoplePrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		createE := &OrganizationPersonCreate{config: ou.config, mutation: newOrganizationPersonMutation(ou.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.PeopleIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   organization.PeopleTable,
-			Columns: organization.PeoplePrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		createE := &OrganizationPersonCreate{config: ou.config, mutation: newOrganizationPersonMutation(ou.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ou.mutation.OrganizationPersonCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   organization.OrganizationPersonTable,
-			Columns: []string{organization.OrganizationPersonColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.RemovedOrganizationPersonIDs(); len(nodes) > 0 && !ou.mutation.OrganizationPersonCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   organization.OrganizationPersonTable,
-			Columns: []string{organization.OrganizationPersonColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ou.mutation.OrganizationPersonIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   organization.OrganizationPersonTable,
-			Columns: []string{organization.OrganizationPersonColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(ou.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, ou.driver, _spec); err != nil {
@@ -397,6 +247,26 @@ func (ouo *OrganizationUpdateOne) SetNillableType(s *string) *OrganizationUpdate
 	if s != nil {
 		ouo.SetType(*s)
 	}
+	return ouo
+}
+
+// SetAcronym sets the "acronym" field.
+func (ouo *OrganizationUpdateOne) SetAcronym(s string) *OrganizationUpdateOne {
+	ouo.mutation.SetAcronym(s)
+	return ouo
+}
+
+// SetNillableAcronym sets the "acronym" field if the given value is not nil.
+func (ouo *OrganizationUpdateOne) SetNillableAcronym(s *string) *OrganizationUpdateOne {
+	if s != nil {
+		ouo.SetAcronym(*s)
+	}
+	return ouo
+}
+
+// ClearAcronym clears the value of the "acronym" field.
+func (ouo *OrganizationUpdateOne) ClearAcronym() *OrganizationUpdateOne {
+	ouo.mutation.ClearAcronym()
 	return ouo
 }
 
@@ -452,81 +322,9 @@ func (ouo *OrganizationUpdateOne) ClearIdentifier() *OrganizationUpdateOne {
 	return ouo
 }
 
-// AddPersonIDs adds the "people" edge to the Person entity by IDs.
-func (ouo *OrganizationUpdateOne) AddPersonIDs(ids ...int) *OrganizationUpdateOne {
-	ouo.mutation.AddPersonIDs(ids...)
-	return ouo
-}
-
-// AddPeople adds the "people" edges to the Person entity.
-func (ouo *OrganizationUpdateOne) AddPeople(p ...*Person) *OrganizationUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ouo.AddPersonIDs(ids...)
-}
-
-// AddOrganizationPersonIDs adds the "organization_person" edge to the OrganizationPerson entity by IDs.
-func (ouo *OrganizationUpdateOne) AddOrganizationPersonIDs(ids ...int) *OrganizationUpdateOne {
-	ouo.mutation.AddOrganizationPersonIDs(ids...)
-	return ouo
-}
-
-// AddOrganizationPerson adds the "organization_person" edges to the OrganizationPerson entity.
-func (ouo *OrganizationUpdateOne) AddOrganizationPerson(o ...*OrganizationPerson) *OrganizationUpdateOne {
-	ids := make([]int, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return ouo.AddOrganizationPersonIDs(ids...)
-}
-
 // Mutation returns the OrganizationMutation object of the builder.
 func (ouo *OrganizationUpdateOne) Mutation() *OrganizationMutation {
 	return ouo.mutation
-}
-
-// ClearPeople clears all "people" edges to the Person entity.
-func (ouo *OrganizationUpdateOne) ClearPeople() *OrganizationUpdateOne {
-	ouo.mutation.ClearPeople()
-	return ouo
-}
-
-// RemovePersonIDs removes the "people" edge to Person entities by IDs.
-func (ouo *OrganizationUpdateOne) RemovePersonIDs(ids ...int) *OrganizationUpdateOne {
-	ouo.mutation.RemovePersonIDs(ids...)
-	return ouo
-}
-
-// RemovePeople removes "people" edges to Person entities.
-func (ouo *OrganizationUpdateOne) RemovePeople(p ...*Person) *OrganizationUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return ouo.RemovePersonIDs(ids...)
-}
-
-// ClearOrganizationPerson clears all "organization_person" edges to the OrganizationPerson entity.
-func (ouo *OrganizationUpdateOne) ClearOrganizationPerson() *OrganizationUpdateOne {
-	ouo.mutation.ClearOrganizationPerson()
-	return ouo
-}
-
-// RemoveOrganizationPersonIDs removes the "organization_person" edge to OrganizationPerson entities by IDs.
-func (ouo *OrganizationUpdateOne) RemoveOrganizationPersonIDs(ids ...int) *OrganizationUpdateOne {
-	ouo.mutation.RemoveOrganizationPersonIDs(ids...)
-	return ouo
-}
-
-// RemoveOrganizationPerson removes "organization_person" edges to OrganizationPerson entities.
-func (ouo *OrganizationUpdateOne) RemoveOrganizationPerson(o ...*OrganizationPerson) *OrganizationUpdateOne {
-	ids := make([]int, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return ouo.RemoveOrganizationPersonIDs(ids...)
 }
 
 // Where appends a list predicates to the OrganizationUpdate builder.
@@ -616,6 +414,12 @@ func (ouo *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizat
 	if value, ok := ouo.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 	}
+	if value, ok := ouo.mutation.Acronym(); ok {
+		_spec.SetField(organization.FieldAcronym, field.TypeString, value)
+	}
+	if ouo.mutation.AcronymCleared() {
+		_spec.ClearField(organization.FieldAcronym, field.TypeString)
+	}
 	if value, ok := ouo.mutation.NameDut(); ok {
 		_spec.SetField(organization.FieldNameDut, field.TypeString, value)
 	}
@@ -633,108 +437,6 @@ func (ouo *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizat
 	}
 	if ouo.mutation.IdentifierCleared() {
 		_spec.ClearField(organization.FieldIdentifier, field.TypeJSON)
-	}
-	if ouo.mutation.PeopleCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   organization.PeopleTable,
-			Columns: organization.PeoplePrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
-			},
-		}
-		createE := &OrganizationPersonCreate{config: ouo.config, mutation: newOrganizationPersonMutation(ouo.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.RemovedPeopleIDs(); len(nodes) > 0 && !ouo.mutation.PeopleCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   organization.PeopleTable,
-			Columns: organization.PeoplePrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		createE := &OrganizationPersonCreate{config: ouo.config, mutation: newOrganizationPersonMutation(ouo.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.PeopleIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   organization.PeopleTable,
-			Columns: organization.PeoplePrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		createE := &OrganizationPersonCreate{config: ouo.config, mutation: newOrganizationPersonMutation(ouo.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if ouo.mutation.OrganizationPersonCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   organization.OrganizationPersonTable,
-			Columns: []string{organization.OrganizationPersonColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.RemovedOrganizationPersonIDs(); len(nodes) > 0 && !ouo.mutation.OrganizationPersonCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   organization.OrganizationPersonTable,
-			Columns: []string{organization.OrganizationPersonColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := ouo.mutation.OrganizationPersonIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   organization.OrganizationPersonTable,
-			Columns: []string{organization.OrganizationPersonColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(ouo.modifiers...)
 	_node = &Organization{config: ouo.config}

@@ -11,6 +11,7 @@ type Organization struct {
 	NameEng     string               `json:"name_eng,omitempty"`
 	Parent      []OrganizationParent `json:"parent,omitempty"`
 	Identifier  []Identifier         `json:"identifier,omitempty"`
+	Acronym     string               `json:"acronym,omitempty"`
 }
 
 func (org *Organization) IsStored() bool {

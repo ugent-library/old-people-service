@@ -27,45 +27,15 @@ type Organization struct {
 	PublicID string `json:"public_id,omitempty"`
 	// Type holds the value of the "type" field.
 	Type string `json:"type,omitempty"`
+	// Acronym holds the value of the "acronym" field.
+	Acronym string `json:"acronym,omitempty"`
 	// NameDut holds the value of the "name_dut" field.
 	NameDut string `json:"name_dut,omitempty"`
 	// NameEng holds the value of the "name_eng" field.
 	NameEng string `json:"name_eng,omitempty"`
 	// Identifier holds the value of the "identifier" field.
-	Identifier schema.TypeVals `json:"identifier,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the OrganizationQuery when eager-loading is set.
-	Edges        OrganizationEdges `json:"edges"`
+	Identifier   schema.TypeVals `json:"identifier,omitempty"`
 	selectValues sql.SelectValues
-}
-
-// OrganizationEdges holds the relations/edges for other nodes in the graph.
-type OrganizationEdges struct {
-	// People holds the value of the people edge.
-	People []*Person `json:"people,omitempty"`
-	// OrganizationPerson holds the value of the organization_person edge.
-	OrganizationPerson []*OrganizationPerson `json:"organization_person,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// PeopleOrErr returns the People value or an error if the edge
-// was not loaded in eager-loading.
-func (e OrganizationEdges) PeopleOrErr() ([]*Person, error) {
-	if e.loadedTypes[0] {
-		return e.People, nil
-	}
-	return nil, &NotLoadedError{edge: "people"}
-}
-
-// OrganizationPersonOrErr returns the OrganizationPerson value or an error if the edge
-// was not loaded in eager-loading.
-func (e OrganizationEdges) OrganizationPersonOrErr() ([]*OrganizationPerson, error) {
-	if e.loadedTypes[1] {
-		return e.OrganizationPerson, nil
-	}
-	return nil, &NotLoadedError{edge: "organization_person"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -77,7 +47,7 @@ func (*Organization) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case organization.FieldID:
 			values[i] = new(sql.NullInt64)
-		case organization.FieldPublicID, organization.FieldType, organization.FieldNameDut, organization.FieldNameEng:
+		case organization.FieldPublicID, organization.FieldType, organization.FieldAcronym, organization.FieldNameDut, organization.FieldNameEng:
 			values[i] = new(sql.NullString)
 		case organization.FieldDateCreated, organization.FieldDateUpdated:
 			values[i] = new(sql.NullTime)
@@ -126,6 +96,12 @@ func (o *Organization) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				o.Type = value.String
 			}
+		case organization.FieldAcronym:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field acronym", values[i])
+			} else if value.Valid {
+				o.Acronym = value.String
+			}
 		case organization.FieldNameDut:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name_dut", values[i])
@@ -157,16 +133,6 @@ func (o *Organization) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (o *Organization) Value(name string) (ent.Value, error) {
 	return o.selectValues.Get(name)
-}
-
-// QueryPeople queries the "people" edge of the Organization entity.
-func (o *Organization) QueryPeople() *PersonQuery {
-	return NewOrganizationClient(o.config).QueryPeople(o)
-}
-
-// QueryOrganizationPerson queries the "organization_person" edge of the Organization entity.
-func (o *Organization) QueryOrganizationPerson() *OrganizationPersonQuery {
-	return NewOrganizationClient(o.config).QueryOrganizationPerson(o)
 }
 
 // Update returns a builder for updating this Organization.
@@ -203,6 +169,9 @@ func (o *Organization) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("type=")
 	builder.WriteString(o.Type)
+	builder.WriteString(", ")
+	builder.WriteString("acronym=")
+	builder.WriteString(o.Acronym)
 	builder.WriteString(", ")
 	builder.WriteString("name_dut=")
 	builder.WriteString(o.NameDut)

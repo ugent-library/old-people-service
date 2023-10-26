@@ -10,9 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ugent-library/people-service/ent/organization"
 	"github.com/ugent-library/people-service/ent/organizationperson"
-	"github.com/ugent-library/people-service/ent/person"
 )
 
 // OrganizationPersonCreate is the builder for creating a OrganizationPerson entity.
@@ -90,28 +88,6 @@ func (opc *OrganizationPersonCreate) SetNillableUntil(t *time.Time) *Organizatio
 	return opc
 }
 
-// SetPeopleID sets the "people" edge to the Person entity by ID.
-func (opc *OrganizationPersonCreate) SetPeopleID(id int) *OrganizationPersonCreate {
-	opc.mutation.SetPeopleID(id)
-	return opc
-}
-
-// SetPeople sets the "people" edge to the Person entity.
-func (opc *OrganizationPersonCreate) SetPeople(p *Person) *OrganizationPersonCreate {
-	return opc.SetPeopleID(p.ID)
-}
-
-// SetOrganizationsID sets the "organizations" edge to the Organization entity by ID.
-func (opc *OrganizationPersonCreate) SetOrganizationsID(id int) *OrganizationPersonCreate {
-	opc.mutation.SetOrganizationsID(id)
-	return opc
-}
-
-// SetOrganizations sets the "organizations" edge to the Organization entity.
-func (opc *OrganizationPersonCreate) SetOrganizations(o *Organization) *OrganizationPersonCreate {
-	return opc.SetOrganizationsID(o.ID)
-}
-
 // Mutation returns the OrganizationPersonMutation object of the builder.
 func (opc *OrganizationPersonCreate) Mutation() *OrganizationPersonMutation {
 	return opc.mutation
@@ -185,12 +161,6 @@ func (opc *OrganizationPersonCreate) check() error {
 	if _, ok := opc.mutation.Until(); !ok {
 		return &ValidationError{Name: "until", err: errors.New(`ent: missing required field "OrganizationPerson.until"`)}
 	}
-	if _, ok := opc.mutation.PeopleID(); !ok {
-		return &ValidationError{Name: "people", err: errors.New(`ent: missing required edge "OrganizationPerson.people"`)}
-	}
-	if _, ok := opc.mutation.OrganizationsID(); !ok {
-		return &ValidationError{Name: "organizations", err: errors.New(`ent: missing required edge "OrganizationPerson.organizations"`)}
-	}
 	return nil
 }
 
@@ -225,6 +195,14 @@ func (opc *OrganizationPersonCreate) createSpec() (*OrganizationPerson, *sqlgrap
 		_spec.SetField(organizationperson.FieldDateUpdated, field.TypeTime, value)
 		_node.DateUpdated = value
 	}
+	if value, ok := opc.mutation.OrganizationID(); ok {
+		_spec.SetField(organizationperson.FieldOrganizationID, field.TypeInt, value)
+		_node.OrganizationID = value
+	}
+	if value, ok := opc.mutation.PersonID(); ok {
+		_spec.SetField(organizationperson.FieldPersonID, field.TypeInt, value)
+		_node.PersonID = value
+	}
 	if value, ok := opc.mutation.From(); ok {
 		_spec.SetField(organizationperson.FieldFrom, field.TypeTime, value)
 		_node.From = value
@@ -232,40 +210,6 @@ func (opc *OrganizationPersonCreate) createSpec() (*OrganizationPerson, *sqlgrap
 	if value, ok := opc.mutation.Until(); ok {
 		_spec.SetField(organizationperson.FieldUntil, field.TypeTime, value)
 		_node.Until = value
-	}
-	if nodes := opc.mutation.PeopleIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   organizationperson.PeopleTable,
-			Columns: []string{organizationperson.PeopleColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.PersonID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := opc.mutation.OrganizationsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   organizationperson.OrganizationsTable,
-			Columns: []string{organizationperson.OrganizationsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.OrganizationID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

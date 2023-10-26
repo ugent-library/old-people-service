@@ -1000,6 +1000,12 @@ func (s *Organization) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.Acronym.Set {
+			e.FieldStart("acronym")
+			s.Acronym.Encode(e)
+		}
+	}
+	{
 		if s.NameDut.Set {
 			e.FieldStart("name_dut")
 			s.NameDut.Encode(e)
@@ -1033,15 +1039,16 @@ func (s *Organization) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfOrganization = [8]string{
+var jsonFieldsNameOfOrganization = [9]string{
 	0: "id",
 	1: "date_created",
 	2: "date_updated",
 	3: "type",
-	4: "name_dut",
-	5: "name_eng",
-	6: "parent",
-	7: "identifier",
+	4: "acronym",
+	5: "name_dut",
+	6: "name_eng",
+	7: "parent",
+	8: "identifier",
 }
 
 // Decode decodes Organization from json.
@@ -1091,6 +1098,16 @@ func (s *Organization) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"type\"")
+			}
+		case "acronym":
+			if err := func() error {
+				s.Acronym.Reset()
+				if err := s.Acronym.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"acronym\"")
 			}
 		case "name_dut":
 			if err := func() error {

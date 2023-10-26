@@ -56,40 +56,8 @@ type Person struct {
 	// ExpirationDate holds the value of the "expiration_date" field.
 	ExpirationDate string `json:"expiration_date,omitempty"`
 	// Token holds the value of the "token" field.
-	Token schema.TypeVals `json:"token,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the PersonQuery when eager-loading is set.
-	Edges        PersonEdges `json:"edges"`
+	Token        schema.TypeVals `json:"token,omitempty"`
 	selectValues sql.SelectValues
-}
-
-// PersonEdges holds the relations/edges for other nodes in the graph.
-type PersonEdges struct {
-	// Organizations holds the value of the organizations edge.
-	Organizations []*Organization `json:"organizations,omitempty"`
-	// OrganizationPerson holds the value of the organization_person edge.
-	OrganizationPerson []*OrganizationPerson `json:"organization_person,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// OrganizationsOrErr returns the Organizations value or an error if the edge
-// was not loaded in eager-loading.
-func (e PersonEdges) OrganizationsOrErr() ([]*Organization, error) {
-	if e.loadedTypes[0] {
-		return e.Organizations, nil
-	}
-	return nil, &NotLoadedError{edge: "organizations"}
-}
-
-// OrganizationPersonOrErr returns the OrganizationPerson value or an error if the edge
-// was not loaded in eager-loading.
-func (e PersonEdges) OrganizationPersonOrErr() ([]*OrganizationPerson, error) {
-	if e.loadedTypes[1] {
-		return e.OrganizationPerson, nil
-	}
-	return nil, &NotLoadedError{edge: "organization_person"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -265,16 +233,6 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (pe *Person) Value(name string) (ent.Value, error) {
 	return pe.selectValues.Get(name)
-}
-
-// QueryOrganizations queries the "organizations" edge of the Person entity.
-func (pe *Person) QueryOrganizations() *OrganizationQuery {
-	return NewPersonClient(pe.config).QueryOrganizations(pe)
-}
-
-// QueryOrganizationPerson queries the "organization_person" edge of the Person entity.
-func (pe *Person) QueryOrganizationPerson() *OrganizationPersonQuery {
-	return NewPersonClient(pe.config).QueryOrganizationPerson(pe)
 }
 
 // Update returns a builder for updating this Person.

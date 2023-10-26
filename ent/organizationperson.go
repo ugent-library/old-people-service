@@ -9,9 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/ugent-library/people-service/ent/organization"
 	"github.com/ugent-library/people-service/ent/organizationperson"
-	"github.com/ugent-library/people-service/ent/person"
 )
 
 // OrganizationPerson is the model entity for the OrganizationPerson schema.
@@ -30,48 +28,8 @@ type OrganizationPerson struct {
 	// From holds the value of the "from" field.
 	From time.Time `json:"from,omitempty"`
 	// Until holds the value of the "until" field.
-	Until time.Time `json:"until,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the OrganizationPersonQuery when eager-loading is set.
-	Edges        OrganizationPersonEdges `json:"edges"`
+	Until        time.Time `json:"until,omitempty"`
 	selectValues sql.SelectValues
-}
-
-// OrganizationPersonEdges holds the relations/edges for other nodes in the graph.
-type OrganizationPersonEdges struct {
-	// People holds the value of the people edge.
-	People *Person `json:"people,omitempty"`
-	// Organizations holds the value of the organizations edge.
-	Organizations *Organization `json:"organizations,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// PeopleOrErr returns the People value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e OrganizationPersonEdges) PeopleOrErr() (*Person, error) {
-	if e.loadedTypes[0] {
-		if e.People == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: person.Label}
-		}
-		return e.People, nil
-	}
-	return nil, &NotLoadedError{edge: "people"}
-}
-
-// OrganizationsOrErr returns the Organizations value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e OrganizationPersonEdges) OrganizationsOrErr() (*Organization, error) {
-	if e.loadedTypes[1] {
-		if e.Organizations == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: organization.Label}
-		}
-		return e.Organizations, nil
-	}
-	return nil, &NotLoadedError{edge: "organizations"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -151,16 +109,6 @@ func (op *OrganizationPerson) assignValues(columns []string, values []any) error
 // This includes values selected through modifiers, order, etc.
 func (op *OrganizationPerson) Value(name string) (ent.Value, error) {
 	return op.selectValues.Get(name)
-}
-
-// QueryPeople queries the "people" edge of the OrganizationPerson entity.
-func (op *OrganizationPerson) QueryPeople() *PersonQuery {
-	return NewOrganizationPersonClient(op.config).QueryPeople(op)
-}
-
-// QueryOrganizations queries the "organizations" edge of the OrganizationPerson entity.
-func (op *OrganizationPerson) QueryOrganizations() *OrganizationQuery {
-	return NewOrganizationPersonClient(op.config).QueryOrganizations(op)
 }
 
 // Update returns a builder for updating this OrganizationPerson.

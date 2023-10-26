@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ugent-library/people-service/ent/schema"
 )
 
@@ -23,30 +22,16 @@ const (
 	FieldPublicID = "public_id"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
+	// FieldAcronym holds the string denoting the acronym field in the database.
+	FieldAcronym = "acronym"
 	// FieldNameDut holds the string denoting the name_dut field in the database.
 	FieldNameDut = "name_dut"
 	// FieldNameEng holds the string denoting the name_eng field in the database.
 	FieldNameEng = "name_eng"
 	// FieldIdentifier holds the string denoting the identifier field in the database.
 	FieldIdentifier = "identifier"
-	// EdgePeople holds the string denoting the people edge name in mutations.
-	EdgePeople = "people"
-	// EdgeOrganizationPerson holds the string denoting the organization_person edge name in mutations.
-	EdgeOrganizationPerson = "organization_person"
 	// Table holds the table name of the organization in the database.
 	Table = "organization"
-	// PeopleTable is the table that holds the people relation/edge. The primary key declared below.
-	PeopleTable = "organization_person"
-	// PeopleInverseTable is the table name for the Person entity.
-	// It exists in this package in order to avoid circular dependency with the "person" package.
-	PeopleInverseTable = "person"
-	// OrganizationPersonTable is the table that holds the organization_person relation/edge.
-	OrganizationPersonTable = "organization_person"
-	// OrganizationPersonInverseTable is the table name for the OrganizationPerson entity.
-	// It exists in this package in order to avoid circular dependency with the "organizationperson" package.
-	OrganizationPersonInverseTable = "organization_person"
-	// OrganizationPersonColumn is the table column denoting the organization_person relation/edge.
-	OrganizationPersonColumn = "organization_id"
 )
 
 // Columns holds all SQL columns for organization fields.
@@ -56,16 +41,11 @@ var Columns = []string{
 	FieldDateUpdated,
 	FieldPublicID,
 	FieldType,
+	FieldAcronym,
 	FieldNameDut,
 	FieldNameEng,
 	FieldIdentifier,
 }
-
-var (
-	// PeoplePrimaryKey and PeopleColumn2 are the table columns denoting the
-	// primary key for the people relation (M2M).
-	PeoplePrimaryKey = []string{"person_id", "organization_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -120,6 +100,11 @@ func ByType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldType, opts...).ToFunc()
 }
 
+// ByAcronym orders the results by the acronym field.
+func ByAcronym(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAcronym, opts...).ToFunc()
+}
+
 // ByNameDut orders the results by the name_dut field.
 func ByNameDut(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNameDut, opts...).ToFunc()
@@ -128,46 +113,4 @@ func ByNameDut(opts ...sql.OrderTermOption) OrderOption {
 // ByNameEng orders the results by the name_eng field.
 func ByNameEng(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNameEng, opts...).ToFunc()
-}
-
-// ByPeopleCount orders the results by people count.
-func ByPeopleCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newPeopleStep(), opts...)
-	}
-}
-
-// ByPeople orders the results by people terms.
-func ByPeople(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newPeopleStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByOrganizationPersonCount orders the results by organization_person count.
-func ByOrganizationPersonCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newOrganizationPersonStep(), opts...)
-	}
-}
-
-// ByOrganizationPerson orders the results by organization_person terms.
-func ByOrganizationPerson(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newOrganizationPersonStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-func newPeopleStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(PeopleInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, PeopleTable, PeoplePrimaryKey...),
-	)
-}
-func newOrganizationPersonStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(OrganizationPersonInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, true, OrganizationPersonTable, OrganizationPersonColumn),
-	)
 }

@@ -70,7 +70,8 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 						Until: attr.EndDate,
 					})
 				}
-
+			case "acronym":
+				org.Acronym = attr.Value
 			case "name_dut":
 				if withinDateRange {
 					org.NameDut = attr.Value

@@ -10,22 +10,18 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ugent-library/people-service/ent/organization"
 	"github.com/ugent-library/people-service/ent/organizationperson"
-	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/predicate"
 )
 
 // OrganizationPersonQuery is the builder for querying OrganizationPerson entities.
 type OrganizationPersonQuery struct {
 	config
-	ctx               *QueryContext
-	order             []organizationperson.OrderOption
-	inters            []Interceptor
-	predicates        []predicate.OrganizationPerson
-	withPeople        *PersonQuery
-	withOrganizations *OrganizationQuery
-	modifiers         []func(*sql.Selector)
+	ctx        *QueryContext
+	order      []organizationperson.OrderOption
+	inters     []Interceptor
+	predicates []predicate.OrganizationPerson
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -60,50 +56,6 @@ func (opq *OrganizationPersonQuery) Unique(unique bool) *OrganizationPersonQuery
 func (opq *OrganizationPersonQuery) Order(o ...organizationperson.OrderOption) *OrganizationPersonQuery {
 	opq.order = append(opq.order, o...)
 	return opq
-}
-
-// QueryPeople chains the current query on the "people" edge.
-func (opq *OrganizationPersonQuery) QueryPeople() *PersonQuery {
-	query := (&PersonClient{config: opq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := opq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := opq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(organizationperson.Table, organizationperson.FieldID, selector),
-			sqlgraph.To(person.Table, person.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, organizationperson.PeopleTable, organizationperson.PeopleColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(opq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryOrganizations chains the current query on the "organizations" edge.
-func (opq *OrganizationPersonQuery) QueryOrganizations() *OrganizationQuery {
-	query := (&OrganizationClient{config: opq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := opq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := opq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(organizationperson.Table, organizationperson.FieldID, selector),
-			sqlgraph.To(organization.Table, organization.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, organizationperson.OrganizationsTable, organizationperson.OrganizationsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(opq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // First returns the first OrganizationPerson entity from the query.
@@ -293,39 +245,15 @@ func (opq *OrganizationPersonQuery) Clone() *OrganizationPersonQuery {
 		return nil
 	}
 	return &OrganizationPersonQuery{
-		config:            opq.config,
-		ctx:               opq.ctx.Clone(),
-		order:             append([]organizationperson.OrderOption{}, opq.order...),
-		inters:            append([]Interceptor{}, opq.inters...),
-		predicates:        append([]predicate.OrganizationPerson{}, opq.predicates...),
-		withPeople:        opq.withPeople.Clone(),
-		withOrganizations: opq.withOrganizations.Clone(),
+		config:     opq.config,
+		ctx:        opq.ctx.Clone(),
+		order:      append([]organizationperson.OrderOption{}, opq.order...),
+		inters:     append([]Interceptor{}, opq.inters...),
+		predicates: append([]predicate.OrganizationPerson{}, opq.predicates...),
 		// clone intermediate query.
 		sql:  opq.sql.Clone(),
 		path: opq.path,
 	}
-}
-
-// WithPeople tells the query-builder to eager-load the nodes that are connected to
-// the "people" edge. The optional arguments are used to configure the query builder of the edge.
-func (opq *OrganizationPersonQuery) WithPeople(opts ...func(*PersonQuery)) *OrganizationPersonQuery {
-	query := (&PersonClient{config: opq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	opq.withPeople = query
-	return opq
-}
-
-// WithOrganizations tells the query-builder to eager-load the nodes that are connected to
-// the "organizations" edge. The optional arguments are used to configure the query builder of the edge.
-func (opq *OrganizationPersonQuery) WithOrganizations(opts ...func(*OrganizationQuery)) *OrganizationPersonQuery {
-	query := (&OrganizationClient{config: opq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	opq.withOrganizations = query
-	return opq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -404,12 +332,8 @@ func (opq *OrganizationPersonQuery) prepareQuery(ctx context.Context) error {
 
 func (opq *OrganizationPersonQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*OrganizationPerson, error) {
 	var (
-		nodes       = []*OrganizationPerson{}
-		_spec       = opq.querySpec()
-		loadedTypes = [2]bool{
-			opq.withPeople != nil,
-			opq.withOrganizations != nil,
-		}
+		nodes = []*OrganizationPerson{}
+		_spec = opq.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*OrganizationPerson).scanValues(nil, columns)
@@ -417,7 +341,6 @@ func (opq *OrganizationPersonQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &OrganizationPerson{config: opq.config}
 		nodes = append(nodes, node)
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(opq.modifiers) > 0 {
@@ -432,78 +355,7 @@ func (opq *OrganizationPersonQuery) sqlAll(ctx context.Context, hooks ...queryHo
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := opq.withPeople; query != nil {
-		if err := opq.loadPeople(ctx, query, nodes, nil,
-			func(n *OrganizationPerson, e *Person) { n.Edges.People = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := opq.withOrganizations; query != nil {
-		if err := opq.loadOrganizations(ctx, query, nodes, nil,
-			func(n *OrganizationPerson, e *Organization) { n.Edges.Organizations = e }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
-}
-
-func (opq *OrganizationPersonQuery) loadPeople(ctx context.Context, query *PersonQuery, nodes []*OrganizationPerson, init func(*OrganizationPerson), assign func(*OrganizationPerson, *Person)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*OrganizationPerson)
-	for i := range nodes {
-		fk := nodes[i].PersonID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(person.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "person_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (opq *OrganizationPersonQuery) loadOrganizations(ctx context.Context, query *OrganizationQuery, nodes []*OrganizationPerson, init func(*OrganizationPerson), assign func(*OrganizationPerson, *Organization)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*OrganizationPerson)
-	for i := range nodes {
-		fk := nodes[i].OrganizationID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(organization.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "organization_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
 }
 
 func (opq *OrganizationPersonQuery) sqlCount(ctx context.Context) (int, error) {
@@ -533,12 +385,6 @@ func (opq *OrganizationPersonQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != organizationperson.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if opq.withPeople != nil {
-			_spec.Node.AddColumnOnce(organizationperson.FieldPersonID)
-		}
-		if opq.withOrganizations != nil {
-			_spec.Node.AddColumnOnce(organizationperson.FieldOrganizationID)
 		}
 	}
 	if ps := opq.predicates; len(ps) > 0 {

@@ -42,7 +42,7 @@ func init() {
 	// organization.DefaultType holds the default value on creation for the type field.
 	organization.DefaultType = organizationDescType.Default.(string)
 	// organizationDescIdentifier is the schema descriptor for identifier field.
-	organizationDescIdentifier := organizationFields[3].Descriptor()
+	organizationDescIdentifier := organizationFields[4].Descriptor()
 	// organization.DefaultIdentifier holds the default value on creation for the identifier field.
 	organization.DefaultIdentifier = organizationDescIdentifier.Default.(schema.TypeVals)
 	organizationparentMixin := schema.OrganizationParent{}.Mixin()

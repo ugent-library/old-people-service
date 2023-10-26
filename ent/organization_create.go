@@ -11,8 +11,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people-service/ent/organization"
-	"github.com/ugent-library/people-service/ent/organizationperson"
-	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/schema"
 )
 
@@ -79,6 +77,20 @@ func (oc *OrganizationCreate) SetNillableType(s *string) *OrganizationCreate {
 	return oc
 }
 
+// SetAcronym sets the "acronym" field.
+func (oc *OrganizationCreate) SetAcronym(s string) *OrganizationCreate {
+	oc.mutation.SetAcronym(s)
+	return oc
+}
+
+// SetNillableAcronym sets the "acronym" field if the given value is not nil.
+func (oc *OrganizationCreate) SetNillableAcronym(s *string) *OrganizationCreate {
+	if s != nil {
+		oc.SetAcronym(*s)
+	}
+	return oc
+}
+
 // SetNameDut sets the "name_dut" field.
 func (oc *OrganizationCreate) SetNameDut(s string) *OrganizationCreate {
 	oc.mutation.SetNameDut(s)
@@ -111,36 +123,6 @@ func (oc *OrganizationCreate) SetNillableNameEng(s *string) *OrganizationCreate 
 func (oc *OrganizationCreate) SetIdentifier(sv schema.TypeVals) *OrganizationCreate {
 	oc.mutation.SetIdentifier(sv)
 	return oc
-}
-
-// AddPersonIDs adds the "people" edge to the Person entity by IDs.
-func (oc *OrganizationCreate) AddPersonIDs(ids ...int) *OrganizationCreate {
-	oc.mutation.AddPersonIDs(ids...)
-	return oc
-}
-
-// AddPeople adds the "people" edges to the Person entity.
-func (oc *OrganizationCreate) AddPeople(p ...*Person) *OrganizationCreate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return oc.AddPersonIDs(ids...)
-}
-
-// AddOrganizationPersonIDs adds the "organization_person" edge to the OrganizationPerson entity by IDs.
-func (oc *OrganizationCreate) AddOrganizationPersonIDs(ids ...int) *OrganizationCreate {
-	oc.mutation.AddOrganizationPersonIDs(ids...)
-	return oc
-}
-
-// AddOrganizationPerson adds the "organization_person" edges to the OrganizationPerson entity.
-func (oc *OrganizationCreate) AddOrganizationPerson(o ...*OrganizationPerson) *OrganizationCreate {
-	ids := make([]int, len(o))
-	for i := range o {
-		ids[i] = o[i].ID
-	}
-	return oc.AddOrganizationPersonIDs(ids...)
 }
 
 // Mutation returns the OrganizationMutation object of the builder.
@@ -256,6 +238,10 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 		_node.Type = value
 	}
+	if value, ok := oc.mutation.Acronym(); ok {
+		_spec.SetField(organization.FieldAcronym, field.TypeString, value)
+		_node.Acronym = value
+	}
 	if value, ok := oc.mutation.NameDut(); ok {
 		_spec.SetField(organization.FieldNameDut, field.TypeString, value)
 		_node.NameDut = value
@@ -267,42 +253,6 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 	if value, ok := oc.mutation.Identifier(); ok {
 		_spec.SetField(organization.FieldIdentifier, field.TypeJSON, value)
 		_node.Identifier = value
-	}
-	if nodes := oc.mutation.PeopleIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   organization.PeopleTable,
-			Columns: organization.PeoplePrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		createE := &OrganizationPersonCreate{config: oc.config, mutation: newOrganizationPersonMutation(oc.config, OpCreate)}
-		createE.defaults()
-		_, specE := createE.createSpec()
-		edge.Target.Fields = specE.Fields
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := oc.mutation.OrganizationPersonIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: true,
-			Table:   organization.OrganizationPersonTable,
-			Columns: []string{organization.OrganizationPersonColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

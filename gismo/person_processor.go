@@ -50,12 +50,21 @@ func (pp *PersonProcessor) Process(buf []byte) (*models.Message, error) {
 		return nil, err
 	}
 
+	pp.cleanupPerson(person)
+
 	// create/update record
 	if _, err = pp.repository.SavePerson(context.TODO(), person); err != nil {
 		return nil, fmt.Errorf("%w: unable to save person record: %s", models.ErrFatal, err)
 	}
 
 	return msg, nil
+}
+
+func (pp *PersonProcessor) cleanupPerson(person *models.Person) {
+	// non ldap users receive no full name
+	if person.Name == "" && person.FamilyName != "" && person.GivenName != "" {
+		person.Name = person.GivenName + " " + person.FamilyName
+	}
 }
 
 func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *models.Message) (*models.Person, error) {

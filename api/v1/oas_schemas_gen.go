@@ -618,7 +618,7 @@ type OrganizationMember struct {
 	DateCreated OptDateTime `json:"date_created"`
 	DateUpdated OptDateTime `json:"date_updated"`
 	From        time.Time   `json:"from"`
-	Until       time.Time   `json:"until"`
+	Until       OptDateTime `json:"until"`
 }
 
 // GetID returns the value of ID.
@@ -642,7 +642,7 @@ func (s *OrganizationMember) GetFrom() time.Time {
 }
 
 // GetUntil returns the value of Until.
-func (s *OrganizationMember) GetUntil() time.Time {
+func (s *OrganizationMember) GetUntil() OptDateTime {
 	return s.Until
 }
 
@@ -667,7 +667,7 @@ func (s *OrganizationMember) SetFrom(val time.Time) {
 }
 
 // SetUntil sets the value of Until.
-func (s *OrganizationMember) SetUntil(val time.Time) {
+func (s *OrganizationMember) SetUntil(val OptDateTime) {
 	s.Until = val
 }
 
@@ -677,7 +677,7 @@ type OrganizationParent struct {
 	DateCreated OptDateTime `json:"date_created"`
 	DateUpdated OptDateTime `json:"date_updated"`
 	From        time.Time   `json:"from"`
-	Until       time.Time   `json:"until"`
+	Until       OptDateTime `json:"until"`
 }
 
 // GetID returns the value of ID.
@@ -701,7 +701,7 @@ func (s *OrganizationParent) GetFrom() time.Time {
 }
 
 // GetUntil returns the value of Until.
-func (s *OrganizationParent) GetUntil() time.Time {
+func (s *OrganizationParent) GetUntil() OptDateTime {
 	return s.Until
 }
 
@@ -726,7 +726,7 @@ func (s *OrganizationParent) SetFrom(val time.Time) {
 }
 
 // SetUntil sets the value of Until.
-func (s *OrganizationParent) SetUntil(val time.Time) {
+func (s *OrganizationParent) SetUntil(val OptDateTime) {
 	s.Until = val
 }
 

@@ -324,6 +324,16 @@ func UntilLTE(v time.Time) predicate.OrganizationPerson {
 	return predicate.OrganizationPerson(sql.FieldLTE(FieldUntil, v))
 }
 
+// UntilIsNil applies the IsNil predicate on the "until" field.
+func UntilIsNil() predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldIsNull(FieldUntil))
+}
+
+// UntilNotNil applies the NotNil predicate on the "until" field.
+func UntilNotNil() predicate.OrganizationPerson {
+	return predicate.OrganizationPerson(sql.FieldNotNull(FieldUntil))
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.OrganizationPerson) predicate.OrganizationPerson {
 	return predicate.OrganizationPerson(func(s *sql.Selector) {

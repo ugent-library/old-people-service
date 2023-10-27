@@ -1172,7 +1172,7 @@ func (m *OrganizationParentMutation) Until() (r time.Time, exists bool) {
 // OldUntil returns the old "until" field's value of the OrganizationParent entity.
 // If the OrganizationParent object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrganizationParentMutation) OldUntil(ctx context.Context) (v time.Time, err error) {
+func (m *OrganizationParentMutation) OldUntil(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUntil is only allowed on UpdateOne operations")
 	}
@@ -1186,9 +1186,22 @@ func (m *OrganizationParentMutation) OldUntil(ctx context.Context) (v time.Time,
 	return oldValue.Until, nil
 }
 
+// ClearUntil clears the value of the "until" field.
+func (m *OrganizationParentMutation) ClearUntil() {
+	m.until = nil
+	m.clearedFields[organizationparent.FieldUntil] = struct{}{}
+}
+
+// UntilCleared returns if the "until" field was cleared in this mutation.
+func (m *OrganizationParentMutation) UntilCleared() bool {
+	_, ok := m.clearedFields[organizationparent.FieldUntil]
+	return ok
+}
+
 // ResetUntil resets all changes to the "until" field.
 func (m *OrganizationParentMutation) ResetUntil() {
 	m.until = nil
+	delete(m.clearedFields, organizationparent.FieldUntil)
 }
 
 // Where appends a list predicates to the OrganizationParentMutation builder.
@@ -1392,7 +1405,11 @@ func (m *OrganizationParentMutation) AddField(name string, value ent.Value) erro
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *OrganizationParentMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(organizationparent.FieldUntil) {
+		fields = append(fields, organizationparent.FieldUntil)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1405,6 +1422,11 @@ func (m *OrganizationParentMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *OrganizationParentMutation) ClearField(name string) error {
+	switch name {
+	case organizationparent.FieldUntil:
+		m.ClearUntil()
+		return nil
+	}
 	return fmt.Errorf("unknown OrganizationParent nullable field %s", name)
 }
 
@@ -1837,7 +1859,7 @@ func (m *OrganizationPersonMutation) Until() (r time.Time, exists bool) {
 // OldUntil returns the old "until" field's value of the OrganizationPerson entity.
 // If the OrganizationPerson object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrganizationPersonMutation) OldUntil(ctx context.Context) (v time.Time, err error) {
+func (m *OrganizationPersonMutation) OldUntil(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUntil is only allowed on UpdateOne operations")
 	}
@@ -1851,9 +1873,22 @@ func (m *OrganizationPersonMutation) OldUntil(ctx context.Context) (v time.Time,
 	return oldValue.Until, nil
 }
 
+// ClearUntil clears the value of the "until" field.
+func (m *OrganizationPersonMutation) ClearUntil() {
+	m.until = nil
+	m.clearedFields[organizationperson.FieldUntil] = struct{}{}
+}
+
+// UntilCleared returns if the "until" field was cleared in this mutation.
+func (m *OrganizationPersonMutation) UntilCleared() bool {
+	_, ok := m.clearedFields[organizationperson.FieldUntil]
+	return ok
+}
+
 // ResetUntil resets all changes to the "until" field.
 func (m *OrganizationPersonMutation) ResetUntil() {
 	m.until = nil
+	delete(m.clearedFields, organizationperson.FieldUntil)
 }
 
 // Where appends a list predicates to the OrganizationPersonMutation builder.
@@ -2057,7 +2092,11 @@ func (m *OrganizationPersonMutation) AddField(name string, value ent.Value) erro
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *OrganizationPersonMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(organizationperson.FieldUntil) {
+		fields = append(fields, organizationperson.FieldUntil)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2070,6 +2109,11 @@ func (m *OrganizationPersonMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *OrganizationPersonMutation) ClearField(name string) error {
+	switch name {
+	case organizationperson.FieldUntil:
+		m.ClearUntil()
+		return nil
+	}
 	return fmt.Errorf("unknown OrganizationPerson nullable field %s", name)
 }
 

@@ -28,7 +28,7 @@ type OrganizationPerson struct {
 	// From holds the value of the "from" field.
 	From time.Time `json:"from,omitempty"`
 	// Until holds the value of the "until" field.
-	Until        time.Time `json:"until,omitempty"`
+	Until        *time.Time `json:"until,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -96,7 +96,8 @@ func (op *OrganizationPerson) assignValues(columns []string, values []any) error
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field until", values[i])
 			} else if value.Valid {
-				op.Until = value.Time
+				op.Until = new(time.Time)
+				*op.Until = value.Time
 			}
 		default:
 			op.selectValues.Set(columns[i], values[i])
@@ -149,8 +150,10 @@ func (op *OrganizationPerson) String() string {
 	builder.WriteString("from=")
 	builder.WriteString(op.From.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("until=")
-	builder.WriteString(op.Until.Format(time.ANSIC))
+	if v := op.Until; v != nil {
+		builder.WriteString("until=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

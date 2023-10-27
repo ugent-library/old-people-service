@@ -24,7 +24,7 @@ func (OrganizationParent) Fields() []ent.Field {
 		field.Int("parent_organization_id"),
 		field.Int("organization_id"),
 		field.Time("from").Default(genBeginningOfTime),
-		field.Time("until").Default(genEndOfTime).UpdateDefault(genEndOfTime),
+		field.Time("until").Nillable().Optional(),
 	}
 }
 

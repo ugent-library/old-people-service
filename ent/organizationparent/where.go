@@ -324,6 +324,16 @@ func UntilLTE(v time.Time) predicate.OrganizationParent {
 	return predicate.OrganizationParent(sql.FieldLTE(FieldUntil, v))
 }
 
+// UntilIsNil applies the IsNil predicate on the "until" field.
+func UntilIsNil() predicate.OrganizationParent {
+	return predicate.OrganizationParent(sql.FieldIsNull(FieldUntil))
+}
+
+// UntilNotNil applies the NotNil predicate on the "until" field.
+func UntilNotNil() predicate.OrganizationParent {
+	return predicate.OrganizationParent(sql.FieldNotNull(FieldUntil))
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.OrganizationParent) predicate.OrganizationParent {
 	return predicate.OrganizationParent(func(s *sql.Selector) {

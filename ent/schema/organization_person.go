@@ -23,7 +23,7 @@ func (OrganizationPerson) Fields() []ent.Field {
 		field.Int("organization_id"),
 		field.Int("person_id"),
 		field.Time("from").Default(genBeginningOfTime),
-		field.Time("until").Default(genEndOfTime).UpdateDefault(genEndOfTime),
+		field.Time("until").Nillable().Optional(),
 	}
 }
 

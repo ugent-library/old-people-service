@@ -66,7 +66,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 					Name:      "family_name",
 					Value:     strings.TrimSpace(n.InnerText()),
 					StartDate: &startDate,
-					EndDate:   &endDate,
+					EndDate:   models.NormalizeEndOfTime(endDate),
 				})
 			}
 			if n := xmlquery.FindOne(nameNode, "cfFirstNames"); n != nil {
@@ -74,7 +74,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 					Name:      "given_name",
 					Value:     strings.TrimSpace(n.InnerText()),
 					StartDate: &startDate,
-					EndDate:   &endDate,
+					EndDate:   models.NormalizeEndOfTime(endDate),
 				})
 			}
 			if n := xmlquery.FindOne(nameNode, "ugTitles"); n != nil {
@@ -82,7 +82,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 					Name:      "honorific_prefix",
 					Value:     strings.TrimSpace(n.InnerText()),
 					StartDate: &startDate,
-					EndDate:   &endDate,
+					EndDate:   models.NormalizeEndOfTime(endDate),
 				})
 			}
 		}
@@ -100,7 +100,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 					Name:      "preferred_family_name",
 					Value:     strings.TrimSpace(n.InnerText()),
 					StartDate: &startDate,
-					EndDate:   &endDate,
+					EndDate:   models.NormalizeEndOfTime(endDate),
 				})
 			}
 			if n := xmlquery.FindOne(nameNode, "cfFirstNames"); n != nil {
@@ -108,7 +108,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 					Name:      "preferred_given_name",
 					Value:     strings.TrimSpace(n.InnerText()),
 					StartDate: &startDate,
-					EndDate:   &endDate,
+					EndDate:   models.NormalizeEndOfTime(endDate),
 				})
 			}
 		}
@@ -120,7 +120,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 				Name:      "ugent_id",
 				Value:     v.Value,
 				StartDate: &startDate,
-				EndDate:   &endDate,
+				EndDate:   models.NormalizeEndOfTime(endDate),
 			})
 		}
 		for _, v := range cerif.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/persoon/federated-id/orcid", "cfFedId") {
@@ -130,7 +130,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 				Name:      "orcid",
 				Value:     v.Value,
 				StartDate: &startDate,
-				EndDate:   &endDate,
+				EndDate:   models.NormalizeEndOfTime(endDate),
 			})
 		}
 		for _, v := range cerif.ValuesByClassName(doc, "cfFedId", "/be.ugent/gismo/organisatie/federated-id/memorialis", "cfFedId") {
@@ -140,7 +140,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 				Name:      "ugent_memorialis_id",
 				Value:     v.Value,
 				StartDate: &startDate,
-				EndDate:   &endDate,
+				EndDate:   models.NormalizeEndOfTime(endDate),
 			})
 		}
 
@@ -159,7 +159,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 				Name:      "email",
 				Value:     strings.TrimSpace(xmlquery.FindOne(addrNode, "cfURI").InnerText()),
 				StartDate: &startDate,
-				EndDate:   &endDate,
+				EndDate:   models.NormalizeEndOfTime(endDate),
 			})
 		}
 
@@ -185,7 +185,7 @@ func ParsePersonMessage(buf []byte) (*models.Message, error) {
 				Name:      "organization_id",
 				Value:     strings.TrimSpace(xmlquery.FindOne(persAddrNode, "cfOrgUnitId").InnerText()),
 				StartDate: &startDate,
-				EndDate:   &endDate,
+				EndDate:   models.NormalizeEndOfTime(endDate),
 			})
 		}
 	}

@@ -54,5 +54,8 @@ func (m *Message) GetAttributesAt(name string, t time.Time) []string {
 }
 
 func (attr *Attribute) ValidAt(t time.Time) bool {
-	return attr.StartDate.Before(t) && attr.EndDate.After(t)
+	if !attr.StartDate.Before(t) {
+		return false
+	}
+	return attr.EndDate == nil || attr.EndDate.After(t)
 }

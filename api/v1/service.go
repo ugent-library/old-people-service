@@ -229,7 +229,9 @@ func (s *Service) AddPerson(ctx context.Context, p *Person) (*Person, error) {
 	for _, orgMember := range p.Organization {
 		newOrgMember := models.NewOrganizationMember(orgMember.ID)
 		newOrgMember.From = &orgMember.From
-		newOrgMember.Until = &orgMember.Until
+		if orgMember.Until.Set {
+			newOrgMember.Until = &orgMember.Until.Value
+		}
 		person.Organization = append(person.Organization, newOrgMember)
 	}
 
@@ -262,11 +264,14 @@ func (s *Service) AddOrganization(ctx context.Context, o *Organization) (*Organi
 	org.NameDut = o.NameDut.Value
 	org.NameEng = o.NameEng.Value
 	for _, parent := range o.Parent {
-		org.Parent = append(org.Parent, models.OrganizationParent{
-			Id:    parent.ID,
-			From:  &parent.From,
-			Until: &parent.Until,
-		})
+		op := models.OrganizationParent{
+			Id:   parent.ID,
+			From: &parent.From,
+		}
+		if parent.Until.Set {
+			op.Until = &parent.Until.Value
+		}
+		org.Parent = append(org.Parent, op)
 	}
 	org.Type = o.Type.Value
 
@@ -359,16 +364,16 @@ func mapToExternalPerson(person *models.Person) *Person {
 	}
 
 	for _, orgMember := range person.Organization {
-		oRef := OrganizationMember{
+		externalOrgMember := OrganizationMember{
 			ID:          orgMember.Id,
 			DateCreated: NewOptDateTime(*orgMember.DateCreated),
 			DateUpdated: NewOptDateTime(*orgMember.DateUpdated),
 			From:        *orgMember.From,
 		}
 		if orgMember.Until != nil {
-			oRef.Until = *orgMember.Until
+			externalOrgMember.Until = NewOptDateTime(*orgMember.Until)
 		}
-		p.Organization = append(p.Organization, oRef)
+		p.Organization = append(p.Organization, externalOrgMember)
 	}
 	for _, id := range person.Identifier {
 		p.Identifier = append(p.Identifier, newPropertyValue(id.PropertyID, id.Value))
@@ -407,13 +412,16 @@ func mapToExternalOrganization(org *models.Organization) *Organization {
 		o.Identifier = append(o.Identifier, newPropertyValue(id.PropertyID, id.Value))
 	}
 	for _, organizationParent := range org.Parent {
-		o.Parent = append(o.Parent, OrganizationParent{
+		op := OrganizationParent{
 			ID:          organizationParent.Id,
 			From:        *organizationParent.From,
-			Until:       *organizationParent.Until,
 			DateCreated: NewOptDateTime(*organizationParent.DateCreated),
 			DateUpdated: NewOptDateTime(*organizationParent.DateUpdated),
-		})
+		}
+		if organizationParent.Until != nil {
+			op.Until = NewOptDateTime(*organizationParent.Until)
+		}
+		o.Parent = append(o.Parent, op)
 	}
 	o.Type = NewOptString(org.Type)
 

@@ -51,7 +51,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 				Name:      "acronym",
 				Value:     strings.TrimSpace(acronymNode.InnerText()),
 				StartDate: &models.BeginningOfTime,
-				EndDate:   &models.EndOfTime,
+				EndDate:   nil,
 			})
 		}
 
@@ -68,7 +68,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 				Name:      "name_" + n.SelectAttr("cfLangCode"),
 				Value:     strings.TrimSpace(n.InnerText()),
 				StartDate: &t1,
-				EndDate:   &t2,
+				EndDate:   models.NormalizeEndOfTime(t2),
 			})
 		}
 
@@ -79,7 +79,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 				Name:      "type",
 				Value:     "department",
 				StartDate: &startDate,
-				EndDate:   &endDate,
+				EndDate:   models.NormalizeEndOfTime(endDate),
 			})
 		}
 		for _, v := range cerif.ValuesByClassName(doc, "cfOrgUnit_Class", "/be.ugent/organisatie/type/faculteit", "") {
@@ -89,7 +89,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 				Name:      "type",
 				Value:     "faculty",
 				StartDate: &startDate,
-				EndDate:   &endDate,
+				EndDate:   models.NormalizeEndOfTime(endDate),
 			})
 		}
 		for _, v := range cerif.ValuesByClassName(doc, "cfOrgUnit_Class", "/be.ugent/organisatie/type/universiteit", "") {
@@ -99,7 +99,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 				Name:      "type",
 				Value:     "university",
 				StartDate: &startDate,
-				EndDate:   &endDate,
+				EndDate:   models.NormalizeEndOfTime(endDate),
 			})
 		}
 		for _, v := range cerif.ValuesByClassName(doc, "cfOrgUnit_OrgUnit", "/be.ugent/gismo/organisatie-organisatie/type/kind-van", "cfOrgUnitId1") {
@@ -109,7 +109,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 				Name:      "parent_id",
 				Value:     v.Value,
 				StartDate: &startDate,
-				EndDate:   &endDate,
+				EndDate:   models.NormalizeEndOfTime(endDate),
 			})
 		}
 		// e.g. 000006047
@@ -120,7 +120,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 				Name:      "ugent_memorialis_id",
 				Value:     v.Value,
 				StartDate: &startDate,
-				EndDate:   &endDate,
+				EndDate:   models.NormalizeEndOfTime(endDate),
 			})
 		}
 		// e.g. "WE03V"
@@ -131,7 +131,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 				Name:      "code",
 				Value:     v.Value,
 				StartDate: &startDate,
-				EndDate:   &endDate,
+				EndDate:   models.NormalizeEndOfTime(endDate),
 			})
 		}
 		// e.g. WE03*
@@ -142,7 +142,7 @@ func ParseOrganizationMessage(buf []byte) (*models.Message, error) {
 				Name:      "biblio_code",
 				Value:     v.Value,
 				StartDate: &startDate,
-				EndDate:   &endDate,
+				EndDate:   models.NormalizeEndOfTime(endDate),
 			})
 		}
 

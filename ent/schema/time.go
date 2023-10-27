@@ -9,6 +9,3 @@ import (
 var genBeginningOfTime = func() time.Time {
 	return models.BeginningOfTime
 }
-var genEndOfTime = func() time.Time {
-	return models.EndOfTime
-}

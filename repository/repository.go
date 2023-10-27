@@ -287,7 +287,7 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	for _, parent := range org.Parent {
 		tParent := tx.OrganizationParent.Create()
 		tParent.SetFrom(*parent.From)
-		tParent.SetUntil(*parent.Until)
+		tParent.SetNillableUntil(parent.Until)
 		tParent.SetOrganizationID(row.ID)
 		for _, parentOrganizationRow := range parentOrganizationRows {
 			if parentOrganizationRow.PublicID == parent.Id {
@@ -381,7 +381,7 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	for _, parent := range org.Parent {
 		tParent := tx.OrganizationParent.Create()
 		tParent.SetFrom(*parent.From)
-		tParent.SetUntil(*parent.Until)
+		tParent.SetNillableUntil(parent.Until)
 		tParent.SetOrganizationID(row.ID)
 		for _, parentOrganizationRow := range parentOrganizationRows {
 			if parentOrganizationRow.PublicID == parent.Id {
@@ -664,7 +664,7 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 		for _, organizationMember := range p.Organization {
 			top := tx.OrganizationPerson.Create()
 			top.SetFrom(*organizationMember.From)
-			top.SetUntil(*organizationMember.Until)
+			top.SetNillableUntil(organizationMember.Until)
 			top.SetPersonID(row.ID)
 			for _, orgRow := range orgRows {
 				if orgRow.PublicID == organizationMember.Id {
@@ -825,7 +825,7 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 		for _, organizationMember := range p.Organization {
 			top := tx.OrganizationPerson.Create()
 			top.SetFrom(*organizationMember.From)
-			top.SetUntil(*organizationMember.Until)
+			top.SetNillableUntil(organizationMember.Until)
 			top.SetPersonID(personRow.ID)
 			for _, orgRow := range orgRows {
 				if orgRow.PublicID == organizationMember.Id {

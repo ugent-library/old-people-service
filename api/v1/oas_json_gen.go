@@ -1340,8 +1340,10 @@ func (s *OrganizationMember) encodeFields(e *jx.Encoder) {
 		json.EncodeDateTime(e, s.From)
 	}
 	{
-		e.FieldStart("until")
-		json.EncodeDateTime(e, s.Until)
+		if s.Until.Set {
+			e.FieldStart("until")
+			s.Until.Encode(e, json.EncodeDateTime)
+		}
 	}
 }
 
@@ -1407,11 +1409,9 @@ func (s *OrganizationMember) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"from\"")
 			}
 		case "until":
-			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
-				v, err := json.DecodeDateTime(d)
-				s.Until = v
-				if err != nil {
+				s.Until.Reset()
+				if err := s.Until.Decode(d, json.DecodeDateTime); err != nil {
 					return err
 				}
 				return nil
@@ -1428,7 +1428,7 @@ func (s *OrganizationMember) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011001,
+		0b00001001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1504,8 +1504,10 @@ func (s *OrganizationParent) encodeFields(e *jx.Encoder) {
 		json.EncodeDateTime(e, s.From)
 	}
 	{
-		e.FieldStart("until")
-		json.EncodeDateTime(e, s.Until)
+		if s.Until.Set {
+			e.FieldStart("until")
+			s.Until.Encode(e, json.EncodeDateTime)
+		}
 	}
 }
 
@@ -1571,11 +1573,9 @@ func (s *OrganizationParent) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"from\"")
 			}
 		case "until":
-			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
-				v, err := json.DecodeDateTime(d)
-				s.Until = v
-				if err != nil {
+				s.Until.Reset()
+				if err := s.Until.Decode(d, json.DecodeDateTime); err != nil {
 					return err
 				}
 				return nil
@@ -1592,7 +1592,7 @@ func (s *OrganizationParent) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011001,
+		0b00001001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

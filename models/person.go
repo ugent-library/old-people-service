@@ -40,7 +40,7 @@ func NewOrganizationMember(id string) *OrganizationMember {
 	return &OrganizationMember{
 		Id:    id,
 		From:  &BeginningOfTime,
-		Until: &EndOfTime,
+		Until: nil,
 	}
 }
 

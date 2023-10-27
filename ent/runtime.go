@@ -64,12 +64,6 @@ func init() {
 	organizationparentDescFrom := organizationparentFields[2].Descriptor()
 	// organizationparent.DefaultFrom holds the default value on creation for the from field.
 	organizationparent.DefaultFrom = organizationparentDescFrom.Default.(func() time.Time)
-	// organizationparentDescUntil is the schema descriptor for until field.
-	organizationparentDescUntil := organizationparentFields[3].Descriptor()
-	// organizationparent.DefaultUntil holds the default value on creation for the until field.
-	organizationparent.DefaultUntil = organizationparentDescUntil.Default.(func() time.Time)
-	// organizationparent.UpdateDefaultUntil holds the default value on update for the until field.
-	organizationparent.UpdateDefaultUntil = organizationparentDescUntil.UpdateDefault.(func() time.Time)
 	organizationpersonMixin := schema.OrganizationPerson{}.Mixin()
 	organizationpersonMixinFields0 := organizationpersonMixin[0].Fields()
 	_ = organizationpersonMixinFields0
@@ -89,12 +83,6 @@ func init() {
 	organizationpersonDescFrom := organizationpersonFields[2].Descriptor()
 	// organizationperson.DefaultFrom holds the default value on creation for the from field.
 	organizationperson.DefaultFrom = organizationpersonDescFrom.Default.(func() time.Time)
-	// organizationpersonDescUntil is the schema descriptor for until field.
-	organizationpersonDescUntil := organizationpersonFields[3].Descriptor()
-	// organizationperson.DefaultUntil holds the default value on creation for the until field.
-	organizationperson.DefaultUntil = organizationpersonDescUntil.Default.(func() time.Time)
-	// organizationperson.UpdateDefaultUntil holds the default value on update for the until field.
-	organizationperson.UpdateDefaultUntil = organizationpersonDescUntil.UpdateDefault.(func() time.Time)
 	personMixin := schema.Person{}.Mixin()
 	personMixinFields0 := personMixin[0].Fields()
 	_ = personMixinFields0

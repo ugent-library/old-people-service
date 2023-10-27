@@ -81,6 +81,20 @@ func (opu *OrganizationPersonUpdate) SetUntil(t time.Time) *OrganizationPersonUp
 	return opu
 }
 
+// SetNillableUntil sets the "until" field if the given value is not nil.
+func (opu *OrganizationPersonUpdate) SetNillableUntil(t *time.Time) *OrganizationPersonUpdate {
+	if t != nil {
+		opu.SetUntil(*t)
+	}
+	return opu
+}
+
+// ClearUntil clears the value of the "until" field.
+func (opu *OrganizationPersonUpdate) ClearUntil() *OrganizationPersonUpdate {
+	opu.mutation.ClearUntil()
+	return opu
+}
+
 // Mutation returns the OrganizationPersonMutation object of the builder.
 func (opu *OrganizationPersonUpdate) Mutation() *OrganizationPersonMutation {
 	return opu.mutation
@@ -120,10 +134,6 @@ func (opu *OrganizationPersonUpdate) defaults() {
 		v := organizationperson.UpdateDefaultDateUpdated()
 		opu.mutation.SetDateUpdated(v)
 	}
-	if _, ok := opu.mutation.Until(); !ok {
-		v := organizationperson.UpdateDefaultUntil()
-		opu.mutation.SetUntil(v)
-	}
 }
 
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
@@ -161,6 +171,9 @@ func (opu *OrganizationPersonUpdate) sqlSave(ctx context.Context) (n int, err er
 	}
 	if value, ok := opu.mutation.Until(); ok {
 		_spec.SetField(organizationperson.FieldUntil, field.TypeTime, value)
+	}
+	if opu.mutation.UntilCleared() {
+		_spec.ClearField(organizationperson.FieldUntil, field.TypeTime)
 	}
 	_spec.AddModifiers(opu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, opu.driver, _spec); err != nil {
@@ -236,6 +249,20 @@ func (opuo *OrganizationPersonUpdateOne) SetUntil(t time.Time) *OrganizationPers
 	return opuo
 }
 
+// SetNillableUntil sets the "until" field if the given value is not nil.
+func (opuo *OrganizationPersonUpdateOne) SetNillableUntil(t *time.Time) *OrganizationPersonUpdateOne {
+	if t != nil {
+		opuo.SetUntil(*t)
+	}
+	return opuo
+}
+
+// ClearUntil clears the value of the "until" field.
+func (opuo *OrganizationPersonUpdateOne) ClearUntil() *OrganizationPersonUpdateOne {
+	opuo.mutation.ClearUntil()
+	return opuo
+}
+
 // Mutation returns the OrganizationPersonMutation object of the builder.
 func (opuo *OrganizationPersonUpdateOne) Mutation() *OrganizationPersonMutation {
 	return opuo.mutation
@@ -287,10 +314,6 @@ func (opuo *OrganizationPersonUpdateOne) defaults() {
 	if _, ok := opuo.mutation.DateUpdated(); !ok {
 		v := organizationperson.UpdateDefaultDateUpdated()
 		opuo.mutation.SetDateUpdated(v)
-	}
-	if _, ok := opuo.mutation.Until(); !ok {
-		v := organizationperson.UpdateDefaultUntil()
-		opuo.mutation.SetUntil(v)
 	}
 }
 
@@ -346,6 +369,9 @@ func (opuo *OrganizationPersonUpdateOne) sqlSave(ctx context.Context) (_node *Or
 	}
 	if value, ok := opuo.mutation.Until(); ok {
 		_spec.SetField(organizationperson.FieldUntil, field.TypeTime, value)
+	}
+	if opuo.mutation.UntilCleared() {
+		_spec.ClearField(organizationperson.FieldUntil, field.TypeTime)
 	}
 	_spec.AddModifiers(opuo.modifiers...)
 	_node = &OrganizationPerson{config: opuo.config}

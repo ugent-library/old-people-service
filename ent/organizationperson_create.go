@@ -135,10 +135,6 @@ func (opc *OrganizationPersonCreate) defaults() {
 		v := organizationperson.DefaultFrom()
 		opc.mutation.SetFrom(v)
 	}
-	if _, ok := opc.mutation.Until(); !ok {
-		v := organizationperson.DefaultUntil()
-		opc.mutation.SetUntil(v)
-	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -157,9 +153,6 @@ func (opc *OrganizationPersonCreate) check() error {
 	}
 	if _, ok := opc.mutation.From(); !ok {
 		return &ValidationError{Name: "from", err: errors.New(`ent: missing required field "OrganizationPerson.from"`)}
-	}
-	if _, ok := opc.mutation.Until(); !ok {
-		return &ValidationError{Name: "until", err: errors.New(`ent: missing required field "OrganizationPerson.until"`)}
 	}
 	return nil
 }
@@ -209,7 +202,7 @@ func (opc *OrganizationPersonCreate) createSpec() (*OrganizationPerson, *sqlgrap
 	}
 	if value, ok := opc.mutation.Until(); ok {
 		_spec.SetField(organizationperson.FieldUntil, field.TypeTime, value)
-		_node.Until = value
+		_node.Until = &value
 	}
 	return _node, _spec
 }

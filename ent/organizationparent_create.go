@@ -135,10 +135,6 @@ func (opc *OrganizationParentCreate) defaults() {
 		v := organizationparent.DefaultFrom()
 		opc.mutation.SetFrom(v)
 	}
-	if _, ok := opc.mutation.Until(); !ok {
-		v := organizationparent.DefaultUntil()
-		opc.mutation.SetUntil(v)
-	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -157,9 +153,6 @@ func (opc *OrganizationParentCreate) check() error {
 	}
 	if _, ok := opc.mutation.From(); !ok {
 		return &ValidationError{Name: "from", err: errors.New(`ent: missing required field "OrganizationParent.from"`)}
-	}
-	if _, ok := opc.mutation.Until(); !ok {
-		return &ValidationError{Name: "until", err: errors.New(`ent: missing required field "OrganizationParent.until"`)}
 	}
 	return nil
 }
@@ -209,7 +202,7 @@ func (opc *OrganizationParentCreate) createSpec() (*OrganizationParent, *sqlgrap
 	}
 	if value, ok := opc.mutation.Until(); ok {
 		_spec.SetField(organizationparent.FieldUntil, field.TypeTime, value)
-		_node.Until = value
+		_node.Until = &value
 	}
 	return _node, _spec
 }

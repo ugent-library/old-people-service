@@ -47,7 +47,7 @@ var (
 		{Name: "parent_organization_id", Type: field.TypeInt},
 		{Name: "organization_id", Type: field.TypeInt},
 		{Name: "from", Type: field.TypeTime},
-		{Name: "until", Type: field.TypeTime},
+		{Name: "until", Type: field.TypeTime, Nullable: true},
 	}
 	// OrganizationParentTable holds the schema information for the "organization_parent" table.
 	OrganizationParentTable = &schema.Table{
@@ -80,7 +80,7 @@ var (
 		{Name: "organization_id", Type: field.TypeInt},
 		{Name: "person_id", Type: field.TypeInt},
 		{Name: "from", Type: field.TypeTime},
-		{Name: "until", Type: field.TypeTime},
+		{Name: "until", Type: field.TypeTime, Nullable: true},
 	}
 	// OrganizationPersonTable holds the schema information for the "organization_person" table.
 	OrganizationPersonTable = &schema.Table{

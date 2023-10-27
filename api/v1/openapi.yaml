@@ -365,7 +365,7 @@ components:
         until:
           type: string
           format: date-time
-      required: [id, from, until]
+      required: [id, from]
 
     Person:
       type: object
@@ -444,7 +444,7 @@ components:
         until:
           type: string
           format: date-time
-      required: [id, from, until]
+      required: [id, from]
 
     Organization:
       type: object

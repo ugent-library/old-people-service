@@ -59,10 +59,6 @@ var (
 	UpdateDefaultDateUpdated func() time.Time
 	// DefaultFrom holds the default value on creation for the "from" field.
 	DefaultFrom func() time.Time
-	// DefaultUntil holds the default value on creation for the "until" field.
-	DefaultUntil func() time.Time
-	// UpdateDefaultUntil holds the default value on update for the "until" field.
-	UpdateDefaultUntil func() time.Time
 )
 
 // OrderOption defines the ordering options for the OrganizationParent queries.

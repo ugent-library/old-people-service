@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/go-ldap/ldap/v3"
+	"github.com/samber/lo"
 	"github.com/ugent-library/people-service/models"
 	"github.com/ugent-library/people-service/ugentldap"
 )
@@ -120,14 +122,34 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 			case "ugentExpirationDate":
 				newPerson.ExpirationDate = val
 			case "departmentNumber":
-				realOrg, err := si.repository.GetOrganizationByIdentifier(ctx, "ugent_id", val)
+				realOrgs, err := si.repository.GetOrganizationsByIdentifier(ctx, "ugent_id", val)
 				// ignore for now. Maybe tomorrow on the next run
-				if errors.Is(err, models.ErrNotFound) {
-					continue
-				} else if err != nil {
+				if err != nil {
 					return nil, err
 				}
-				newOrgMember := models.NewOrganizationMember(realOrg.ID)
+				if len(realOrgs) == 0 {
+					continue
+				}
+				// ugent_id not unique, and some of them are not in use anymore
+				// e.g. LW06 used to be "Latijn en Grieks", now "Taalkunde"
+				now := time.Now()
+				realOrgs = lo.Filter(realOrgs, func(org *models.Organization, index int) bool {
+					if org.Type != "department" {
+						return false
+					}
+					var validOrganizationParent *models.OrganizationParent
+					for _, oParent := range org.Parent {
+						if oParent.From.Before(now) && (oParent.Until == nil || oParent.Until.After(now)) {
+							validOrganizationParent = &oParent
+							break
+						}
+					}
+					return validOrganizationParent != nil
+				})
+				if len(realOrgs) == 0 {
+					continue
+				}
+				newOrgMember := models.NewOrganizationMember(realOrgs[0].ID)
 				newPerson.Organization = append(newPerson.Organization, newOrgMember)
 			}
 		}

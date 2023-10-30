@@ -51,16 +51,16 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  "/get-person-by-id":
+  "/get-people-by-id":
     post:
-      summary: "Retrieve a single person record by one of its extra identifiers"
-      description: "Retrieve a single person record by one of its extra identifiers"
-      operationId: "GetPersonById"
+      summary: "Retrieve person records by one of the extra identifiers"
+      description: "Retrieve person records by one of the extra identifiers"
+      operationId: "GetPeopleById"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetPersonByIdRequest"
+              $ref: "#/components/schemas/GetPeopleByIdRequest"
         required: true
       responses:
         "200":
@@ -68,7 +68,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Person"
+                $ref: "#/components/schemas/PersonListResponse"
         default:
           $ref: "#/components/responses/Error"
 
@@ -241,27 +241,26 @@ paths:
         default:
           $ref: "#/components/responses/Error"
 
-  "/get-organization-by-id":
+  "/get-organizations-by-id":
     post:
-      summary: "Get single organization record by one of its extra identifiers"
-      description: "Get single organization record by one of its extra identifiers"
-      operationId: "GetOrganizationById"
+      summary: "Get organization records by one of the extra identifiers"
+      description: "Get organization records by one of the extra identifiers"
+      operationId: "GetOrganizationsById"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetOrganizationByIdRequest"
+              $ref: "#/components/schemas/GetOrganizationsByIdRequest"
         required: true
       responses:
         "200":
-          description: "Retrieve a single organization record successfully"
+          description: "Retrieve a organization records successfully"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Organization"
+                $ref: "#/components/schemas/OrganizationListResponse"
         default:
           $ref: "#/components/responses/Error"
-
 
   "/get-organizations":
     post:
@@ -510,7 +509,7 @@ components:
     AddOrganizationRequest:
       $ref: "#/components/schemas/Organization"
 
-    GetPersonByIdRequest:
+    GetPeopleByIdRequest:
       type: object
       properties:
         id:
@@ -595,6 +594,21 @@ components:
           type: string
           minLength: 1
       required: [id]
+
+    GetOrganizationsByIdRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum:
+            - gismo_id
+            - ugent_id
+            - biblio_id
+            - ugent_memorialis_id
+      required: [id,type]
 
     GetOrganizationByIdRequest:
       type: object

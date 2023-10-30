@@ -79,77 +79,6 @@ func (s *ErrorStatusCode) SetResponse(val Error) {
 	s.Response = val
 }
 
-// Ref: #/components/schemas/GetOrganizationByIdRequest
-type GetOrganizationByIdRequest struct {
-	ID   string                         `json:"id"`
-	Type GetOrganizationByIdRequestType `json:"type"`
-}
-
-// GetID returns the value of ID.
-func (s *GetOrganizationByIdRequest) GetID() string {
-	return s.ID
-}
-
-// GetType returns the value of Type.
-func (s *GetOrganizationByIdRequest) GetType() GetOrganizationByIdRequestType {
-	return s.Type
-}
-
-// SetID sets the value of ID.
-func (s *GetOrganizationByIdRequest) SetID(val string) {
-	s.ID = val
-}
-
-// SetType sets the value of Type.
-func (s *GetOrganizationByIdRequest) SetType(val GetOrganizationByIdRequestType) {
-	s.Type = val
-}
-
-type GetOrganizationByIdRequestType string
-
-const (
-	GetOrganizationByIdRequestTypeGismoID           GetOrganizationByIdRequestType = "gismo_id"
-	GetOrganizationByIdRequestTypeUgentID           GetOrganizationByIdRequestType = "ugent_id"
-	GetOrganizationByIdRequestTypeBiblioID          GetOrganizationByIdRequestType = "biblio_id"
-	GetOrganizationByIdRequestTypeUgentMemorialisID GetOrganizationByIdRequestType = "ugent_memorialis_id"
-)
-
-// MarshalText implements encoding.TextMarshaler.
-func (s GetOrganizationByIdRequestType) MarshalText() ([]byte, error) {
-	switch s {
-	case GetOrganizationByIdRequestTypeGismoID:
-		return []byte(s), nil
-	case GetOrganizationByIdRequestTypeUgentID:
-		return []byte(s), nil
-	case GetOrganizationByIdRequestTypeBiblioID:
-		return []byte(s), nil
-	case GetOrganizationByIdRequestTypeUgentMemorialisID:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *GetOrganizationByIdRequestType) UnmarshalText(data []byte) error {
-	switch GetOrganizationByIdRequestType(data) {
-	case GetOrganizationByIdRequestTypeGismoID:
-		*s = GetOrganizationByIdRequestTypeGismoID
-		return nil
-	case GetOrganizationByIdRequestTypeUgentID:
-		*s = GetOrganizationByIdRequestTypeUgentID
-		return nil
-	case GetOrganizationByIdRequestTypeBiblioID:
-		*s = GetOrganizationByIdRequestTypeBiblioID
-		return nil
-	case GetOrganizationByIdRequestTypeUgentMemorialisID:
-		*s = GetOrganizationByIdRequestTypeUgentMemorialisID
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
-
 // Ref: #/components/schemas/GetOrganizationRequest
 type GetOrganizationRequest struct {
 	ID string `json:"id"`
@@ -163,6 +92,77 @@ func (s *GetOrganizationRequest) GetID() string {
 // SetID sets the value of ID.
 func (s *GetOrganizationRequest) SetID(val string) {
 	s.ID = val
+}
+
+// Ref: #/components/schemas/GetOrganizationsByIdRequest
+type GetOrganizationsByIdRequest struct {
+	ID   string                          `json:"id"`
+	Type GetOrganizationsByIdRequestType `json:"type"`
+}
+
+// GetID returns the value of ID.
+func (s *GetOrganizationsByIdRequest) GetID() string {
+	return s.ID
+}
+
+// GetType returns the value of Type.
+func (s *GetOrganizationsByIdRequest) GetType() GetOrganizationsByIdRequestType {
+	return s.Type
+}
+
+// SetID sets the value of ID.
+func (s *GetOrganizationsByIdRequest) SetID(val string) {
+	s.ID = val
+}
+
+// SetType sets the value of Type.
+func (s *GetOrganizationsByIdRequest) SetType(val GetOrganizationsByIdRequestType) {
+	s.Type = val
+}
+
+type GetOrganizationsByIdRequestType string
+
+const (
+	GetOrganizationsByIdRequestTypeGismoID           GetOrganizationsByIdRequestType = "gismo_id"
+	GetOrganizationsByIdRequestTypeUgentID           GetOrganizationsByIdRequestType = "ugent_id"
+	GetOrganizationsByIdRequestTypeBiblioID          GetOrganizationsByIdRequestType = "biblio_id"
+	GetOrganizationsByIdRequestTypeUgentMemorialisID GetOrganizationsByIdRequestType = "ugent_memorialis_id"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GetOrganizationsByIdRequestType) MarshalText() ([]byte, error) {
+	switch s {
+	case GetOrganizationsByIdRequestTypeGismoID:
+		return []byte(s), nil
+	case GetOrganizationsByIdRequestTypeUgentID:
+		return []byte(s), nil
+	case GetOrganizationsByIdRequestTypeBiblioID:
+		return []byte(s), nil
+	case GetOrganizationsByIdRequestTypeUgentMemorialisID:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GetOrganizationsByIdRequestType) UnmarshalText(data []byte) error {
+	switch GetOrganizationsByIdRequestType(data) {
+	case GetOrganizationsByIdRequestTypeGismoID:
+		*s = GetOrganizationsByIdRequestTypeGismoID
+		return nil
+	case GetOrganizationsByIdRequestTypeUgentID:
+		*s = GetOrganizationsByIdRequestTypeUgentID
+		return nil
+	case GetOrganizationsByIdRequestTypeBiblioID:
+		*s = GetOrganizationsByIdRequestTypeBiblioID
+		return nil
+	case GetOrganizationsByIdRequestTypeUgentMemorialisID:
+		*s = GetOrganizationsByIdRequestTypeUgentMemorialisID
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/GetOrganizationsRequest
@@ -180,6 +180,95 @@ func (s *GetOrganizationsRequest) SetCursor(val string) {
 	s.Cursor = val
 }
 
+// Ref: #/components/schemas/GetPeopleByIdRequest
+type GetPeopleByIdRequest struct {
+	ID   string                   `json:"id"`
+	Type GetPeopleByIdRequestType `json:"type"`
+}
+
+// GetID returns the value of ID.
+func (s *GetPeopleByIdRequest) GetID() string {
+	return s.ID
+}
+
+// GetType returns the value of Type.
+func (s *GetPeopleByIdRequest) GetType() GetPeopleByIdRequestType {
+	return s.Type
+}
+
+// SetID sets the value of ID.
+func (s *GetPeopleByIdRequest) SetID(val string) {
+	s.ID = val
+}
+
+// SetType sets the value of Type.
+func (s *GetPeopleByIdRequest) SetType(val GetPeopleByIdRequestType) {
+	s.Type = val
+}
+
+type GetPeopleByIdRequestType string
+
+const (
+	GetPeopleByIdRequestTypeOrcid             GetPeopleByIdRequestType = "orcid"
+	GetPeopleByIdRequestTypeGismoID           GetPeopleByIdRequestType = "gismo_id"
+	GetPeopleByIdRequestTypeUgentID           GetPeopleByIdRequestType = "ugent_id"
+	GetPeopleByIdRequestTypeHistoricUgentID   GetPeopleByIdRequestType = "historic_ugent_id"
+	GetPeopleByIdRequestTypeUgentBarcode      GetPeopleByIdRequestType = "ugent_barcode"
+	GetPeopleByIdRequestTypeUgentUsername     GetPeopleByIdRequestType = "ugent_username"
+	GetPeopleByIdRequestTypeUgentMemorialisID GetPeopleByIdRequestType = "ugent_memorialis_id"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GetPeopleByIdRequestType) MarshalText() ([]byte, error) {
+	switch s {
+	case GetPeopleByIdRequestTypeOrcid:
+		return []byte(s), nil
+	case GetPeopleByIdRequestTypeGismoID:
+		return []byte(s), nil
+	case GetPeopleByIdRequestTypeUgentID:
+		return []byte(s), nil
+	case GetPeopleByIdRequestTypeHistoricUgentID:
+		return []byte(s), nil
+	case GetPeopleByIdRequestTypeUgentBarcode:
+		return []byte(s), nil
+	case GetPeopleByIdRequestTypeUgentUsername:
+		return []byte(s), nil
+	case GetPeopleByIdRequestTypeUgentMemorialisID:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GetPeopleByIdRequestType) UnmarshalText(data []byte) error {
+	switch GetPeopleByIdRequestType(data) {
+	case GetPeopleByIdRequestTypeOrcid:
+		*s = GetPeopleByIdRequestTypeOrcid
+		return nil
+	case GetPeopleByIdRequestTypeGismoID:
+		*s = GetPeopleByIdRequestTypeGismoID
+		return nil
+	case GetPeopleByIdRequestTypeUgentID:
+		*s = GetPeopleByIdRequestTypeUgentID
+		return nil
+	case GetPeopleByIdRequestTypeHistoricUgentID:
+		*s = GetPeopleByIdRequestTypeHistoricUgentID
+		return nil
+	case GetPeopleByIdRequestTypeUgentBarcode:
+		*s = GetPeopleByIdRequestTypeUgentBarcode
+		return nil
+	case GetPeopleByIdRequestTypeUgentUsername:
+		*s = GetPeopleByIdRequestTypeUgentUsername
+		return nil
+	case GetPeopleByIdRequestTypeUgentMemorialisID:
+		*s = GetPeopleByIdRequestTypeUgentMemorialisID
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Ref: #/components/schemas/GetPeopleRequest
 type GetPeopleRequest struct {
 	Cursor string `json:"cursor"`
@@ -193,95 +282,6 @@ func (s *GetPeopleRequest) GetCursor() string {
 // SetCursor sets the value of Cursor.
 func (s *GetPeopleRequest) SetCursor(val string) {
 	s.Cursor = val
-}
-
-// Ref: #/components/schemas/GetPersonByIdRequest
-type GetPersonByIdRequest struct {
-	ID   string                   `json:"id"`
-	Type GetPersonByIdRequestType `json:"type"`
-}
-
-// GetID returns the value of ID.
-func (s *GetPersonByIdRequest) GetID() string {
-	return s.ID
-}
-
-// GetType returns the value of Type.
-func (s *GetPersonByIdRequest) GetType() GetPersonByIdRequestType {
-	return s.Type
-}
-
-// SetID sets the value of ID.
-func (s *GetPersonByIdRequest) SetID(val string) {
-	s.ID = val
-}
-
-// SetType sets the value of Type.
-func (s *GetPersonByIdRequest) SetType(val GetPersonByIdRequestType) {
-	s.Type = val
-}
-
-type GetPersonByIdRequestType string
-
-const (
-	GetPersonByIdRequestTypeOrcid             GetPersonByIdRequestType = "orcid"
-	GetPersonByIdRequestTypeGismoID           GetPersonByIdRequestType = "gismo_id"
-	GetPersonByIdRequestTypeUgentID           GetPersonByIdRequestType = "ugent_id"
-	GetPersonByIdRequestTypeHistoricUgentID   GetPersonByIdRequestType = "historic_ugent_id"
-	GetPersonByIdRequestTypeUgentBarcode      GetPersonByIdRequestType = "ugent_barcode"
-	GetPersonByIdRequestTypeUgentUsername     GetPersonByIdRequestType = "ugent_username"
-	GetPersonByIdRequestTypeUgentMemorialisID GetPersonByIdRequestType = "ugent_memorialis_id"
-)
-
-// MarshalText implements encoding.TextMarshaler.
-func (s GetPersonByIdRequestType) MarshalText() ([]byte, error) {
-	switch s {
-	case GetPersonByIdRequestTypeOrcid:
-		return []byte(s), nil
-	case GetPersonByIdRequestTypeGismoID:
-		return []byte(s), nil
-	case GetPersonByIdRequestTypeUgentID:
-		return []byte(s), nil
-	case GetPersonByIdRequestTypeHistoricUgentID:
-		return []byte(s), nil
-	case GetPersonByIdRequestTypeUgentBarcode:
-		return []byte(s), nil
-	case GetPersonByIdRequestTypeUgentUsername:
-		return []byte(s), nil
-	case GetPersonByIdRequestTypeUgentMemorialisID:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *GetPersonByIdRequestType) UnmarshalText(data []byte) error {
-	switch GetPersonByIdRequestType(data) {
-	case GetPersonByIdRequestTypeOrcid:
-		*s = GetPersonByIdRequestTypeOrcid
-		return nil
-	case GetPersonByIdRequestTypeGismoID:
-		*s = GetPersonByIdRequestTypeGismoID
-		return nil
-	case GetPersonByIdRequestTypeUgentID:
-		*s = GetPersonByIdRequestTypeUgentID
-		return nil
-	case GetPersonByIdRequestTypeHistoricUgentID:
-		*s = GetPersonByIdRequestTypeHistoricUgentID
-		return nil
-	case GetPersonByIdRequestTypeUgentBarcode:
-		*s = GetPersonByIdRequestTypeUgentBarcode
-		return nil
-	case GetPersonByIdRequestTypeUgentUsername:
-		*s = GetPersonByIdRequestTypeUgentUsername
-		return nil
-	case GetPersonByIdRequestTypeUgentMemorialisID:
-		*s = GetPersonByIdRequestTypeUgentMemorialisID
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
 }
 
 // Ref: #/components/schemas/GetPersonRequest

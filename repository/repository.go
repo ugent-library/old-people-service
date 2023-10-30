@@ -888,6 +888,42 @@ func (repo *repository) GetPersonByIdentifier(ctx context.Context, typ string, v
 	return repo.personUnwrap(row, personOrganizations)
 }
 
+func (repo *repository) GetPeopleByIdentifier(ctx context.Context, typ string, vals ...string) ([]*models.Person, error) {
+	rows, err := repo.client.Person.Query().Where(func(s *entsql.Selector) {
+		s.Where(entsql.ExprP("identifier->$1 ?| $2", typ, vals))
+	}).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	allPersonIds := make([]int, 0, len(rows))
+	for _, row := range rows {
+		allPersonIds = append(allPersonIds, row.ID)
+	}
+
+	allPersonOrganizationMember, err := repo.getOrganizationMembers(ctx, allPersonIds...)
+	if err != nil {
+		return nil, err
+	}
+
+	people := make([]*models.Person, 0, len(rows))
+	for _, row := range rows {
+		currentPersonOrganizationMembers := []organizationMember{}
+		for _, organizationMember := range allPersonOrganizationMember {
+			if organizationMember.personID == row.ID {
+				currentPersonOrganizationMembers = append(currentPersonOrganizationMembers, organizationMember)
+			}
+		}
+		person, err := repo.personUnwrap(row, currentPersonOrganizationMembers)
+		if err != nil {
+			return nil, err
+		}
+		people = append(people, person)
+	}
+
+	return people, nil
+}
+
 func (repo *repository) DeletePerson(ctx context.Context, id string) error {
 	_, err := repo.client.Person.Delete().Where(person.PublicIDEQ(id)).Exec(ctx)
 	return err

@@ -53,8 +53,8 @@ func encodeGetOrganizationRequest(
 	return nil
 }
 
-func encodeGetOrganizationByIdRequest(
-	req *GetOrganizationByIdRequest,
+func encodeGetOrganizationsRequest(
+	req *GetOrganizationsRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -67,8 +67,8 @@ func encodeGetOrganizationByIdRequest(
 	return nil
 }
 
-func encodeGetOrganizationsRequest(
-	req *GetOrganizationsRequest,
+func encodeGetOrganizationsByIdRequest(
+	req *GetOrganizationsByIdRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -95,8 +95,8 @@ func encodeGetPeopleRequest(
 	return nil
 }
 
-func encodeGetPersonRequest(
-	req *GetPersonRequest,
+func encodeGetPeopleByIdRequest(
+	req *GetPeopleByIdRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -109,8 +109,8 @@ func encodeGetPersonRequest(
 	return nil
 }
 
-func encodeGetPersonByIdRequest(
-	req *GetPersonByIdRequest,
+func encodeGetPersonRequest(
+	req *GetPersonRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

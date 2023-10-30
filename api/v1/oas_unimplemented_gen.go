@@ -40,21 +40,21 @@ func (UnimplementedHandler) GetOrganization(ctx context.Context, req *GetOrganiz
 	return r, ht.ErrNotImplemented
 }
 
-// GetOrganizationById implements GetOrganizationById operation.
-//
-// Get single organization record by one of its extra identifiers.
-//
-// POST /get-organization-by-id
-func (UnimplementedHandler) GetOrganizationById(ctx context.Context, req *GetOrganizationByIdRequest) (r *Organization, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // GetOrganizations implements GetOrganizations operation.
 //
 // Get all organization records.
 //
 // POST /get-organizations
 func (UnimplementedHandler) GetOrganizations(ctx context.Context, req *GetOrganizationsRequest) (r *OrganizationListResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetOrganizationsById implements GetOrganizationsById operation.
+//
+// Get organization records by one of the extra identifiers.
+//
+// POST /get-organizations-by-id
+func (UnimplementedHandler) GetOrganizationsById(ctx context.Context, req *GetOrganizationsByIdRequest) (r *OrganizationListResponse, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -67,21 +67,21 @@ func (UnimplementedHandler) GetPeople(ctx context.Context, req *GetPeopleRequest
 	return r, ht.ErrNotImplemented
 }
 
+// GetPeopleById implements GetPeopleById operation.
+//
+// Retrieve person records by one of the extra identifiers.
+//
+// POST /get-people-by-id
+func (UnimplementedHandler) GetPeopleById(ctx context.Context, req *GetPeopleByIdRequest) (r *PersonListResponse, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetPerson implements GetPerson operation.
 //
 // Retrieve a single person record.
 //
 // POST /get-person
 func (UnimplementedHandler) GetPerson(ctx context.Context, req *GetPersonRequest) (r *Person, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// GetPersonById implements GetPersonById operation.
-//
-// Retrieve a single person record by one of its extra identifiers.
-//
-// POST /get-person-by-id
-func (UnimplementedHandler) GetPersonById(ctx context.Context, req *GetPersonByIdRequest) (r *Person, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

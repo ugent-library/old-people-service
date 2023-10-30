@@ -263,7 +263,7 @@ func decodeGetOrganizationResponse(resp *http.Response) (res *Organization, _ er
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetOrganizationByIdResponse(resp *http.Response) (res *Organization, _ error) {
+func decodeGetOrganizationsResponse(resp *http.Response) (res *OrganizationListResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -279,7 +279,7 @@ func decodeGetOrganizationByIdResponse(resp *http.Response) (res *Organization, 
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Organization
+			var response OrganizationListResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -346,7 +346,7 @@ func decodeGetOrganizationByIdResponse(resp *http.Response) (res *Organization, 
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetOrganizationsResponse(resp *http.Response) (res *OrganizationListResponse, _ error) {
+func decodeGetOrganizationsByIdResponse(resp *http.Response) (res *OrganizationListResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -512,7 +512,7 @@ func decodeGetPeopleResponse(resp *http.Response) (res *PersonListResponse, _ er
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetPersonResponse(resp *http.Response) (res *Person, _ error) {
+func decodeGetPeopleByIdResponse(resp *http.Response) (res *PersonListResponse, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.
@@ -528,7 +528,7 @@ func decodeGetPersonResponse(resp *http.Response) (res *Person, _ error) {
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response Person
+			var response PersonListResponse
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err
@@ -595,7 +595,7 @@ func decodeGetPersonResponse(resp *http.Response) (res *Person, _ error) {
 	return res, errors.Wrap(defRes, "error")
 }
 
-func decodeGetPersonByIdResponse(resp *http.Response) (res *Person, _ error) {
+func decodeGetPersonResponse(resp *http.Response) (res *Person, _ error) {
 	switch resp.StatusCode {
 	case 200:
 		// Code 200.

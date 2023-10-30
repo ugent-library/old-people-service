@@ -26,36 +26,36 @@ type Handler interface {
 	//
 	// POST /get-organization
 	GetOrganization(ctx context.Context, req *GetOrganizationRequest) (*Organization, error)
-	// GetOrganizationById implements GetOrganizationById operation.
-	//
-	// Get single organization record by one of its extra identifiers.
-	//
-	// POST /get-organization-by-id
-	GetOrganizationById(ctx context.Context, req *GetOrganizationByIdRequest) (*Organization, error)
 	// GetOrganizations implements GetOrganizations operation.
 	//
 	// Get all organization records.
 	//
 	// POST /get-organizations
 	GetOrganizations(ctx context.Context, req *GetOrganizationsRequest) (*OrganizationListResponse, error)
+	// GetOrganizationsById implements GetOrganizationsById operation.
+	//
+	// Get organization records by one of the extra identifiers.
+	//
+	// POST /get-organizations-by-id
+	GetOrganizationsById(ctx context.Context, req *GetOrganizationsByIdRequest) (*OrganizationListResponse, error)
 	// GetPeople implements GetPeople operation.
 	//
 	// Get all person records.
 	//
 	// POST /get-people
 	GetPeople(ctx context.Context, req *GetPeopleRequest) (*PersonListResponse, error)
+	// GetPeopleById implements GetPeopleById operation.
+	//
+	// Retrieve person records by one of the extra identifiers.
+	//
+	// POST /get-people-by-id
+	GetPeopleById(ctx context.Context, req *GetPeopleByIdRequest) (*PersonListResponse, error)
 	// GetPerson implements GetPerson operation.
 	//
 	// Retrieve a single person record.
 	//
 	// POST /get-person
 	GetPerson(ctx context.Context, req *GetPersonRequest) (*Person, error)
-	// GetPersonById implements GetPersonById operation.
-	//
-	// Retrieve a single person record by one of its extra identifiers.
-	//
-	// POST /get-person-by-id
-	GetPersonById(ctx context.Context, req *GetPersonByIdRequest) (*Person, error)
 	// SetPersonOrcid implements SetPersonOrcid operation.
 	//
 	// Update person ORCID.

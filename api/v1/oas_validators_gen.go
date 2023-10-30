@@ -10,59 +10,6 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
-func (s *GetOrganizationByIdRequest) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.String{
-			MinLength:    1,
-			MinLengthSet: true,
-			MaxLength:    0,
-			MaxLengthSet: false,
-			Email:        false,
-			Hostname:     false,
-			Regex:        nil,
-		}).Validate(string(s.ID)); err != nil {
-			return errors.Wrap(err, "string")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "id",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		if err := s.Type.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "type",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-
-func (s GetOrganizationByIdRequestType) Validate() error {
-	switch s {
-	case "gismo_id":
-		return nil
-	case "ugent_id":
-		return nil
-	case "biblio_id":
-		return nil
-	case "ugent_memorialis_id":
-		return nil
-	default:
-		return errors.Errorf("invalid value: %v", s)
-	}
-}
-
 func (s *GetOrganizationRequest) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
@@ -90,7 +37,7 @@ func (s *GetOrganizationRequest) Validate() error {
 	return nil
 }
 
-func (s *GetPersonByIdRequest) Validate() error {
+func (s *GetOrganizationsByIdRequest) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if err := (validate.String{
@@ -128,7 +75,60 @@ func (s *GetPersonByIdRequest) Validate() error {
 	return nil
 }
 
-func (s GetPersonByIdRequestType) Validate() error {
+func (s GetOrganizationsByIdRequestType) Validate() error {
+	switch s {
+	case "gismo_id":
+		return nil
+	case "ugent_id":
+		return nil
+	case "biblio_id":
+		return nil
+	case "ugent_memorialis_id":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
+func (s *GetPeopleByIdRequest) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := (validate.String{
+			MinLength:    1,
+			MinLengthSet: true,
+			MaxLength:    0,
+			MaxLengthSet: false,
+			Email:        false,
+			Hostname:     false,
+			Regex:        nil,
+		}).Validate(string(s.ID)); err != nil {
+			return errors.Wrap(err, "string")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "id",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s GetPeopleByIdRequestType) Validate() error {
 	switch s {
 	case "orcid":
 		return nil

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people-service/ent/organizationperson"
@@ -18,6 +19,7 @@ type OrganizationPersonCreate struct {
 	config
 	mutation *OrganizationPersonMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetDateCreated sets the "date_created" field.
@@ -180,6 +182,7 @@ func (opc *OrganizationPersonCreate) createSpec() (*OrganizationPerson, *sqlgrap
 		_node = &OrganizationPerson{config: opc.config}
 		_spec = sqlgraph.NewCreateSpec(organizationperson.Table, sqlgraph.NewFieldSpec(organizationperson.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = opc.conflict
 	if value, ok := opc.mutation.DateCreated(); ok {
 		_spec.SetField(organizationperson.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
@@ -207,10 +210,307 @@ func (opc *OrganizationPersonCreate) createSpec() (*OrganizationPerson, *sqlgrap
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.OrganizationPerson.Create().
+//		SetDateCreated(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.OrganizationPersonUpsert) {
+//			SetDateCreated(v+v).
+//		}).
+//		Exec(ctx)
+func (opc *OrganizationPersonCreate) OnConflict(opts ...sql.ConflictOption) *OrganizationPersonUpsertOne {
+	opc.conflict = opts
+	return &OrganizationPersonUpsertOne{
+		create: opc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.OrganizationPerson.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (opc *OrganizationPersonCreate) OnConflictColumns(columns ...string) *OrganizationPersonUpsertOne {
+	opc.conflict = append(opc.conflict, sql.ConflictColumns(columns...))
+	return &OrganizationPersonUpsertOne{
+		create: opc,
+	}
+}
+
+type (
+	// OrganizationPersonUpsertOne is the builder for "upsert"-ing
+	//  one OrganizationPerson node.
+	OrganizationPersonUpsertOne struct {
+		create *OrganizationPersonCreate
+	}
+
+	// OrganizationPersonUpsert is the "OnConflict" setter.
+	OrganizationPersonUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetDateUpdated sets the "date_updated" field.
+func (u *OrganizationPersonUpsert) SetDateUpdated(v time.Time) *OrganizationPersonUpsert {
+	u.Set(organizationperson.FieldDateUpdated, v)
+	return u
+}
+
+// UpdateDateUpdated sets the "date_updated" field to the value that was provided on create.
+func (u *OrganizationPersonUpsert) UpdateDateUpdated() *OrganizationPersonUpsert {
+	u.SetExcluded(organizationperson.FieldDateUpdated)
+	return u
+}
+
+// SetOrganizationID sets the "organization_id" field.
+func (u *OrganizationPersonUpsert) SetOrganizationID(v int) *OrganizationPersonUpsert {
+	u.Set(organizationperson.FieldOrganizationID, v)
+	return u
+}
+
+// UpdateOrganizationID sets the "organization_id" field to the value that was provided on create.
+func (u *OrganizationPersonUpsert) UpdateOrganizationID() *OrganizationPersonUpsert {
+	u.SetExcluded(organizationperson.FieldOrganizationID)
+	return u
+}
+
+// AddOrganizationID adds v to the "organization_id" field.
+func (u *OrganizationPersonUpsert) AddOrganizationID(v int) *OrganizationPersonUpsert {
+	u.Add(organizationperson.FieldOrganizationID, v)
+	return u
+}
+
+// SetPersonID sets the "person_id" field.
+func (u *OrganizationPersonUpsert) SetPersonID(v int) *OrganizationPersonUpsert {
+	u.Set(organizationperson.FieldPersonID, v)
+	return u
+}
+
+// UpdatePersonID sets the "person_id" field to the value that was provided on create.
+func (u *OrganizationPersonUpsert) UpdatePersonID() *OrganizationPersonUpsert {
+	u.SetExcluded(organizationperson.FieldPersonID)
+	return u
+}
+
+// AddPersonID adds v to the "person_id" field.
+func (u *OrganizationPersonUpsert) AddPersonID(v int) *OrganizationPersonUpsert {
+	u.Add(organizationperson.FieldPersonID, v)
+	return u
+}
+
+// SetFrom sets the "from" field.
+func (u *OrganizationPersonUpsert) SetFrom(v time.Time) *OrganizationPersonUpsert {
+	u.Set(organizationperson.FieldFrom, v)
+	return u
+}
+
+// UpdateFrom sets the "from" field to the value that was provided on create.
+func (u *OrganizationPersonUpsert) UpdateFrom() *OrganizationPersonUpsert {
+	u.SetExcluded(organizationperson.FieldFrom)
+	return u
+}
+
+// SetUntil sets the "until" field.
+func (u *OrganizationPersonUpsert) SetUntil(v time.Time) *OrganizationPersonUpsert {
+	u.Set(organizationperson.FieldUntil, v)
+	return u
+}
+
+// UpdateUntil sets the "until" field to the value that was provided on create.
+func (u *OrganizationPersonUpsert) UpdateUntil() *OrganizationPersonUpsert {
+	u.SetExcluded(organizationperson.FieldUntil)
+	return u
+}
+
+// ClearUntil clears the value of the "until" field.
+func (u *OrganizationPersonUpsert) ClearUntil() *OrganizationPersonUpsert {
+	u.SetNull(organizationperson.FieldUntil)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.OrganizationPerson.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *OrganizationPersonUpsertOne) UpdateNewValues() *OrganizationPersonUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.DateCreated(); exists {
+			s.SetIgnore(organizationperson.FieldDateCreated)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.OrganizationPerson.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *OrganizationPersonUpsertOne) Ignore() *OrganizationPersonUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *OrganizationPersonUpsertOne) DoNothing() *OrganizationPersonUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the OrganizationPersonCreate.OnConflict
+// documentation for more info.
+func (u *OrganizationPersonUpsertOne) Update(set func(*OrganizationPersonUpsert)) *OrganizationPersonUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&OrganizationPersonUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetDateUpdated sets the "date_updated" field.
+func (u *OrganizationPersonUpsertOne) SetDateUpdated(v time.Time) *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.SetDateUpdated(v)
+	})
+}
+
+// UpdateDateUpdated sets the "date_updated" field to the value that was provided on create.
+func (u *OrganizationPersonUpsertOne) UpdateDateUpdated() *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.UpdateDateUpdated()
+	})
+}
+
+// SetOrganizationID sets the "organization_id" field.
+func (u *OrganizationPersonUpsertOne) SetOrganizationID(v int) *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.SetOrganizationID(v)
+	})
+}
+
+// AddOrganizationID adds v to the "organization_id" field.
+func (u *OrganizationPersonUpsertOne) AddOrganizationID(v int) *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.AddOrganizationID(v)
+	})
+}
+
+// UpdateOrganizationID sets the "organization_id" field to the value that was provided on create.
+func (u *OrganizationPersonUpsertOne) UpdateOrganizationID() *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.UpdateOrganizationID()
+	})
+}
+
+// SetPersonID sets the "person_id" field.
+func (u *OrganizationPersonUpsertOne) SetPersonID(v int) *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.SetPersonID(v)
+	})
+}
+
+// AddPersonID adds v to the "person_id" field.
+func (u *OrganizationPersonUpsertOne) AddPersonID(v int) *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.AddPersonID(v)
+	})
+}
+
+// UpdatePersonID sets the "person_id" field to the value that was provided on create.
+func (u *OrganizationPersonUpsertOne) UpdatePersonID() *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.UpdatePersonID()
+	})
+}
+
+// SetFrom sets the "from" field.
+func (u *OrganizationPersonUpsertOne) SetFrom(v time.Time) *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.SetFrom(v)
+	})
+}
+
+// UpdateFrom sets the "from" field to the value that was provided on create.
+func (u *OrganizationPersonUpsertOne) UpdateFrom() *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.UpdateFrom()
+	})
+}
+
+// SetUntil sets the "until" field.
+func (u *OrganizationPersonUpsertOne) SetUntil(v time.Time) *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.SetUntil(v)
+	})
+}
+
+// UpdateUntil sets the "until" field to the value that was provided on create.
+func (u *OrganizationPersonUpsertOne) UpdateUntil() *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.UpdateUntil()
+	})
+}
+
+// ClearUntil clears the value of the "until" field.
+func (u *OrganizationPersonUpsertOne) ClearUntil() *OrganizationPersonUpsertOne {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.ClearUntil()
+	})
+}
+
+// Exec executes the query.
+func (u *OrganizationPersonUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for OrganizationPersonCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *OrganizationPersonUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *OrganizationPersonUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *OrganizationPersonUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // OrganizationPersonCreateBulk is the builder for creating many OrganizationPerson entities in bulk.
 type OrganizationPersonCreateBulk struct {
 	config
 	builders []*OrganizationPersonCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the OrganizationPerson entities in the database.
@@ -237,6 +537,7 @@ func (opcb *OrganizationPersonCreateBulk) Save(ctx context.Context) ([]*Organiza
 					_, err = mutators[i+1].Mutate(root, opcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = opcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, opcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -287,6 +588,205 @@ func (opcb *OrganizationPersonCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (opcb *OrganizationPersonCreateBulk) ExecX(ctx context.Context) {
 	if err := opcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.OrganizationPerson.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.OrganizationPersonUpsert) {
+//			SetDateCreated(v+v).
+//		}).
+//		Exec(ctx)
+func (opcb *OrganizationPersonCreateBulk) OnConflict(opts ...sql.ConflictOption) *OrganizationPersonUpsertBulk {
+	opcb.conflict = opts
+	return &OrganizationPersonUpsertBulk{
+		create: opcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.OrganizationPerson.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (opcb *OrganizationPersonCreateBulk) OnConflictColumns(columns ...string) *OrganizationPersonUpsertBulk {
+	opcb.conflict = append(opcb.conflict, sql.ConflictColumns(columns...))
+	return &OrganizationPersonUpsertBulk{
+		create: opcb,
+	}
+}
+
+// OrganizationPersonUpsertBulk is the builder for "upsert"-ing
+// a bulk of OrganizationPerson nodes.
+type OrganizationPersonUpsertBulk struct {
+	create *OrganizationPersonCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.OrganizationPerson.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *OrganizationPersonUpsertBulk) UpdateNewValues() *OrganizationPersonUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.DateCreated(); exists {
+				s.SetIgnore(organizationperson.FieldDateCreated)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.OrganizationPerson.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *OrganizationPersonUpsertBulk) Ignore() *OrganizationPersonUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *OrganizationPersonUpsertBulk) DoNothing() *OrganizationPersonUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the OrganizationPersonCreateBulk.OnConflict
+// documentation for more info.
+func (u *OrganizationPersonUpsertBulk) Update(set func(*OrganizationPersonUpsert)) *OrganizationPersonUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&OrganizationPersonUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetDateUpdated sets the "date_updated" field.
+func (u *OrganizationPersonUpsertBulk) SetDateUpdated(v time.Time) *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.SetDateUpdated(v)
+	})
+}
+
+// UpdateDateUpdated sets the "date_updated" field to the value that was provided on create.
+func (u *OrganizationPersonUpsertBulk) UpdateDateUpdated() *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.UpdateDateUpdated()
+	})
+}
+
+// SetOrganizationID sets the "organization_id" field.
+func (u *OrganizationPersonUpsertBulk) SetOrganizationID(v int) *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.SetOrganizationID(v)
+	})
+}
+
+// AddOrganizationID adds v to the "organization_id" field.
+func (u *OrganizationPersonUpsertBulk) AddOrganizationID(v int) *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.AddOrganizationID(v)
+	})
+}
+
+// UpdateOrganizationID sets the "organization_id" field to the value that was provided on create.
+func (u *OrganizationPersonUpsertBulk) UpdateOrganizationID() *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.UpdateOrganizationID()
+	})
+}
+
+// SetPersonID sets the "person_id" field.
+func (u *OrganizationPersonUpsertBulk) SetPersonID(v int) *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.SetPersonID(v)
+	})
+}
+
+// AddPersonID adds v to the "person_id" field.
+func (u *OrganizationPersonUpsertBulk) AddPersonID(v int) *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.AddPersonID(v)
+	})
+}
+
+// UpdatePersonID sets the "person_id" field to the value that was provided on create.
+func (u *OrganizationPersonUpsertBulk) UpdatePersonID() *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.UpdatePersonID()
+	})
+}
+
+// SetFrom sets the "from" field.
+func (u *OrganizationPersonUpsertBulk) SetFrom(v time.Time) *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.SetFrom(v)
+	})
+}
+
+// UpdateFrom sets the "from" field to the value that was provided on create.
+func (u *OrganizationPersonUpsertBulk) UpdateFrom() *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.UpdateFrom()
+	})
+}
+
+// SetUntil sets the "until" field.
+func (u *OrganizationPersonUpsertBulk) SetUntil(v time.Time) *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.SetUntil(v)
+	})
+}
+
+// UpdateUntil sets the "until" field to the value that was provided on create.
+func (u *OrganizationPersonUpsertBulk) UpdateUntil() *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.UpdateUntil()
+	})
+}
+
+// ClearUntil clears the value of the "until" field.
+func (u *OrganizationPersonUpsertBulk) ClearUntil() *OrganizationPersonUpsertBulk {
+	return u.Update(func(s *OrganizationPersonUpsert) {
+		s.ClearUntil()
+	})
+}
+
+// Exec executes the query.
+func (u *OrganizationPersonUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the OrganizationPersonCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for OrganizationPersonCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *OrganizationPersonUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

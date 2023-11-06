@@ -334,7 +334,16 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	}
 	defer tx.Rollback()
 
-	t := tx.Organization.Update().Where(organization.PublicIDEQ(org.ID))
+	orgRow, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ID)).ForUpdate(entsql.WithLockAction(entsql.NoWait)).First(ctx)
+	if err != nil {
+		var e *ent.NotFoundError
+		if errors.As(err, &e) {
+			return nil, models.ErrNotFound
+		}
+		return nil, err
+	}
+
+	t := tx.Organization.Update().Where(organization.IDEQ(orgRow.ID))
 
 	identifiers := schema.TypeVals{}
 	for _, id := range org.Identifier {
@@ -354,57 +363,64 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 		return nil, fmt.Errorf("unable to save organization: %w", err)
 	}
 
-	// load new row (must be found)
-	row, err := tx.Organization.Query().Where(organization.PublicIDEQ(org.ID)).First(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("unable to query organizations: %w", err)
-	}
-
-	// add parents
-	// TODO: really needed to delete relations?
-	_, err = tx.OrganizationParent.Delete().Where(organizationparent.OrganizationIDEQ(row.ID)).Exec(ctx)
-	if err != nil {
-		return nil, err
-	}
-	parentOrganizationPublicIds := []string{}
-	for _, parent := range org.Parent {
-		parentOrganizationPublicIds = append(parentOrganizationPublicIds, parent.Id)
-	}
-	parentOrganizationPublicIds = lo.Uniq(parentOrganizationPublicIds)
-	parentOrganizationRows, err := repo.client.Organization.Query().Where(organization.PublicIDIn(parentOrganizationPublicIds...)).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if len(parentOrganizationRows) != len(parentOrganizationPublicIds) {
-		return nil, models.ErrInvalidReference
-	}
-	for _, parent := range org.Parent {
-		tParent := tx.OrganizationParent.Create()
-		tParent.SetFrom(*parent.From)
-		tParent.SetNillableUntil(parent.Until)
-		tParent.SetOrganizationID(row.ID)
-		for _, parentOrganizationRow := range parentOrganizationRows {
-			if parentOrganizationRow.PublicID == parent.Id {
-				tParent.SetParentOrganizationID(parentOrganizationRow.ID)
-				break
-			}
+	var newOrganizationParents []organizationParent
+	if len(org.Parent) > 0 {
+		parentOrganizationPublicIds := []string{}
+		for _, parent := range org.Parent {
+			parentOrganizationPublicIds = append(parentOrganizationPublicIds, parent.Id)
 		}
-		_, err := tParent.Save(ctx)
+		parentOrganizationPublicIds = lo.Uniq(parentOrganizationPublicIds)
+		parentOrganizationRows, err := repo.client.Organization.Query().Where(organization.PublicIDIn(parentOrganizationPublicIds...)).All(ctx)
 		if err != nil {
 			return nil, err
 		}
+		if len(parentOrganizationRows) != len(parentOrganizationPublicIds) {
+			return nil, models.ErrInvalidReference
+		}
+		for _, parent := range org.Parent {
+			newOrganizationParent := organizationParent{}
+			newOrganizationParent.organizationID = orgRow.ID
+			newOrganizationParent.From = parent.From
+			newOrganizationParent.Until = parent.Until
+			for _, parentOrganizationRow := range parentOrganizationRows {
+				if parentOrganizationRow.PublicID == parent.Id {
+					newOrganizationParent.parentOrganizationID = parentOrganizationRow.ID
+					break
+				}
+			}
+			newOrganizationParents = append(newOrganizationParents, newOrganizationParent)
+		}
+	}
+
+	updatedRelIds := []int{}
+	if len(newOrganizationParents) > 0 {
+		for _, newOrganizationParent := range newOrganizationParents {
+			op := tx.OrganizationParent.Create()
+			op.SetFrom(*newOrganizationParent.From)
+			op.SetNillableUntil(newOrganizationParent.Until)
+			op.SetParentOrganizationID(newOrganizationParent.parentOrganizationID)
+			op.SetOrganizationID(newOrganizationParent.organizationID)
+			id, err := op.OnConflictColumns("parent_organization_id", "organization_id", "from").UpdateNewValues().ID(ctx)
+			if err != nil {
+				return nil, err
+			}
+			updatedRelIds = append(updatedRelIds, id)
+		}
+	}
+	deleteWhereClause := organizationparent.OrganizationID(orgRow.ID)
+	if len(updatedRelIds) > 0 {
+		deleteWhereClause = organizationparent.And(deleteWhereClause, organizationparent.IDNotIn(updatedRelIds...))
+	}
+	_, err = tx.OrganizationParent.Delete().Where(deleteWhereClause).Exec(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := tx.Commit(); err != nil {
 		return nil, fmt.Errorf("unable to commit transaction: %w", err)
 	}
 
-	organizationParents, err := repo.getOrganizationParents(ctx, row.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return repo.orgUnwrap(row, organizationParents), nil
+	return repo.GetOrganization(ctx, org.ID)
 }
 
 func (repo *repository) DeleteOrganization(ctx context.Context, id string) error {
@@ -767,7 +783,13 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 	}
 	defer tx.Rollback()
 
-	t := tx.Person.Update().Where(person.PublicIDEQ(p.ID))
+	// lock row for update
+	personRow, err := tx.Person.Query().Where(person.PublicIDEQ(p.ID)).ForUpdate(entsql.WithLockAction(entsql.NoWait)).First(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	t := tx.Person.Update().Where(person.IDEQ(personRow.ID))
 
 	t.SetActive(p.Active)
 	t.SetBirthDate(p.BirthDate)
@@ -800,43 +822,58 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetPreferredGivenName(p.PreferredGivenName)
 	t.SetPreferredFamilyName(p.PreferredFamilyName)
 
-	personRow, err := tx.Person.Query().Where(person.PublicIDEQ(p.ID)).First(ctx)
-	if err != nil {
-		return nil, err
-	}
-	_, err = tx.OrganizationPerson.Delete().Where(organizationperson.PersonIDEQ(personRow.ID)).Exec(ctx)
-	if err != nil {
-		return nil, err
-	}
-
+	var newOrganizationMembers []organizationMember
 	if len(p.Organization) > 0 {
+		var orgRows []*ent.Organization
 		var organizationPublicIds []string
 		for _, orgMember := range p.Organization {
 			organizationPublicIds = append(organizationPublicIds, orgMember.Id)
 		}
 		organizationPublicIds = lo.Uniq(organizationPublicIds)
-		orgRows, err := tx.Organization.Query().Where(organization.PublicIDIn(organizationPublicIds...)).All(ctx)
+		orgRows, err = tx.Organization.Query().Where(organization.PublicIDIn(organizationPublicIds...)).All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		if len(organizationPublicIds) != len(orgRows) {
 			return nil, fmt.Errorf("%w: person.organization_id contains invalid organization id's", models.ErrInvalidReference)
 		}
-		for _, organizationMember := range p.Organization {
-			top := tx.OrganizationPerson.Create()
-			top.SetFrom(*organizationMember.From)
-			top.SetNillableUntil(organizationMember.Until)
-			top.SetPersonID(personRow.ID)
+		for _, orgMember := range p.Organization {
+			newOrganizationMember := organizationMember{
+				OrganizationMember: *orgMember,
+				personID:           personRow.ID,
+			}
 			for _, orgRow := range orgRows {
-				if orgRow.PublicID == organizationMember.Id {
-					top.SetOrganizationID(orgRow.ID)
+				if orgRow.PublicID == orgMember.Id {
+					newOrganizationMember.organizationID = orgRow.ID
 					break
 				}
 			}
-			if _, err = top.Save(ctx); err != nil {
+			newOrganizationMembers = append(newOrganizationMembers, newOrganizationMember)
+		}
+	}
+
+	updatedRelIds := []int{}
+	if len(newOrganizationMembers) > 0 {
+		for _, newOrganizationMember := range newOrganizationMembers {
+			top := tx.OrganizationPerson.Create()
+			top.SetFrom(*newOrganizationMember.From)
+			top.SetNillableUntil(newOrganizationMember.Until)
+			top.SetPersonID(newOrganizationMember.personID)
+			top.SetOrganizationID(newOrganizationMember.organizationID)
+			id, err := top.OnConflictColumns("organization_id", "person_id", "from").UpdateNewValues().ID(ctx)
+			if err != nil {
 				return nil, err
 			}
+			updatedRelIds = append(updatedRelIds, id)
 		}
+	}
+	deleteWhereClause := organizationperson.PersonID(personRow.ID)
+	if len(updatedRelIds) > 0 {
+		deleteWhereClause = organizationperson.And(deleteWhereClause, organizationperson.IDNotIn(updatedRelIds...))
+	}
+	_, err = tx.OrganizationPerson.Delete().Where(deleteWhereClause).Exec(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	if _, err := t.Save(ctx); err != nil {

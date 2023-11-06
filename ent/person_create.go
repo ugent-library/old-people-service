@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people-service/ent/person"
@@ -19,6 +20,7 @@ type PersonCreate struct {
 	config
 	mutation *PersonMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetDateCreated sets the "date_created" field.
@@ -356,6 +358,7 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 		_node = &Person{config: pc.config}
 		_spec = sqlgraph.NewCreateSpec(person.Table, sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = pc.conflict
 	if value, ok := pc.mutation.DateCreated(); ok {
 		_spec.SetField(person.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
@@ -435,10 +438,778 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Person.Create().
+//		SetDateCreated(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PersonUpsert) {
+//			SetDateCreated(v+v).
+//		}).
+//		Exec(ctx)
+func (pc *PersonCreate) OnConflict(opts ...sql.ConflictOption) *PersonUpsertOne {
+	pc.conflict = opts
+	return &PersonUpsertOne{
+		create: pc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Person.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (pc *PersonCreate) OnConflictColumns(columns ...string) *PersonUpsertOne {
+	pc.conflict = append(pc.conflict, sql.ConflictColumns(columns...))
+	return &PersonUpsertOne{
+		create: pc,
+	}
+}
+
+type (
+	// PersonUpsertOne is the builder for "upsert"-ing
+	//  one Person node.
+	PersonUpsertOne struct {
+		create *PersonCreate
+	}
+
+	// PersonUpsert is the "OnConflict" setter.
+	PersonUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetDateUpdated sets the "date_updated" field.
+func (u *PersonUpsert) SetDateUpdated(v time.Time) *PersonUpsert {
+	u.Set(person.FieldDateUpdated, v)
+	return u
+}
+
+// UpdateDateUpdated sets the "date_updated" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateDateUpdated() *PersonUpsert {
+	u.SetExcluded(person.FieldDateUpdated)
+	return u
+}
+
+// SetActive sets the "active" field.
+func (u *PersonUpsert) SetActive(v bool) *PersonUpsert {
+	u.Set(person.FieldActive, v)
+	return u
+}
+
+// UpdateActive sets the "active" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateActive() *PersonUpsert {
+	u.SetExcluded(person.FieldActive)
+	return u
+}
+
+// SetBirthDate sets the "birth_date" field.
+func (u *PersonUpsert) SetBirthDate(v string) *PersonUpsert {
+	u.Set(person.FieldBirthDate, v)
+	return u
+}
+
+// UpdateBirthDate sets the "birth_date" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateBirthDate() *PersonUpsert {
+	u.SetExcluded(person.FieldBirthDate)
+	return u
+}
+
+// ClearBirthDate clears the value of the "birth_date" field.
+func (u *PersonUpsert) ClearBirthDate() *PersonUpsert {
+	u.SetNull(person.FieldBirthDate)
+	return u
+}
+
+// SetEmail sets the "email" field.
+func (u *PersonUpsert) SetEmail(v string) *PersonUpsert {
+	u.Set(person.FieldEmail, v)
+	return u
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateEmail() *PersonUpsert {
+	u.SetExcluded(person.FieldEmail)
+	return u
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *PersonUpsert) ClearEmail() *PersonUpsert {
+	u.SetNull(person.FieldEmail)
+	return u
+}
+
+// SetIdentifier sets the "identifier" field.
+func (u *PersonUpsert) SetIdentifier(v schema.TypeVals) *PersonUpsert {
+	u.Set(person.FieldIdentifier, v)
+	return u
+}
+
+// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateIdentifier() *PersonUpsert {
+	u.SetExcluded(person.FieldIdentifier)
+	return u
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (u *PersonUpsert) ClearIdentifier() *PersonUpsert {
+	u.SetNull(person.FieldIdentifier)
+	return u
+}
+
+// SetGivenName sets the "given_name" field.
+func (u *PersonUpsert) SetGivenName(v string) *PersonUpsert {
+	u.Set(person.FieldGivenName, v)
+	return u
+}
+
+// UpdateGivenName sets the "given_name" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateGivenName() *PersonUpsert {
+	u.SetExcluded(person.FieldGivenName)
+	return u
+}
+
+// ClearGivenName clears the value of the "given_name" field.
+func (u *PersonUpsert) ClearGivenName() *PersonUpsert {
+	u.SetNull(person.FieldGivenName)
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *PersonUpsert) SetName(v string) *PersonUpsert {
+	u.Set(person.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateName() *PersonUpsert {
+	u.SetExcluded(person.FieldName)
+	return u
+}
+
+// ClearName clears the value of the "name" field.
+func (u *PersonUpsert) ClearName() *PersonUpsert {
+	u.SetNull(person.FieldName)
+	return u
+}
+
+// SetFamilyName sets the "family_name" field.
+func (u *PersonUpsert) SetFamilyName(v string) *PersonUpsert {
+	u.Set(person.FieldFamilyName, v)
+	return u
+}
+
+// UpdateFamilyName sets the "family_name" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateFamilyName() *PersonUpsert {
+	u.SetExcluded(person.FieldFamilyName)
+	return u
+}
+
+// ClearFamilyName clears the value of the "family_name" field.
+func (u *PersonUpsert) ClearFamilyName() *PersonUpsert {
+	u.SetNull(person.FieldFamilyName)
+	return u
+}
+
+// SetJobCategory sets the "job_category" field.
+func (u *PersonUpsert) SetJobCategory(v []string) *PersonUpsert {
+	u.Set(person.FieldJobCategory, v)
+	return u
+}
+
+// UpdateJobCategory sets the "job_category" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateJobCategory() *PersonUpsert {
+	u.SetExcluded(person.FieldJobCategory)
+	return u
+}
+
+// ClearJobCategory clears the value of the "job_category" field.
+func (u *PersonUpsert) ClearJobCategory() *PersonUpsert {
+	u.SetNull(person.FieldJobCategory)
+	return u
+}
+
+// SetPreferredGivenName sets the "preferred_given_name" field.
+func (u *PersonUpsert) SetPreferredGivenName(v string) *PersonUpsert {
+	u.Set(person.FieldPreferredGivenName, v)
+	return u
+}
+
+// UpdatePreferredGivenName sets the "preferred_given_name" field to the value that was provided on create.
+func (u *PersonUpsert) UpdatePreferredGivenName() *PersonUpsert {
+	u.SetExcluded(person.FieldPreferredGivenName)
+	return u
+}
+
+// ClearPreferredGivenName clears the value of the "preferred_given_name" field.
+func (u *PersonUpsert) ClearPreferredGivenName() *PersonUpsert {
+	u.SetNull(person.FieldPreferredGivenName)
+	return u
+}
+
+// SetPreferredFamilyName sets the "preferred_family_name" field.
+func (u *PersonUpsert) SetPreferredFamilyName(v string) *PersonUpsert {
+	u.Set(person.FieldPreferredFamilyName, v)
+	return u
+}
+
+// UpdatePreferredFamilyName sets the "preferred_family_name" field to the value that was provided on create.
+func (u *PersonUpsert) UpdatePreferredFamilyName() *PersonUpsert {
+	u.SetExcluded(person.FieldPreferredFamilyName)
+	return u
+}
+
+// ClearPreferredFamilyName clears the value of the "preferred_family_name" field.
+func (u *PersonUpsert) ClearPreferredFamilyName() *PersonUpsert {
+	u.SetNull(person.FieldPreferredFamilyName)
+	return u
+}
+
+// SetHonorificPrefix sets the "honorific_prefix" field.
+func (u *PersonUpsert) SetHonorificPrefix(v string) *PersonUpsert {
+	u.Set(person.FieldHonorificPrefix, v)
+	return u
+}
+
+// UpdateHonorificPrefix sets the "honorific_prefix" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateHonorificPrefix() *PersonUpsert {
+	u.SetExcluded(person.FieldHonorificPrefix)
+	return u
+}
+
+// ClearHonorificPrefix clears the value of the "honorific_prefix" field.
+func (u *PersonUpsert) ClearHonorificPrefix() *PersonUpsert {
+	u.SetNull(person.FieldHonorificPrefix)
+	return u
+}
+
+// SetRole sets the "role" field.
+func (u *PersonUpsert) SetRole(v []string) *PersonUpsert {
+	u.Set(person.FieldRole, v)
+	return u
+}
+
+// UpdateRole sets the "role" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateRole() *PersonUpsert {
+	u.SetExcluded(person.FieldRole)
+	return u
+}
+
+// ClearRole clears the value of the "role" field.
+func (u *PersonUpsert) ClearRole() *PersonUpsert {
+	u.SetNull(person.FieldRole)
+	return u
+}
+
+// SetSettings sets the "settings" field.
+func (u *PersonUpsert) SetSettings(v map[string]string) *PersonUpsert {
+	u.Set(person.FieldSettings, v)
+	return u
+}
+
+// UpdateSettings sets the "settings" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateSettings() *PersonUpsert {
+	u.SetExcluded(person.FieldSettings)
+	return u
+}
+
+// ClearSettings clears the value of the "settings" field.
+func (u *PersonUpsert) ClearSettings() *PersonUpsert {
+	u.SetNull(person.FieldSettings)
+	return u
+}
+
+// SetObjectClass sets the "object_class" field.
+func (u *PersonUpsert) SetObjectClass(v []string) *PersonUpsert {
+	u.Set(person.FieldObjectClass, v)
+	return u
+}
+
+// UpdateObjectClass sets the "object_class" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateObjectClass() *PersonUpsert {
+	u.SetExcluded(person.FieldObjectClass)
+	return u
+}
+
+// ClearObjectClass clears the value of the "object_class" field.
+func (u *PersonUpsert) ClearObjectClass() *PersonUpsert {
+	u.SetNull(person.FieldObjectClass)
+	return u
+}
+
+// SetExpirationDate sets the "expiration_date" field.
+func (u *PersonUpsert) SetExpirationDate(v string) *PersonUpsert {
+	u.Set(person.FieldExpirationDate, v)
+	return u
+}
+
+// UpdateExpirationDate sets the "expiration_date" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateExpirationDate() *PersonUpsert {
+	u.SetExcluded(person.FieldExpirationDate)
+	return u
+}
+
+// ClearExpirationDate clears the value of the "expiration_date" field.
+func (u *PersonUpsert) ClearExpirationDate() *PersonUpsert {
+	u.SetNull(person.FieldExpirationDate)
+	return u
+}
+
+// SetToken sets the "token" field.
+func (u *PersonUpsert) SetToken(v schema.TypeVals) *PersonUpsert {
+	u.Set(person.FieldToken, v)
+	return u
+}
+
+// UpdateToken sets the "token" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateToken() *PersonUpsert {
+	u.SetExcluded(person.FieldToken)
+	return u
+}
+
+// ClearToken clears the value of the "token" field.
+func (u *PersonUpsert) ClearToken() *PersonUpsert {
+	u.SetNull(person.FieldToken)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.Person.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *PersonUpsertOne) UpdateNewValues() *PersonUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.DateCreated(); exists {
+			s.SetIgnore(person.FieldDateCreated)
+		}
+		if _, exists := u.create.mutation.PublicID(); exists {
+			s.SetIgnore(person.FieldPublicID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Person.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *PersonUpsertOne) Ignore() *PersonUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PersonUpsertOne) DoNothing() *PersonUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PersonCreate.OnConflict
+// documentation for more info.
+func (u *PersonUpsertOne) Update(set func(*PersonUpsert)) *PersonUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PersonUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetDateUpdated sets the "date_updated" field.
+func (u *PersonUpsertOne) SetDateUpdated(v time.Time) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetDateUpdated(v)
+	})
+}
+
+// UpdateDateUpdated sets the "date_updated" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateDateUpdated() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateDateUpdated()
+	})
+}
+
+// SetActive sets the "active" field.
+func (u *PersonUpsertOne) SetActive(v bool) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetActive(v)
+	})
+}
+
+// UpdateActive sets the "active" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateActive() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateActive()
+	})
+}
+
+// SetBirthDate sets the "birth_date" field.
+func (u *PersonUpsertOne) SetBirthDate(v string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetBirthDate(v)
+	})
+}
+
+// UpdateBirthDate sets the "birth_date" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateBirthDate() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateBirthDate()
+	})
+}
+
+// ClearBirthDate clears the value of the "birth_date" field.
+func (u *PersonUpsertOne) ClearBirthDate() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearBirthDate()
+	})
+}
+
+// SetEmail sets the "email" field.
+func (u *PersonUpsertOne) SetEmail(v string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetEmail(v)
+	})
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateEmail() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateEmail()
+	})
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *PersonUpsertOne) ClearEmail() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearEmail()
+	})
+}
+
+// SetIdentifier sets the "identifier" field.
+func (u *PersonUpsertOne) SetIdentifier(v schema.TypeVals) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetIdentifier(v)
+	})
+}
+
+// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateIdentifier() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateIdentifier()
+	})
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (u *PersonUpsertOne) ClearIdentifier() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearIdentifier()
+	})
+}
+
+// SetGivenName sets the "given_name" field.
+func (u *PersonUpsertOne) SetGivenName(v string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetGivenName(v)
+	})
+}
+
+// UpdateGivenName sets the "given_name" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateGivenName() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateGivenName()
+	})
+}
+
+// ClearGivenName clears the value of the "given_name" field.
+func (u *PersonUpsertOne) ClearGivenName() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearGivenName()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *PersonUpsertOne) SetName(v string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateName() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateName()
+	})
+}
+
+// ClearName clears the value of the "name" field.
+func (u *PersonUpsertOne) ClearName() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearName()
+	})
+}
+
+// SetFamilyName sets the "family_name" field.
+func (u *PersonUpsertOne) SetFamilyName(v string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetFamilyName(v)
+	})
+}
+
+// UpdateFamilyName sets the "family_name" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateFamilyName() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateFamilyName()
+	})
+}
+
+// ClearFamilyName clears the value of the "family_name" field.
+func (u *PersonUpsertOne) ClearFamilyName() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearFamilyName()
+	})
+}
+
+// SetJobCategory sets the "job_category" field.
+func (u *PersonUpsertOne) SetJobCategory(v []string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetJobCategory(v)
+	})
+}
+
+// UpdateJobCategory sets the "job_category" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateJobCategory() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateJobCategory()
+	})
+}
+
+// ClearJobCategory clears the value of the "job_category" field.
+func (u *PersonUpsertOne) ClearJobCategory() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearJobCategory()
+	})
+}
+
+// SetPreferredGivenName sets the "preferred_given_name" field.
+func (u *PersonUpsertOne) SetPreferredGivenName(v string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetPreferredGivenName(v)
+	})
+}
+
+// UpdatePreferredGivenName sets the "preferred_given_name" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdatePreferredGivenName() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdatePreferredGivenName()
+	})
+}
+
+// ClearPreferredGivenName clears the value of the "preferred_given_name" field.
+func (u *PersonUpsertOne) ClearPreferredGivenName() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearPreferredGivenName()
+	})
+}
+
+// SetPreferredFamilyName sets the "preferred_family_name" field.
+func (u *PersonUpsertOne) SetPreferredFamilyName(v string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetPreferredFamilyName(v)
+	})
+}
+
+// UpdatePreferredFamilyName sets the "preferred_family_name" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdatePreferredFamilyName() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdatePreferredFamilyName()
+	})
+}
+
+// ClearPreferredFamilyName clears the value of the "preferred_family_name" field.
+func (u *PersonUpsertOne) ClearPreferredFamilyName() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearPreferredFamilyName()
+	})
+}
+
+// SetHonorificPrefix sets the "honorific_prefix" field.
+func (u *PersonUpsertOne) SetHonorificPrefix(v string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetHonorificPrefix(v)
+	})
+}
+
+// UpdateHonorificPrefix sets the "honorific_prefix" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateHonorificPrefix() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateHonorificPrefix()
+	})
+}
+
+// ClearHonorificPrefix clears the value of the "honorific_prefix" field.
+func (u *PersonUpsertOne) ClearHonorificPrefix() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearHonorificPrefix()
+	})
+}
+
+// SetRole sets the "role" field.
+func (u *PersonUpsertOne) SetRole(v []string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetRole(v)
+	})
+}
+
+// UpdateRole sets the "role" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateRole() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateRole()
+	})
+}
+
+// ClearRole clears the value of the "role" field.
+func (u *PersonUpsertOne) ClearRole() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearRole()
+	})
+}
+
+// SetSettings sets the "settings" field.
+func (u *PersonUpsertOne) SetSettings(v map[string]string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetSettings(v)
+	})
+}
+
+// UpdateSettings sets the "settings" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateSettings() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateSettings()
+	})
+}
+
+// ClearSettings clears the value of the "settings" field.
+func (u *PersonUpsertOne) ClearSettings() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearSettings()
+	})
+}
+
+// SetObjectClass sets the "object_class" field.
+func (u *PersonUpsertOne) SetObjectClass(v []string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetObjectClass(v)
+	})
+}
+
+// UpdateObjectClass sets the "object_class" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateObjectClass() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateObjectClass()
+	})
+}
+
+// ClearObjectClass clears the value of the "object_class" field.
+func (u *PersonUpsertOne) ClearObjectClass() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearObjectClass()
+	})
+}
+
+// SetExpirationDate sets the "expiration_date" field.
+func (u *PersonUpsertOne) SetExpirationDate(v string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetExpirationDate(v)
+	})
+}
+
+// UpdateExpirationDate sets the "expiration_date" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateExpirationDate() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateExpirationDate()
+	})
+}
+
+// ClearExpirationDate clears the value of the "expiration_date" field.
+func (u *PersonUpsertOne) ClearExpirationDate() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearExpirationDate()
+	})
+}
+
+// SetToken sets the "token" field.
+func (u *PersonUpsertOne) SetToken(v schema.TypeVals) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetToken(v)
+	})
+}
+
+// UpdateToken sets the "token" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateToken() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateToken()
+	})
+}
+
+// ClearToken clears the value of the "token" field.
+func (u *PersonUpsertOne) ClearToken() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearToken()
+	})
+}
+
+// Exec executes the query.
+func (u *PersonUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PersonCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PersonUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *PersonUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *PersonUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // PersonCreateBulk is the builder for creating many Person entities in bulk.
 type PersonCreateBulk struct {
 	config
 	builders []*PersonCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Person entities in the database.
@@ -465,6 +1236,7 @@ func (pcb *PersonCreateBulk) Save(ctx context.Context) ([]*Person, error) {
 					_, err = mutators[i+1].Mutate(root, pcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = pcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, pcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -515,6 +1287,460 @@ func (pcb *PersonCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (pcb *PersonCreateBulk) ExecX(ctx context.Context) {
 	if err := pcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Person.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PersonUpsert) {
+//			SetDateCreated(v+v).
+//		}).
+//		Exec(ctx)
+func (pcb *PersonCreateBulk) OnConflict(opts ...sql.ConflictOption) *PersonUpsertBulk {
+	pcb.conflict = opts
+	return &PersonUpsertBulk{
+		create: pcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Person.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (pcb *PersonCreateBulk) OnConflictColumns(columns ...string) *PersonUpsertBulk {
+	pcb.conflict = append(pcb.conflict, sql.ConflictColumns(columns...))
+	return &PersonUpsertBulk{
+		create: pcb,
+	}
+}
+
+// PersonUpsertBulk is the builder for "upsert"-ing
+// a bulk of Person nodes.
+type PersonUpsertBulk struct {
+	create *PersonCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Person.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *PersonUpsertBulk) UpdateNewValues() *PersonUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.DateCreated(); exists {
+				s.SetIgnore(person.FieldDateCreated)
+			}
+			if _, exists := b.mutation.PublicID(); exists {
+				s.SetIgnore(person.FieldPublicID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Person.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *PersonUpsertBulk) Ignore() *PersonUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PersonUpsertBulk) DoNothing() *PersonUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PersonCreateBulk.OnConflict
+// documentation for more info.
+func (u *PersonUpsertBulk) Update(set func(*PersonUpsert)) *PersonUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PersonUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetDateUpdated sets the "date_updated" field.
+func (u *PersonUpsertBulk) SetDateUpdated(v time.Time) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetDateUpdated(v)
+	})
+}
+
+// UpdateDateUpdated sets the "date_updated" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateDateUpdated() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateDateUpdated()
+	})
+}
+
+// SetActive sets the "active" field.
+func (u *PersonUpsertBulk) SetActive(v bool) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetActive(v)
+	})
+}
+
+// UpdateActive sets the "active" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateActive() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateActive()
+	})
+}
+
+// SetBirthDate sets the "birth_date" field.
+func (u *PersonUpsertBulk) SetBirthDate(v string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetBirthDate(v)
+	})
+}
+
+// UpdateBirthDate sets the "birth_date" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateBirthDate() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateBirthDate()
+	})
+}
+
+// ClearBirthDate clears the value of the "birth_date" field.
+func (u *PersonUpsertBulk) ClearBirthDate() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearBirthDate()
+	})
+}
+
+// SetEmail sets the "email" field.
+func (u *PersonUpsertBulk) SetEmail(v string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetEmail(v)
+	})
+}
+
+// UpdateEmail sets the "email" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateEmail() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateEmail()
+	})
+}
+
+// ClearEmail clears the value of the "email" field.
+func (u *PersonUpsertBulk) ClearEmail() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearEmail()
+	})
+}
+
+// SetIdentifier sets the "identifier" field.
+func (u *PersonUpsertBulk) SetIdentifier(v schema.TypeVals) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetIdentifier(v)
+	})
+}
+
+// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateIdentifier() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateIdentifier()
+	})
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (u *PersonUpsertBulk) ClearIdentifier() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearIdentifier()
+	})
+}
+
+// SetGivenName sets the "given_name" field.
+func (u *PersonUpsertBulk) SetGivenName(v string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetGivenName(v)
+	})
+}
+
+// UpdateGivenName sets the "given_name" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateGivenName() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateGivenName()
+	})
+}
+
+// ClearGivenName clears the value of the "given_name" field.
+func (u *PersonUpsertBulk) ClearGivenName() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearGivenName()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *PersonUpsertBulk) SetName(v string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateName() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateName()
+	})
+}
+
+// ClearName clears the value of the "name" field.
+func (u *PersonUpsertBulk) ClearName() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearName()
+	})
+}
+
+// SetFamilyName sets the "family_name" field.
+func (u *PersonUpsertBulk) SetFamilyName(v string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetFamilyName(v)
+	})
+}
+
+// UpdateFamilyName sets the "family_name" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateFamilyName() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateFamilyName()
+	})
+}
+
+// ClearFamilyName clears the value of the "family_name" field.
+func (u *PersonUpsertBulk) ClearFamilyName() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearFamilyName()
+	})
+}
+
+// SetJobCategory sets the "job_category" field.
+func (u *PersonUpsertBulk) SetJobCategory(v []string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetJobCategory(v)
+	})
+}
+
+// UpdateJobCategory sets the "job_category" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateJobCategory() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateJobCategory()
+	})
+}
+
+// ClearJobCategory clears the value of the "job_category" field.
+func (u *PersonUpsertBulk) ClearJobCategory() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearJobCategory()
+	})
+}
+
+// SetPreferredGivenName sets the "preferred_given_name" field.
+func (u *PersonUpsertBulk) SetPreferredGivenName(v string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetPreferredGivenName(v)
+	})
+}
+
+// UpdatePreferredGivenName sets the "preferred_given_name" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdatePreferredGivenName() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdatePreferredGivenName()
+	})
+}
+
+// ClearPreferredGivenName clears the value of the "preferred_given_name" field.
+func (u *PersonUpsertBulk) ClearPreferredGivenName() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearPreferredGivenName()
+	})
+}
+
+// SetPreferredFamilyName sets the "preferred_family_name" field.
+func (u *PersonUpsertBulk) SetPreferredFamilyName(v string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetPreferredFamilyName(v)
+	})
+}
+
+// UpdatePreferredFamilyName sets the "preferred_family_name" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdatePreferredFamilyName() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdatePreferredFamilyName()
+	})
+}
+
+// ClearPreferredFamilyName clears the value of the "preferred_family_name" field.
+func (u *PersonUpsertBulk) ClearPreferredFamilyName() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearPreferredFamilyName()
+	})
+}
+
+// SetHonorificPrefix sets the "honorific_prefix" field.
+func (u *PersonUpsertBulk) SetHonorificPrefix(v string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetHonorificPrefix(v)
+	})
+}
+
+// UpdateHonorificPrefix sets the "honorific_prefix" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateHonorificPrefix() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateHonorificPrefix()
+	})
+}
+
+// ClearHonorificPrefix clears the value of the "honorific_prefix" field.
+func (u *PersonUpsertBulk) ClearHonorificPrefix() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearHonorificPrefix()
+	})
+}
+
+// SetRole sets the "role" field.
+func (u *PersonUpsertBulk) SetRole(v []string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetRole(v)
+	})
+}
+
+// UpdateRole sets the "role" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateRole() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateRole()
+	})
+}
+
+// ClearRole clears the value of the "role" field.
+func (u *PersonUpsertBulk) ClearRole() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearRole()
+	})
+}
+
+// SetSettings sets the "settings" field.
+func (u *PersonUpsertBulk) SetSettings(v map[string]string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetSettings(v)
+	})
+}
+
+// UpdateSettings sets the "settings" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateSettings() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateSettings()
+	})
+}
+
+// ClearSettings clears the value of the "settings" field.
+func (u *PersonUpsertBulk) ClearSettings() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearSettings()
+	})
+}
+
+// SetObjectClass sets the "object_class" field.
+func (u *PersonUpsertBulk) SetObjectClass(v []string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetObjectClass(v)
+	})
+}
+
+// UpdateObjectClass sets the "object_class" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateObjectClass() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateObjectClass()
+	})
+}
+
+// ClearObjectClass clears the value of the "object_class" field.
+func (u *PersonUpsertBulk) ClearObjectClass() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearObjectClass()
+	})
+}
+
+// SetExpirationDate sets the "expiration_date" field.
+func (u *PersonUpsertBulk) SetExpirationDate(v string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetExpirationDate(v)
+	})
+}
+
+// UpdateExpirationDate sets the "expiration_date" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateExpirationDate() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateExpirationDate()
+	})
+}
+
+// ClearExpirationDate clears the value of the "expiration_date" field.
+func (u *PersonUpsertBulk) ClearExpirationDate() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearExpirationDate()
+	})
+}
+
+// SetToken sets the "token" field.
+func (u *PersonUpsertBulk) SetToken(v schema.TypeVals) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetToken(v)
+	})
+}
+
+// UpdateToken sets the "token" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateToken() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateToken()
+	})
+}
+
+// ClearToken clears the value of the "token" field.
+func (u *PersonUpsertBulk) ClearToken() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearToken()
+	})
+}
+
+// Exec executes the query.
+func (u *PersonUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the PersonCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PersonCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PersonUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

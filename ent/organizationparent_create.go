@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people-service/ent/organizationparent"
@@ -18,6 +19,7 @@ type OrganizationParentCreate struct {
 	config
 	mutation *OrganizationParentMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetDateCreated sets the "date_created" field.
@@ -180,6 +182,7 @@ func (opc *OrganizationParentCreate) createSpec() (*OrganizationParent, *sqlgrap
 		_node = &OrganizationParent{config: opc.config}
 		_spec = sqlgraph.NewCreateSpec(organizationparent.Table, sqlgraph.NewFieldSpec(organizationparent.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = opc.conflict
 	if value, ok := opc.mutation.DateCreated(); ok {
 		_spec.SetField(organizationparent.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
@@ -207,10 +210,307 @@ func (opc *OrganizationParentCreate) createSpec() (*OrganizationParent, *sqlgrap
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.OrganizationParent.Create().
+//		SetDateCreated(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.OrganizationParentUpsert) {
+//			SetDateCreated(v+v).
+//		}).
+//		Exec(ctx)
+func (opc *OrganizationParentCreate) OnConflict(opts ...sql.ConflictOption) *OrganizationParentUpsertOne {
+	opc.conflict = opts
+	return &OrganizationParentUpsertOne{
+		create: opc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.OrganizationParent.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (opc *OrganizationParentCreate) OnConflictColumns(columns ...string) *OrganizationParentUpsertOne {
+	opc.conflict = append(opc.conflict, sql.ConflictColumns(columns...))
+	return &OrganizationParentUpsertOne{
+		create: opc,
+	}
+}
+
+type (
+	// OrganizationParentUpsertOne is the builder for "upsert"-ing
+	//  one OrganizationParent node.
+	OrganizationParentUpsertOne struct {
+		create *OrganizationParentCreate
+	}
+
+	// OrganizationParentUpsert is the "OnConflict" setter.
+	OrganizationParentUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetDateUpdated sets the "date_updated" field.
+func (u *OrganizationParentUpsert) SetDateUpdated(v time.Time) *OrganizationParentUpsert {
+	u.Set(organizationparent.FieldDateUpdated, v)
+	return u
+}
+
+// UpdateDateUpdated sets the "date_updated" field to the value that was provided on create.
+func (u *OrganizationParentUpsert) UpdateDateUpdated() *OrganizationParentUpsert {
+	u.SetExcluded(organizationparent.FieldDateUpdated)
+	return u
+}
+
+// SetParentOrganizationID sets the "parent_organization_id" field.
+func (u *OrganizationParentUpsert) SetParentOrganizationID(v int) *OrganizationParentUpsert {
+	u.Set(organizationparent.FieldParentOrganizationID, v)
+	return u
+}
+
+// UpdateParentOrganizationID sets the "parent_organization_id" field to the value that was provided on create.
+func (u *OrganizationParentUpsert) UpdateParentOrganizationID() *OrganizationParentUpsert {
+	u.SetExcluded(organizationparent.FieldParentOrganizationID)
+	return u
+}
+
+// AddParentOrganizationID adds v to the "parent_organization_id" field.
+func (u *OrganizationParentUpsert) AddParentOrganizationID(v int) *OrganizationParentUpsert {
+	u.Add(organizationparent.FieldParentOrganizationID, v)
+	return u
+}
+
+// SetOrganizationID sets the "organization_id" field.
+func (u *OrganizationParentUpsert) SetOrganizationID(v int) *OrganizationParentUpsert {
+	u.Set(organizationparent.FieldOrganizationID, v)
+	return u
+}
+
+// UpdateOrganizationID sets the "organization_id" field to the value that was provided on create.
+func (u *OrganizationParentUpsert) UpdateOrganizationID() *OrganizationParentUpsert {
+	u.SetExcluded(organizationparent.FieldOrganizationID)
+	return u
+}
+
+// AddOrganizationID adds v to the "organization_id" field.
+func (u *OrganizationParentUpsert) AddOrganizationID(v int) *OrganizationParentUpsert {
+	u.Add(organizationparent.FieldOrganizationID, v)
+	return u
+}
+
+// SetFrom sets the "from" field.
+func (u *OrganizationParentUpsert) SetFrom(v time.Time) *OrganizationParentUpsert {
+	u.Set(organizationparent.FieldFrom, v)
+	return u
+}
+
+// UpdateFrom sets the "from" field to the value that was provided on create.
+func (u *OrganizationParentUpsert) UpdateFrom() *OrganizationParentUpsert {
+	u.SetExcluded(organizationparent.FieldFrom)
+	return u
+}
+
+// SetUntil sets the "until" field.
+func (u *OrganizationParentUpsert) SetUntil(v time.Time) *OrganizationParentUpsert {
+	u.Set(organizationparent.FieldUntil, v)
+	return u
+}
+
+// UpdateUntil sets the "until" field to the value that was provided on create.
+func (u *OrganizationParentUpsert) UpdateUntil() *OrganizationParentUpsert {
+	u.SetExcluded(organizationparent.FieldUntil)
+	return u
+}
+
+// ClearUntil clears the value of the "until" field.
+func (u *OrganizationParentUpsert) ClearUntil() *OrganizationParentUpsert {
+	u.SetNull(organizationparent.FieldUntil)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.OrganizationParent.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *OrganizationParentUpsertOne) UpdateNewValues() *OrganizationParentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.DateCreated(); exists {
+			s.SetIgnore(organizationparent.FieldDateCreated)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.OrganizationParent.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *OrganizationParentUpsertOne) Ignore() *OrganizationParentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *OrganizationParentUpsertOne) DoNothing() *OrganizationParentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the OrganizationParentCreate.OnConflict
+// documentation for more info.
+func (u *OrganizationParentUpsertOne) Update(set func(*OrganizationParentUpsert)) *OrganizationParentUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&OrganizationParentUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetDateUpdated sets the "date_updated" field.
+func (u *OrganizationParentUpsertOne) SetDateUpdated(v time.Time) *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.SetDateUpdated(v)
+	})
+}
+
+// UpdateDateUpdated sets the "date_updated" field to the value that was provided on create.
+func (u *OrganizationParentUpsertOne) UpdateDateUpdated() *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.UpdateDateUpdated()
+	})
+}
+
+// SetParentOrganizationID sets the "parent_organization_id" field.
+func (u *OrganizationParentUpsertOne) SetParentOrganizationID(v int) *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.SetParentOrganizationID(v)
+	})
+}
+
+// AddParentOrganizationID adds v to the "parent_organization_id" field.
+func (u *OrganizationParentUpsertOne) AddParentOrganizationID(v int) *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.AddParentOrganizationID(v)
+	})
+}
+
+// UpdateParentOrganizationID sets the "parent_organization_id" field to the value that was provided on create.
+func (u *OrganizationParentUpsertOne) UpdateParentOrganizationID() *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.UpdateParentOrganizationID()
+	})
+}
+
+// SetOrganizationID sets the "organization_id" field.
+func (u *OrganizationParentUpsertOne) SetOrganizationID(v int) *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.SetOrganizationID(v)
+	})
+}
+
+// AddOrganizationID adds v to the "organization_id" field.
+func (u *OrganizationParentUpsertOne) AddOrganizationID(v int) *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.AddOrganizationID(v)
+	})
+}
+
+// UpdateOrganizationID sets the "organization_id" field to the value that was provided on create.
+func (u *OrganizationParentUpsertOne) UpdateOrganizationID() *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.UpdateOrganizationID()
+	})
+}
+
+// SetFrom sets the "from" field.
+func (u *OrganizationParentUpsertOne) SetFrom(v time.Time) *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.SetFrom(v)
+	})
+}
+
+// UpdateFrom sets the "from" field to the value that was provided on create.
+func (u *OrganizationParentUpsertOne) UpdateFrom() *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.UpdateFrom()
+	})
+}
+
+// SetUntil sets the "until" field.
+func (u *OrganizationParentUpsertOne) SetUntil(v time.Time) *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.SetUntil(v)
+	})
+}
+
+// UpdateUntil sets the "until" field to the value that was provided on create.
+func (u *OrganizationParentUpsertOne) UpdateUntil() *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.UpdateUntil()
+	})
+}
+
+// ClearUntil clears the value of the "until" field.
+func (u *OrganizationParentUpsertOne) ClearUntil() *OrganizationParentUpsertOne {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.ClearUntil()
+	})
+}
+
+// Exec executes the query.
+func (u *OrganizationParentUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for OrganizationParentCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *OrganizationParentUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *OrganizationParentUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *OrganizationParentUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // OrganizationParentCreateBulk is the builder for creating many OrganizationParent entities in bulk.
 type OrganizationParentCreateBulk struct {
 	config
 	builders []*OrganizationParentCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the OrganizationParent entities in the database.
@@ -237,6 +537,7 @@ func (opcb *OrganizationParentCreateBulk) Save(ctx context.Context) ([]*Organiza
 					_, err = mutators[i+1].Mutate(root, opcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = opcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, opcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -287,6 +588,205 @@ func (opcb *OrganizationParentCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (opcb *OrganizationParentCreateBulk) ExecX(ctx context.Context) {
 	if err := opcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.OrganizationParent.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.OrganizationParentUpsert) {
+//			SetDateCreated(v+v).
+//		}).
+//		Exec(ctx)
+func (opcb *OrganizationParentCreateBulk) OnConflict(opts ...sql.ConflictOption) *OrganizationParentUpsertBulk {
+	opcb.conflict = opts
+	return &OrganizationParentUpsertBulk{
+		create: opcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.OrganizationParent.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (opcb *OrganizationParentCreateBulk) OnConflictColumns(columns ...string) *OrganizationParentUpsertBulk {
+	opcb.conflict = append(opcb.conflict, sql.ConflictColumns(columns...))
+	return &OrganizationParentUpsertBulk{
+		create: opcb,
+	}
+}
+
+// OrganizationParentUpsertBulk is the builder for "upsert"-ing
+// a bulk of OrganizationParent nodes.
+type OrganizationParentUpsertBulk struct {
+	create *OrganizationParentCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.OrganizationParent.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *OrganizationParentUpsertBulk) UpdateNewValues() *OrganizationParentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.DateCreated(); exists {
+				s.SetIgnore(organizationparent.FieldDateCreated)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.OrganizationParent.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *OrganizationParentUpsertBulk) Ignore() *OrganizationParentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *OrganizationParentUpsertBulk) DoNothing() *OrganizationParentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the OrganizationParentCreateBulk.OnConflict
+// documentation for more info.
+func (u *OrganizationParentUpsertBulk) Update(set func(*OrganizationParentUpsert)) *OrganizationParentUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&OrganizationParentUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetDateUpdated sets the "date_updated" field.
+func (u *OrganizationParentUpsertBulk) SetDateUpdated(v time.Time) *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.SetDateUpdated(v)
+	})
+}
+
+// UpdateDateUpdated sets the "date_updated" field to the value that was provided on create.
+func (u *OrganizationParentUpsertBulk) UpdateDateUpdated() *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.UpdateDateUpdated()
+	})
+}
+
+// SetParentOrganizationID sets the "parent_organization_id" field.
+func (u *OrganizationParentUpsertBulk) SetParentOrganizationID(v int) *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.SetParentOrganizationID(v)
+	})
+}
+
+// AddParentOrganizationID adds v to the "parent_organization_id" field.
+func (u *OrganizationParentUpsertBulk) AddParentOrganizationID(v int) *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.AddParentOrganizationID(v)
+	})
+}
+
+// UpdateParentOrganizationID sets the "parent_organization_id" field to the value that was provided on create.
+func (u *OrganizationParentUpsertBulk) UpdateParentOrganizationID() *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.UpdateParentOrganizationID()
+	})
+}
+
+// SetOrganizationID sets the "organization_id" field.
+func (u *OrganizationParentUpsertBulk) SetOrganizationID(v int) *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.SetOrganizationID(v)
+	})
+}
+
+// AddOrganizationID adds v to the "organization_id" field.
+func (u *OrganizationParentUpsertBulk) AddOrganizationID(v int) *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.AddOrganizationID(v)
+	})
+}
+
+// UpdateOrganizationID sets the "organization_id" field to the value that was provided on create.
+func (u *OrganizationParentUpsertBulk) UpdateOrganizationID() *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.UpdateOrganizationID()
+	})
+}
+
+// SetFrom sets the "from" field.
+func (u *OrganizationParentUpsertBulk) SetFrom(v time.Time) *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.SetFrom(v)
+	})
+}
+
+// UpdateFrom sets the "from" field to the value that was provided on create.
+func (u *OrganizationParentUpsertBulk) UpdateFrom() *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.UpdateFrom()
+	})
+}
+
+// SetUntil sets the "until" field.
+func (u *OrganizationParentUpsertBulk) SetUntil(v time.Time) *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.SetUntil(v)
+	})
+}
+
+// UpdateUntil sets the "until" field to the value that was provided on create.
+func (u *OrganizationParentUpsertBulk) UpdateUntil() *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.UpdateUntil()
+	})
+}
+
+// ClearUntil clears the value of the "until" field.
+func (u *OrganizationParentUpsertBulk) ClearUntil() *OrganizationParentUpsertBulk {
+	return u.Update(func(s *OrganizationParentUpsert) {
+		s.ClearUntil()
+	})
+}
+
+// Exec executes the query.
+func (u *OrganizationParentUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the OrganizationParentCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for OrganizationParentCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *OrganizationParentUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

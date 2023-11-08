@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"sort"
+	"time"
+)
 
 type Organization struct {
 	ID          string               `json:"id,omitempty"`
@@ -23,8 +26,20 @@ func NewOrganization() *Organization {
 	return org
 }
 
-func (org *Organization) AddIdentifier(typ string, val string) {
-	org.Identifier = append(org.Identifier, NewIdentifier(typ, val))
+func (org *Organization) AddIdentifier(propertyID string, value string) {
+	org.Identifier = append(org.Identifier, NewIdentifier(propertyID, value))
+	sort.Slice(org.Identifier, func(i, j int) bool {
+		return org.Identifier[i].PropertyID < org.Identifier[j].PropertyID ||
+			org.Identifier[i].Value < org.Identifier[j].Value
+	})
+}
+
+func (org *Organization) SetIdentifier(ids ...Identifier) {
+	sort.Slice(ids, func(i, j int) bool {
+		return ids[i].PropertyID < ids[j].PropertyID ||
+			ids[i].Value < ids[j].Value
+	})
+	org.Identifier = ids
 }
 
 func (org *Organization) ClearIdentifier() {
@@ -47,4 +62,41 @@ func (org *Organization) GetIdentifierValue(propertyID string) string {
 		return vals[0]
 	}
 	return ""
+}
+
+func (org *Organization) SetParent(parents ...OrganizationParent) {
+	sort.Slice(parents, func(i, j int) bool {
+		return parents[i].From.Before(*parents[j].From) ||
+			parents[i].ID < parents[j].ID
+	})
+	org.Parent = parents
+}
+
+func (org *Organization) AddParent(parents ...OrganizationParent) {
+	org.Parent = append(org.Parent, parents...)
+	sort.Slice(org.Parent, func(i, j int) bool {
+		return org.Parent[i].From.Before(*org.Parent[j].From) ||
+			org.Parent[i].ID < org.Parent[j].ID
+	})
+}
+
+func (org *Organization) Dup() *Organization {
+	newOrg := &Organization{
+		ID:          org.ID,
+		Type:        org.Type,
+		NameDut:     org.NameDut,
+		NameEng:     org.NameEng,
+		Acronym:     org.Acronym,
+		DateCreated: copyTime(org.DateCreated),
+		DateUpdated: copyTime(org.DateUpdated),
+	}
+
+	for _, id := range org.Identifier {
+		newOrg.Identifier = append(newOrg.Identifier, *id.Dup())
+	}
+	for _, op := range org.Parent {
+		newOrg.Parent = append(newOrg.Parent, *op.Dup())
+	}
+
+	return newOrg
 }

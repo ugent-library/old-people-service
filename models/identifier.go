@@ -11,3 +11,8 @@ func NewIdentifier(propertyID string, value string) Identifier {
 		Value:      value,
 	}
 }
+
+func (id *Identifier) Dup() *Identifier {
+	newId := NewIdentifier(id.PropertyID, id.Value)
+	return &newId
+}

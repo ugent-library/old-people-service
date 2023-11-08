@@ -3,7 +3,9 @@ package student
 import (
 	"context"
 	"errors"
-	"strings"
+	"fmt"
+	"os"
+	"reflect"
 	"time"
 
 	"github.com/go-ldap/ldap/v3"
@@ -27,7 +29,7 @@ func NewImporter(repo models.Repository, ugentLdapClient *ugentldap.Client) *Imp
 // Each calls callback function with valid models.Person to save
 func (si *Importer) Each(cb func(*models.Person) error) error {
 	ctx := context.TODO()
-	err := si.ugentLdapClient.SearchPeople("(objectClass=ugentStudent)", func(ldapEntry *ldap.Entry) error {
+	err := si.ugentLdapClient.SearchPeople("(&(objectClass=ugentStudent)(mail=justine.naessens@ugent.be))", func(ldapEntry *ldap.Entry) error {
 		newPerson, err := si.ldapEntryToPerson(ldapEntry)
 		if err != nil {
 			return err
@@ -43,6 +45,7 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 				return err
 			}
 		} else {
+			oldStoredPerson := oldPerson.Dup()
 			var gismoId string
 			var orcid string
 			for _, id := range oldPerson.Identifier {
@@ -54,9 +57,7 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 				}
 			}
 			oldPerson.ClearIdentifier()
-			for _, id := range newPerson.Identifier {
-				oldPerson.AddIdentifier(id.PropertyID, id.Value)
-			}
+			oldPerson.SetIdentifier(newPerson.Identifier...)
 			if gismoId != "" {
 				oldPerson.AddIdentifier("gismo_id", gismoId)
 			}
@@ -73,7 +74,34 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 			oldPerson.HonorificPrefix = newPerson.HonorificPrefix
 			oldPerson.ObjectClass = newPerson.ObjectClass
 			oldPerson.ExpirationDate = newPerson.ExpirationDate
-			oldPerson.Organization = newPerson.Organization
+
+			// only add organizations not known yet (gismo possibly knows more)
+			for _, newOrgMember := range newPerson.Organization {
+				found := false
+				for _, oldOrgMember := range oldPerson.Organization {
+					if oldOrgMember.ID == newOrgMember.ID {
+						found = true
+						break
+					}
+				}
+				if !found {
+					oldPerson.Organization = append(oldPerson.Organization, newOrgMember)
+				}
+			}
+
+			if len(oldPerson.Organization) == 0 {
+				oldPerson.Organization = nil
+			}
+			if len(oldPerson.JobCategory) == 0 {
+				oldPerson.JobCategory = nil
+			}
+			if len(oldPerson.ObjectClass) == 0 {
+				oldPerson.ObjectClass = nil
+			}
+			if reflect.DeepEqual(oldPerson, oldStoredPerson) {
+				fmt.Fprintf(os.Stderr, "no changes detected for person %s\n", oldPerson.Email)
+				return nil
+			}
 
 			if err := cb(oldPerson); err != nil {
 				return err
@@ -112,13 +140,13 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 			case "ugentBirthDate":
 				newPerson.BirthDate = val
 			case "mail":
-				newPerson.Email = strings.ToLower(val)
+				newPerson.SetEmail(val)
 			case "ugentJobCategory":
-				newPerson.JobCategory = append(newPerson.JobCategory, val)
+				newPerson.AddJobCategory(val)
 			case "ugentAddressingTitle":
 				newPerson.HonorificPrefix = val
 			case "objectClass":
-				newPerson.ObjectClass = append(newPerson.ObjectClass, val)
+				newPerson.AddObjectClass(val)
 			case "ugentExpirationDate":
 				newPerson.ExpirationDate = val
 			case "departmentNumber":
@@ -150,7 +178,7 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 					continue
 				}
 				newOrgMember := models.NewOrganizationMember(realOrgs[0].ID)
-				newPerson.Organization = append(newPerson.Organization, newOrgMember)
+				newPerson.AddOrganizationMember(newOrgMember)
 			}
 		}
 	}

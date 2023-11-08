@@ -1,6 +1,8 @@
 package models
 
 import (
+	"sort"
+	"strings"
 	"time"
 )
 
@@ -38,14 +40,30 @@ func NewPerson() *Person {
 
 func NewOrganizationMember(id string) *OrganizationMember {
 	return &OrganizationMember{
-		Id:    id,
+		ID:    id,
 		From:  &BeginningOfTime,
 		Until: nil,
 	}
 }
 
+func (p *Person) SetEmail(email string) {
+	p.Email = strings.ToLower(email)
+}
+
 func (p *Person) AddIdentifier(propertyID string, value string) {
 	p.Identifier = append(p.Identifier, NewIdentifier(propertyID, value))
+	sort.Slice(p.Identifier, func(i, j int) bool {
+		return p.Identifier[i].PropertyID < p.Identifier[j].PropertyID ||
+			p.Identifier[i].Value < p.Identifier[j].Value
+	})
+}
+
+func (p *Person) SetIdentifier(ids ...Identifier) {
+	sort.Slice(ids, func(i, j int) bool {
+		return ids[i].PropertyID < ids[j].PropertyID ||
+			ids[i].Value < ids[j].Value
+	})
+	p.Identifier = ids
 }
 
 func (p *Person) ClearIdentifier() {
@@ -71,6 +89,15 @@ func (p *Person) GetIdentifierValue(propertyID string) string {
 	return ""
 }
 
+func (p *Person) HasIdentifier(propertyID string, value string) bool {
+	for _, id := range p.Identifier {
+		if id.PropertyID == propertyID && id.Value == value {
+			return true
+		}
+	}
+	return false
+}
+
 func (p *Person) GetIdentifierValues(propertyID string) []string {
 	vals := make([]string, 0, len(p.Identifier))
 	for _, id := range p.Identifier {
@@ -83,6 +110,18 @@ func (p *Person) GetIdentifierValues(propertyID string) []string {
 
 func (p *Person) AddToken(propertyID string, value string) {
 	p.Token = append(p.Token, NewToken(propertyID, value))
+	sort.Slice(p.Token, func(i, j int) bool {
+		return p.Token[i].PropertyID < p.Token[j].PropertyID ||
+			p.Token[i].Value < p.Token[j].Value
+	})
+}
+
+func (p *Person) SetToken(tokens ...Token) {
+	sort.Slice(tokens, func(i, j int) bool {
+		return tokens[i].PropertyID < tokens[j].PropertyID ||
+			tokens[i].Value < tokens[j].Value
+	})
+	p.Token = tokens
 }
 
 func (p *Person) ClearToken() {
@@ -97,4 +136,94 @@ func (p *Person) GetTokenValues(propertyID string) []string {
 		}
 	}
 	return vals
+}
+
+func (p *Person) SetRole(role ...string) {
+	sort.Strings(role)
+	p.Role = role
+}
+
+func (p *Person) AddRole(role ...string) {
+	p.Role = append(p.Role, role...)
+	sort.Strings(p.Role)
+}
+
+func (p *Person) SetObjectClass(objectClass ...string) {
+	sort.Strings(objectClass)
+	p.ObjectClass = objectClass
+}
+
+func (p *Person) AddObjectClass(objectClass ...string) {
+	p.ObjectClass = append(p.ObjectClass, objectClass...)
+	sort.Strings(p.ObjectClass)
+}
+
+func (p *Person) SetJobCategory(jobCategory ...string) {
+	sort.Strings(jobCategory)
+	p.JobCategory = jobCategory
+}
+
+func (p *Person) AddJobCategory(jobCategory ...string) {
+	p.JobCategory = append(p.JobCategory, jobCategory...)
+	sort.Strings(p.JobCategory)
+}
+
+func (p *Person) AddOrganizationMember(orgMembers ...*OrganizationMember) {
+	p.Organization = append(p.Organization, orgMembers...)
+	sort.Slice(p.Organization, func(i, j int) bool {
+		return p.Organization[i].From.Before(*p.Organization[j].From) ||
+			p.Organization[i].ID < p.Organization[j].ID
+	})
+}
+
+func (p *Person) SetOrganizationMember(orgMembers ...*OrganizationMember) {
+	sort.Slice(orgMembers, func(i, j int) bool {
+		return orgMembers[i].From.Before(*orgMembers[j].From) ||
+			orgMembers[i].ID < orgMembers[j].ID
+	})
+	p.Organization = orgMembers
+}
+
+func (p *Person) Dup() *Person {
+	newP := &Person{
+		ID:                  p.ID,
+		DateCreated:         copyTime(p.DateCreated),
+		DateUpdated:         copyTime(p.DateUpdated),
+		Active:              p.Active,
+		Name:                p.Name,
+		GivenName:           p.GivenName,
+		FamilyName:          p.FamilyName,
+		Email:               p.Email,
+		PreferredGivenName:  p.PreferredGivenName,
+		PreferredFamilyName: p.PreferredFamilyName,
+		BirthDate:           p.BirthDate,
+		HonorificPrefix:     p.HonorificPrefix,
+		ExpirationDate:      p.ExpirationDate,
+	}
+	for _, token := range p.Token {
+		newP.Token = append(newP.Token, *token.Dup())
+	}
+	for _, id := range p.Identifier {
+		newP.AddIdentifier(id.PropertyID, id.Value)
+	}
+	for _, orgMember := range p.Organization {
+		newP.Organization = append(newP.Organization, orgMember.Dup())
+	}
+	if p.Settings != nil {
+		newP.Settings = make(map[string]string)
+		for key, val := range p.Settings {
+			newP.Settings[key] = val
+		}
+	}
+	if p.JobCategory != nil {
+		newP.JobCategory = append(newP.JobCategory, p.JobCategory...)
+	}
+	if p.ObjectClass != nil {
+		newP.ObjectClass = append(newP.ObjectClass, p.ObjectClass...)
+	}
+	if p.Role != nil {
+		newP.Role = append(newP.Role, p.Role...)
+	}
+
+	return newP
 }

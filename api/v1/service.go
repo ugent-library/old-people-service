@@ -207,44 +207,45 @@ func (s *Service) AddPerson(ctx context.Context, p *Person) (*Person, error) {
 			return nil, err
 		}
 		person = oldPerson
-		person.ClearIdentifier()
 	} else {
 		person = models.NewPerson()
 	}
 
 	person.Active = p.Active.Value
 	person.BirthDate = p.BirthDate.Value
-	person.Email = p.Email.Value
+	person.SetEmail(p.Email.Value)
 	person.ExpirationDate = p.ExpirationDate.Value
 	person.GivenName = p.GivenName.Value
 	person.FamilyName = p.FamilyName.Value
 	person.Name = p.Name.Value
-	person.JobCategory = p.JobCategory
-	person.ObjectClass = p.ObjectClass
+	person.SetJobCategory(p.JobCategory...)
+	person.SetObjectClass(p.ObjectClass...)
 	person.ClearToken()
 	for _, token := range p.Token {
 		person.AddToken(token.PropertyID, token.Value)
 	}
 	person.PreferredGivenName = p.PreferredGivenName.Value
 	person.PreferredFamilyName = p.PreferredFamilyName.Value
-	person.Role = p.Role
+	person.SetRole(p.Role...)
 	person.Settings = p.Settings.Value
 	person.HonorificPrefix = p.HonorificPrefix.Value
 
-	person.ClearIdentifier()
+	ids := []models.Identifier{}
 	for _, identifier := range p.Identifier {
-		person.AddIdentifier(identifier.PropertyID, identifier.Value)
+		ids = append(ids, models.NewIdentifier(identifier.PropertyID, identifier.Value))
 	}
+	person.SetIdentifier(ids...)
 
-	person.Organization = nil
+	orgMembers := []*models.OrganizationMember{}
 	for _, orgMember := range p.Organization {
 		newOrgMember := models.NewOrganizationMember(orgMember.ID)
 		newOrgMember.From = &orgMember.From
 		if orgMember.Until.Set {
 			newOrgMember.Until = &orgMember.Until.Value
 		}
-		person.Organization = append(person.Organization, newOrgMember)
+		orgMembers = append(orgMembers, newOrgMember)
 	}
+	person.SetOrganizationMember(orgMembers...)
 
 	if newPerson, err := s.repository.SavePerson(ctx, person); err != nil {
 		return nil, err
@@ -266,7 +267,6 @@ func (s *Service) AddOrganization(ctx context.Context, o *Organization) (*Organi
 			return nil, err
 		}
 		org = oldOrg
-		org.ClearIdentifier()
 	} else {
 		org = models.NewOrganization()
 	}
@@ -274,22 +274,25 @@ func (s *Service) AddOrganization(ctx context.Context, o *Organization) (*Organi
 	org.Acronym = o.Acronym.Value
 	org.NameDut = o.NameDut.Value
 	org.NameEng = o.NameEng.Value
+	parents := []models.OrganizationParent{}
 	for _, parent := range o.Parent {
 		op := models.OrganizationParent{
-			Id:   parent.ID,
+			ID:   parent.ID,
 			From: &parent.From,
 		}
 		if parent.Until.Set {
 			op.Until = &parent.Until.Value
 		}
-		org.Parent = append(org.Parent, op)
+		parents = append(parents, op)
 	}
+	org.SetParent(parents...)
 	org.Type = o.Type.Value
 
-	org.ClearIdentifier()
+	ids := []models.Identifier{}
 	for _, identifier := range o.Identifier {
-		org.AddIdentifier(identifier.PropertyID, identifier.Value)
+		ids = append(ids, models.NewIdentifier(identifier.PropertyID, identifier.Value))
 	}
+	org.SetIdentifier(ids...)
 
 	if newOrg, err := s.repository.SaveOrganization(ctx, org); err != nil {
 		return nil, err
@@ -376,7 +379,7 @@ func mapToExternalPerson(person *models.Person) *Person {
 
 	for _, orgMember := range person.Organization {
 		externalOrgMember := OrganizationMember{
-			ID:          orgMember.Id,
+			ID:          orgMember.ID,
 			DateCreated: NewOptDateTime(*orgMember.DateCreated),
 			DateUpdated: NewOptDateTime(*orgMember.DateUpdated),
 			From:        *orgMember.From,
@@ -424,7 +427,7 @@ func mapToExternalOrganization(org *models.Organization) *Organization {
 	}
 	for _, organizationParent := range org.Parent {
 		op := OrganizationParent{
-			ID:          organizationParent.Id,
+			ID:          organizationParent.ID,
 			From:        *organizationParent.From,
 			DateCreated: NewOptDateTime(*organizationParent.DateCreated),
 			DateUpdated: NewOptDateTime(*organizationParent.DateUpdated),

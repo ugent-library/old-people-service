@@ -73,7 +73,7 @@ SELECT "organization_id",
 	   (SELECT "public_id" FROM "organization" WHERE "id" = op.organization_id) organization_public_id
 FROM "organization_person" op
 WHERE "person_id" = any($1)
-ORDER by "from" ASC
+ORDER by "from" ASC, "organization_id" ASC
 	`
 	pgIds := pgtype.Int4Array{}
 	pgIds.Set(ids)
@@ -99,7 +99,7 @@ ORDER by "from" ASC
 			&om.Until,
 			&om.DateCreated,
 			&om.DateUpdated,
-			&om.Id,
+			&om.ID,
 		)
 		if err == pgx.ErrNoRows {
 			return nil, nil
@@ -124,7 +124,7 @@ SELECT "organization_id",
 	   (SELECT "public_id" FROM "organization" WHERE "id" = op.parent_organization_id) parent_organization_public_id
 FROM "organization_parent" op
 WHERE "organization_id" = any($1)
-ORDER by "from" ASC
+ORDER by "from" ASC, "parent_organization_id" ASC
 	`
 	pgIds := pgtype.Int4Array{}
 	pgIds.Set(ids)
@@ -150,7 +150,7 @@ ORDER by "from" ASC
 			&op.Until,
 			&op.DateCreated,
 			&op.DateUpdated,
-			&op.Id,
+			&op.ID,
 		)
 		if err == pgx.ErrNoRows {
 			return nil, nil
@@ -273,7 +273,7 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 
 	parentOrganizationPublicIds := []string{}
 	for _, parent := range org.Parent {
-		parentOrganizationPublicIds = append(parentOrganizationPublicIds, parent.Id)
+		parentOrganizationPublicIds = append(parentOrganizationPublicIds, parent.ID)
 	}
 	parentOrganizationPublicIds = lo.Uniq(parentOrganizationPublicIds)
 	parentOrganizationRows, err := repo.client.Organization.Query().Where(organization.PublicIDIn(parentOrganizationPublicIds...)).All(ctx)
@@ -290,7 +290,7 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 		tParent.SetNillableUntil(parent.Until)
 		tParent.SetOrganizationID(row.ID)
 		for _, parentOrganizationRow := range parentOrganizationRows {
-			if parentOrganizationRow.PublicID == parent.Id {
+			if parentOrganizationRow.PublicID == parent.ID {
 				tParent.SetParentOrganizationID(parentOrganizationRow.ID)
 				break
 			}
@@ -316,7 +316,7 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 	}
 	for _, organizationParent := range organizationParents {
 		org.Parent = append(org.Parent, models.OrganizationParent{
-			Id:          organizationParent.Id,
+			ID:          organizationParent.ID,
 			DateCreated: organizationParent.DateCreated,
 			DateUpdated: organizationParent.DateUpdated,
 			From:        organizationParent.From,
@@ -367,7 +367,7 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 	if len(org.Parent) > 0 {
 		parentOrganizationPublicIds := []string{}
 		for _, parent := range org.Parent {
-			parentOrganizationPublicIds = append(parentOrganizationPublicIds, parent.Id)
+			parentOrganizationPublicIds = append(parentOrganizationPublicIds, parent.ID)
 		}
 		parentOrganizationPublicIds = lo.Uniq(parentOrganizationPublicIds)
 		parentOrganizationRows, err := repo.client.Organization.Query().Where(organization.PublicIDIn(parentOrganizationPublicIds...)).All(ctx)
@@ -383,7 +383,7 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 			newOrganizationParent.From = parent.From
 			newOrganizationParent.Until = parent.Until
 			for _, parentOrganizationRow := range parentOrganizationRows {
-				if parentOrganizationRow.PublicID == parent.Id {
+				if parentOrganizationRow.PublicID == parent.ID {
 					newOrganizationParent.parentOrganizationID = parentOrganizationRow.ID
 					break
 				}
@@ -595,7 +595,7 @@ func (repo *repository) orgUnwrap(organizationRow *ent.Organization, organizatio
 
 	for _, organizationParent := range organizationParents {
 		org.Parent = append(org.Parent, models.OrganizationParent{
-			Id:          organizationParent.Id,
+			ID:          organizationParent.ID,
 			DateCreated: organizationParent.DateCreated,
 			DateUpdated: organizationParent.DateUpdated,
 			From:        organizationParent.From,
@@ -667,7 +667,7 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 	if len(p.Organization) > 0 {
 		var organizationPublicIds []string
 		for _, orgMember := range p.Organization {
-			organizationPublicIds = append(organizationPublicIds, orgMember.Id)
+			organizationPublicIds = append(organizationPublicIds, orgMember.ID)
 		}
 		organizationPublicIds = lo.Uniq(organizationPublicIds)
 		orgRows, err := tx.Organization.Query().Where(organization.PublicIDIn(organizationPublicIds...)).All(ctx)
@@ -683,7 +683,7 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 			top.SetNillableUntil(organizationMember.Until)
 			top.SetPersonID(row.ID)
 			for _, orgRow := range orgRows {
-				if orgRow.PublicID == organizationMember.Id {
+				if orgRow.PublicID == organizationMember.ID {
 					top.SetOrganizationID(orgRow.ID)
 					break
 				}
@@ -827,7 +827,7 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 		var orgRows []*ent.Organization
 		var organizationPublicIds []string
 		for _, orgMember := range p.Organization {
-			organizationPublicIds = append(organizationPublicIds, orgMember.Id)
+			organizationPublicIds = append(organizationPublicIds, orgMember.ID)
 		}
 		organizationPublicIds = lo.Uniq(organizationPublicIds)
 		orgRows, err = tx.Organization.Query().Where(organization.PublicIDIn(organizationPublicIds...)).All(ctx)
@@ -843,7 +843,7 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 				personID:           personRow.ID,
 			}
 			for _, orgRow := range orgRows {
-				if orgRow.PublicID == orgMember.Id {
+				if orgRow.PublicID == orgMember.ID {
 					newOrganizationMember.organizationID = orgRow.ID
 					break
 				}
@@ -1073,7 +1073,7 @@ func (repo *repository) SuggestPeople(ctx context.Context, query string) ([]*mod
 func (repo *repository) personUnwrap(entPerson *ent.Person, internalOrganizationMembers []organizationMember) (*models.Person, error) {
 	var organizationMembers []*models.OrganizationMember
 	for _, iorgMember := range internalOrganizationMembers {
-		orgMember := models.NewOrganizationMember(iorgMember.Id)
+		orgMember := models.NewOrganizationMember(iorgMember.ID)
 		orgMember.DateCreated = iorgMember.DateCreated
 		orgMember.DateUpdated = iorgMember.DateUpdated
 		orgMember.From = iorgMember.From

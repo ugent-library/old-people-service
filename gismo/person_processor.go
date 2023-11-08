@@ -38,6 +38,8 @@ func (pp *PersonProcessor) Process(buf []byte) (*models.Message, error) {
 		return nil, err
 	}
 
+	pp.clearOldPersonValues(person)
+
 	// enrich person with incoming gismo attributes
 	person, err = pp.enrichPersonWithMessage(person, msg)
 	if err != nil {
@@ -67,13 +69,8 @@ func (pp *PersonProcessor) cleanupPerson(person *models.Person) {
 	}
 }
 
-func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *models.Message) (*models.Person, error) {
-	now := time.Now()
-	ctx := context.TODO()
-
-	// clear old values
+func (pp *PersonProcessor) clearOldPersonValues(person *models.Person) {
 	person.ClearIdentifier()
-	person.AddIdentifier("gismo_id", msg.ID)
 	person.Email = ""
 	person.GivenName = ""
 	person.FamilyName = ""
@@ -81,6 +78,17 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 	person.PreferredGivenName = ""
 	person.PreferredFamilyName = ""
 	person.HonorificPrefix = ""
+	person.Active = false
+	person.JobCategory = nil
+	person.ObjectClass = nil
+	person.BirthDate = ""
+}
+
+func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *models.Message) (*models.Person, error) {
+	now := time.Now()
+	ctx := context.TODO()
+
+	person.AddIdentifier("gismo_id", msg.ID)
 	var gismoOrganizationMembers []*models.OrganizationMember
 
 	// TODO: evaluate what to keep always
@@ -90,7 +98,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 		switch attr.Name {
 		case "email":
 			if withinDateRange {
-				person.Email = strings.ToLower(attr.Value)
+				person.SetEmail(attr.Value)
 			}
 		case "given_name":
 			if withinDateRange {
@@ -133,7 +141,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 	if len(gismoOrganizationMembers) > 0 {
 		var gismoOrganizationIds []string
 		for _, orgMember := range gismoOrganizationMembers {
-			gismoOrganizationIds = append(gismoOrganizationIds, orgMember.Id)
+			gismoOrganizationIds = append(gismoOrganizationIds, orgMember.ID)
 		}
 		gismoOrganizationIds = lo.Uniq(gismoOrganizationIds)
 		orgsByGismo, err := pp.repository.GetOrganizationsByIdentifier(ctx, "gismo_id", gismoOrganizationIds...)
@@ -164,7 +172,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 		var organizationMembers []*models.OrganizationMember
 		for _, gismoOrgMember := range gismoOrganizationMembers {
 			for _, org := range orgsByGismo {
-				if gismoOrgMember.Id == org.GetIdentifierValue("gismo_id") {
+				if gismoOrgMember.ID == org.GetIdentifierValue("gismo_id") {
 					oMember := models.NewOrganizationMember(org.ID)
 					oMember.From = gismoOrgMember.From
 					oMember.Until = gismoOrgMember.Until
@@ -173,7 +181,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 				}
 			}
 		}
-		person.Organization = organizationMembers
+		person.SetOrganizationMember(organizationMembers...)
 	}
 
 	return person, nil
@@ -244,7 +252,11 @@ func (pp *PersonProcessor) enrichPersonWithLdap(person *models.Person) (*models.
 				case "ugentExpirationDate":
 					person.ExpirationDate = val
 				case "objectClass":
-					person.ObjectClass = append(person.ObjectClass, val)
+					person.AddObjectClass(val)
+				case "ugentJobCategory":
+					person.AddJobCategory(val)
+				case "ugentBirthDate":
+					person.BirthDate = val
 				}
 			}
 		}

@@ -19,3 +19,11 @@ func NormalizeEndOfTime(t time.Time) *time.Time {
 	}
 	return &t
 }
+
+func copyTime(t *time.Time) *time.Time {
+	if t == nil {
+		return nil
+	}
+	t2 := *t
+	return &t2
+}

@@ -56,16 +56,16 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 					if err != nil {
 						return nil, fmt.Errorf("%w: unable to create parent organization: %s", models.ErrFatal, err)
 					}
-					org.Parent = append(org.Parent, models.OrganizationParent{
-						Id:    orgParentByGismo.ID,
+					org.AddParent(models.OrganizationParent{
+						ID:    orgParentByGismo.ID,
 						From:  attr.StartDate,
 						Until: attr.EndDate,
 					})
 				} else if err != nil {
 					return nil, fmt.Errorf("%w: unable to query database: %s", models.ErrFatal, err)
 				} else {
-					org.Parent = append(org.Parent, models.OrganizationParent{
-						Id:    orgParentByGismo.ID,
+					org.AddParent(models.OrganizationParent{
+						ID:    orgParentByGismo.ID,
 						From:  attr.StartDate,
 						Until: attr.EndDate,
 					})

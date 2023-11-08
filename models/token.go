@@ -11,3 +11,8 @@ func NewToken(propertyID string, value string) Token {
 		Value:      value,
 	}
 }
+
+func (t *Token) Dup() *Token {
+	t2 := NewToken(t.PropertyID, t.Value)
+	return &t2
+}

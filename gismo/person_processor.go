@@ -89,7 +89,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 	ctx := context.TODO()
 
 	person.AddIdentifier("gismo_id", msg.ID)
-	var gismoOrganizationMembers []*models.OrganizationMember
+	var gismoOrganizationMembers []models.OrganizationMember
 
 	// TODO: evaluate what to keep always
 	// add attributes from GISMO
@@ -169,7 +169,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 			}
 		}
 
-		var organizationMembers []*models.OrganizationMember
+		var organizationMembers []models.OrganizationMember
 		for _, gismoOrgMember := range gismoOrganizationMembers {
 			for _, org := range orgsByGismo {
 				if gismoOrgMember.ID == org.GetIdentifierValue("gismo_id") {

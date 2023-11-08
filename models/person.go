@@ -7,26 +7,26 @@ import (
 )
 
 type Person struct {
-	ID                  string                `json:"id,omitempty"`
-	Active              bool                  `json:"active,omitempty"`
-	DateCreated         *time.Time            `json:"date_created,omitempty"`
-	DateUpdated         *time.Time            `json:"date_updated,omitempty"`
-	Name                string                `json:"name,omitempty"`
-	GivenName           string                `json:"given_name,omitempty"`
-	FamilyName          string                `json:"family_name,omitempty"`
-	Email               string                `json:"email,omitempty"`
-	Token               []Token               `json:"token"`
-	PreferredGivenName  string                `json:"preferred_given_name,omitempty"`
-	PreferredFamilyName string                `json:"preferred_family_name,omitempty"`
-	BirthDate           string                `json:"birth_date,omitempty"`
-	HonorificPrefix     string                `json:"honorific_prefix,omitempty"`
-	Identifier          []Identifier          `json:"identifier,omitempty"`
-	Organization        []*OrganizationMember `json:"organization,omitempty"`
-	JobCategory         []string              `json:"job_category,omitempty"`
-	Role                []string              `json:"role,omitempty"`
-	Settings            map[string]string     `json:"settings,omitempty"`
-	ObjectClass         []string              `json:"object_class,omitempty"`
-	ExpirationDate      string                `json:"expiration_date,omitempty"`
+	ID                  string               `json:"id,omitempty"`
+	Active              bool                 `json:"active,omitempty"`
+	DateCreated         *time.Time           `json:"date_created,omitempty"`
+	DateUpdated         *time.Time           `json:"date_updated,omitempty"`
+	Name                string               `json:"name,omitempty"`
+	GivenName           string               `json:"given_name,omitempty"`
+	FamilyName          string               `json:"family_name,omitempty"`
+	Email               string               `json:"email,omitempty"`
+	Token               []Token              `json:"token"`
+	PreferredGivenName  string               `json:"preferred_given_name,omitempty"`
+	PreferredFamilyName string               `json:"preferred_family_name,omitempty"`
+	BirthDate           string               `json:"birth_date,omitempty"`
+	HonorificPrefix     string               `json:"honorific_prefix,omitempty"`
+	Identifier          []Identifier         `json:"identifier,omitempty"`
+	Organization        []OrganizationMember `json:"organization,omitempty"`
+	JobCategory         []string             `json:"job_category,omitempty"`
+	Role                []string             `json:"role,omitempty"`
+	Settings            map[string]string    `json:"settings,omitempty"`
+	ObjectClass         []string             `json:"object_class,omitempty"`
+	ExpirationDate      string               `json:"expiration_date,omitempty"`
 }
 
 func (person *Person) IsStored() bool {
@@ -38,8 +38,8 @@ func NewPerson() *Person {
 	return p
 }
 
-func NewOrganizationMember(id string) *OrganizationMember {
-	return &OrganizationMember{
+func NewOrganizationMember(id string) OrganizationMember {
+	return OrganizationMember{
 		ID:    id,
 		From:  &BeginningOfTime,
 		Until: nil,
@@ -52,21 +52,11 @@ func (p *Person) SetEmail(email string) {
 
 func (p *Person) AddIdentifier(propertyID string, value string) {
 	p.Identifier = append(p.Identifier, NewIdentifier(propertyID, value))
-	sort.Slice(p.Identifier, func(i, j int) bool {
-		if p.Identifier[i].PropertyID != p.Identifier[j].PropertyID {
-			return p.Identifier[i].PropertyID < p.Identifier[j].PropertyID
-		}
-		return p.Identifier[i].Value < p.Identifier[j].Value
-	})
+	sort.Sort(ByIdentifier(p.Identifier))
 }
 
 func (p *Person) SetIdentifier(ids ...Identifier) {
-	sort.Slice(ids, func(i, j int) bool {
-		if ids[i].PropertyID != ids[j].PropertyID {
-			return ids[i].PropertyID < ids[j].PropertyID
-		}
-		return ids[i].Value < ids[j].Value
-	})
+	sort.Sort(ByIdentifier(ids))
 	p.Identifier = ids
 }
 
@@ -114,21 +104,11 @@ func (p *Person) GetIdentifierValues(propertyID string) []string {
 
 func (p *Person) AddToken(propertyID string, value string) {
 	p.Token = append(p.Token, NewToken(propertyID, value))
-	sort.Slice(p.Token, func(i, j int) bool {
-		if p.Token[i].PropertyID != p.Token[j].PropertyID {
-			return p.Token[i].PropertyID < p.Token[j].PropertyID
-		}
-		return p.Token[i].Value < p.Token[j].Value
-	})
+	sort.Sort(ByToken(p.Token))
 }
 
 func (p *Person) SetToken(tokens ...Token) {
-	sort.Slice(tokens, func(i, j int) bool {
-		if tokens[i].PropertyID < tokens[j].PropertyID {
-			return tokens[i].PropertyID < tokens[j].PropertyID
-		}
-		return tokens[i].Value < tokens[j].Value
-	})
+	sort.Sort(ByToken(tokens))
 	p.Token = tokens
 }
 
@@ -176,23 +156,13 @@ func (p *Person) AddJobCategory(jobCategory ...string) {
 	sort.Strings(p.JobCategory)
 }
 
-func (p *Person) AddOrganizationMember(orgMembers ...*OrganizationMember) {
+func (p *Person) AddOrganizationMember(orgMembers ...OrganizationMember) {
 	p.Organization = append(p.Organization, orgMembers...)
-	sort.Slice(p.Organization, func(i, j int) bool {
-		if !p.Organization[i].From.Equal(*p.Organization[j].From) {
-			return p.Organization[i].From.Before(*p.Organization[j].From)
-		}
-		return p.Organization[i].ID < p.Organization[j].ID
-	})
+	sort.Sort(ByOrganizationMember(p.Organization))
 }
 
-func (p *Person) SetOrganizationMember(orgMembers ...*OrganizationMember) {
-	sort.Slice(orgMembers, func(i, j int) bool {
-		if !orgMembers[i].From.Equal(*orgMembers[j].From) {
-			return orgMembers[i].From.Before(*orgMembers[j].From)
-		}
-		return orgMembers[i].ID < orgMembers[j].ID
-	})
+func (p *Person) SetOrganizationMember(orgMembers ...OrganizationMember) {
+	sort.Sort(ByOrganizationMember(orgMembers))
 	p.Organization = orgMembers
 }
 

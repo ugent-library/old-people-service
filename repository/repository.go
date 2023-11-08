@@ -839,7 +839,7 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 		}
 		for _, orgMember := range p.Organization {
 			newOrganizationMember := organizationMember{
-				OrganizationMember: *orgMember,
+				OrganizationMember: orgMember,
 				personID:           personRow.ID,
 			}
 			for _, orgRow := range orgRows {
@@ -1071,7 +1071,7 @@ func (repo *repository) SuggestPeople(ctx context.Context, query string) ([]*mod
 }
 
 func (repo *repository) personUnwrap(entPerson *ent.Person, internalOrganizationMembers []organizationMember) (*models.Person, error) {
-	var organizationMembers []*models.OrganizationMember
+	var organizationMembers []models.OrganizationMember
 	for _, iorgMember := range internalOrganizationMembers {
 		orgMember := models.NewOrganizationMember(iorgMember.ID)
 		orgMember.DateCreated = iorgMember.DateCreated

@@ -236,7 +236,7 @@ func (s *Service) AddPerson(ctx context.Context, p *Person) (*Person, error) {
 	}
 	person.SetIdentifier(ids...)
 
-	orgMembers := []*models.OrganizationMember{}
+	orgMembers := []models.OrganizationMember{}
 	for _, orgMember := range p.Organization {
 		newOrgMember := models.NewOrganizationMember(orgMember.ID)
 		newOrgMember.From = &orgMember.From

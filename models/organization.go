@@ -28,21 +28,11 @@ func NewOrganization() *Organization {
 
 func (org *Organization) AddIdentifier(propertyID string, value string) {
 	org.Identifier = append(org.Identifier, NewIdentifier(propertyID, value))
-	sort.Slice(org.Identifier, func(i, j int) bool {
-		if org.Identifier[i].PropertyID != org.Identifier[j].PropertyID {
-			return org.Identifier[i].PropertyID < org.Identifier[j].PropertyID
-		}
-		return org.Identifier[i].Value < org.Identifier[j].Value
-	})
+	sort.Sort(ByIdentifier(org.Identifier))
 }
 
 func (org *Organization) SetIdentifier(ids ...Identifier) {
-	sort.Slice(ids, func(i, j int) bool {
-		if ids[i].PropertyID != ids[j].PropertyID {
-			return ids[i].PropertyID < ids[j].PropertyID
-		}
-		return ids[i].Value < ids[j].Value
-	})
+	sort.Sort(ByIdentifier(ids))
 	org.Identifier = ids
 }
 
@@ -69,23 +59,13 @@ func (org *Organization) GetIdentifierValue(propertyID string) string {
 }
 
 func (org *Organization) SetParent(parents ...OrganizationParent) {
-	sort.Slice(parents, func(i, j int) bool {
-		if !parents[i].From.Equal(*parents[j].From) {
-			return parents[i].From.Before(*parents[j].From)
-		}
-		return parents[i].ID < parents[j].ID
-	})
+	sort.Sort(ByOrganizationParent(parents))
 	org.Parent = parents
 }
 
 func (org *Organization) AddParent(parents ...OrganizationParent) {
 	org.Parent = append(org.Parent, parents...)
-	sort.Slice(org.Parent, func(i, j int) bool {
-		if !org.Parent[i].From.Equal(*org.Parent[j].From) {
-			return org.Parent[i].From.Before(*org.Parent[j].From)
-		}
-		return org.Parent[i].ID < org.Parent[j].ID
-	})
+	sort.Sort(ByOrganizationParent(org.Parent))
 }
 
 func (org *Organization) Dup() *Organization {

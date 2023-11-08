@@ -19,3 +19,18 @@ func (op *OrganizationParent) Dup() *OrganizationParent {
 		Until:       copyTime(op.Until),
 	}
 }
+
+type ByOrganizationParent []OrganizationParent
+
+func (parents ByOrganizationParent) Len() int {
+	return len(parents)
+}
+func (parents ByOrganizationParent) Swap(i, j int) {
+	parents[i], parents[j] = parents[j], parents[i]
+}
+func (parents ByOrganizationParent) Less(i, j int) bool {
+	if !parents[i].From.Equal(*parents[j].From) {
+		return parents[i].From.Before(*parents[j].From)
+	}
+	return parents[i].ID < parents[j].ID
+}

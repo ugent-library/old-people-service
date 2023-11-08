@@ -29,7 +29,7 @@ func NewImporter(repo models.Repository, ugentLdapClient *ugentldap.Client) *Imp
 // Each calls callback function with valid models.Person to save
 func (si *Importer) Each(cb func(*models.Person) error) error {
 	ctx := context.TODO()
-	err := si.ugentLdapClient.SearchPeople("(&(objectClass=ugentStudent)(mail=justine.naessens@ugent.be))", func(ldapEntry *ldap.Entry) error {
+	err := si.ugentLdapClient.SearchPeople("(objectClass=ugentStudent)", func(ldapEntry *ldap.Entry) error {
 		newPerson, err := si.ldapEntryToPerson(ldapEntry)
 		if err != nil {
 			return err
@@ -85,7 +85,7 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 					}
 				}
 				if !found {
-					oldPerson.Organization = append(oldPerson.Organization, newOrgMember)
+					oldPerson.AddOrganizationMember(newOrgMember)
 				}
 			}
 

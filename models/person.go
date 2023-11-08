@@ -53,15 +53,19 @@ func (p *Person) SetEmail(email string) {
 func (p *Person) AddIdentifier(propertyID string, value string) {
 	p.Identifier = append(p.Identifier, NewIdentifier(propertyID, value))
 	sort.Slice(p.Identifier, func(i, j int) bool {
-		return p.Identifier[i].PropertyID < p.Identifier[j].PropertyID ||
-			p.Identifier[i].Value < p.Identifier[j].Value
+		if p.Identifier[i].PropertyID != p.Identifier[j].PropertyID {
+			return p.Identifier[i].PropertyID < p.Identifier[j].PropertyID
+		}
+		return p.Identifier[i].Value < p.Identifier[j].Value
 	})
 }
 
 func (p *Person) SetIdentifier(ids ...Identifier) {
 	sort.Slice(ids, func(i, j int) bool {
-		return ids[i].PropertyID < ids[j].PropertyID ||
-			ids[i].Value < ids[j].Value
+		if ids[i].PropertyID != ids[j].PropertyID {
+			return ids[i].PropertyID < ids[j].PropertyID
+		}
+		return ids[i].Value < ids[j].Value
 	})
 	p.Identifier = ids
 }
@@ -111,15 +115,19 @@ func (p *Person) GetIdentifierValues(propertyID string) []string {
 func (p *Person) AddToken(propertyID string, value string) {
 	p.Token = append(p.Token, NewToken(propertyID, value))
 	sort.Slice(p.Token, func(i, j int) bool {
-		return p.Token[i].PropertyID < p.Token[j].PropertyID ||
-			p.Token[i].Value < p.Token[j].Value
+		if p.Token[i].PropertyID != p.Token[j].PropertyID {
+			return p.Token[i].PropertyID < p.Token[j].PropertyID
+		}
+		return p.Token[i].Value < p.Token[j].Value
 	})
 }
 
 func (p *Person) SetToken(tokens ...Token) {
 	sort.Slice(tokens, func(i, j int) bool {
-		return tokens[i].PropertyID < tokens[j].PropertyID ||
-			tokens[i].Value < tokens[j].Value
+		if tokens[i].PropertyID < tokens[j].PropertyID {
+			return tokens[i].PropertyID < tokens[j].PropertyID
+		}
+		return tokens[i].Value < tokens[j].Value
 	})
 	p.Token = tokens
 }
@@ -171,15 +179,19 @@ func (p *Person) AddJobCategory(jobCategory ...string) {
 func (p *Person) AddOrganizationMember(orgMembers ...*OrganizationMember) {
 	p.Organization = append(p.Organization, orgMembers...)
 	sort.Slice(p.Organization, func(i, j int) bool {
-		return p.Organization[i].From.Before(*p.Organization[j].From) ||
-			p.Organization[i].ID < p.Organization[j].ID
+		if !p.Organization[i].From.Equal(*p.Organization[j].From) {
+			return p.Organization[i].From.Before(*p.Organization[j].From)
+		}
+		return p.Organization[i].ID < p.Organization[j].ID
 	})
 }
 
 func (p *Person) SetOrganizationMember(orgMembers ...*OrganizationMember) {
 	sort.Slice(orgMembers, func(i, j int) bool {
-		return orgMembers[i].From.Before(*orgMembers[j].From) ||
-			orgMembers[i].ID < orgMembers[j].ID
+		if !orgMembers[i].From.Equal(*orgMembers[j].From) {
+			return orgMembers[i].From.Before(*orgMembers[j].From)
+		}
+		return orgMembers[i].ID < orgMembers[j].ID
 	})
 	p.Organization = orgMembers
 }

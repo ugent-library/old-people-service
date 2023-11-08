@@ -1101,6 +1101,7 @@ func (repo *repository) personUnwrap(entPerson *ent.Person, internalOrganization
 		DateCreated:         &entPerson.DateCreated,
 		DateUpdated:         &entPerson.DateUpdated,
 		Email:               entPerson.Email,
+		ExpirationDate:      entPerson.ExpirationDate,
 		GivenName:           entPerson.GivenName,
 		Name:                entPerson.Name,
 		ID:                  entPerson.PublicID,

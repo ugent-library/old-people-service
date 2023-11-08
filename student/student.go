@@ -35,6 +35,11 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 			return err
 		}
 
+		if newPerson.Email == "" {
+			fmt.Fprintf(os.Stderr, "ignoring student record without email")
+			return nil
+		}
+
 		oldPerson, err := si.repository.GetPersonByIdentifier(ctx, "historic_ugent_id", newPerson.GetIdentifierValues("historic_ugent_id")...)
 		if err != nil && !errors.Is(err, models.ErrNotFound) {
 			return err

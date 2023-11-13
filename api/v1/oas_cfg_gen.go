@@ -12,9 +12,14 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 	"github.com/ogen-go/ogen/middleware"
 	"github.com/ogen-go/ogen/ogenerrors"
+	"github.com/ogen-go/ogen/ogenregex"
 	"github.com/ogen-go/ogen/otelogen"
 )
 
+var regexMap = map[string]ogenregex.Regexp{
+	"^urn:(gismo_id|ugent_id|biblio_id|ugent_memorialis_id):[^\r\n\u2028\u2029]+":                                            ogenregex.MustCompile("^urn:(gismo_id|ugent_id|biblio_id|ugent_memorialis_id):[^\r\n\u2028\u2029]+"),
+	"^urn:(orcid|gismo_id|ugent_id|historic_ugent_id|ugent_barcode|ugent_username|ugent_memorialis_id):[^\r\n\u2028\u2029]+": ogenregex.MustCompile("^urn:(orcid|gismo_id|ugent_id|historic_ugent_id|ugent_barcode|ugent_username|ugent_memorialis_id):[^\r\n\u2028\u2029]+"),
+}
 var (
 	// Allocate option closure once.
 	clientSpanKind = trace.WithSpanKind(trace.SpanKindClient)

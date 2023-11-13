@@ -513,19 +513,12 @@ components:
       type: object
       properties:
         id:
-          type: string
-          minLength: 1
-        type:
-          type: string
-          enum:
-            - orcid
-            - gismo_id
-            - ugent_id
-            - historic_ugent_id
-            - ugent_barcode
-            - ugent_username
-            - ugent_memorialis_id
-      required: [id, type]
+          type: array
+          items:
+            type: string
+            minLength: 1
+            pattern: "^urn:(orcid|gismo_id|ugent_id|historic_ugent_id|ugent_barcode|ugent_username|ugent_memorialis_id):.+"
+      required: [id]
 
     GetPeopleRequest:
       type: object
@@ -599,30 +592,22 @@ components:
       type: object
       properties:
         id:
-          type: string
-          minLength: 1
-        type:
-          type: string
-          enum:
-            - gismo_id
-            - ugent_id
-            - biblio_id
-            - ugent_memorialis_id
-      required: [id,type]
+          type: array
+          items:
+            type: string
+            minLength: 1
+            pattern: "^urn:(gismo_id|ugent_id|biblio_id|ugent_memorialis_id):.+"
+      required: [id]
 
     GetOrganizationByIdRequest:
       type: object
       properties:
         id:
-          type: string
-          minLength: 1
-        type:
-          type: string
-          enum:
-            - gismo_id
-            - ugent_id
-            - biblio_id
-            - ugent_memorialis_id
+          type: array
+          items:
+            type: string
+            minLength: 1
+            pattern: "^urn:(gismo_id|ugent_id|biblio_id|ugent_memorialis_id):.+"
       required: [id,type]
 
     GetOrganizationsRequest:

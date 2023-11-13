@@ -25,7 +25,6 @@ func (Organization) Fields() []ent.Field {
 		field.String("acronym").Optional(),
 		field.String("name_dut").Optional(),
 		field.String("name_eng").Optional(),
-		field.JSON("identifier", TypeVals{}).Optional().Default(TypeVals{}),
 	}
 }
 
@@ -33,6 +32,7 @@ func (Organization) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
 		PublicIdMixin{},
+		IdentifierMixin{},
 	}
 }
 

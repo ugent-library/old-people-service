@@ -15,11 +15,12 @@ var (
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "public_id", Type: field.TypeString, Unique: true},
+		{Name: "identifier", Type: field.TypeJSON, Nullable: true},
+		{Name: "identifier_values", Type: field.TypeJSON, Nullable: true},
 		{Name: "type", Type: field.TypeString, Default: "organization"},
 		{Name: "acronym", Type: field.TypeString, Nullable: true},
 		{Name: "name_dut", Type: field.TypeString, Nullable: true},
 		{Name: "name_eng", Type: field.TypeString, Nullable: true},
-		{Name: "identifier", Type: field.TypeJSON, Nullable: true},
 	}
 	// OrganizationTable holds the schema information for the "organization" table.
 	OrganizationTable = &schema.Table{
@@ -30,12 +31,12 @@ var (
 			{
 				Name:    "organization_type",
 				Unique:  false,
-				Columns: []*schema.Column{OrganizationColumns[4]},
+				Columns: []*schema.Column{OrganizationColumns[6]},
 			},
 			{
 				Name:    "organization_acronym",
 				Unique:  false,
-				Columns: []*schema.Column{OrganizationColumns[5]},
+				Columns: []*schema.Column{OrganizationColumns[7]},
 			},
 		},
 	}
@@ -111,10 +112,11 @@ var (
 		{Name: "date_created", Type: field.TypeTime},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "public_id", Type: field.TypeString, Unique: true},
+		{Name: "identifier", Type: field.TypeJSON, Nullable: true},
+		{Name: "identifier_values", Type: field.TypeJSON, Nullable: true},
 		{Name: "active", Type: field.TypeBool, Default: false},
 		{Name: "birth_date", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString, Nullable: true},
-		{Name: "identifier", Type: field.TypeJSON, Nullable: true},
 		{Name: "given_name", Type: field.TypeString, Nullable: true},
 		{Name: "name", Type: field.TypeString, Nullable: true},
 		{Name: "family_name", Type: field.TypeString, Nullable: true},
@@ -137,27 +139,27 @@ var (
 			{
 				Name:    "person_active",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[4]},
+				Columns: []*schema.Column{PersonColumns[6]},
 			},
 			{
 				Name:    "person_email",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[6]},
+				Columns: []*schema.Column{PersonColumns[8]},
 			},
 			{
 				Name:    "person_given_name",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[8]},
+				Columns: []*schema.Column{PersonColumns[9]},
 			},
 			{
 				Name:    "person_family_name",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[10]},
+				Columns: []*schema.Column{PersonColumns[11]},
 			},
 			{
 				Name:    "person_name",
 				Unique:  false,
-				Columns: []*schema.Column{PersonColumns[9]},
+				Columns: []*schema.Column{PersonColumns[10]},
 			},
 		},
 	}

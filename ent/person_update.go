@@ -14,7 +14,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/predicate"
-	"github.com/ugent-library/people-service/ent/schema"
 )
 
 // PersonUpdate is the builder for updating Person entities.
@@ -34,6 +33,42 @@ func (pu *PersonUpdate) Where(ps ...predicate.Person) *PersonUpdate {
 // SetDateUpdated sets the "date_updated" field.
 func (pu *PersonUpdate) SetDateUpdated(t time.Time) *PersonUpdate {
 	pu.mutation.SetDateUpdated(t)
+	return pu
+}
+
+// SetIdentifier sets the "identifier" field.
+func (pu *PersonUpdate) SetIdentifier(s []string) *PersonUpdate {
+	pu.mutation.SetIdentifier(s)
+	return pu
+}
+
+// AppendIdentifier appends s to the "identifier" field.
+func (pu *PersonUpdate) AppendIdentifier(s []string) *PersonUpdate {
+	pu.mutation.AppendIdentifier(s)
+	return pu
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (pu *PersonUpdate) ClearIdentifier() *PersonUpdate {
+	pu.mutation.ClearIdentifier()
+	return pu
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (pu *PersonUpdate) SetIdentifierValues(s []string) *PersonUpdate {
+	pu.mutation.SetIdentifierValues(s)
+	return pu
+}
+
+// AppendIdentifierValues appends s to the "identifier_values" field.
+func (pu *PersonUpdate) AppendIdentifierValues(s []string) *PersonUpdate {
+	pu.mutation.AppendIdentifierValues(s)
+	return pu
+}
+
+// ClearIdentifierValues clears the value of the "identifier_values" field.
+func (pu *PersonUpdate) ClearIdentifierValues() *PersonUpdate {
+	pu.mutation.ClearIdentifierValues()
 	return pu
 }
 
@@ -88,18 +123,6 @@ func (pu *PersonUpdate) SetNillableEmail(s *string) *PersonUpdate {
 // ClearEmail clears the value of the "email" field.
 func (pu *PersonUpdate) ClearEmail() *PersonUpdate {
 	pu.mutation.ClearEmail()
-	return pu
-}
-
-// SetIdentifier sets the "identifier" field.
-func (pu *PersonUpdate) SetIdentifier(sv schema.TypeVals) *PersonUpdate {
-	pu.mutation.SetIdentifier(sv)
-	return pu
-}
-
-// ClearIdentifier clears the value of the "identifier" field.
-func (pu *PersonUpdate) ClearIdentifier() *PersonUpdate {
-	pu.mutation.ClearIdentifier()
 	return pu
 }
 
@@ -310,8 +333,14 @@ func (pu *PersonUpdate) ClearExpirationDate() *PersonUpdate {
 }
 
 // SetToken sets the "token" field.
-func (pu *PersonUpdate) SetToken(sv schema.TypeVals) *PersonUpdate {
-	pu.mutation.SetToken(sv)
+func (pu *PersonUpdate) SetToken(s []string) *PersonUpdate {
+	pu.mutation.SetToken(s)
+	return pu
+}
+
+// AppendToken appends s to the "token" field.
+func (pu *PersonUpdate) AppendToken(s []string) *PersonUpdate {
+	pu.mutation.AppendToken(s)
 	return pu
 }
 
@@ -380,6 +409,28 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.DateUpdated(); ok {
 		_spec.SetField(person.FieldDateUpdated, field.TypeTime, value)
 	}
+	if value, ok := pu.mutation.Identifier(); ok {
+		_spec.SetField(person.FieldIdentifier, field.TypeJSON, value)
+	}
+	if value, ok := pu.mutation.AppendedIdentifier(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldIdentifier, value)
+		})
+	}
+	if pu.mutation.IdentifierCleared() {
+		_spec.ClearField(person.FieldIdentifier, field.TypeJSON)
+	}
+	if value, ok := pu.mutation.IdentifierValues(); ok {
+		_spec.SetField(person.FieldIdentifierValues, field.TypeJSON, value)
+	}
+	if value, ok := pu.mutation.AppendedIdentifierValues(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldIdentifierValues, value)
+		})
+	}
+	if pu.mutation.IdentifierValuesCleared() {
+		_spec.ClearField(person.FieldIdentifierValues, field.TypeJSON)
+	}
 	if value, ok := pu.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)
 	}
@@ -394,12 +445,6 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.EmailCleared() {
 		_spec.ClearField(person.FieldEmail, field.TypeString)
-	}
-	if value, ok := pu.mutation.Identifier(); ok {
-		_spec.SetField(person.FieldIdentifier, field.TypeJSON, value)
-	}
-	if pu.mutation.IdentifierCleared() {
-		_spec.ClearField(person.FieldIdentifier, field.TypeJSON)
 	}
 	if value, ok := pu.mutation.GivenName(); ok {
 		_spec.SetField(person.FieldGivenName, field.TypeString, value)
@@ -485,6 +530,11 @@ func (pu *PersonUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.Token(); ok {
 		_spec.SetField(person.FieldToken, field.TypeJSON, value)
 	}
+	if value, ok := pu.mutation.AppendedToken(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldToken, value)
+		})
+	}
 	if pu.mutation.TokenCleared() {
 		_spec.ClearField(person.FieldToken, field.TypeJSON)
 	}
@@ -513,6 +563,42 @@ type PersonUpdateOne struct {
 // SetDateUpdated sets the "date_updated" field.
 func (puo *PersonUpdateOne) SetDateUpdated(t time.Time) *PersonUpdateOne {
 	puo.mutation.SetDateUpdated(t)
+	return puo
+}
+
+// SetIdentifier sets the "identifier" field.
+func (puo *PersonUpdateOne) SetIdentifier(s []string) *PersonUpdateOne {
+	puo.mutation.SetIdentifier(s)
+	return puo
+}
+
+// AppendIdentifier appends s to the "identifier" field.
+func (puo *PersonUpdateOne) AppendIdentifier(s []string) *PersonUpdateOne {
+	puo.mutation.AppendIdentifier(s)
+	return puo
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (puo *PersonUpdateOne) ClearIdentifier() *PersonUpdateOne {
+	puo.mutation.ClearIdentifier()
+	return puo
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (puo *PersonUpdateOne) SetIdentifierValues(s []string) *PersonUpdateOne {
+	puo.mutation.SetIdentifierValues(s)
+	return puo
+}
+
+// AppendIdentifierValues appends s to the "identifier_values" field.
+func (puo *PersonUpdateOne) AppendIdentifierValues(s []string) *PersonUpdateOne {
+	puo.mutation.AppendIdentifierValues(s)
+	return puo
+}
+
+// ClearIdentifierValues clears the value of the "identifier_values" field.
+func (puo *PersonUpdateOne) ClearIdentifierValues() *PersonUpdateOne {
+	puo.mutation.ClearIdentifierValues()
 	return puo
 }
 
@@ -567,18 +653,6 @@ func (puo *PersonUpdateOne) SetNillableEmail(s *string) *PersonUpdateOne {
 // ClearEmail clears the value of the "email" field.
 func (puo *PersonUpdateOne) ClearEmail() *PersonUpdateOne {
 	puo.mutation.ClearEmail()
-	return puo
-}
-
-// SetIdentifier sets the "identifier" field.
-func (puo *PersonUpdateOne) SetIdentifier(sv schema.TypeVals) *PersonUpdateOne {
-	puo.mutation.SetIdentifier(sv)
-	return puo
-}
-
-// ClearIdentifier clears the value of the "identifier" field.
-func (puo *PersonUpdateOne) ClearIdentifier() *PersonUpdateOne {
-	puo.mutation.ClearIdentifier()
 	return puo
 }
 
@@ -789,8 +863,14 @@ func (puo *PersonUpdateOne) ClearExpirationDate() *PersonUpdateOne {
 }
 
 // SetToken sets the "token" field.
-func (puo *PersonUpdateOne) SetToken(sv schema.TypeVals) *PersonUpdateOne {
-	puo.mutation.SetToken(sv)
+func (puo *PersonUpdateOne) SetToken(s []string) *PersonUpdateOne {
+	puo.mutation.SetToken(s)
+	return puo
+}
+
+// AppendToken appends s to the "token" field.
+func (puo *PersonUpdateOne) AppendToken(s []string) *PersonUpdateOne {
+	puo.mutation.AppendToken(s)
 	return puo
 }
 
@@ -889,6 +969,28 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	if value, ok := puo.mutation.DateUpdated(); ok {
 		_spec.SetField(person.FieldDateUpdated, field.TypeTime, value)
 	}
+	if value, ok := puo.mutation.Identifier(); ok {
+		_spec.SetField(person.FieldIdentifier, field.TypeJSON, value)
+	}
+	if value, ok := puo.mutation.AppendedIdentifier(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldIdentifier, value)
+		})
+	}
+	if puo.mutation.IdentifierCleared() {
+		_spec.ClearField(person.FieldIdentifier, field.TypeJSON)
+	}
+	if value, ok := puo.mutation.IdentifierValues(); ok {
+		_spec.SetField(person.FieldIdentifierValues, field.TypeJSON, value)
+	}
+	if value, ok := puo.mutation.AppendedIdentifierValues(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldIdentifierValues, value)
+		})
+	}
+	if puo.mutation.IdentifierValuesCleared() {
+		_spec.ClearField(person.FieldIdentifierValues, field.TypeJSON)
+	}
 	if value, ok := puo.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)
 	}
@@ -903,12 +1005,6 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	}
 	if puo.mutation.EmailCleared() {
 		_spec.ClearField(person.FieldEmail, field.TypeString)
-	}
-	if value, ok := puo.mutation.Identifier(); ok {
-		_spec.SetField(person.FieldIdentifier, field.TypeJSON, value)
-	}
-	if puo.mutation.IdentifierCleared() {
-		_spec.ClearField(person.FieldIdentifier, field.TypeJSON)
 	}
 	if value, ok := puo.mutation.GivenName(); ok {
 		_spec.SetField(person.FieldGivenName, field.TypeString, value)
@@ -993,6 +1089,11 @@ func (puo *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err err
 	}
 	if value, ok := puo.mutation.Token(); ok {
 		_spec.SetField(person.FieldToken, field.TypeJSON, value)
+	}
+	if value, ok := puo.mutation.AppendedToken(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, person.FieldToken, value)
+		})
 	}
 	if puo.mutation.TokenCleared() {
 		_spec.ClearField(person.FieldToken, field.TypeJSON)

@@ -10,10 +10,10 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people-service/ent/organization"
 	"github.com/ugent-library/people-service/ent/predicate"
-	"github.com/ugent-library/people-service/ent/schema"
 )
 
 // OrganizationUpdate is the builder for updating Organization entities.
@@ -33,6 +33,42 @@ func (ou *OrganizationUpdate) Where(ps ...predicate.Organization) *OrganizationU
 // SetDateUpdated sets the "date_updated" field.
 func (ou *OrganizationUpdate) SetDateUpdated(t time.Time) *OrganizationUpdate {
 	ou.mutation.SetDateUpdated(t)
+	return ou
+}
+
+// SetIdentifier sets the "identifier" field.
+func (ou *OrganizationUpdate) SetIdentifier(s []string) *OrganizationUpdate {
+	ou.mutation.SetIdentifier(s)
+	return ou
+}
+
+// AppendIdentifier appends s to the "identifier" field.
+func (ou *OrganizationUpdate) AppendIdentifier(s []string) *OrganizationUpdate {
+	ou.mutation.AppendIdentifier(s)
+	return ou
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (ou *OrganizationUpdate) ClearIdentifier() *OrganizationUpdate {
+	ou.mutation.ClearIdentifier()
+	return ou
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (ou *OrganizationUpdate) SetIdentifierValues(s []string) *OrganizationUpdate {
+	ou.mutation.SetIdentifierValues(s)
+	return ou
+}
+
+// AppendIdentifierValues appends s to the "identifier_values" field.
+func (ou *OrganizationUpdate) AppendIdentifierValues(s []string) *OrganizationUpdate {
+	ou.mutation.AppendIdentifierValues(s)
+	return ou
+}
+
+// ClearIdentifierValues clears the value of the "identifier_values" field.
+func (ou *OrganizationUpdate) ClearIdentifierValues() *OrganizationUpdate {
+	ou.mutation.ClearIdentifierValues()
 	return ou
 }
 
@@ -110,18 +146,6 @@ func (ou *OrganizationUpdate) ClearNameEng() *OrganizationUpdate {
 	return ou
 }
 
-// SetIdentifier sets the "identifier" field.
-func (ou *OrganizationUpdate) SetIdentifier(sv schema.TypeVals) *OrganizationUpdate {
-	ou.mutation.SetIdentifier(sv)
-	return ou
-}
-
-// ClearIdentifier clears the value of the "identifier" field.
-func (ou *OrganizationUpdate) ClearIdentifier() *OrganizationUpdate {
-	ou.mutation.ClearIdentifier()
-	return ou
-}
-
 // Mutation returns the OrganizationMutation object of the builder.
 func (ou *OrganizationUpdate) Mutation() *OrganizationMutation {
 	return ou.mutation
@@ -181,6 +205,28 @@ func (ou *OrganizationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := ou.mutation.DateUpdated(); ok {
 		_spec.SetField(organization.FieldDateUpdated, field.TypeTime, value)
 	}
+	if value, ok := ou.mutation.Identifier(); ok {
+		_spec.SetField(organization.FieldIdentifier, field.TypeJSON, value)
+	}
+	if value, ok := ou.mutation.AppendedIdentifier(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, organization.FieldIdentifier, value)
+		})
+	}
+	if ou.mutation.IdentifierCleared() {
+		_spec.ClearField(organization.FieldIdentifier, field.TypeJSON)
+	}
+	if value, ok := ou.mutation.IdentifierValues(); ok {
+		_spec.SetField(organization.FieldIdentifierValues, field.TypeJSON, value)
+	}
+	if value, ok := ou.mutation.AppendedIdentifierValues(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, organization.FieldIdentifierValues, value)
+		})
+	}
+	if ou.mutation.IdentifierValuesCleared() {
+		_spec.ClearField(organization.FieldIdentifierValues, field.TypeJSON)
+	}
 	if value, ok := ou.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 	}
@@ -201,12 +247,6 @@ func (ou *OrganizationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if ou.mutation.NameEngCleared() {
 		_spec.ClearField(organization.FieldNameEng, field.TypeString)
-	}
-	if value, ok := ou.mutation.Identifier(); ok {
-		_spec.SetField(organization.FieldIdentifier, field.TypeJSON, value)
-	}
-	if ou.mutation.IdentifierCleared() {
-		_spec.ClearField(organization.FieldIdentifier, field.TypeJSON)
 	}
 	_spec.AddModifiers(ou.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, ou.driver, _spec); err != nil {
@@ -233,6 +273,42 @@ type OrganizationUpdateOne struct {
 // SetDateUpdated sets the "date_updated" field.
 func (ouo *OrganizationUpdateOne) SetDateUpdated(t time.Time) *OrganizationUpdateOne {
 	ouo.mutation.SetDateUpdated(t)
+	return ouo
+}
+
+// SetIdentifier sets the "identifier" field.
+func (ouo *OrganizationUpdateOne) SetIdentifier(s []string) *OrganizationUpdateOne {
+	ouo.mutation.SetIdentifier(s)
+	return ouo
+}
+
+// AppendIdentifier appends s to the "identifier" field.
+func (ouo *OrganizationUpdateOne) AppendIdentifier(s []string) *OrganizationUpdateOne {
+	ouo.mutation.AppendIdentifier(s)
+	return ouo
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (ouo *OrganizationUpdateOne) ClearIdentifier() *OrganizationUpdateOne {
+	ouo.mutation.ClearIdentifier()
+	return ouo
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (ouo *OrganizationUpdateOne) SetIdentifierValues(s []string) *OrganizationUpdateOne {
+	ouo.mutation.SetIdentifierValues(s)
+	return ouo
+}
+
+// AppendIdentifierValues appends s to the "identifier_values" field.
+func (ouo *OrganizationUpdateOne) AppendIdentifierValues(s []string) *OrganizationUpdateOne {
+	ouo.mutation.AppendIdentifierValues(s)
+	return ouo
+}
+
+// ClearIdentifierValues clears the value of the "identifier_values" field.
+func (ouo *OrganizationUpdateOne) ClearIdentifierValues() *OrganizationUpdateOne {
+	ouo.mutation.ClearIdentifierValues()
 	return ouo
 }
 
@@ -307,18 +383,6 @@ func (ouo *OrganizationUpdateOne) SetNillableNameEng(s *string) *OrganizationUpd
 // ClearNameEng clears the value of the "name_eng" field.
 func (ouo *OrganizationUpdateOne) ClearNameEng() *OrganizationUpdateOne {
 	ouo.mutation.ClearNameEng()
-	return ouo
-}
-
-// SetIdentifier sets the "identifier" field.
-func (ouo *OrganizationUpdateOne) SetIdentifier(sv schema.TypeVals) *OrganizationUpdateOne {
-	ouo.mutation.SetIdentifier(sv)
-	return ouo
-}
-
-// ClearIdentifier clears the value of the "identifier" field.
-func (ouo *OrganizationUpdateOne) ClearIdentifier() *OrganizationUpdateOne {
-	ouo.mutation.ClearIdentifier()
 	return ouo
 }
 
@@ -411,6 +475,28 @@ func (ouo *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizat
 	if value, ok := ouo.mutation.DateUpdated(); ok {
 		_spec.SetField(organization.FieldDateUpdated, field.TypeTime, value)
 	}
+	if value, ok := ouo.mutation.Identifier(); ok {
+		_spec.SetField(organization.FieldIdentifier, field.TypeJSON, value)
+	}
+	if value, ok := ouo.mutation.AppendedIdentifier(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, organization.FieldIdentifier, value)
+		})
+	}
+	if ouo.mutation.IdentifierCleared() {
+		_spec.ClearField(organization.FieldIdentifier, field.TypeJSON)
+	}
+	if value, ok := ouo.mutation.IdentifierValues(); ok {
+		_spec.SetField(organization.FieldIdentifierValues, field.TypeJSON, value)
+	}
+	if value, ok := ouo.mutation.AppendedIdentifierValues(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, organization.FieldIdentifierValues, value)
+		})
+	}
+	if ouo.mutation.IdentifierValuesCleared() {
+		_spec.ClearField(organization.FieldIdentifierValues, field.TypeJSON)
+	}
 	if value, ok := ouo.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 	}
@@ -431,12 +517,6 @@ func (ouo *OrganizationUpdateOne) sqlSave(ctx context.Context) (_node *Organizat
 	}
 	if ouo.mutation.NameEngCleared() {
 		_spec.ClearField(organization.FieldNameEng, field.TypeString)
-	}
-	if value, ok := ouo.mutation.Identifier(); ok {
-		_spec.SetField(organization.FieldIdentifier, field.TypeJSON, value)
-	}
-	if ouo.mutation.IdentifierCleared() {
-		_spec.ClearField(organization.FieldIdentifier, field.TypeJSON)
 	}
 	_spec.AddModifiers(ouo.modifiers...)
 	_node = &Organization{config: ouo.config}

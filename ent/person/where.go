@@ -264,6 +264,26 @@ func PublicIDContainsFold(v string) predicate.Person {
 	return predicate.Person(sql.FieldContainsFold(FieldPublicID, v))
 }
 
+// IdentifierIsNil applies the IsNil predicate on the "identifier" field.
+func IdentifierIsNil() predicate.Person {
+	return predicate.Person(sql.FieldIsNull(FieldIdentifier))
+}
+
+// IdentifierNotNil applies the NotNil predicate on the "identifier" field.
+func IdentifierNotNil() predicate.Person {
+	return predicate.Person(sql.FieldNotNull(FieldIdentifier))
+}
+
+// IdentifierValuesIsNil applies the IsNil predicate on the "identifier_values" field.
+func IdentifierValuesIsNil() predicate.Person {
+	return predicate.Person(sql.FieldIsNull(FieldIdentifierValues))
+}
+
+// IdentifierValuesNotNil applies the NotNil predicate on the "identifier_values" field.
+func IdentifierValuesNotNil() predicate.Person {
+	return predicate.Person(sql.FieldNotNull(FieldIdentifierValues))
+}
+
 // ActiveEQ applies the EQ predicate on the "active" field.
 func ActiveEQ(v bool) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldActive, v))
@@ -422,16 +442,6 @@ func EmailEqualFold(v string) predicate.Person {
 // EmailContainsFold applies the ContainsFold predicate on the "email" field.
 func EmailContainsFold(v string) predicate.Person {
 	return predicate.Person(sql.FieldContainsFold(FieldEmail, v))
-}
-
-// IdentifierIsNil applies the IsNil predicate on the "identifier" field.
-func IdentifierIsNil() predicate.Person {
-	return predicate.Person(sql.FieldIsNull(FieldIdentifier))
-}
-
-// IdentifierNotNil applies the NotNil predicate on the "identifier" field.
-func IdentifierNotNil() predicate.Person {
-	return predicate.Person(sql.FieldNotNull(FieldIdentifier))
 }
 
 // GivenNameEQ applies the EQ predicate on the "given_name" field.

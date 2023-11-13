@@ -26,7 +26,7 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 	}
 
 	ctx := context.TODO()
-	org, err := op.repository.GetOrganizationByIdentifier(ctx, "gismo_id", msg.ID)
+	org, err := op.repository.GetOrganizationByIdentifier(ctx, models.NewURN("gismo_id", msg.ID))
 	if errors.Is(err, models.ErrNotFound) {
 		org = models.NewOrganization()
 	} else if err != nil {
@@ -40,7 +40,7 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 		org.Type = "organization"
 		org.Parent = nil
 		org.ClearIdentifier()
-		org.AddIdentifier("gismo_id", msg.ID)
+		org.AddIdentifier(models.NewURN("gismo_id", msg.ID))
 
 		// only recent values needed: name_dut, name_eng, type
 		// all values needed: ugent_memorialis_id, code, biblio_code
@@ -48,10 +48,10 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 			withinDateRange := attr.ValidAt(now)
 			switch attr.Name {
 			case "parent_id":
-				orgParentByGismo, err := op.repository.GetOrganizationByIdentifier(ctx, "gismo_id", attr.Value)
+				orgParentByGismo, err := op.repository.GetOrganizationByIdentifier(ctx, models.NewURN("gismo_id", attr.Value))
 				if errors.Is(err, models.ErrNotFound) {
 					orgParentByGismo := models.NewOrganization()
-					orgParentByGismo.AddIdentifier("gismo_id", attr.Value)
+					orgParentByGismo.AddIdentifier(models.NewURN("gismo_id", attr.Value))
 					orgParentByGismo, err = op.repository.CreateOrganization(ctx, orgParentByGismo)
 					if err != nil {
 						return nil, fmt.Errorf("%w: unable to create parent organization: %s", models.ErrFatal, err)
@@ -83,11 +83,11 @@ func (op *OrganizationProcessor) Process(buf []byte) (*models.Message, error) {
 			case "type":
 				org.Type = attr.Value
 			case "ugent_memorialis_id":
-				org.AddIdentifier("ugent_memorialis_id", attr.Value)
+				org.AddIdentifier(models.NewURN("ugent_memorialis_id", attr.Value))
 			case "code":
-				org.AddIdentifier("ugent_id", attr.Value)
+				org.AddIdentifier(models.NewURN("ugent_id", attr.Value))
 			case "biblio_code":
-				org.AddIdentifier("biblio_id", attr.Value)
+				org.AddIdentifier(models.NewURN("biblio_id", attr.Value))
 			}
 		}
 

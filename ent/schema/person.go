@@ -25,7 +25,6 @@ func (Person) Fields() []ent.Field {
 		field.Bool("active").Default(false),
 		field.String("birth_date").Optional(),
 		field.String("email").Optional(),
-		field.JSON("identifier", TypeVals{}).Optional().Default(TypeVals{}),
 		field.String("given_name").Optional(),
 		field.String("name").Optional(),
 		field.String("family_name").Optional(),
@@ -37,7 +36,7 @@ func (Person) Fields() []ent.Field {
 		field.JSON("settings", map[string]string{}).Optional().Default(map[string]string{}),
 		field.Strings("object_class").Optional().Default([]string{}),
 		field.String("expiration_date").Optional(),
-		field.JSON("token", TypeVals{}).Optional().Default(TypeVals{}),
+		field.Strings("token").Optional().Default([]string{}),
 	}
 }
 
@@ -45,6 +44,7 @@ func (Person) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		TimeMixin{},
 		PublicIdMixin{},
+		IdentifierMixin{},
 	}
 }
 

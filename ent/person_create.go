@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people-service/ent/person"
-	"github.com/ugent-library/people-service/ent/schema"
 )
 
 // PersonCreate is the builder for creating a Person entity.
@@ -65,6 +64,18 @@ func (pc *PersonCreate) SetNillablePublicID(s *string) *PersonCreate {
 	return pc
 }
 
+// SetIdentifier sets the "identifier" field.
+func (pc *PersonCreate) SetIdentifier(s []string) *PersonCreate {
+	pc.mutation.SetIdentifier(s)
+	return pc
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (pc *PersonCreate) SetIdentifierValues(s []string) *PersonCreate {
+	pc.mutation.SetIdentifierValues(s)
+	return pc
+}
+
 // SetActive sets the "active" field.
 func (pc *PersonCreate) SetActive(b bool) *PersonCreate {
 	pc.mutation.SetActive(b)
@@ -104,12 +115,6 @@ func (pc *PersonCreate) SetNillableEmail(s *string) *PersonCreate {
 	if s != nil {
 		pc.SetEmail(*s)
 	}
-	return pc
-}
-
-// SetIdentifier sets the "identifier" field.
-func (pc *PersonCreate) SetIdentifier(sv schema.TypeVals) *PersonCreate {
-	pc.mutation.SetIdentifier(sv)
 	return pc
 }
 
@@ -236,8 +241,8 @@ func (pc *PersonCreate) SetNillableExpirationDate(s *string) *PersonCreate {
 }
 
 // SetToken sets the "token" field.
-func (pc *PersonCreate) SetToken(sv schema.TypeVals) *PersonCreate {
-	pc.mutation.SetToken(sv)
+func (pc *PersonCreate) SetToken(s []string) *PersonCreate {
+	pc.mutation.SetToken(s)
 	return pc
 }
 
@@ -288,13 +293,17 @@ func (pc *PersonCreate) defaults() {
 		v := person.DefaultPublicID()
 		pc.mutation.SetPublicID(v)
 	}
-	if _, ok := pc.mutation.Active(); !ok {
-		v := person.DefaultActive
-		pc.mutation.SetActive(v)
-	}
 	if _, ok := pc.mutation.Identifier(); !ok {
 		v := person.DefaultIdentifier
 		pc.mutation.SetIdentifier(v)
+	}
+	if _, ok := pc.mutation.IdentifierValues(); !ok {
+		v := person.DefaultIdentifierValues
+		pc.mutation.SetIdentifierValues(v)
+	}
+	if _, ok := pc.mutation.Active(); !ok {
+		v := person.DefaultActive
+		pc.mutation.SetActive(v)
 	}
 	if _, ok := pc.mutation.JobCategory(); !ok {
 		v := person.DefaultJobCategory
@@ -371,6 +380,14 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 		_spec.SetField(person.FieldPublicID, field.TypeString, value)
 		_node.PublicID = value
 	}
+	if value, ok := pc.mutation.Identifier(); ok {
+		_spec.SetField(person.FieldIdentifier, field.TypeJSON, value)
+		_node.Identifier = value
+	}
+	if value, ok := pc.mutation.IdentifierValues(); ok {
+		_spec.SetField(person.FieldIdentifierValues, field.TypeJSON, value)
+		_node.IdentifierValues = value
+	}
 	if value, ok := pc.mutation.Active(); ok {
 		_spec.SetField(person.FieldActive, field.TypeBool, value)
 		_node.Active = value
@@ -382,10 +399,6 @@ func (pc *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.Email(); ok {
 		_spec.SetField(person.FieldEmail, field.TypeString, value)
 		_node.Email = value
-	}
-	if value, ok := pc.mutation.Identifier(); ok {
-		_spec.SetField(person.FieldIdentifier, field.TypeJSON, value)
-		_node.Identifier = value
 	}
 	if value, ok := pc.mutation.GivenName(); ok {
 		_spec.SetField(person.FieldGivenName, field.TypeString, value)
@@ -499,6 +512,42 @@ func (u *PersonUpsert) UpdateDateUpdated() *PersonUpsert {
 	return u
 }
 
+// SetIdentifier sets the "identifier" field.
+func (u *PersonUpsert) SetIdentifier(v []string) *PersonUpsert {
+	u.Set(person.FieldIdentifier, v)
+	return u
+}
+
+// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateIdentifier() *PersonUpsert {
+	u.SetExcluded(person.FieldIdentifier)
+	return u
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (u *PersonUpsert) ClearIdentifier() *PersonUpsert {
+	u.SetNull(person.FieldIdentifier)
+	return u
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (u *PersonUpsert) SetIdentifierValues(v []string) *PersonUpsert {
+	u.Set(person.FieldIdentifierValues, v)
+	return u
+}
+
+// UpdateIdentifierValues sets the "identifier_values" field to the value that was provided on create.
+func (u *PersonUpsert) UpdateIdentifierValues() *PersonUpsert {
+	u.SetExcluded(person.FieldIdentifierValues)
+	return u
+}
+
+// ClearIdentifierValues clears the value of the "identifier_values" field.
+func (u *PersonUpsert) ClearIdentifierValues() *PersonUpsert {
+	u.SetNull(person.FieldIdentifierValues)
+	return u
+}
+
 // SetActive sets the "active" field.
 func (u *PersonUpsert) SetActive(v bool) *PersonUpsert {
 	u.Set(person.FieldActive, v)
@@ -544,24 +593,6 @@ func (u *PersonUpsert) UpdateEmail() *PersonUpsert {
 // ClearEmail clears the value of the "email" field.
 func (u *PersonUpsert) ClearEmail() *PersonUpsert {
 	u.SetNull(person.FieldEmail)
-	return u
-}
-
-// SetIdentifier sets the "identifier" field.
-func (u *PersonUpsert) SetIdentifier(v schema.TypeVals) *PersonUpsert {
-	u.Set(person.FieldIdentifier, v)
-	return u
-}
-
-// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
-func (u *PersonUpsert) UpdateIdentifier() *PersonUpsert {
-	u.SetExcluded(person.FieldIdentifier)
-	return u
-}
-
-// ClearIdentifier clears the value of the "identifier" field.
-func (u *PersonUpsert) ClearIdentifier() *PersonUpsert {
-	u.SetNull(person.FieldIdentifier)
 	return u
 }
 
@@ -764,7 +795,7 @@ func (u *PersonUpsert) ClearExpirationDate() *PersonUpsert {
 }
 
 // SetToken sets the "token" field.
-func (u *PersonUpsert) SetToken(v schema.TypeVals) *PersonUpsert {
+func (u *PersonUpsert) SetToken(v []string) *PersonUpsert {
 	u.Set(person.FieldToken, v)
 	return u
 }
@@ -843,6 +874,48 @@ func (u *PersonUpsertOne) UpdateDateUpdated() *PersonUpsertOne {
 	})
 }
 
+// SetIdentifier sets the "identifier" field.
+func (u *PersonUpsertOne) SetIdentifier(v []string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetIdentifier(v)
+	})
+}
+
+// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateIdentifier() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateIdentifier()
+	})
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (u *PersonUpsertOne) ClearIdentifier() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearIdentifier()
+	})
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (u *PersonUpsertOne) SetIdentifierValues(v []string) *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetIdentifierValues(v)
+	})
+}
+
+// UpdateIdentifierValues sets the "identifier_values" field to the value that was provided on create.
+func (u *PersonUpsertOne) UpdateIdentifierValues() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateIdentifierValues()
+	})
+}
+
+// ClearIdentifierValues clears the value of the "identifier_values" field.
+func (u *PersonUpsertOne) ClearIdentifierValues() *PersonUpsertOne {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearIdentifierValues()
+	})
+}
+
 // SetActive sets the "active" field.
 func (u *PersonUpsertOne) SetActive(v bool) *PersonUpsertOne {
 	return u.Update(func(s *PersonUpsert) {
@@ -896,27 +969,6 @@ func (u *PersonUpsertOne) UpdateEmail() *PersonUpsertOne {
 func (u *PersonUpsertOne) ClearEmail() *PersonUpsertOne {
 	return u.Update(func(s *PersonUpsert) {
 		s.ClearEmail()
-	})
-}
-
-// SetIdentifier sets the "identifier" field.
-func (u *PersonUpsertOne) SetIdentifier(v schema.TypeVals) *PersonUpsertOne {
-	return u.Update(func(s *PersonUpsert) {
-		s.SetIdentifier(v)
-	})
-}
-
-// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
-func (u *PersonUpsertOne) UpdateIdentifier() *PersonUpsertOne {
-	return u.Update(func(s *PersonUpsert) {
-		s.UpdateIdentifier()
-	})
-}
-
-// ClearIdentifier clears the value of the "identifier" field.
-func (u *PersonUpsertOne) ClearIdentifier() *PersonUpsertOne {
-	return u.Update(func(s *PersonUpsert) {
-		s.ClearIdentifier()
 	})
 }
 
@@ -1152,7 +1204,7 @@ func (u *PersonUpsertOne) ClearExpirationDate() *PersonUpsertOne {
 }
 
 // SetToken sets the "token" field.
-func (u *PersonUpsertOne) SetToken(v schema.TypeVals) *PersonUpsertOne {
+func (u *PersonUpsertOne) SetToken(v []string) *PersonUpsertOne {
 	return u.Update(func(s *PersonUpsert) {
 		s.SetToken(v)
 	})
@@ -1396,6 +1448,48 @@ func (u *PersonUpsertBulk) UpdateDateUpdated() *PersonUpsertBulk {
 	})
 }
 
+// SetIdentifier sets the "identifier" field.
+func (u *PersonUpsertBulk) SetIdentifier(v []string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetIdentifier(v)
+	})
+}
+
+// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateIdentifier() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateIdentifier()
+	})
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (u *PersonUpsertBulk) ClearIdentifier() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearIdentifier()
+	})
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (u *PersonUpsertBulk) SetIdentifierValues(v []string) *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.SetIdentifierValues(v)
+	})
+}
+
+// UpdateIdentifierValues sets the "identifier_values" field to the value that was provided on create.
+func (u *PersonUpsertBulk) UpdateIdentifierValues() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.UpdateIdentifierValues()
+	})
+}
+
+// ClearIdentifierValues clears the value of the "identifier_values" field.
+func (u *PersonUpsertBulk) ClearIdentifierValues() *PersonUpsertBulk {
+	return u.Update(func(s *PersonUpsert) {
+		s.ClearIdentifierValues()
+	})
+}
+
 // SetActive sets the "active" field.
 func (u *PersonUpsertBulk) SetActive(v bool) *PersonUpsertBulk {
 	return u.Update(func(s *PersonUpsert) {
@@ -1449,27 +1543,6 @@ func (u *PersonUpsertBulk) UpdateEmail() *PersonUpsertBulk {
 func (u *PersonUpsertBulk) ClearEmail() *PersonUpsertBulk {
 	return u.Update(func(s *PersonUpsert) {
 		s.ClearEmail()
-	})
-}
-
-// SetIdentifier sets the "identifier" field.
-func (u *PersonUpsertBulk) SetIdentifier(v schema.TypeVals) *PersonUpsertBulk {
-	return u.Update(func(s *PersonUpsert) {
-		s.SetIdentifier(v)
-	})
-}
-
-// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
-func (u *PersonUpsertBulk) UpdateIdentifier() *PersonUpsertBulk {
-	return u.Update(func(s *PersonUpsert) {
-		s.UpdateIdentifier()
-	})
-}
-
-// ClearIdentifier clears the value of the "identifier" field.
-func (u *PersonUpsertBulk) ClearIdentifier() *PersonUpsertBulk {
-	return u.Update(func(s *PersonUpsert) {
-		s.ClearIdentifier()
 	})
 }
 
@@ -1705,7 +1778,7 @@ func (u *PersonUpsertBulk) ClearExpirationDate() *PersonUpsertBulk {
 }
 
 // SetToken sets the "token" field.
-func (u *PersonUpsertBulk) SetToken(v schema.TypeVals) *PersonUpsertBulk {
+func (u *PersonUpsertBulk) SetToken(v []string) *PersonUpsertBulk {
 	return u.Update(func(s *PersonUpsert) {
 		s.SetToken(v)
 	})

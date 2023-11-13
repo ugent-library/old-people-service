@@ -88,7 +88,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 	now := time.Now()
 	ctx := context.TODO()
 
-	person.AddIdentifier("gismo_id", msg.ID)
+	person.AddIdentifier(models.NewURN("gismo_id", msg.ID))
 	var gismoOrganizationMembers []models.OrganizationMember
 
 	// TODO: evaluate what to keep always
@@ -109,10 +109,10 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 				person.FamilyName = attr.Value
 			}
 		case "ugent_id":
-			person.AddIdentifier("ugent_id", attr.Value)
-			person.AddIdentifier("historic_ugent_id", attr.Value)
+			person.AddIdentifier(models.NewURN("ugent_id", attr.Value))
+			person.AddIdentifier(models.NewURN("historic_ugent_id", attr.Value))
 		case "ugent_memorialis_id":
-			person.AddIdentifier("ugent_memorialis_id", attr.Value)
+			person.AddIdentifier(models.NewURN("ugent_memorialis_id", attr.Value))
 		case "honorific_prefix":
 			if withinDateRange {
 				person.HonorificPrefix = attr.Value
@@ -133,7 +133,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 			}
 		case "orcid":
 			if withinDateRange {
-				person.AddIdentifier("orcid", attr.Value)
+				person.AddIdentifier(models.NewURN("orcid", attr.Value))
 			}
 		}
 	}
@@ -144,7 +144,10 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 			gismoOrganizationIds = append(gismoOrganizationIds, orgMember.ID)
 		}
 		gismoOrganizationIds = lo.Uniq(gismoOrganizationIds)
-		orgsByGismo, err := pp.repository.GetOrganizationsByIdentifier(ctx, "gismo_id", gismoOrganizationIds...)
+		qGismoOrganizationIds := lo.Map(gismoOrganizationIds, func(id string, idx int) models.URN {
+			return models.NewURN("gismo_id", id)
+		})
+		orgsByGismo, err := pp.repository.GetOrganizationsByIdentifier(ctx, qGismoOrganizationIds...)
 		if err != nil {
 			return nil, fmt.Errorf("%w: unable to fetch affiliated organization records: %s", models.ErrFatal, err)
 		}
@@ -153,14 +156,14 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 		for _, gismoOrganizationId := range gismoOrganizationIds {
 			var gismoOrg *models.Organization
 			for _, org := range orgsByGismo {
-				if org.GetIdentifierValue("gismo_id") == gismoOrganizationId {
+				if org.GetIdentifierValueByNS("gismo_id") == gismoOrganizationId {
 					gismoOrg = org
 					break
 				}
 			}
 			if gismoOrg == nil {
 				gismoOrg = models.NewOrganization()
-				gismoOrg.AddIdentifier("gismo_id", gismoOrganizationId)
+				gismoOrg.AddIdentifier(models.NewURN("gismo_id", gismoOrganizationId))
 				gismoOrg, err = pp.repository.SaveOrganization(ctx, gismoOrg)
 				if err != nil {
 					return nil, fmt.Errorf("%w: unable to save affiliated organization for person: %s", models.ErrFatal, err)
@@ -172,7 +175,7 @@ func (pp *PersonProcessor) enrichPersonWithMessage(person *models.Person, msg *m
 		var organizationMembers []models.OrganizationMember
 		for _, gismoOrgMember := range gismoOrganizationMembers {
 			for _, org := range orgsByGismo {
-				if gismoOrgMember.ID == org.GetIdentifierValue("gismo_id") {
+				if gismoOrgMember.ID == org.GetIdentifierValueByNS("gismo_id") {
 					oMember := models.NewOrganizationMember(org.ID)
 					oMember.From = gismoOrgMember.From
 					oMember.Until = gismoOrgMember.Until
@@ -198,7 +201,7 @@ func (pp *PersonProcessor) getPersonByMessage(msg *models.Message) (*models.Pers
 	}
 
 	// trial 1: retrieve old person by gismo-id
-	person, err := pp.repository.GetPersonByIdentifier(ctx, "gismo_id", msg.ID)
+	person, err := pp.repository.GetPersonByIdentifier(ctx, models.NewURN("gismo_id", msg.ID))
 	if err == nil {
 		return person, nil
 	}
@@ -207,7 +210,10 @@ func (pp *PersonProcessor) getPersonByMessage(msg *models.Message) (*models.Pers
 	}
 
 	// trial 2: retrieve old person by ugent-id
-	person, err = pp.repository.GetPersonByIdentifier(ctx, "historic_ugent_id", ugentIds...)
+	qHistoricUgentIds := lo.Map(ugentIds, func(ugentId string, idx int) models.URN {
+		return models.NewURN("historic_ugent_id", ugentId)
+	})
+	person, err = pp.repository.GetPersonByIdentifier(ctx, qHistoricUgentIds...)
 	if err == nil {
 		return person, nil
 	}
@@ -220,7 +226,7 @@ func (pp *PersonProcessor) getPersonByMessage(msg *models.Message) (*models.Pers
 }
 
 func (pp *PersonProcessor) enrichPersonWithLdap(person *models.Person) (*models.Person, error) {
-	historicUgentIds := person.GetIdentifierValues("historic_ugent_id")
+	historicUgentIds := person.GetIdentifierValuesByNS("historic_ugent_id")
 	ldapQueryParts := make([]string, 0, len(historicUgentIds))
 	for _, ugentId := range historicUgentIds {
 		ldapQueryParts = append(ldapQueryParts, fmt.Sprintf("(ugentHistoricIDs=%s)", ugentId))
@@ -246,9 +252,9 @@ func (pp *PersonProcessor) enrichPersonWithLdap(person *models.Person) (*models.
 				case "displayName":
 					person.Name = val
 				case "ugentBarcode":
-					person.AddIdentifier("ugent_barcode", val)
+					person.AddIdentifier(models.NewURN("ugent_barcode", val))
 				case "uid":
-					person.AddIdentifier("ugent_username", val)
+					person.AddIdentifier(models.NewURN("ugent_username", val))
 				case "ugentExpirationDate":
 					person.ExpirationDate = val
 				case "objectClass":

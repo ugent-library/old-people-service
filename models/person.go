@@ -15,12 +15,12 @@ type Person struct {
 	GivenName           string               `json:"given_name,omitempty"`
 	FamilyName          string               `json:"family_name,omitempty"`
 	Email               string               `json:"email,omitempty"`
-	Token               []Token              `json:"token"`
+	Token               []URN                `json:"token"`
 	PreferredGivenName  string               `json:"preferred_given_name,omitempty"`
 	PreferredFamilyName string               `json:"preferred_family_name,omitempty"`
 	BirthDate           string               `json:"birth_date,omitempty"`
 	HonorificPrefix     string               `json:"honorific_prefix,omitempty"`
-	Identifier          []Identifier         `json:"identifier,omitempty"`
+	Identifier          []URN                `json:"identifier,omitempty"`
 	Organization        []OrganizationMember `json:"organization,omitempty"`
 	JobCategory         []string             `json:"job_category,omitempty"`
 	Role                []string             `json:"role,omitempty"`
@@ -50,13 +50,13 @@ func (p *Person) SetEmail(email string) {
 	p.Email = strings.ToLower(email)
 }
 
-func (p *Person) AddIdentifier(propertyID string, value string) {
-	p.Identifier = append(p.Identifier, NewIdentifier(propertyID, value))
-	sort.Sort(ByIdentifier(p.Identifier))
+func (p *Person) AddIdentifier(urn URN) {
+	p.Identifier = append(p.Identifier, urn)
+	sort.Sort(ByURN(p.Identifier))
 }
 
-func (p *Person) SetIdentifier(ids ...Identifier) {
-	sort.Sort(ByIdentifier(ids))
+func (p *Person) SetIdentifier(ids ...URN) {
+	sort.Sort(ByURN(ids))
 	p.Identifier = ids
 }
 
@@ -64,51 +64,49 @@ func (p *Person) ClearIdentifier() {
 	p.Identifier = nil
 }
 
-func (p *Person) RemoveIdentifierByPropertyID(propertyID string) {
-	var newIds []Identifier
+func (p *Person) GetIdentifierQualifiedValues() []string {
+	ids := make([]string, 0, len(p.Identifier))
 	for _, id := range p.Identifier {
-		if id.PropertyID != propertyID {
-			newIds = append(newIds, id)
-		}
+		ids = append(ids, id.String())
 	}
-	p.Identifier = newIds
+	return ids
 }
 
-func (p *Person) GetIdentifierValue(propertyID string) string {
+func (p *Person) GetIdentifierValues() []string {
+	ids := make([]string, 0, len(p.Identifier))
 	for _, id := range p.Identifier {
-		if id.PropertyID == propertyID {
-			return id.PropertyID
-		}
+		ids = append(ids, id.Value)
 	}
-	return ""
+	return ids
 }
 
-func (p *Person) HasIdentifier(propertyID string, value string) bool {
+func (p *Person) GetIdentifierByNS(ns string) []URN {
+	urns := []URN{}
 	for _, id := range p.Identifier {
-		if id.PropertyID == propertyID && id.Value == value {
-			return true
+		if id.Namespace == ns {
+			urns = append(urns, id)
 		}
 	}
-	return false
+	return urns
 }
 
-func (p *Person) GetIdentifierValues(propertyID string) []string {
+func (p *Person) GetIdentifierValuesByNS(ns string) []string {
 	vals := make([]string, 0, len(p.Identifier))
 	for _, id := range p.Identifier {
-		if id.PropertyID == propertyID {
+		if id.Namespace == ns {
 			vals = append(vals, id.Value)
 		}
 	}
 	return vals
 }
 
-func (p *Person) AddToken(propertyID string, value string) {
-	p.Token = append(p.Token, NewToken(propertyID, value))
-	sort.Sort(ByToken(p.Token))
+func (p *Person) AddToken(ns string, value string) {
+	p.Token = append(p.Token, NewURN(ns, value))
+	sort.Sort(ByURN(p.Token))
 }
 
-func (p *Person) SetToken(tokens ...Token) {
-	sort.Sort(ByToken(tokens))
+func (p *Person) SetToken(tokens ...URN) {
+	sort.Sort(ByURN(tokens))
 	p.Token = tokens
 }
 
@@ -116,10 +114,10 @@ func (p *Person) ClearToken() {
 	p.Token = nil
 }
 
-func (p *Person) GetTokenValues(propertyID string) []string {
+func (p *Person) GetTokenValues(ns string) []string {
 	vals := make([]string, 0, len(p.Token))
 	for _, token := range p.Token {
-		if token.PropertyID == propertyID {
+		if token.Namespace == ns {
 			vals = append(vals, token.Value)
 		}
 	}
@@ -186,7 +184,7 @@ func (p *Person) Dup() *Person {
 		newP.Token = append(newP.Token, *token.Dup())
 	}
 	for _, id := range p.Identifier {
-		newP.AddIdentifier(id.PropertyID, id.Value)
+		newP.AddIdentifier(NewURN(id.Namespace, id.Value))
 	}
 	for _, orgMember := range p.Organization {
 		newP.Organization = append(newP.Organization, orgMember.Dup())

@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/ugent-library/people-service/ent/person"
-	"github.com/ugent-library/people-service/ent/schema"
 )
 
 // Person is the model entity for the Person schema.
@@ -25,14 +24,16 @@ type Person struct {
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// PublicID holds the value of the "public_id" field.
 	PublicID string `json:"public_id,omitempty"`
+	// Identifier holds the value of the "identifier" field.
+	Identifier []string `json:"identifier,omitempty"`
+	// IdentifierValues holds the value of the "identifier_values" field.
+	IdentifierValues []string `json:"identifier_values,omitempty"`
 	// Active holds the value of the "active" field.
 	Active bool `json:"active,omitempty"`
 	// BirthDate holds the value of the "birth_date" field.
 	BirthDate string `json:"birth_date,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
-	// Identifier holds the value of the "identifier" field.
-	Identifier schema.TypeVals `json:"identifier,omitempty"`
 	// GivenName holds the value of the "given_name" field.
 	GivenName string `json:"given_name,omitempty"`
 	// Name holds the value of the "name" field.
@@ -56,7 +57,7 @@ type Person struct {
 	// ExpirationDate holds the value of the "expiration_date" field.
 	ExpirationDate string `json:"expiration_date,omitempty"`
 	// Token holds the value of the "token" field.
-	Token        schema.TypeVals `json:"token,omitempty"`
+	Token        []string `json:"token,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -65,7 +66,7 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case person.FieldIdentifier, person.FieldJobCategory, person.FieldRole, person.FieldSettings, person.FieldObjectClass, person.FieldToken:
+		case person.FieldIdentifier, person.FieldIdentifierValues, person.FieldJobCategory, person.FieldRole, person.FieldSettings, person.FieldObjectClass, person.FieldToken:
 			values[i] = new([]byte)
 		case person.FieldActive:
 			values[i] = new(sql.NullBool)
@@ -114,6 +115,22 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				pe.PublicID = value.String
 			}
+		case person.FieldIdentifier:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field identifier", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pe.Identifier); err != nil {
+					return fmt.Errorf("unmarshal field identifier: %w", err)
+				}
+			}
+		case person.FieldIdentifierValues:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field identifier_values", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &pe.IdentifierValues); err != nil {
+					return fmt.Errorf("unmarshal field identifier_values: %w", err)
+				}
+			}
 		case person.FieldActive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field active", values[i])
@@ -131,14 +148,6 @@ func (pe *Person) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
 				pe.Email = value.String
-			}
-		case person.FieldIdentifier:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field identifier", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &pe.Identifier); err != nil {
-					return fmt.Errorf("unmarshal field identifier: %w", err)
-				}
 			}
 		case person.FieldGivenName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -267,6 +276,12 @@ func (pe *Person) String() string {
 	builder.WriteString("public_id=")
 	builder.WriteString(pe.PublicID)
 	builder.WriteString(", ")
+	builder.WriteString("identifier=")
+	builder.WriteString(fmt.Sprintf("%v", pe.Identifier))
+	builder.WriteString(", ")
+	builder.WriteString("identifier_values=")
+	builder.WriteString(fmt.Sprintf("%v", pe.IdentifierValues))
+	builder.WriteString(", ")
 	builder.WriteString("active=")
 	builder.WriteString(fmt.Sprintf("%v", pe.Active))
 	builder.WriteString(", ")
@@ -275,9 +290,6 @@ func (pe *Person) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(pe.Email)
-	builder.WriteString(", ")
-	builder.WriteString("identifier=")
-	builder.WriteString(fmt.Sprintf("%v", pe.Identifier))
 	builder.WriteString(", ")
 	builder.WriteString("given_name=")
 	builder.WriteString(pe.GivenName)

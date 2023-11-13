@@ -27,7 +27,15 @@ func (s *Service) GetPerson(ctx context.Context, req *GetPersonRequest) (*Person
 }
 
 func (s *Service) GetPeopleById(ctx context.Context, req *GetPeopleByIdRequest) (*PersonListResponse, error) {
-	people, err := s.repository.GetPeopleByIdentifier(ctx, string(req.Type), req.ID)
+	urns := make([]models.URN, 0, len(req.ID))
+	for _, id := range req.ID {
+		urn, err := models.ParseURN(id)
+		if err != nil {
+			return nil, err
+		}
+		urns = append(urns, *urn)
+	}
+	people, err := s.repository.GetPeopleByIdentifier(ctx, urns...)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +148,15 @@ func (s *Service) GetOrganization(ctx context.Context, req *GetOrganizationReque
 }
 
 func (s *Service) GetOrganizationsById(ctx context.Context, req *GetOrganizationsByIdRequest) (*OrganizationListResponse, error) {
-	orgs, err := s.repository.GetOrganizationsByIdentifier(ctx, string(req.Type), req.ID)
+	urns := make([]models.URN, 0, len(req.ID))
+	for _, id := range req.ID {
+		urn, err := models.ParseURN(id)
+		if err != nil {
+			return nil, err
+		}
+		urns = append(urns, *urn)
+	}
+	orgs, err := s.repository.GetOrganizationsByIdentifier(ctx, urns...)
 	if err != nil {
 		return nil, err
 	}
@@ -230,9 +246,9 @@ func (s *Service) AddPerson(ctx context.Context, p *Person) (*Person, error) {
 	person.Settings = p.Settings.Value
 	person.HonorificPrefix = p.HonorificPrefix.Value
 
-	ids := []models.Identifier{}
+	ids := make([]models.URN, 0, len(p.Identifier))
 	for _, identifier := range p.Identifier {
-		ids = append(ids, models.NewIdentifier(identifier.PropertyID, identifier.Value))
+		ids = append(ids, models.NewURN(identifier.PropertyID, identifier.Value))
 	}
 	person.SetIdentifier(ids...)
 
@@ -288,9 +304,9 @@ func (s *Service) AddOrganization(ctx context.Context, o *Organization) (*Organi
 	org.SetParent(parents...)
 	org.Type = o.Type.Value
 
-	ids := []models.Identifier{}
+	ids := make([]models.URN, 0, len(o.Identifier))
 	for _, identifier := range o.Identifier {
-		ids = append(ids, models.NewIdentifier(identifier.PropertyID, identifier.Value))
+		ids = append(ids, models.NewURN(identifier.PropertyID, identifier.Value))
 	}
 	org.SetIdentifier(ids...)
 
@@ -374,7 +390,7 @@ func mapToExternalPerson(person *models.Person) *Person {
 	p.JobCategory = append(p.JobCategory, person.JobCategory...)
 	p.ObjectClass = append(p.ObjectClass, person.ObjectClass...)
 	for _, token := range person.Token {
-		p.Token = append(p.Token, newPropertyValue(token.PropertyID, token.Value))
+		p.Token = append(p.Token, newPropertyValue(token.Namespace, token.Value))
 	}
 
 	for _, orgMember := range person.Organization {
@@ -390,7 +406,7 @@ func mapToExternalPerson(person *models.Person) *Person {
 		p.Organization = append(p.Organization, externalOrgMember)
 	}
 	for _, id := range person.Identifier {
-		p.Identifier = append(p.Identifier, newPropertyValue(id.PropertyID, id.Value))
+		p.Identifier = append(p.Identifier, newPropertyValue(id.Namespace, id.Value))
 	}
 
 	p.Role = append(p.Role, person.Role...)
@@ -423,7 +439,7 @@ func mapToExternalOrganization(org *models.Organization) *Organization {
 		o.NameEng = NewOptString(org.NameEng)
 	}
 	for _, id := range org.Identifier {
-		o.Identifier = append(o.Identifier, newPropertyValue(id.PropertyID, id.Value))
+		o.Identifier = append(o.Identifier, newPropertyValue(id.Namespace, id.Value))
 	}
 	for _, organizationParent := range org.Parent {
 		op := OrganizationParent{

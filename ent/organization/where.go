@@ -234,6 +234,26 @@ func PublicIDContainsFold(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldContainsFold(FieldPublicID, v))
 }
 
+// IdentifierIsNil applies the IsNil predicate on the "identifier" field.
+func IdentifierIsNil() predicate.Organization {
+	return predicate.Organization(sql.FieldIsNull(FieldIdentifier))
+}
+
+// IdentifierNotNil applies the NotNil predicate on the "identifier" field.
+func IdentifierNotNil() predicate.Organization {
+	return predicate.Organization(sql.FieldNotNull(FieldIdentifier))
+}
+
+// IdentifierValuesIsNil applies the IsNil predicate on the "identifier_values" field.
+func IdentifierValuesIsNil() predicate.Organization {
+	return predicate.Organization(sql.FieldIsNull(FieldIdentifierValues))
+}
+
+// IdentifierValuesNotNil applies the NotNil predicate on the "identifier_values" field.
+func IdentifierValuesNotNil() predicate.Organization {
+	return predicate.Organization(sql.FieldNotNull(FieldIdentifierValues))
+}
+
 // TypeEQ applies the EQ predicate on the "type" field.
 func TypeEQ(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldEQ(FieldType, v))
@@ -522,16 +542,6 @@ func NameEngEqualFold(v string) predicate.Organization {
 // NameEngContainsFold applies the ContainsFold predicate on the "name_eng" field.
 func NameEngContainsFold(v string) predicate.Organization {
 	return predicate.Organization(sql.FieldContainsFold(FieldNameEng, v))
-}
-
-// IdentifierIsNil applies the IsNil predicate on the "identifier" field.
-func IdentifierIsNil() predicate.Organization {
-	return predicate.Organization(sql.FieldIsNull(FieldIdentifier))
-}
-
-// IdentifierNotNil applies the NotNil predicate on the "identifier" field.
-func IdentifierNotNil() predicate.Organization {
-	return predicate.Organization(sql.FieldNotNull(FieldIdentifier))
 }
 
 // And groups predicates with the AND operator between them.

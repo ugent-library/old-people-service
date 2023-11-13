@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/ugent-library/people-service/ent/schema"
 )
 
 const (
@@ -20,14 +19,16 @@ const (
 	FieldDateUpdated = "date_updated"
 	// FieldPublicID holds the string denoting the public_id field in the database.
 	FieldPublicID = "public_id"
+	// FieldIdentifier holds the string denoting the identifier field in the database.
+	FieldIdentifier = "identifier"
+	// FieldIdentifierValues holds the string denoting the identifier_values field in the database.
+	FieldIdentifierValues = "identifier_values"
 	// FieldActive holds the string denoting the active field in the database.
 	FieldActive = "active"
 	// FieldBirthDate holds the string denoting the birth_date field in the database.
 	FieldBirthDate = "birth_date"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
-	// FieldIdentifier holds the string denoting the identifier field in the database.
-	FieldIdentifier = "identifier"
 	// FieldGivenName holds the string denoting the given_name field in the database.
 	FieldGivenName = "given_name"
 	// FieldName holds the string denoting the name field in the database.
@@ -62,10 +63,11 @@ var Columns = []string{
 	FieldDateCreated,
 	FieldDateUpdated,
 	FieldPublicID,
+	FieldIdentifier,
+	FieldIdentifierValues,
 	FieldActive,
 	FieldBirthDate,
 	FieldEmail,
-	FieldIdentifier,
 	FieldGivenName,
 	FieldName,
 	FieldFamilyName,
@@ -99,10 +101,12 @@ var (
 	UpdateDefaultDateUpdated func() time.Time
 	// DefaultPublicID holds the default value on creation for the "public_id" field.
 	DefaultPublicID func() string
+	// DefaultIdentifier holds the default value on creation for the "identifier" field.
+	DefaultIdentifier []string
+	// DefaultIdentifierValues holds the default value on creation for the "identifier_values" field.
+	DefaultIdentifierValues []string
 	// DefaultActive holds the default value on creation for the "active" field.
 	DefaultActive bool
-	// DefaultIdentifier holds the default value on creation for the "identifier" field.
-	DefaultIdentifier schema.TypeVals
 	// DefaultJobCategory holds the default value on creation for the "job_category" field.
 	DefaultJobCategory []string
 	// DefaultRole holds the default value on creation for the "role" field.
@@ -112,7 +116,7 @@ var (
 	// DefaultObjectClass holds the default value on creation for the "object_class" field.
 	DefaultObjectClass []string
 	// DefaultToken holds the default value on creation for the "token" field.
-	DefaultToken schema.TypeVals
+	DefaultToken []string
 )
 
 // OrderOption defines the ordering options for the Person queries.

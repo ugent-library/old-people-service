@@ -11,7 +11,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/ugent-library/people-service/ent/organization"
-	"github.com/ugent-library/people-service/ent/schema"
 )
 
 // Organization is the model entity for the Organization schema.
@@ -25,6 +24,10 @@ type Organization struct {
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// PublicID holds the value of the "public_id" field.
 	PublicID string `json:"public_id,omitempty"`
+	// Identifier holds the value of the "identifier" field.
+	Identifier []string `json:"identifier,omitempty"`
+	// IdentifierValues holds the value of the "identifier_values" field.
+	IdentifierValues []string `json:"identifier_values,omitempty"`
 	// Type holds the value of the "type" field.
 	Type string `json:"type,omitempty"`
 	// Acronym holds the value of the "acronym" field.
@@ -32,9 +35,7 @@ type Organization struct {
 	// NameDut holds the value of the "name_dut" field.
 	NameDut string `json:"name_dut,omitempty"`
 	// NameEng holds the value of the "name_eng" field.
-	NameEng string `json:"name_eng,omitempty"`
-	// Identifier holds the value of the "identifier" field.
-	Identifier   schema.TypeVals `json:"identifier,omitempty"`
+	NameEng      string `json:"name_eng,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -43,7 +44,7 @@ func (*Organization) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case organization.FieldIdentifier:
+		case organization.FieldIdentifier, organization.FieldIdentifierValues:
 			values[i] = new([]byte)
 		case organization.FieldID:
 			values[i] = new(sql.NullInt64)
@@ -90,6 +91,22 @@ func (o *Organization) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				o.PublicID = value.String
 			}
+		case organization.FieldIdentifier:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field identifier", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &o.Identifier); err != nil {
+					return fmt.Errorf("unmarshal field identifier: %w", err)
+				}
+			}
+		case organization.FieldIdentifierValues:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field identifier_values", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &o.IdentifierValues); err != nil {
+					return fmt.Errorf("unmarshal field identifier_values: %w", err)
+				}
+			}
 		case organization.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
@@ -113,14 +130,6 @@ func (o *Organization) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name_eng", values[i])
 			} else if value.Valid {
 				o.NameEng = value.String
-			}
-		case organization.FieldIdentifier:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field identifier", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &o.Identifier); err != nil {
-					return fmt.Errorf("unmarshal field identifier: %w", err)
-				}
 			}
 		default:
 			o.selectValues.Set(columns[i], values[i])
@@ -167,6 +176,12 @@ func (o *Organization) String() string {
 	builder.WriteString("public_id=")
 	builder.WriteString(o.PublicID)
 	builder.WriteString(", ")
+	builder.WriteString("identifier=")
+	builder.WriteString(fmt.Sprintf("%v", o.Identifier))
+	builder.WriteString(", ")
+	builder.WriteString("identifier_values=")
+	builder.WriteString(fmt.Sprintf("%v", o.IdentifierValues))
+	builder.WriteString(", ")
 	builder.WriteString("type=")
 	builder.WriteString(o.Type)
 	builder.WriteString(", ")
@@ -178,9 +193,6 @@ func (o *Organization) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("name_eng=")
 	builder.WriteString(o.NameEng)
-	builder.WriteString(", ")
-	builder.WriteString("identifier=")
-	builder.WriteString(fmt.Sprintf("%v", o.Identifier))
 	builder.WriteByte(')')
 	return builder.String()
 }

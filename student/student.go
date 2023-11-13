@@ -36,11 +36,11 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 		}
 
 		if newPerson.Email == "" {
-			fmt.Fprintf(os.Stderr, "ignoring student record without email")
+			fmt.Fprintf(os.Stderr, "ignoring student record without email\n")
 			return nil
 		}
 
-		oldPerson, err := si.repository.GetPersonByIdentifier(ctx, "historic_ugent_id", newPerson.GetIdentifierValues("historic_ugent_id")...)
+		oldPerson, err := si.repository.GetPersonByIdentifier(ctx, newPerson.GetIdentifierByNS("historic_ugent_id")...)
 		if err != nil && !errors.Is(err, models.ErrNotFound) {
 			return err
 		}
@@ -54,7 +54,7 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 			var gismoId string
 			var orcid string
 			for _, id := range oldPerson.Identifier {
-				switch id.PropertyID {
+				switch id.Namespace {
 				case "orcid":
 					orcid = id.Value
 				case "gismo_id":
@@ -64,10 +64,10 @@ func (si *Importer) Each(cb func(*models.Person) error) error {
 			oldPerson.ClearIdentifier()
 			oldPerson.SetIdentifier(newPerson.Identifier...)
 			if gismoId != "" {
-				oldPerson.AddIdentifier("gismo_id", gismoId)
+				oldPerson.AddIdentifier(models.NewURN("gismo_id", gismoId))
 			}
 			if orcid != "" {
-				oldPerson.AddIdentifier("orcid", orcid)
+				oldPerson.AddIdentifier(models.NewURN("orcid", orcid))
 			}
 			oldPerson.Active = true
 			oldPerson.BirthDate = newPerson.BirthDate
@@ -129,13 +129,13 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 		for _, val := range attr.Values {
 			switch attr.Name {
 			case "uid":
-				newPerson.AddIdentifier("ugent_username", val)
+				newPerson.AddIdentifier(models.NewURN("ugent_username", val))
 			case "ugentID":
-				newPerson.AddIdentifier("ugent_id", val)
+				newPerson.AddIdentifier(models.NewURN("ugent_id", val))
 			case "ugentHistoricIDs":
-				newPerson.AddIdentifier("historic_ugent_id", val)
+				newPerson.AddIdentifier(models.NewURN("historic_ugent_id", val))
 			case "ugentBarcode":
-				newPerson.AddIdentifier("ugent_barcode", val)
+				newPerson.AddIdentifier(models.NewURN("ugent_barcode", val))
 			case "ugentPreferredGivenName":
 				newPerson.GivenName = val
 			case "ugentPreferredSn":
@@ -155,7 +155,7 @@ func (si *Importer) ldapEntryToPerson(ldapEntry *ldap.Entry) (*models.Person, er
 			case "ugentExpirationDate":
 				newPerson.ExpirationDate = val
 			case "departmentNumber":
-				realOrgs, err := si.repository.GetOrganizationsByIdentifier(ctx, "ugent_id", val)
+				realOrgs, err := si.repository.GetOrganizationsByIdentifier(ctx, models.NewURN("ugent_id", val))
 				// ignore for now. Maybe tomorrow on the next run
 				if err != nil {
 					return nil, err

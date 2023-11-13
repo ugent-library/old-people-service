@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/ugent-library/people-service/ent/schema"
 )
 
 const (
@@ -20,6 +19,10 @@ const (
 	FieldDateUpdated = "date_updated"
 	// FieldPublicID holds the string denoting the public_id field in the database.
 	FieldPublicID = "public_id"
+	// FieldIdentifier holds the string denoting the identifier field in the database.
+	FieldIdentifier = "identifier"
+	// FieldIdentifierValues holds the string denoting the identifier_values field in the database.
+	FieldIdentifierValues = "identifier_values"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
 	// FieldAcronym holds the string denoting the acronym field in the database.
@@ -28,8 +31,6 @@ const (
 	FieldNameDut = "name_dut"
 	// FieldNameEng holds the string denoting the name_eng field in the database.
 	FieldNameEng = "name_eng"
-	// FieldIdentifier holds the string denoting the identifier field in the database.
-	FieldIdentifier = "identifier"
 	// Table holds the table name of the organization in the database.
 	Table = "organization"
 )
@@ -40,11 +41,12 @@ var Columns = []string{
 	FieldDateCreated,
 	FieldDateUpdated,
 	FieldPublicID,
+	FieldIdentifier,
+	FieldIdentifierValues,
 	FieldType,
 	FieldAcronym,
 	FieldNameDut,
 	FieldNameEng,
-	FieldIdentifier,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -66,10 +68,12 @@ var (
 	UpdateDefaultDateUpdated func() time.Time
 	// DefaultPublicID holds the default value on creation for the "public_id" field.
 	DefaultPublicID func() string
+	// DefaultIdentifier holds the default value on creation for the "identifier" field.
+	DefaultIdentifier []string
+	// DefaultIdentifierValues holds the default value on creation for the "identifier_values" field.
+	DefaultIdentifierValues []string
 	// DefaultType holds the default value on creation for the "type" field.
 	DefaultType string
-	// DefaultIdentifier holds the default value on creation for the "identifier" field.
-	DefaultIdentifier schema.TypeVals
 )
 
 // OrderOption defines the ordering options for the Organization queries.

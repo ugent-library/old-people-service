@@ -13,7 +13,7 @@ type Organization struct {
 	NameDut     string               `json:"name_dut,omitempty"`
 	NameEng     string               `json:"name_eng,omitempty"`
 	Parent      []OrganizationParent `json:"parent,omitempty"`
-	Identifier  []Identifier         `json:"identifier,omitempty"`
+	Identifier  []URN                `json:"identifier,omitempty"`
 	Acronym     string               `json:"acronym,omitempty"`
 }
 
@@ -26,36 +26,53 @@ func NewOrganization() *Organization {
 	return org
 }
 
-func (org *Organization) AddIdentifier(propertyID string, value string) {
-	org.Identifier = append(org.Identifier, NewIdentifier(propertyID, value))
-	sort.Sort(ByIdentifier(org.Identifier))
+func (org *Organization) AddIdentifier(urn URN) {
+	org.Identifier = append(org.Identifier, urn)
+	sort.Sort(ByURN(org.Identifier))
 }
 
-func (org *Organization) SetIdentifier(ids ...Identifier) {
-	sort.Sort(ByIdentifier(ids))
-	org.Identifier = ids
+func (org *Organization) SetIdentifier(urns ...URN) {
+	sort.Sort(ByURN(urns))
+	org.Identifier = urns
 }
 
 func (org *Organization) ClearIdentifier() {
 	org.Identifier = nil
 }
 
-func (org *Organization) GetIdentifierValues(propertyID string) []string {
-	vals := make([]string, 0, len(org.Identifier))
+func (org *Organization) GetIdentifierQualifiedValues() []string {
+	ids := make([]string, 0, len(org.Identifier))
 	for _, id := range org.Identifier {
-		if id.PropertyID == propertyID {
-			vals = append(vals, id.Value)
-		}
+		ids = append(ids, id.String())
 	}
-	return vals
+	return ids
 }
 
-func (org *Organization) GetIdentifierValue(propertyID string) string {
-	vals := org.GetIdentifierValues(propertyID)
-	if len(vals) > 0 {
-		return vals[0]
+func (org *Organization) GetIdentifierValues() []string {
+	ids := make([]string, 0, len(org.Identifier))
+	for _, id := range org.Identifier {
+		ids = append(ids, id.Value)
+	}
+	return ids
+}
+
+func (org *Organization) GetIdentifierValueByNS(ns string) string {
+	for _, id := range org.Identifier {
+		if id.Namespace == ns {
+			return id.Value
+		}
 	}
 	return ""
+}
+
+func (org *Organization) GetIdentifierByNS(ns string) []URN {
+	urns := []URN{}
+	for _, id := range org.Identifier {
+		if id.Namespace == ns {
+			urns = append(urns, id)
+		}
+	}
+	return urns
 }
 
 func (org *Organization) SetParent(parents ...OrganizationParent) {

@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
+	"strings"
 	"time"
 
 	entsql "entgo.io/ent/dialect/sql"
@@ -19,7 +20,6 @@ import (
 	"github.com/ugent-library/people-service/ent/organizationparent"
 	"github.com/ugent-library/people-service/ent/organizationperson"
 	"github.com/ugent-library/people-service/ent/person"
-	"github.com/ugent-library/people-service/ent/schema"
 	"github.com/ugent-library/people-service/models"
 )
 
@@ -182,9 +182,13 @@ func (repo *repository) GetOrganization(ctx context.Context, id string) (*models
 	return repo.orgUnwrap(row, organizationParents), nil
 }
 
-func (repo *repository) GetOrganizationByIdentifier(ctx context.Context, typ string, vals ...string) (*models.Organization, error) {
+func (repo *repository) GetOrganizationByIdentifier(ctx context.Context, urns ...models.URN) (*models.Organization, error) {
+	ids := make([]string, 0, len(urns))
+	for _, urn := range urns {
+		ids = append(ids, urn.String())
+	}
 	row, err := repo.client.Organization.Query().Where(func(s *entsql.Selector) {
-		s.Where(entsql.ExprP("identifier->$1 ?| $2", typ, vals))
+		s.Where(entsql.ExprP("identifier ?| $1", ids))
 	}).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
@@ -201,9 +205,13 @@ func (repo *repository) GetOrganizationByIdentifier(ctx context.Context, typ str
 	return repo.orgUnwrap(row, organizationParents), nil
 }
 
-func (repo *repository) GetOrganizationsByIdentifier(ctx context.Context, typ string, vals ...string) ([]*models.Organization, error) {
+func (repo *repository) GetOrganizationsByIdentifier(ctx context.Context, urns ...models.URN) ([]*models.Organization, error) {
+	ids := make([]string, 0, len(urns))
+	for _, urn := range urns {
+		ids = append(ids, urn.String())
+	}
 	rows, err := repo.client.Organization.Query().Where(func(s *entsql.Selector) {
-		s.Where(entsql.ExprP("identifier->$1 ?| $2", typ, vals))
+		s.Where(entsql.ExprP("identifier ?| $1", ids))
 	}).All(ctx)
 
 	if err != nil {
@@ -252,11 +260,8 @@ func (repo *repository) CreateOrganization(ctx context.Context, org *models.Orga
 
 	t := tx.Organization.Create()
 
-	identifiers := schema.TypeVals{}
-	for _, id := range org.Identifier {
-		identifiers.Add(id.PropertyID, id.Value)
-	}
-	t.SetIdentifier(identifiers)
+	t.SetIdentifier(org.GetIdentifierQualifiedValues())
+	t.SetIdentifierValues(org.GetIdentifierValues())
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	var typ *string
@@ -345,11 +350,8 @@ func (repo *repository) UpdateOrganization(ctx context.Context, org *models.Orga
 
 	t := tx.Organization.Update().Where(organization.IDEQ(orgRow.ID))
 
-	identifiers := schema.TypeVals{}
-	for _, id := range org.Identifier {
-		identifiers.Add(id.PropertyID, id.Value)
-	}
-	t.SetIdentifier(identifiers)
+	t.SetIdentifier(org.GetIdentifierQualifiedValues())
+	t.SetIdentifierValues(org.GetIdentifierValues())
 	t.SetNameDut(org.NameDut)
 	t.SetNameEng(org.NameEng)
 	var typ *string
@@ -587,10 +589,10 @@ func (repo *repository) orgUnwrap(organizationRow *ent.Organization, organizatio
 		Acronym:     organizationRow.Acronym,
 	}
 
-	for key, vals := range organizationRow.Identifier {
-		for _, val := range vals {
-			org.AddIdentifier(key, val)
-		}
+	for _, id := range organizationRow.Identifier {
+		urn, _ := models.ParseURN(id)
+		org.AddIdentifier(*urn)
+
 	}
 
 	for _, organizationParent := range organizationParents {
@@ -641,21 +643,19 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 	}
 	t.SetExpirationDate(p.ExpirationDate)
 
-	tokens := schema.TypeVals{}
+	tokens := make([]string, 0, len(p.Token))
 	for _, token := range p.Token {
 		eToken, err := encryptMessage(repo.secret, token.Value)
 		if err != nil {
-			return nil, fmt.Errorf("unable to encrypt %s: %w", token.PropertyID, err)
+			return nil, fmt.Errorf("unable to encrypt %s: %w", token.Namespace, err)
 		}
-		tokens.Add(token.PropertyID, eToken)
+		eURN := models.NewURN(token.Namespace, eToken)
+		tokens = append(tokens, eURN.String())
 	}
 	t.SetToken(tokens)
 
-	identifiers := schema.TypeVals{}
-	for _, id := range p.Identifier {
-		identifiers.Add(id.PropertyID, id.Value)
-	}
-	t.SetIdentifier(identifiers)
+	t.SetIdentifier(p.GetIdentifierQualifiedValues())
+	t.SetIdentifierValues(p.GetIdentifierValues())
 	t.SetPreferredGivenName(p.PreferredGivenName)
 	t.SetPreferredFamilyName(p.PreferredFamilyName)
 
@@ -702,77 +702,89 @@ func (repo *repository) CreatePerson(ctx context.Context, p *models.Person) (*mo
 }
 
 func (repo *repository) SetPersonOrcid(ctx context.Context, id string, orcid string) error {
-	var sqlRes sql.Result
-	var err error
+	tx, err := repo.client.Tx(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to start transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	row, err := tx.Person.Query().Where(person.PublicIDEQ(id)).First(ctx)
+	if err != nil {
+		var e *ent.NotFoundError
+		if errors.As(err, &e) {
+			return models.ErrNotFound
+		}
+		return err
+	}
 
 	if orcid == "" {
-		sqlRes, err = repo.client.Person.ExecContext(
-			ctx,
-			"UPDATE person SET date_updated = $1, identifier = identifier - 'orcid'  WHERE public_id = $2",
-			time.Now(),
-			id,
-		)
+		row.Identifier = lo.Filter(row.Identifier, func(id string, idx int) bool {
+			return !strings.HasPrefix(id, "urn:orcid:")
+		})
 	} else {
-		jsonb, _ := json.Marshal(schema.TypeVals{}.Add("orcid", orcid))
-		sqlRes, err = repo.client.Person.ExecContext(
-			ctx,
-			"UPDATE person SET date_updated = $1, identifier = identifier || $2::jsonb WHERE public_id = $3",
-			time.Now(),
-			string(jsonb),
-			id,
-		)
+		row.Identifier = append(row.Identifier, "urn:orcid:"+orcid)
+		row.Identifier = lo.Uniq(row.Identifier)
+		sort.Strings(row.Identifier)
 	}
+
+	identifier_values := make([]string, 0, len(row.Identifier))
+	for _, id := range row.Identifier {
+		u, _ := models.ParseURN(id)
+		identifier_values = append(identifier_values, u.Value)
+	}
+	_, err = tx.Person.UpdateOne(row).
+		SetIdentifier(row.Identifier).
+		SetIdentifierValues(identifier_values).Save(ctx)
 	if err != nil {
 		return err
 	}
 
-	nUpdated, err := sqlRes.RowsAffected()
-	if err != nil {
-		return err
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("unable to commit transaction: %w", err)
 	}
-	if nUpdated == 0 {
-		return models.ErrNotFound
-	}
+
 	return nil
 }
 
 func (repo *repository) SetPersonOrcidToken(ctx context.Context, id string, orcidToken string) error {
-	var uToken string
-	var err error
-	var sqlRes sql.Result
+	tx, err := repo.client.Tx(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to start transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	row, err := tx.Person.Query().Where(person.PublicIDEQ(id)).First(ctx)
+	if err != nil {
+		var e *ent.NotFoundError
+		if errors.As(err, &e) {
+			return models.ErrNotFound
+		}
+		return err
+	}
 
 	if orcidToken == "" {
-		sqlRes, err = repo.client.Person.ExecContext(
-			ctx,
-			"UPDATE person SET date_updated = $1, token = token - 'orcid' WHERE public_id = $2",
-			time.Now(),
-			id,
-		)
+		row.Token = lo.Filter(row.Token, func(token string, idx int) bool {
+			return !strings.HasPrefix(token, "urn:orcid:")
+		})
 	} else {
-		uToken, err = encryptMessage(repo.secret, orcidToken)
+		uToken, err := encryptMessage(repo.secret, orcidToken)
 		if err != nil {
 			return fmt.Errorf("unable to encrypt orcid_token: %w", err)
 		}
-		jsonb, _ := json.Marshal(schema.TypeVals{}.Add("orcid", uToken))
-		sqlRes, err = repo.client.Person.ExecContext(
-			ctx,
-			"UPDATE person SET date_updated = $1, token = token || $2::jsonb WHERE public_id = $3",
-			time.Now(),
-			string(jsonb),
-			id,
-		)
+		row.Token = append(row.Token, "urn:orcid:"+uToken)
+		row.Token = lo.Uniq(row.Token)
+		sort.Strings(row.Token)
 	}
 
+	_, err = tx.Person.UpdateOne(row).SetToken(row.Token).Save(ctx)
 	if err != nil {
 		return err
 	}
-	nUpdated, err := sqlRes.RowsAffected()
-	if err != nil {
-		return err
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("unable to commit transaction: %w", err)
 	}
-	if nUpdated == 0 {
-		return models.ErrNotFound
-	}
+
 	return nil
 }
 
@@ -804,21 +816,19 @@ func (repo *repository) UpdatePerson(ctx context.Context, p *models.Person) (*mo
 	t.SetObjectClass(p.ObjectClass)
 	t.SetExpirationDate(p.ExpirationDate)
 
-	tokens := schema.TypeVals{}
+	tokens := make([]string, 0, len(p.Token))
 	for _, token := range p.Token {
 		eToken, err := encryptMessage(repo.secret, token.Value)
 		if err != nil {
-			return nil, fmt.Errorf("unable to encrypt %s: %w", token.PropertyID, err)
+			return nil, fmt.Errorf("unable to encrypt %s: %w", token.Namespace, err)
 		}
-		tokens.Add(token.PropertyID, eToken)
+		eURN := models.NewURN(token.Namespace, eToken)
+		tokens = append(tokens, eURN.String())
 	}
 	t.SetToken(tokens)
 
-	identifiers := schema.TypeVals{}
-	for _, id := range p.Identifier {
-		identifiers.Add(id.PropertyID, id.Value)
-	}
-	t.SetIdentifier(identifiers)
+	t.SetIdentifier(p.GetIdentifierQualifiedValues())
+	t.SetIdentifierValues(p.GetIdentifierValues())
 	t.SetPreferredGivenName(p.PreferredGivenName)
 	t.SetPreferredFamilyName(p.PreferredFamilyName)
 
@@ -905,9 +915,13 @@ func (repo *repository) GetPerson(ctx context.Context, id string) (*models.Perso
 	return repo.personUnwrap(row, personOrganizations)
 }
 
-func (repo *repository) GetPersonByIdentifier(ctx context.Context, typ string, vals ...string) (*models.Person, error) {
+func (repo *repository) GetPersonByIdentifier(ctx context.Context, urns ...models.URN) (*models.Person, error) {
+	ids := make([]string, 0, len(urns))
+	for _, urn := range urns {
+		ids = append(ids, urn.String())
+	}
 	row, err := repo.client.Person.Query().Where(func(s *entsql.Selector) {
-		s.Where(entsql.ExprP("identifier->$1 ?| $2", typ, vals))
+		s.Where(entsql.ExprP("identifier ?| $1", ids))
 	}).First(ctx)
 	if err != nil {
 		var e *ent.NotFoundError
@@ -925,9 +939,13 @@ func (repo *repository) GetPersonByIdentifier(ctx context.Context, typ string, v
 	return repo.personUnwrap(row, personOrganizations)
 }
 
-func (repo *repository) GetPeopleByIdentifier(ctx context.Context, typ string, vals ...string) ([]*models.Person, error) {
+func (repo *repository) GetPeopleByIdentifier(ctx context.Context, urns ...models.URN) ([]*models.Person, error) {
+	ids := make([]string, 0, len(urns))
+	for _, urn := range urns {
+		ids = append(ids, urn.String())
+	}
 	rows, err := repo.client.Person.Query().Where(func(s *entsql.Selector) {
-		s.Where(entsql.ExprP("identifier->$1 ?| $2", typ, vals))
+		s.Where(entsql.ExprP("identifier ?| $1", ids))
 	}).All(ctx)
 	if err != nil {
 		return nil, err
@@ -1081,18 +1099,17 @@ func (repo *repository) personUnwrap(entPerson *ent.Person, internalOrganization
 		organizationMembers = append(organizationMembers, orgMember)
 	}
 
-	var tokens []models.Token
-	for typ, eTokenVals := range entPerson.Token {
-		for _, eTokenVal := range eTokenVals {
-			rawTokenVal, err := decryptMessage(repo.secret, eTokenVal)
-			if err != nil {
-				return nil, fmt.Errorf("unable to decrypt %s token: %w", typ, err)
-			}
-			tokens = append(tokens, models.Token{
-				PropertyID: typ,
-				Value:      rawTokenVal,
-			})
+	var tokens []models.URN
+	for _, eURNVal := range entPerson.Token {
+		eURN, _ := models.ParseURN(eURNVal)
+		rawTokenVal, err := decryptMessage(repo.secret, eURN.Value)
+		if err != nil {
+			return nil, fmt.Errorf("unable to decrypt %s token: %w", eURN.Namespace, err)
 		}
+		tokens = append(tokens, models.URN{
+			Namespace: eURN.Namespace,
+			Value:     rawTokenVal,
+		})
 	}
 
 	p := &models.Person{
@@ -1117,10 +1134,9 @@ func (repo *repository) personUnwrap(entPerson *ent.Person, internalOrganization
 		ObjectClass:         entPerson.ObjectClass,
 	}
 
-	for key, vals := range entPerson.Identifier {
-		for _, val := range vals {
-			p.AddIdentifier(key, val)
-		}
+	for _, idVal := range entPerson.Identifier {
+		urn, _ := models.ParseURN(idVal)
+		p.AddIdentifier(*urn)
 	}
 
 	return p, nil

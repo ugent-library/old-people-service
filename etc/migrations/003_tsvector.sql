@@ -12,16 +12,17 @@ ALTER TEXT SEARCH CONFIGURATION usimple ALTER MAPPING FOR hword, hword_part, wor
 ALTER TABLE organization
 ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS
 (
-  to_tsvector('simple', jsonb_path_query_array(identifier,'$.**{2}')) ||
+  to_tsvector('simple', identifier_values) ||
   to_tsvector('simple', public_id) ||
-  to_tsvector('usimple',name_dut) ||
-  to_tsvector('usimple', name_eng) ||
-  to_tsvector('simple', acronym)
+  to_tsvector('usimple',coalesce(name_dut, '')) ||
+  to_tsvector('usimple', coalesce(name_eng, '')) ||
+  to_tsvector('simple', coalesce(acronym, ''))
 ) STORED;
 CREATE INDEX IF NOT EXISTS organization_ts_idx ON organization USING GIN(ts);
 ALTER TABLE person
   ADD COLUMN IF NOT EXISTS ts tsvector GENERATED ALWAYS AS (
-    to_tsvector('usimple',name)
+    to_tsvector('usimple',coalesce(name, '')) ||
+    to_tsvector('simple', identifier_values)
   ) STORED;
 CREATE INDEX IF NOT EXISTS person_ts_idx ON person USING GIN(ts);
 

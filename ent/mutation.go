@@ -16,7 +16,6 @@ import (
 	"github.com/ugent-library/people-service/ent/organizationperson"
 	"github.com/ugent-library/people-service/ent/person"
 	"github.com/ugent-library/people-service/ent/predicate"
-	"github.com/ugent-library/people-service/ent/schema"
 )
 
 const (
@@ -37,21 +36,24 @@ const (
 // OrganizationMutation represents an operation that mutates the Organization nodes in the graph.
 type OrganizationMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	date_created  *time.Time
-	date_updated  *time.Time
-	public_id     *string
-	_type         *string
-	acronym       *string
-	name_dut      *string
-	name_eng      *string
-	identifier    *schema.TypeVals
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Organization, error)
-	predicates    []predicate.Organization
+	op                      Op
+	typ                     string
+	id                      *int
+	date_created            *time.Time
+	date_updated            *time.Time
+	public_id               *string
+	identifier              *[]string
+	appendidentifier        []string
+	identifier_values       *[]string
+	appendidentifier_values []string
+	_type                   *string
+	acronym                 *string
+	name_dut                *string
+	name_eng                *string
+	clearedFields           map[string]struct{}
+	done                    bool
+	oldValue                func(context.Context) (*Organization, error)
+	predicates              []predicate.Organization
 }
 
 var _ ent.Mutation = (*OrganizationMutation)(nil)
@@ -260,6 +262,136 @@ func (m *OrganizationMutation) ResetPublicID() {
 	m.public_id = nil
 }
 
+// SetIdentifier sets the "identifier" field.
+func (m *OrganizationMutation) SetIdentifier(s []string) {
+	m.identifier = &s
+	m.appendidentifier = nil
+}
+
+// Identifier returns the value of the "identifier" field in the mutation.
+func (m *OrganizationMutation) Identifier() (r []string, exists bool) {
+	v := m.identifier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIdentifier returns the old "identifier" field's value of the Organization entity.
+// If the Organization object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrganizationMutation) OldIdentifier(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIdentifier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIdentifier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIdentifier: %w", err)
+	}
+	return oldValue.Identifier, nil
+}
+
+// AppendIdentifier adds s to the "identifier" field.
+func (m *OrganizationMutation) AppendIdentifier(s []string) {
+	m.appendidentifier = append(m.appendidentifier, s...)
+}
+
+// AppendedIdentifier returns the list of values that were appended to the "identifier" field in this mutation.
+func (m *OrganizationMutation) AppendedIdentifier() ([]string, bool) {
+	if len(m.appendidentifier) == 0 {
+		return nil, false
+	}
+	return m.appendidentifier, true
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (m *OrganizationMutation) ClearIdentifier() {
+	m.identifier = nil
+	m.appendidentifier = nil
+	m.clearedFields[organization.FieldIdentifier] = struct{}{}
+}
+
+// IdentifierCleared returns if the "identifier" field was cleared in this mutation.
+func (m *OrganizationMutation) IdentifierCleared() bool {
+	_, ok := m.clearedFields[organization.FieldIdentifier]
+	return ok
+}
+
+// ResetIdentifier resets all changes to the "identifier" field.
+func (m *OrganizationMutation) ResetIdentifier() {
+	m.identifier = nil
+	m.appendidentifier = nil
+	delete(m.clearedFields, organization.FieldIdentifier)
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (m *OrganizationMutation) SetIdentifierValues(s []string) {
+	m.identifier_values = &s
+	m.appendidentifier_values = nil
+}
+
+// IdentifierValues returns the value of the "identifier_values" field in the mutation.
+func (m *OrganizationMutation) IdentifierValues() (r []string, exists bool) {
+	v := m.identifier_values
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIdentifierValues returns the old "identifier_values" field's value of the Organization entity.
+// If the Organization object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *OrganizationMutation) OldIdentifierValues(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIdentifierValues is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIdentifierValues requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIdentifierValues: %w", err)
+	}
+	return oldValue.IdentifierValues, nil
+}
+
+// AppendIdentifierValues adds s to the "identifier_values" field.
+func (m *OrganizationMutation) AppendIdentifierValues(s []string) {
+	m.appendidentifier_values = append(m.appendidentifier_values, s...)
+}
+
+// AppendedIdentifierValues returns the list of values that were appended to the "identifier_values" field in this mutation.
+func (m *OrganizationMutation) AppendedIdentifierValues() ([]string, bool) {
+	if len(m.appendidentifier_values) == 0 {
+		return nil, false
+	}
+	return m.appendidentifier_values, true
+}
+
+// ClearIdentifierValues clears the value of the "identifier_values" field.
+func (m *OrganizationMutation) ClearIdentifierValues() {
+	m.identifier_values = nil
+	m.appendidentifier_values = nil
+	m.clearedFields[organization.FieldIdentifierValues] = struct{}{}
+}
+
+// IdentifierValuesCleared returns if the "identifier_values" field was cleared in this mutation.
+func (m *OrganizationMutation) IdentifierValuesCleared() bool {
+	_, ok := m.clearedFields[organization.FieldIdentifierValues]
+	return ok
+}
+
+// ResetIdentifierValues resets all changes to the "identifier_values" field.
+func (m *OrganizationMutation) ResetIdentifierValues() {
+	m.identifier_values = nil
+	m.appendidentifier_values = nil
+	delete(m.clearedFields, organization.FieldIdentifierValues)
+}
+
 // SetType sets the "type" field.
 func (m *OrganizationMutation) SetType(s string) {
 	m._type = &s
@@ -443,55 +575,6 @@ func (m *OrganizationMutation) ResetNameEng() {
 	delete(m.clearedFields, organization.FieldNameEng)
 }
 
-// SetIdentifier sets the "identifier" field.
-func (m *OrganizationMutation) SetIdentifier(sv schema.TypeVals) {
-	m.identifier = &sv
-}
-
-// Identifier returns the value of the "identifier" field in the mutation.
-func (m *OrganizationMutation) Identifier() (r schema.TypeVals, exists bool) {
-	v := m.identifier
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldIdentifier returns the old "identifier" field's value of the Organization entity.
-// If the Organization object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrganizationMutation) OldIdentifier(ctx context.Context) (v schema.TypeVals, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIdentifier is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIdentifier requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIdentifier: %w", err)
-	}
-	return oldValue.Identifier, nil
-}
-
-// ClearIdentifier clears the value of the "identifier" field.
-func (m *OrganizationMutation) ClearIdentifier() {
-	m.identifier = nil
-	m.clearedFields[organization.FieldIdentifier] = struct{}{}
-}
-
-// IdentifierCleared returns if the "identifier" field was cleared in this mutation.
-func (m *OrganizationMutation) IdentifierCleared() bool {
-	_, ok := m.clearedFields[organization.FieldIdentifier]
-	return ok
-}
-
-// ResetIdentifier resets all changes to the "identifier" field.
-func (m *OrganizationMutation) ResetIdentifier() {
-	m.identifier = nil
-	delete(m.clearedFields, organization.FieldIdentifier)
-}
-
 // Where appends a list predicates to the OrganizationMutation builder.
 func (m *OrganizationMutation) Where(ps ...predicate.Organization) {
 	m.predicates = append(m.predicates, ps...)
@@ -526,7 +609,7 @@ func (m *OrganizationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *OrganizationMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.date_created != nil {
 		fields = append(fields, organization.FieldDateCreated)
 	}
@@ -535,6 +618,12 @@ func (m *OrganizationMutation) Fields() []string {
 	}
 	if m.public_id != nil {
 		fields = append(fields, organization.FieldPublicID)
+	}
+	if m.identifier != nil {
+		fields = append(fields, organization.FieldIdentifier)
+	}
+	if m.identifier_values != nil {
+		fields = append(fields, organization.FieldIdentifierValues)
 	}
 	if m._type != nil {
 		fields = append(fields, organization.FieldType)
@@ -547,9 +636,6 @@ func (m *OrganizationMutation) Fields() []string {
 	}
 	if m.name_eng != nil {
 		fields = append(fields, organization.FieldNameEng)
-	}
-	if m.identifier != nil {
-		fields = append(fields, organization.FieldIdentifier)
 	}
 	return fields
 }
@@ -565,6 +651,10 @@ func (m *OrganizationMutation) Field(name string) (ent.Value, bool) {
 		return m.DateUpdated()
 	case organization.FieldPublicID:
 		return m.PublicID()
+	case organization.FieldIdentifier:
+		return m.Identifier()
+	case organization.FieldIdentifierValues:
+		return m.IdentifierValues()
 	case organization.FieldType:
 		return m.GetType()
 	case organization.FieldAcronym:
@@ -573,8 +663,6 @@ func (m *OrganizationMutation) Field(name string) (ent.Value, bool) {
 		return m.NameDut()
 	case organization.FieldNameEng:
 		return m.NameEng()
-	case organization.FieldIdentifier:
-		return m.Identifier()
 	}
 	return nil, false
 }
@@ -590,6 +678,10 @@ func (m *OrganizationMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldDateUpdated(ctx)
 	case organization.FieldPublicID:
 		return m.OldPublicID(ctx)
+	case organization.FieldIdentifier:
+		return m.OldIdentifier(ctx)
+	case organization.FieldIdentifierValues:
+		return m.OldIdentifierValues(ctx)
 	case organization.FieldType:
 		return m.OldType(ctx)
 	case organization.FieldAcronym:
@@ -598,8 +690,6 @@ func (m *OrganizationMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldNameDut(ctx)
 	case organization.FieldNameEng:
 		return m.OldNameEng(ctx)
-	case organization.FieldIdentifier:
-		return m.OldIdentifier(ctx)
 	}
 	return nil, fmt.Errorf("unknown Organization field %s", name)
 }
@@ -630,6 +720,20 @@ func (m *OrganizationMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPublicID(v)
 		return nil
+	case organization.FieldIdentifier:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIdentifier(v)
+		return nil
+	case organization.FieldIdentifierValues:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIdentifierValues(v)
+		return nil
 	case organization.FieldType:
 		v, ok := value.(string)
 		if !ok {
@@ -657,13 +761,6 @@ func (m *OrganizationMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetNameEng(v)
-		return nil
-	case organization.FieldIdentifier:
-		v, ok := value.(schema.TypeVals)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetIdentifier(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Organization field %s", name)
@@ -695,6 +792,12 @@ func (m *OrganizationMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *OrganizationMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(organization.FieldIdentifier) {
+		fields = append(fields, organization.FieldIdentifier)
+	}
+	if m.FieldCleared(organization.FieldIdentifierValues) {
+		fields = append(fields, organization.FieldIdentifierValues)
+	}
 	if m.FieldCleared(organization.FieldAcronym) {
 		fields = append(fields, organization.FieldAcronym)
 	}
@@ -703,9 +806,6 @@ func (m *OrganizationMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(organization.FieldNameEng) {
 		fields = append(fields, organization.FieldNameEng)
-	}
-	if m.FieldCleared(organization.FieldIdentifier) {
-		fields = append(fields, organization.FieldIdentifier)
 	}
 	return fields
 }
@@ -721,6 +821,12 @@ func (m *OrganizationMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *OrganizationMutation) ClearField(name string) error {
 	switch name {
+	case organization.FieldIdentifier:
+		m.ClearIdentifier()
+		return nil
+	case organization.FieldIdentifierValues:
+		m.ClearIdentifierValues()
+		return nil
 	case organization.FieldAcronym:
 		m.ClearAcronym()
 		return nil
@@ -729,9 +835,6 @@ func (m *OrganizationMutation) ClearField(name string) error {
 		return nil
 	case organization.FieldNameEng:
 		m.ClearNameEng()
-		return nil
-	case organization.FieldIdentifier:
-		m.ClearIdentifier()
 		return nil
 	}
 	return fmt.Errorf("unknown Organization nullable field %s", name)
@@ -750,6 +853,12 @@ func (m *OrganizationMutation) ResetField(name string) error {
 	case organization.FieldPublicID:
 		m.ResetPublicID()
 		return nil
+	case organization.FieldIdentifier:
+		m.ResetIdentifier()
+		return nil
+	case organization.FieldIdentifierValues:
+		m.ResetIdentifierValues()
+		return nil
 	case organization.FieldType:
 		m.ResetType()
 		return nil
@@ -761,9 +870,6 @@ func (m *OrganizationMutation) ResetField(name string) error {
 		return nil
 	case organization.FieldNameEng:
 		m.ResetNameEng()
-		return nil
-	case organization.FieldIdentifier:
-		m.ResetIdentifier()
 		return nil
 	}
 	return fmt.Errorf("unknown Organization field %s", name)
@@ -2194,35 +2300,39 @@ func (m *OrganizationPersonMutation) ResetEdge(name string) error {
 // PersonMutation represents an operation that mutates the Person nodes in the graph.
 type PersonMutation struct {
 	config
-	op                    Op
-	typ                   string
-	id                    *int
-	date_created          *time.Time
-	date_updated          *time.Time
-	public_id             *string
-	active                *bool
-	birth_date            *string
-	email                 *string
-	identifier            *schema.TypeVals
-	given_name            *string
-	name                  *string
-	family_name           *string
-	job_category          *[]string
-	appendjob_category    []string
-	preferred_given_name  *string
-	preferred_family_name *string
-	honorific_prefix      *string
-	role                  *[]string
-	appendrole            []string
-	settings              *map[string]string
-	object_class          *[]string
-	appendobject_class    []string
-	expiration_date       *string
-	token                 *schema.TypeVals
-	clearedFields         map[string]struct{}
-	done                  bool
-	oldValue              func(context.Context) (*Person, error)
-	predicates            []predicate.Person
+	op                      Op
+	typ                     string
+	id                      *int
+	date_created            *time.Time
+	date_updated            *time.Time
+	public_id               *string
+	identifier              *[]string
+	appendidentifier        []string
+	identifier_values       *[]string
+	appendidentifier_values []string
+	active                  *bool
+	birth_date              *string
+	email                   *string
+	given_name              *string
+	name                    *string
+	family_name             *string
+	job_category            *[]string
+	appendjob_category      []string
+	preferred_given_name    *string
+	preferred_family_name   *string
+	honorific_prefix        *string
+	role                    *[]string
+	appendrole              []string
+	settings                *map[string]string
+	object_class            *[]string
+	appendobject_class      []string
+	expiration_date         *string
+	token                   *[]string
+	appendtoken             []string
+	clearedFields           map[string]struct{}
+	done                    bool
+	oldValue                func(context.Context) (*Person, error)
+	predicates              []predicate.Person
 }
 
 var _ ent.Mutation = (*PersonMutation)(nil)
@@ -2431,6 +2541,136 @@ func (m *PersonMutation) ResetPublicID() {
 	m.public_id = nil
 }
 
+// SetIdentifier sets the "identifier" field.
+func (m *PersonMutation) SetIdentifier(s []string) {
+	m.identifier = &s
+	m.appendidentifier = nil
+}
+
+// Identifier returns the value of the "identifier" field in the mutation.
+func (m *PersonMutation) Identifier() (r []string, exists bool) {
+	v := m.identifier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIdentifier returns the old "identifier" field's value of the Person entity.
+// If the Person object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PersonMutation) OldIdentifier(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIdentifier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIdentifier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIdentifier: %w", err)
+	}
+	return oldValue.Identifier, nil
+}
+
+// AppendIdentifier adds s to the "identifier" field.
+func (m *PersonMutation) AppendIdentifier(s []string) {
+	m.appendidentifier = append(m.appendidentifier, s...)
+}
+
+// AppendedIdentifier returns the list of values that were appended to the "identifier" field in this mutation.
+func (m *PersonMutation) AppendedIdentifier() ([]string, bool) {
+	if len(m.appendidentifier) == 0 {
+		return nil, false
+	}
+	return m.appendidentifier, true
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (m *PersonMutation) ClearIdentifier() {
+	m.identifier = nil
+	m.appendidentifier = nil
+	m.clearedFields[person.FieldIdentifier] = struct{}{}
+}
+
+// IdentifierCleared returns if the "identifier" field was cleared in this mutation.
+func (m *PersonMutation) IdentifierCleared() bool {
+	_, ok := m.clearedFields[person.FieldIdentifier]
+	return ok
+}
+
+// ResetIdentifier resets all changes to the "identifier" field.
+func (m *PersonMutation) ResetIdentifier() {
+	m.identifier = nil
+	m.appendidentifier = nil
+	delete(m.clearedFields, person.FieldIdentifier)
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (m *PersonMutation) SetIdentifierValues(s []string) {
+	m.identifier_values = &s
+	m.appendidentifier_values = nil
+}
+
+// IdentifierValues returns the value of the "identifier_values" field in the mutation.
+func (m *PersonMutation) IdentifierValues() (r []string, exists bool) {
+	v := m.identifier_values
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIdentifierValues returns the old "identifier_values" field's value of the Person entity.
+// If the Person object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PersonMutation) OldIdentifierValues(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIdentifierValues is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIdentifierValues requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIdentifierValues: %w", err)
+	}
+	return oldValue.IdentifierValues, nil
+}
+
+// AppendIdentifierValues adds s to the "identifier_values" field.
+func (m *PersonMutation) AppendIdentifierValues(s []string) {
+	m.appendidentifier_values = append(m.appendidentifier_values, s...)
+}
+
+// AppendedIdentifierValues returns the list of values that were appended to the "identifier_values" field in this mutation.
+func (m *PersonMutation) AppendedIdentifierValues() ([]string, bool) {
+	if len(m.appendidentifier_values) == 0 {
+		return nil, false
+	}
+	return m.appendidentifier_values, true
+}
+
+// ClearIdentifierValues clears the value of the "identifier_values" field.
+func (m *PersonMutation) ClearIdentifierValues() {
+	m.identifier_values = nil
+	m.appendidentifier_values = nil
+	m.clearedFields[person.FieldIdentifierValues] = struct{}{}
+}
+
+// IdentifierValuesCleared returns if the "identifier_values" field was cleared in this mutation.
+func (m *PersonMutation) IdentifierValuesCleared() bool {
+	_, ok := m.clearedFields[person.FieldIdentifierValues]
+	return ok
+}
+
+// ResetIdentifierValues resets all changes to the "identifier_values" field.
+func (m *PersonMutation) ResetIdentifierValues() {
+	m.identifier_values = nil
+	m.appendidentifier_values = nil
+	delete(m.clearedFields, person.FieldIdentifierValues)
+}
+
 // SetActive sets the "active" field.
 func (m *PersonMutation) SetActive(b bool) {
 	m.active = &b
@@ -2563,55 +2803,6 @@ func (m *PersonMutation) EmailCleared() bool {
 func (m *PersonMutation) ResetEmail() {
 	m.email = nil
 	delete(m.clearedFields, person.FieldEmail)
-}
-
-// SetIdentifier sets the "identifier" field.
-func (m *PersonMutation) SetIdentifier(sv schema.TypeVals) {
-	m.identifier = &sv
-}
-
-// Identifier returns the value of the "identifier" field in the mutation.
-func (m *PersonMutation) Identifier() (r schema.TypeVals, exists bool) {
-	v := m.identifier
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldIdentifier returns the old "identifier" field's value of the Person entity.
-// If the Person object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldIdentifier(ctx context.Context) (v schema.TypeVals, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldIdentifier is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldIdentifier requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldIdentifier: %w", err)
-	}
-	return oldValue.Identifier, nil
-}
-
-// ClearIdentifier clears the value of the "identifier" field.
-func (m *PersonMutation) ClearIdentifier() {
-	m.identifier = nil
-	m.clearedFields[person.FieldIdentifier] = struct{}{}
-}
-
-// IdentifierCleared returns if the "identifier" field was cleared in this mutation.
-func (m *PersonMutation) IdentifierCleared() bool {
-	_, ok := m.clearedFields[person.FieldIdentifier]
-	return ok
-}
-
-// ResetIdentifier resets all changes to the "identifier" field.
-func (m *PersonMutation) ResetIdentifier() {
-	m.identifier = nil
-	delete(m.clearedFields, person.FieldIdentifier)
 }
 
 // SetGivenName sets the "given_name" field.
@@ -3202,12 +3393,13 @@ func (m *PersonMutation) ResetExpirationDate() {
 }
 
 // SetToken sets the "token" field.
-func (m *PersonMutation) SetToken(sv schema.TypeVals) {
-	m.token = &sv
+func (m *PersonMutation) SetToken(s []string) {
+	m.token = &s
+	m.appendtoken = nil
 }
 
 // Token returns the value of the "token" field in the mutation.
-func (m *PersonMutation) Token() (r schema.TypeVals, exists bool) {
+func (m *PersonMutation) Token() (r []string, exists bool) {
 	v := m.token
 	if v == nil {
 		return
@@ -3218,7 +3410,7 @@ func (m *PersonMutation) Token() (r schema.TypeVals, exists bool) {
 // OldToken returns the old "token" field's value of the Person entity.
 // If the Person object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PersonMutation) OldToken(ctx context.Context) (v schema.TypeVals, err error) {
+func (m *PersonMutation) OldToken(ctx context.Context) (v []string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldToken is only allowed on UpdateOne operations")
 	}
@@ -3232,9 +3424,23 @@ func (m *PersonMutation) OldToken(ctx context.Context) (v schema.TypeVals, err e
 	return oldValue.Token, nil
 }
 
+// AppendToken adds s to the "token" field.
+func (m *PersonMutation) AppendToken(s []string) {
+	m.appendtoken = append(m.appendtoken, s...)
+}
+
+// AppendedToken returns the list of values that were appended to the "token" field in this mutation.
+func (m *PersonMutation) AppendedToken() ([]string, bool) {
+	if len(m.appendtoken) == 0 {
+		return nil, false
+	}
+	return m.appendtoken, true
+}
+
 // ClearToken clears the value of the "token" field.
 func (m *PersonMutation) ClearToken() {
 	m.token = nil
+	m.appendtoken = nil
 	m.clearedFields[person.FieldToken] = struct{}{}
 }
 
@@ -3247,6 +3453,7 @@ func (m *PersonMutation) TokenCleared() bool {
 // ResetToken resets all changes to the "token" field.
 func (m *PersonMutation) ResetToken() {
 	m.token = nil
+	m.appendtoken = nil
 	delete(m.clearedFields, person.FieldToken)
 }
 
@@ -3284,7 +3491,7 @@ func (m *PersonMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PersonMutation) Fields() []string {
-	fields := make([]string, 0, 19)
+	fields := make([]string, 0, 20)
 	if m.date_created != nil {
 		fields = append(fields, person.FieldDateCreated)
 	}
@@ -3294,6 +3501,12 @@ func (m *PersonMutation) Fields() []string {
 	if m.public_id != nil {
 		fields = append(fields, person.FieldPublicID)
 	}
+	if m.identifier != nil {
+		fields = append(fields, person.FieldIdentifier)
+	}
+	if m.identifier_values != nil {
+		fields = append(fields, person.FieldIdentifierValues)
+	}
 	if m.active != nil {
 		fields = append(fields, person.FieldActive)
 	}
@@ -3302,9 +3515,6 @@ func (m *PersonMutation) Fields() []string {
 	}
 	if m.email != nil {
 		fields = append(fields, person.FieldEmail)
-	}
-	if m.identifier != nil {
-		fields = append(fields, person.FieldIdentifier)
 	}
 	if m.given_name != nil {
 		fields = append(fields, person.FieldGivenName)
@@ -3356,14 +3566,16 @@ func (m *PersonMutation) Field(name string) (ent.Value, bool) {
 		return m.DateUpdated()
 	case person.FieldPublicID:
 		return m.PublicID()
+	case person.FieldIdentifier:
+		return m.Identifier()
+	case person.FieldIdentifierValues:
+		return m.IdentifierValues()
 	case person.FieldActive:
 		return m.Active()
 	case person.FieldBirthDate:
 		return m.BirthDate()
 	case person.FieldEmail:
 		return m.Email()
-	case person.FieldIdentifier:
-		return m.Identifier()
 	case person.FieldGivenName:
 		return m.GivenName()
 	case person.FieldName:
@@ -3403,14 +3615,16 @@ func (m *PersonMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldDateUpdated(ctx)
 	case person.FieldPublicID:
 		return m.OldPublicID(ctx)
+	case person.FieldIdentifier:
+		return m.OldIdentifier(ctx)
+	case person.FieldIdentifierValues:
+		return m.OldIdentifierValues(ctx)
 	case person.FieldActive:
 		return m.OldActive(ctx)
 	case person.FieldBirthDate:
 		return m.OldBirthDate(ctx)
 	case person.FieldEmail:
 		return m.OldEmail(ctx)
-	case person.FieldIdentifier:
-		return m.OldIdentifier(ctx)
 	case person.FieldGivenName:
 		return m.OldGivenName(ctx)
 	case person.FieldName:
@@ -3465,6 +3679,20 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPublicID(v)
 		return nil
+	case person.FieldIdentifier:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIdentifier(v)
+		return nil
+	case person.FieldIdentifierValues:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIdentifierValues(v)
+		return nil
 	case person.FieldActive:
 		v, ok := value.(bool)
 		if !ok {
@@ -3485,13 +3713,6 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEmail(v)
-		return nil
-	case person.FieldIdentifier:
-		v, ok := value.(schema.TypeVals)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetIdentifier(v)
 		return nil
 	case person.FieldGivenName:
 		v, ok := value.(string)
@@ -3571,7 +3792,7 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 		m.SetExpirationDate(v)
 		return nil
 	case person.FieldToken:
-		v, ok := value.(schema.TypeVals)
+		v, ok := value.([]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3607,14 +3828,17 @@ func (m *PersonMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *PersonMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(person.FieldIdentifier) {
+		fields = append(fields, person.FieldIdentifier)
+	}
+	if m.FieldCleared(person.FieldIdentifierValues) {
+		fields = append(fields, person.FieldIdentifierValues)
+	}
 	if m.FieldCleared(person.FieldBirthDate) {
 		fields = append(fields, person.FieldBirthDate)
 	}
 	if m.FieldCleared(person.FieldEmail) {
 		fields = append(fields, person.FieldEmail)
-	}
-	if m.FieldCleared(person.FieldIdentifier) {
-		fields = append(fields, person.FieldIdentifier)
 	}
 	if m.FieldCleared(person.FieldGivenName) {
 		fields = append(fields, person.FieldGivenName)
@@ -3666,14 +3890,17 @@ func (m *PersonMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *PersonMutation) ClearField(name string) error {
 	switch name {
+	case person.FieldIdentifier:
+		m.ClearIdentifier()
+		return nil
+	case person.FieldIdentifierValues:
+		m.ClearIdentifierValues()
+		return nil
 	case person.FieldBirthDate:
 		m.ClearBirthDate()
 		return nil
 	case person.FieldEmail:
 		m.ClearEmail()
-		return nil
-	case person.FieldIdentifier:
-		m.ClearIdentifier()
 		return nil
 	case person.FieldGivenName:
 		m.ClearGivenName()
@@ -3728,6 +3955,12 @@ func (m *PersonMutation) ResetField(name string) error {
 	case person.FieldPublicID:
 		m.ResetPublicID()
 		return nil
+	case person.FieldIdentifier:
+		m.ResetIdentifier()
+		return nil
+	case person.FieldIdentifierValues:
+		m.ResetIdentifierValues()
+		return nil
 	case person.FieldActive:
 		m.ResetActive()
 		return nil
@@ -3736,9 +3969,6 @@ func (m *PersonMutation) ResetField(name string) error {
 		return nil
 	case person.FieldEmail:
 		m.ResetEmail()
-		return nil
-	case person.FieldIdentifier:
-		m.ResetIdentifier()
 		return nil
 	case person.FieldGivenName:
 		m.ResetGivenName()

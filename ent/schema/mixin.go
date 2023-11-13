@@ -35,3 +35,14 @@ func (PublicIdMixin) Fields() []ent.Field {
 		}),
 	}
 }
+
+type IdentifierMixin struct {
+	mixin.Schema
+}
+
+func (IdentifierMixin) Fields() []ent.Field {
+	return []ent.Field{
+		field.Strings("identifier").Optional().Default([]string{}),
+		field.Strings("identifier_values").Optional().Default([]string{}),
+	}
+}

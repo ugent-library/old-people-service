@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ugent-library/people-service/ent/organization"
-	"github.com/ugent-library/people-service/ent/schema"
 )
 
 // OrganizationCreate is the builder for creating a Organization entity.
@@ -62,6 +61,18 @@ func (oc *OrganizationCreate) SetNillablePublicID(s *string) *OrganizationCreate
 	if s != nil {
 		oc.SetPublicID(*s)
 	}
+	return oc
+}
+
+// SetIdentifier sets the "identifier" field.
+func (oc *OrganizationCreate) SetIdentifier(s []string) *OrganizationCreate {
+	oc.mutation.SetIdentifier(s)
+	return oc
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (oc *OrganizationCreate) SetIdentifierValues(s []string) *OrganizationCreate {
+	oc.mutation.SetIdentifierValues(s)
 	return oc
 }
 
@@ -121,12 +132,6 @@ func (oc *OrganizationCreate) SetNillableNameEng(s *string) *OrganizationCreate 
 	return oc
 }
 
-// SetIdentifier sets the "identifier" field.
-func (oc *OrganizationCreate) SetIdentifier(sv schema.TypeVals) *OrganizationCreate {
-	oc.mutation.SetIdentifier(sv)
-	return oc
-}
-
 // Mutation returns the OrganizationMutation object of the builder.
 func (oc *OrganizationCreate) Mutation() *OrganizationMutation {
 	return oc.mutation
@@ -174,13 +179,17 @@ func (oc *OrganizationCreate) defaults() {
 		v := organization.DefaultPublicID()
 		oc.mutation.SetPublicID(v)
 	}
-	if _, ok := oc.mutation.GetType(); !ok {
-		v := organization.DefaultType
-		oc.mutation.SetType(v)
-	}
 	if _, ok := oc.mutation.Identifier(); !ok {
 		v := organization.DefaultIdentifier
 		oc.mutation.SetIdentifier(v)
+	}
+	if _, ok := oc.mutation.IdentifierValues(); !ok {
+		v := organization.DefaultIdentifierValues
+		oc.mutation.SetIdentifierValues(v)
+	}
+	if _, ok := oc.mutation.GetType(); !ok {
+		v := organization.DefaultType
+		oc.mutation.SetType(v)
 	}
 }
 
@@ -237,6 +246,14 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 		_spec.SetField(organization.FieldPublicID, field.TypeString, value)
 		_node.PublicID = value
 	}
+	if value, ok := oc.mutation.Identifier(); ok {
+		_spec.SetField(organization.FieldIdentifier, field.TypeJSON, value)
+		_node.Identifier = value
+	}
+	if value, ok := oc.mutation.IdentifierValues(); ok {
+		_spec.SetField(organization.FieldIdentifierValues, field.TypeJSON, value)
+		_node.IdentifierValues = value
+	}
 	if value, ok := oc.mutation.GetType(); ok {
 		_spec.SetField(organization.FieldType, field.TypeString, value)
 		_node.Type = value
@@ -252,10 +269,6 @@ func (oc *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 	if value, ok := oc.mutation.NameEng(); ok {
 		_spec.SetField(organization.FieldNameEng, field.TypeString, value)
 		_node.NameEng = value
-	}
-	if value, ok := oc.mutation.Identifier(); ok {
-		_spec.SetField(organization.FieldIdentifier, field.TypeJSON, value)
-		_node.Identifier = value
 	}
 	return _node, _spec
 }
@@ -318,6 +331,42 @@ func (u *OrganizationUpsert) SetDateUpdated(v time.Time) *OrganizationUpsert {
 // UpdateDateUpdated sets the "date_updated" field to the value that was provided on create.
 func (u *OrganizationUpsert) UpdateDateUpdated() *OrganizationUpsert {
 	u.SetExcluded(organization.FieldDateUpdated)
+	return u
+}
+
+// SetIdentifier sets the "identifier" field.
+func (u *OrganizationUpsert) SetIdentifier(v []string) *OrganizationUpsert {
+	u.Set(organization.FieldIdentifier, v)
+	return u
+}
+
+// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
+func (u *OrganizationUpsert) UpdateIdentifier() *OrganizationUpsert {
+	u.SetExcluded(organization.FieldIdentifier)
+	return u
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (u *OrganizationUpsert) ClearIdentifier() *OrganizationUpsert {
+	u.SetNull(organization.FieldIdentifier)
+	return u
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (u *OrganizationUpsert) SetIdentifierValues(v []string) *OrganizationUpsert {
+	u.Set(organization.FieldIdentifierValues, v)
+	return u
+}
+
+// UpdateIdentifierValues sets the "identifier_values" field to the value that was provided on create.
+func (u *OrganizationUpsert) UpdateIdentifierValues() *OrganizationUpsert {
+	u.SetExcluded(organization.FieldIdentifierValues)
+	return u
+}
+
+// ClearIdentifierValues clears the value of the "identifier_values" field.
+func (u *OrganizationUpsert) ClearIdentifierValues() *OrganizationUpsert {
+	u.SetNull(organization.FieldIdentifierValues)
 	return u
 }
 
@@ -387,24 +436,6 @@ func (u *OrganizationUpsert) ClearNameEng() *OrganizationUpsert {
 	return u
 }
 
-// SetIdentifier sets the "identifier" field.
-func (u *OrganizationUpsert) SetIdentifier(v schema.TypeVals) *OrganizationUpsert {
-	u.Set(organization.FieldIdentifier, v)
-	return u
-}
-
-// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
-func (u *OrganizationUpsert) UpdateIdentifier() *OrganizationUpsert {
-	u.SetExcluded(organization.FieldIdentifier)
-	return u
-}
-
-// ClearIdentifier clears the value of the "identifier" field.
-func (u *OrganizationUpsert) ClearIdentifier() *OrganizationUpsert {
-	u.SetNull(organization.FieldIdentifier)
-	return u
-}
-
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -464,6 +495,48 @@ func (u *OrganizationUpsertOne) SetDateUpdated(v time.Time) *OrganizationUpsertO
 func (u *OrganizationUpsertOne) UpdateDateUpdated() *OrganizationUpsertOne {
 	return u.Update(func(s *OrganizationUpsert) {
 		s.UpdateDateUpdated()
+	})
+}
+
+// SetIdentifier sets the "identifier" field.
+func (u *OrganizationUpsertOne) SetIdentifier(v []string) *OrganizationUpsertOne {
+	return u.Update(func(s *OrganizationUpsert) {
+		s.SetIdentifier(v)
+	})
+}
+
+// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
+func (u *OrganizationUpsertOne) UpdateIdentifier() *OrganizationUpsertOne {
+	return u.Update(func(s *OrganizationUpsert) {
+		s.UpdateIdentifier()
+	})
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (u *OrganizationUpsertOne) ClearIdentifier() *OrganizationUpsertOne {
+	return u.Update(func(s *OrganizationUpsert) {
+		s.ClearIdentifier()
+	})
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (u *OrganizationUpsertOne) SetIdentifierValues(v []string) *OrganizationUpsertOne {
+	return u.Update(func(s *OrganizationUpsert) {
+		s.SetIdentifierValues(v)
+	})
+}
+
+// UpdateIdentifierValues sets the "identifier_values" field to the value that was provided on create.
+func (u *OrganizationUpsertOne) UpdateIdentifierValues() *OrganizationUpsertOne {
+	return u.Update(func(s *OrganizationUpsert) {
+		s.UpdateIdentifierValues()
+	})
+}
+
+// ClearIdentifierValues clears the value of the "identifier_values" field.
+func (u *OrganizationUpsertOne) ClearIdentifierValues() *OrganizationUpsertOne {
+	return u.Update(func(s *OrganizationUpsert) {
+		s.ClearIdentifierValues()
 	})
 }
 
@@ -541,27 +614,6 @@ func (u *OrganizationUpsertOne) UpdateNameEng() *OrganizationUpsertOne {
 func (u *OrganizationUpsertOne) ClearNameEng() *OrganizationUpsertOne {
 	return u.Update(func(s *OrganizationUpsert) {
 		s.ClearNameEng()
-	})
-}
-
-// SetIdentifier sets the "identifier" field.
-func (u *OrganizationUpsertOne) SetIdentifier(v schema.TypeVals) *OrganizationUpsertOne {
-	return u.Update(func(s *OrganizationUpsert) {
-		s.SetIdentifier(v)
-	})
-}
-
-// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
-func (u *OrganizationUpsertOne) UpdateIdentifier() *OrganizationUpsertOne {
-	return u.Update(func(s *OrganizationUpsert) {
-		s.UpdateIdentifier()
-	})
-}
-
-// ClearIdentifier clears the value of the "identifier" field.
-func (u *OrganizationUpsertOne) ClearIdentifier() *OrganizationUpsertOne {
-	return u.Update(func(s *OrganizationUpsert) {
-		s.ClearIdentifier()
 	})
 }
 
@@ -789,6 +841,48 @@ func (u *OrganizationUpsertBulk) UpdateDateUpdated() *OrganizationUpsertBulk {
 	})
 }
 
+// SetIdentifier sets the "identifier" field.
+func (u *OrganizationUpsertBulk) SetIdentifier(v []string) *OrganizationUpsertBulk {
+	return u.Update(func(s *OrganizationUpsert) {
+		s.SetIdentifier(v)
+	})
+}
+
+// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
+func (u *OrganizationUpsertBulk) UpdateIdentifier() *OrganizationUpsertBulk {
+	return u.Update(func(s *OrganizationUpsert) {
+		s.UpdateIdentifier()
+	})
+}
+
+// ClearIdentifier clears the value of the "identifier" field.
+func (u *OrganizationUpsertBulk) ClearIdentifier() *OrganizationUpsertBulk {
+	return u.Update(func(s *OrganizationUpsert) {
+		s.ClearIdentifier()
+	})
+}
+
+// SetIdentifierValues sets the "identifier_values" field.
+func (u *OrganizationUpsertBulk) SetIdentifierValues(v []string) *OrganizationUpsertBulk {
+	return u.Update(func(s *OrganizationUpsert) {
+		s.SetIdentifierValues(v)
+	})
+}
+
+// UpdateIdentifierValues sets the "identifier_values" field to the value that was provided on create.
+func (u *OrganizationUpsertBulk) UpdateIdentifierValues() *OrganizationUpsertBulk {
+	return u.Update(func(s *OrganizationUpsert) {
+		s.UpdateIdentifierValues()
+	})
+}
+
+// ClearIdentifierValues clears the value of the "identifier_values" field.
+func (u *OrganizationUpsertBulk) ClearIdentifierValues() *OrganizationUpsertBulk {
+	return u.Update(func(s *OrganizationUpsert) {
+		s.ClearIdentifierValues()
+	})
+}
+
 // SetType sets the "type" field.
 func (u *OrganizationUpsertBulk) SetType(v string) *OrganizationUpsertBulk {
 	return u.Update(func(s *OrganizationUpsert) {
@@ -863,27 +957,6 @@ func (u *OrganizationUpsertBulk) UpdateNameEng() *OrganizationUpsertBulk {
 func (u *OrganizationUpsertBulk) ClearNameEng() *OrganizationUpsertBulk {
 	return u.Update(func(s *OrganizationUpsert) {
 		s.ClearNameEng()
-	})
-}
-
-// SetIdentifier sets the "identifier" field.
-func (u *OrganizationUpsertBulk) SetIdentifier(v schema.TypeVals) *OrganizationUpsertBulk {
-	return u.Update(func(s *OrganizationUpsert) {
-		s.SetIdentifier(v)
-	})
-}
-
-// UpdateIdentifier sets the "identifier" field to the value that was provided on create.
-func (u *OrganizationUpsertBulk) UpdateIdentifier() *OrganizationUpsertBulk {
-	return u.Update(func(s *OrganizationUpsert) {
-		s.UpdateIdentifier()
-	})
-}
-
-// ClearIdentifier clears the value of the "identifier" field.
-func (u *OrganizationUpsertBulk) ClearIdentifier() *OrganizationUpsertBulk {
-	return u.Update(func(s *OrganizationUpsert) {
-		s.ClearIdentifier()
 	})
 }
 

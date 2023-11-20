@@ -14,14 +14,14 @@ import (
 )
 
 type PersonProcessor struct {
-	repository      models.Repository
-	ugentLdapClient *ugentldap.Client
+	repository        models.Repository
+	ugentLdapSearcher ugentldap.Searcher
 }
 
-func NewPersonProcessor(repo models.Repository, ugentLdapClient *ugentldap.Client) *PersonProcessor {
+func NewPersonProcessor(repo models.Repository, ugentLdapSearcher ugentldap.Searcher) *PersonProcessor {
 	return &PersonProcessor{
-		repository:      repo,
-		ugentLdapClient: ugentLdapClient,
+		repository:        repo,
+		ugentLdapSearcher: ugentLdapSearcher,
 	}
 }
 
@@ -233,7 +233,7 @@ func (pp *PersonProcessor) enrichPersonWithLdap(person *models.Person) (*models.
 	}
 	ldapQuery := "(&" + strings.Join(ldapQueryParts, "") + ")"
 	ldapEntries := make([]*ldap.Entry, 0)
-	err := pp.ugentLdapClient.SearchPeople(ldapQuery, func(ldapEntry *ldap.Entry) error {
+	err := pp.ugentLdapSearcher.SearchPeople(ldapQuery, func(ldapEntry *ldap.Entry) error {
 		ldapEntries = append(ldapEntries, ldapEntry)
 		return nil
 	})
@@ -249,6 +249,12 @@ func (pp *PersonProcessor) enrichPersonWithLdap(person *models.Person) (*models.
 		for _, attr := range ldapEntry.Attributes {
 			for _, val := range attr.Values {
 				switch attr.Name {
+				case "mail":
+					person.Email = strings.ToLower(val)
+				case "ugentPreferredGivenName":
+					person.GivenName = val
+				case "ugentPreferredSn":
+					person.FamilyName = val
 				case "displayName":
 					person.Name = val
 				case "ugentBarcode":

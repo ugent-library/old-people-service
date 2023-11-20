@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"runtime"
+	"time"
 
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
+	"github.com/ugent-library/people-service/cache"
 	"github.com/ugent-library/people-service/gismo"
 	"github.com/ugent-library/people-service/models"
 )
@@ -24,7 +26,8 @@ func personListener() error {
 		return err
 	}
 
-	gismoProc := gismo.NewPersonProcessor(repo, newUgentLdapClient())
+	ugentLdapSearcher := cache.NewUgentLdapSearcher(newUgentLdapClient(), 100, 10*time.Minute)
+	gismoProc := gismo.NewPersonProcessor(repo, ugentLdapSearcher)
 
 	jsClient, err := newJetstreamClient()
 	if err != nil {

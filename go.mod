@@ -37,6 +37,7 @@ require (
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/antchfx/xpath v1.2.4 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
+	github.com/bluele/gcache v0.0.2 // indirect
 	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect

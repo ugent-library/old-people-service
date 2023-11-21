@@ -1,4 +1,4 @@
-module github.com/ugent-library/people-service
+module github.com/ugent-library/old-people-service
 
 go 1.20
 

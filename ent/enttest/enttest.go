@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/ugent-library/people-service/ent"
+	"github.com/ugent-library/old-people-service/ent"
 	// required by schema hooks.
-	_ "github.com/ugent-library/people-service/ent/runtime"
+	_ "github.com/ugent-library/old-people-service/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/ugent-library/people-service/ent/migrate"
+	"github.com/ugent-library/old-people-service/ent/migrate"
 )
 
 type (

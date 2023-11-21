@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ugent-library/people-service/modifiedfs"
+	"github.com/ugent-library/old-people-service/modifiedfs"
 )
 
 //go:embed swagger-ui-5.1.0/*.js swagger-ui-5.1.0/*.css swagger-ui-5.1.0/*.html swagger-ui-5.1.0/*.png

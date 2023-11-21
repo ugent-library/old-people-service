@@ -7,8 +7,8 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
-	"github.com/ugent-library/people-service/gismo"
-	"github.com/ugent-library/people-service/models"
+	"github.com/ugent-library/old-people-service/gismo"
+	"github.com/ugent-library/old-people-service/models"
 )
 
 var inboxListenOrganizationCmd = &cobra.Command{

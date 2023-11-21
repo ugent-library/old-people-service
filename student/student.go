@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-ldap/ldap/v3"
 	"github.com/samber/lo"
-	"github.com/ugent-library/people-service/models"
-	"github.com/ugent-library/people-service/ugentldap"
+	"github.com/ugent-library/old-people-service/models"
+	"github.com/ugent-library/old-people-service/ugentldap"
 )
 
 type Importer struct {

@@ -15,12 +15,12 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/samber/lo"
 	"github.com/ugent-library/crypt"
-	"github.com/ugent-library/people-service/ent"
-	"github.com/ugent-library/people-service/ent/organization"
-	"github.com/ugent-library/people-service/ent/organizationparent"
-	"github.com/ugent-library/people-service/ent/organizationperson"
-	"github.com/ugent-library/people-service/ent/person"
-	"github.com/ugent-library/people-service/models"
+	"github.com/ugent-library/old-people-service/ent"
+	"github.com/ugent-library/old-people-service/ent/organization"
+	"github.com/ugent-library/old-people-service/ent/organizationparent"
+	"github.com/ugent-library/old-people-service/ent/organizationperson"
+	"github.com/ugent-library/old-people-service/ent/person"
+	"github.com/ugent-library/old-people-service/models"
 )
 
 const (

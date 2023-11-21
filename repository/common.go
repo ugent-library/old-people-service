@@ -12,7 +12,7 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/ugent-library/crypt"
-	"github.com/ugent-library/people-service/ent"
+	"github.com/ugent-library/old-people-service/ent"
 )
 
 var regexMultipleSpaces = regexp.MustCompile(`\s+`)

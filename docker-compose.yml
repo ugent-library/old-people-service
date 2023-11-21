@@ -22,7 +22,7 @@ services:
       dbmigrate:
         condition: service_completed_successfully
     volumes:
-      - ./docker/.env:/opt/people-service/.env
+      - ./docker/.env:/opt/old-people-service/.env
     command: "/bin/sh -c \"cd /opt/people-service && ./people-service inbox listen person\""
 
   people_service_inbox_organization:
@@ -37,7 +37,7 @@ services:
       dbmigrate:
         condition: service_completed_successfully
     volumes:
-      - ./docker/.env:/opt/people-service/.env
+      - ./docker/.env:/opt/old-people-service/.env
     command: "/bin/sh -c \"cd /opt/people-service && ./people-service inbox listen organization\""
 
   people_service_server:
@@ -53,7 +53,7 @@ services:
     ports:
       - 3999:3999
     volumes:
-      - ./docker/.env:/opt/people-service/.env
+      - ./docker/.env:/opt/old-people-service/.env
     command: "/bin/sh -c \"cd /opt/people-service && ./people-service server\""
 
   # connect to postgres:

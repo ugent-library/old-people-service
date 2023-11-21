@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/ugent-library/people-service/models"
-	"github.com/ugent-library/people-service/student"
+	"github.com/ugent-library/old-people-service/models"
+	"github.com/ugent-library/old-people-service/student"
 )
 
 var importStudentsCmd = &cobra.Command{

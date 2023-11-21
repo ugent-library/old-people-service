@@ -11,11 +11,11 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/ugent-library/people-service/ent/organization"
-	"github.com/ugent-library/people-service/ent/organizationparent"
-	"github.com/ugent-library/people-service/ent/organizationperson"
-	"github.com/ugent-library/people-service/ent/person"
-	"github.com/ugent-library/people-service/ent/predicate"
+	"github.com/ugent-library/old-people-service/ent/organization"
+	"github.com/ugent-library/old-people-service/ent/organizationparent"
+	"github.com/ugent-library/old-people-service/ent/organizationperson"
+	"github.com/ugent-library/old-people-service/ent/person"
+	"github.com/ugent-library/old-people-service/ent/predicate"
 )
 
 const (

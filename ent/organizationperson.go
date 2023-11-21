@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/ugent-library/people-service/ent/organizationperson"
+	"github.com/ugent-library/old-people-service/ent/organizationperson"
 )
 
 // OrganizationPerson is the model entity for the OrganizationPerson schema.

@@ -7,7 +7,7 @@ import (
 
 	"github.com/bluele/gcache"
 	"github.com/go-ldap/ldap/v3"
-	"github.com/ugent-library/people-service/ugentldap"
+	"github.com/ugent-library/old-people-service/ugentldap"
 )
 
 type ugentLdapClientWithCache struct {

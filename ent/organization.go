@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/ugent-library/people-service/ent/organization"
+	"github.com/ugent-library/old-people-service/ent/organization"
 )
 
 // Organization is the model entity for the Organization schema.

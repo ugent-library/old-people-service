@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/ugent-library/people-service/ent/organizationparent"
+	"github.com/ugent-library/old-people-service/ent/organizationparent"
 )
 
 // OrganizationParent is the model entity for the OrganizationParent schema.

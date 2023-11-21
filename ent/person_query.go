@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ugent-library/people-service/ent/person"
-	"github.com/ugent-library/people-service/ent/predicate"
+	"github.com/ugent-library/old-people-service/ent/person"
+	"github.com/ugent-library/old-people-service/ent/predicate"
 )
 
 // PersonQuery is the builder for querying Person entities.

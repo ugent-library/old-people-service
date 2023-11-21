@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/ugent-library/people-service/ent/person"
+	"github.com/ugent-library/old-people-service/ent/person"
 )
 
 // Person is the model entity for the Person schema.

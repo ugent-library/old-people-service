@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/antchfx/xmlquery"
-	"github.com/ugent-library/people-service/cerif"
-	"github.com/ugent-library/people-service/models"
+	"github.com/ugent-library/old-people-service/cerif"
+	"github.com/ugent-library/old-people-service/models"
 )
 
 func ParseOrganizationMessage(buf []byte) (*models.Message, error) {

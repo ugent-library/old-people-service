@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ugent-library/people-service/ent/organizationparent"
-	"github.com/ugent-library/people-service/ent/predicate"
+	"github.com/ugent-library/old-people-service/ent/organizationparent"
+	"github.com/ugent-library/old-people-service/ent/predicate"
 )
 
 // OrganizationParentDelete is the builder for deleting a OrganizationParent entity.

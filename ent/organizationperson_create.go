@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ugent-library/people-service/ent/organizationperson"
+	"github.com/ugent-library/old-people-service/ent/organizationperson"
 )
 
 // OrganizationPersonCreate is the builder for creating a OrganizationPerson entity.

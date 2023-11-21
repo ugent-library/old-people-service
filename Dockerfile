@@ -21,4 +21,4 @@ ENV IMAGE_NAME $IMAGE_NAME
 WORKDIR /opt/people-service
 
 # note: assets are embedded
-COPY --from=build /opt/people-service/people-service .
+COPY --from=build /opt/old-people-service/people-service .

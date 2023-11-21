@@ -1,10 +1,10 @@
 package cli
 
 import (
-	"github.com/ugent-library/people-service/jetstreamclient"
-	"github.com/ugent-library/people-service/models"
-	"github.com/ugent-library/people-service/repository"
-	"github.com/ugent-library/people-service/ugentldap"
+	"github.com/ugent-library/old-people-service/jetstreamclient"
+	"github.com/ugent-library/old-people-service/models"
+	"github.com/ugent-library/old-people-service/repository"
+	"github.com/ugent-library/old-people-service/ugentldap"
 )
 
 func newRepository() (models.Repository, error) {

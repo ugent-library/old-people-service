@@ -12,8 +12,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/ugent-library/people-service/ent/person"
-	"github.com/ugent-library/people-service/ent/predicate"
+	"github.com/ugent-library/old-people-service/ent/person"
+	"github.com/ugent-library/old-people-service/ent/predicate"
 )
 
 // PersonUpdate is the builder for updating Person entities.
